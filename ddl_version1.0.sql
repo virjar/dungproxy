@@ -5,7 +5,7 @@ create table proxy(
 	id bigint primary key auto_increment comment '主键',
     ip char(20) not null comment 'IP地址',
     proxy_ip char(20) comment '代理IP，也就是目标网站最终看到的IP（多级代理的情况ip和proxy_ip不会相同）',
-    port int(4) comment '端口号',
+    port int(5) comment '端口号 可能有5位的可能性',
     ip_value bigint comment 'ip的数字表示，用于过滤连续IP问题',
     country varchar(255) comment '国家',
     area varchar(255) comment '地区',
