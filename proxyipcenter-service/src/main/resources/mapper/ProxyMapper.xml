@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.virjar.repository.ProxyRepository">
+    <resultMap id="BaseResultMap" type="com.virjar.entity.Proxy">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="ip" property="ip" jdbcType="CHAR"/>
+        <result column="proxy_ip" property="proxyIp" jdbcType="CHAR"/>
+        <result column="port" property="port" jdbcType="INTEGER"/>
+        <result column="ip_value" property="ipValue" jdbcType="BIGINT"/>
+        <result column="country" property="country" jdbcType="VARCHAR"/>
+        <result column="area" property="area" jdbcType="VARCHAR"/>
+        <result column="region" property="region" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="isp" property="isp" jdbcType="VARCHAR"/>
+        <result column="country_id" property="countryId" jdbcType="INTEGER"/>
+        <result column="area_id" property="areaId" jdbcType="INTEGER"/>
+        <result column="region_id" property="regionId" jdbcType="INTEGER"/>
+        <result column="city_id" property="cityId" jdbcType="INTEGER"/>
+        <result column="isp_id" property="ispId" jdbcType="INTEGER"/>
+        <result column="address_id" property="addressId" jdbcType="BIGINT"/>
+        <result column="transperent" property="transperent" jdbcType="TINYINT"/>
+        <result column="speed" property="speed" jdbcType="BIGINT"/>
+        <result column="type" property="type" jdbcType="TINYINT"/>
+        <result column="connection_score" property="connectionScore" jdbcType="BIGINT"/>
+        <result column="availbel_score" property="availbelScore" jdbcType="BIGINT"/>
+        <result column="connection_score_date" property="connectionScoreDate" jdbcType="DATE"/>
+        <result column="availbel_score_date" property="availbelScoreDate" jdbcType="DATE"/>
+        <result column="createtime" property="createtime" jdbcType="TIMESTAMP"/>
+        <result column="support_gfw" property="supportGfw" jdbcType="BIT"/>
+        <result column="gfw_speed" property="gfwSpeed" jdbcType="BIGINT"/>
+        <result column="source" property="source" jdbcType="VARCHAR"/>
+        <result column="crawler_key" property="crawlerKey" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, ip, proxy_ip, port, ip_value, country, area, region, city, isp, country_id, area_id, 
+    region_id, city_id, isp_id, address_id, transperent, speed, type, connection_score, 
+    availbel_score, connection_score_date, availbel_score_date, createtime, support_gfw, 
+    gfw_speed, source, crawler_key
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from proxy
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from proxy
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.virjar.entity.Proxy">
+    insert into proxy (id, ip, proxy_ip, port, 
+      ip_value, country, area, 
+      region, city, isp, 
+      country_id, area_id, region_id, 
+      city_id, isp_id, address_id, 
+      transperent, speed, type, 
+      connection_score, availbel_score, connection_score_date, 
+      availbel_score_date, createtime, support_gfw, 
+      gfw_speed, source, crawler_key
+      )
+    values (#{id,jdbcType=BIGINT}, #{ip,jdbcType=CHAR}, #{proxyIp,jdbcType=CHAR}, #{port,jdbcType=INTEGER}, 
+      #{ipValue,jdbcType=BIGINT}, #{country,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, 
+      #{region,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{isp,jdbcType=VARCHAR}, 
+      #{countryId,jdbcType=INTEGER}, #{areaId,jdbcType=INTEGER}, #{regionId,jdbcType=INTEGER}, 
+      #{cityId,jdbcType=INTEGER}, #{ispId,jdbcType=INTEGER}, #{addressId,jdbcType=BIGINT}, 
+      #{transperent,jdbcType=TINYINT}, #{speed,jdbcType=BIGINT}, #{type,jdbcType=TINYINT}, 
+      #{connectionScore,jdbcType=BIGINT}, #{availbelScore,jdbcType=BIGINT}, #{connectionScoreDate,jdbcType=DATE}, 
+      #{availbelScoreDate,jdbcType=DATE}, #{createtime,jdbcType=TIMESTAMP}, #{supportGfw,jdbcType=BIT}, 
+      #{gfwSpeed,jdbcType=BIGINT}, #{source,jdbcType=VARCHAR}, #{crawlerKey,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.virjar.entity.Proxy">
+        insert into proxy
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="proxyIp != null">
+                proxy_ip,
+            </if>
+            <if test="port != null">
+                port,
+            </if>
+            <if test="ipValue != null">
+                ip_value,
+            </if>
+            <if test="country != null">
+                country,
+            </if>
+            <if test="area != null">
+                area,
+            </if>
+            <if test="region != null">
+                region,
+            </if>
+            <if test="city != null">
+                city,
+            </if>
+            <if test="isp != null">
+                isp,
+            </if>
+            <if test="countryId != null">
+                country_id,
+            </if>
+            <if test="areaId != null">
+                area_id,
+            </if>
+            <if test="regionId != null">
+                region_id,
+            </if>
+            <if test="cityId != null">
+                city_id,
+            </if>
+            <if test="ispId != null">
+                isp_id,
+            </if>
+            <if test="addressId != null">
+                address_id,
+            </if>
+            <if test="transperent != null">
+                transperent,
+            </if>
+            <if test="speed != null">
+                speed,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="connectionScore != null">
+                connection_score,
+            </if>
+            <if test="availbelScore != null">
+                availbel_score,
+            </if>
+            <if test="connectionScoreDate != null">
+                connection_score_date,
+            </if>
+            <if test="availbelScoreDate != null">
+                availbel_score_date,
+            </if>
+            <if test="createtime != null">
+                createtime,
+            </if>
+            <if test="supportGfw != null">
+                support_gfw,
+            </if>
+            <if test="gfwSpeed != null">
+                gfw_speed,
+            </if>
+            <if test="source != null">
+                source,
+            </if>
+            <if test="crawlerKey != null">
+                crawler_key,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="ip != null">
+                #{ip,jdbcType=CHAR},
+            </if>
+            <if test="proxyIp != null">
+                #{proxyIp,jdbcType=CHAR},
+            </if>
+            <if test="port != null">
+                #{port,jdbcType=INTEGER},
+            </if>
+            <if test="ipValue != null">
+                #{ipValue,jdbcType=BIGINT},
+            </if>
+            <if test="country != null">
+                #{country,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null">
+                #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="region != null">
+                #{region,jdbcType=VARCHAR},
+            </if>
+            <if test="city != null">
+                #{city,jdbcType=VARCHAR},
+            </if>
+            <if test="isp != null">
+                #{isp,jdbcType=VARCHAR},
+            </if>
+            <if test="countryId != null">
+                #{countryId,jdbcType=INTEGER},
+            </if>
+            <if test="areaId != null">
+                #{areaId,jdbcType=INTEGER},
+            </if>
+            <if test="regionId != null">
+                #{regionId,jdbcType=INTEGER},
+            </if>
+            <if test="cityId != null">
+                #{cityId,jdbcType=INTEGER},
+            </if>
+            <if test="ispId != null">
+                #{ispId,jdbcType=INTEGER},
+            </if>
+            <if test="addressId != null">
+                #{addressId,jdbcType=BIGINT},
+            </if>
+            <if test="transperent != null">
+                #{transperent,jdbcType=TINYINT},
+            </if>
+            <if test="speed != null">
+                #{speed,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=TINYINT},
+            </if>
+            <if test="connectionScore != null">
+                #{connectionScore,jdbcType=BIGINT},
+            </if>
+            <if test="availbelScore != null">
+                #{availbelScore,jdbcType=BIGINT},
+            </if>
+            <if test="connectionScoreDate != null">
+                #{connectionScoreDate,jdbcType=DATE},
+            </if>
+            <if test="availbelScoreDate != null">
+                #{availbelScoreDate,jdbcType=DATE},
+            </if>
+            <if test="createtime != null">
+                #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="supportGfw != null">
+                #{supportGfw,jdbcType=BIT},
+            </if>
+            <if test="gfwSpeed != null">
+                #{gfwSpeed,jdbcType=BIGINT},
+            </if>
+            <if test="source != null">
+                #{source,jdbcType=VARCHAR},
+            </if>
+            <if test="crawlerKey != null">
+                #{crawlerKey,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.virjar.entity.Proxy">
+        update proxy
+        <set>
+            <if test="ip != null">
+                ip = #{ip,jdbcType=CHAR},
+            </if>
+            <if test="proxyIp != null">
+                proxy_ip = #{proxyIp,jdbcType=CHAR},
+            </if>
+            <if test="port != null">
+                port = #{port,jdbcType=INTEGER},
+            </if>
+            <if test="ipValue != null">
+                ip_value = #{ipValue,jdbcType=BIGINT},
+            </if>
+            <if test="country != null">
+                country = #{country,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null">
+                area = #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="region != null">
+                region = #{region,jdbcType=VARCHAR},
+            </if>
+            <if test="city != null">
+                city = #{city,jdbcType=VARCHAR},
+            </if>
+            <if test="isp != null">
+                isp = #{isp,jdbcType=VARCHAR},
+            </if>
+            <if test="countryId != null">
+                country_id = #{countryId,jdbcType=INTEGER},
+            </if>
+            <if test="areaId != null">
+                area_id = #{areaId,jdbcType=INTEGER},
+            </if>
+            <if test="regionId != null">
+                region_id = #{regionId,jdbcType=INTEGER},
+            </if>
+            <if test="cityId != null">
+                city_id = #{cityId,jdbcType=INTEGER},
+            </if>
+            <if test="ispId != null">
+                isp_id = #{ispId,jdbcType=INTEGER},
+            </if>
+            <if test="addressId != null">
+                address_id = #{addressId,jdbcType=BIGINT},
+            </if>
+            <if test="transperent != null">
+                transperent = #{transperent,jdbcType=TINYINT},
+            </if>
+            <if test="speed != null">
+                speed = #{speed,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=TINYINT},
+            </if>
+            <if test="connectionScore != null">
+                connection_score = #{connectionScore,jdbcType=BIGINT},
+            </if>
+            <if test="availbelScore != null">
+                availbel_score = #{availbelScore,jdbcType=BIGINT},
+            </if>
+            <if test="connectionScoreDate != null">
+                connection_score_date = #{connectionScoreDate,jdbcType=DATE},
+            </if>
+            <if test="availbelScoreDate != null">
+                availbel_score_date = #{availbelScoreDate,jdbcType=DATE},
+            </if>
+            <if test="createtime != null">
+                createtime = #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="supportGfw != null">
+                support_gfw = #{supportGfw,jdbcType=BIT},
+            </if>
+            <if test="gfwSpeed != null">
+                gfw_speed = #{gfwSpeed,jdbcType=BIGINT},
+            </if>
+            <if test="source != null">
+                source = #{source,jdbcType=VARCHAR},
+            </if>
+            <if test="crawlerKey != null">
+                crawler_key = #{crawlerKey,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.virjar.entity.Proxy">
+    update proxy
+    set ip = #{ip,jdbcType=CHAR},
+      proxy_ip = #{proxyIp,jdbcType=CHAR},
+      port = #{port,jdbcType=INTEGER},
+      ip_value = #{ipValue,jdbcType=BIGINT},
+      country = #{country,jdbcType=VARCHAR},
+      area = #{area,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      city = #{city,jdbcType=VARCHAR},
+      isp = #{isp,jdbcType=VARCHAR},
+      country_id = #{countryId,jdbcType=INTEGER},
+      area_id = #{areaId,jdbcType=INTEGER},
+      region_id = #{regionId,jdbcType=INTEGER},
+      city_id = #{cityId,jdbcType=INTEGER},
+      isp_id = #{ispId,jdbcType=INTEGER},
+      address_id = #{addressId,jdbcType=BIGINT},
+      transperent = #{transperent,jdbcType=TINYINT},
+      speed = #{speed,jdbcType=BIGINT},
+      type = #{type,jdbcType=TINYINT},
+      connection_score = #{connectionScore,jdbcType=BIGINT},
+      availbel_score = #{availbelScore,jdbcType=BIGINT},
+      connection_score_date = #{connectionScoreDate,jdbcType=DATE},
+      availbel_score_date = #{availbelScoreDate,jdbcType=DATE},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      support_gfw = #{supportGfw,jdbcType=BIT},
+      gfw_speed = #{gfwSpeed,jdbcType=BIGINT},
+      source = #{source,jdbcType=VARCHAR},
+      crawler_key = #{crawlerKey,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.entity.Proxy">
+        select count(*) from proxy
+        <where>
+            <if test="id != null">
+                and id = #{id,jdbcType=BIGINT}
+            </if>
+            <if test="ip != null">
+                and ip = #{ip,jdbcType=CHAR}
+            </if>
+            <if test="proxyIp != null">
+                and proxy_ip = #{proxyIp,jdbcType=CHAR}
+            </if>
+            <if test="port != null">
+                and port = #{port,jdbcType=INTEGER}
+            </if>
+            <if test="ipValue != null">
+                and ip_value = #{ipValue,jdbcType=BIGINT}
+            </if>
+            <if test="country != null">
+                and country = #{country,jdbcType=VARCHAR}
+            </if>
+            <if test="area != null">
+                and area = #{area,jdbcType=VARCHAR}
+            </if>
+            <if test="region != null">
+                and region = #{region,jdbcType=VARCHAR}
+            </if>
+            <if test="city != null">
+                and city = #{city,jdbcType=VARCHAR}
+            </if>
+            <if test="isp != null">
+                and isp = #{isp,jdbcType=VARCHAR}
+            </if>
+            <if test="countryId != null">
+                and country_id = #{countryId,jdbcType=INTEGER}
+            </if>
+            <if test="areaId != null">
+                and area_id = #{areaId,jdbcType=INTEGER}
+            </if>
+            <if test="regionId != null">
+                and region_id = #{regionId,jdbcType=INTEGER}
+            </if>
+            <if test="cityId != null">
+                and city_id = #{cityId,jdbcType=INTEGER}
+            </if>
+            <if test="ispId != null">
+                and isp_id = #{ispId,jdbcType=INTEGER}
+            </if>
+            <if test="addressId != null">
+                and address_id = #{addressId,jdbcType=BIGINT}
+            </if>
+            <if test="transperent != null">
+                and transperent = #{transperent,jdbcType=TINYINT}
+            </if>
+            <if test="speed != null">
+                and speed = #{speed,jdbcType=BIGINT}
+            </if>
+            <if test="type != null">
+                and type = #{type,jdbcType=TINYINT}
+            </if>
+            <if test="connectionScore != null">
+                and connection_score = #{connectionScore,jdbcType=BIGINT}
+            </if>
+            <if test="availbelScore != null">
+                and availbel_score = #{availbelScore,jdbcType=BIGINT}
+            </if>
+            <if test="connectionScoreDate != null">
+                and connection_score_date = #{connectionScoreDate,jdbcType=DATE}
+            </if>
+            <if test="availbelScoreDate != null">
+                and availbel_score_date = #{availbelScoreDate,jdbcType=DATE}
+            </if>
+            <if test="createtime != null">
+                and createtime = #{createtime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="supportGfw != null">
+                and support_gfw = #{supportGfw,jdbcType=BIT}
+            </if>
+            <if test="gfwSpeed != null">
+                and gfw_speed = #{gfwSpeed,jdbcType=BIGINT}
+            </if>
+            <if test="source != null">
+                and source = #{source,jdbcType=VARCHAR}
+            </if>
+            <if test="crawlerKey != null">
+                and crawler_key = #{crawlerKey,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from proxy where 1 = 1
+        <if test="param1.id != null">
+            and id = #{param1.id,jdbcType=BIGINT}
+        </if>
+        <if test="param1.ip != null">
+            and ip = #{param1.ip,jdbcType=CHAR}
+        </if>
+        <if test="param1.proxyIp != null">
+            and proxy_ip = #{param1.proxyIp,jdbcType=CHAR}
+        </if>
+        <if test="param1.port != null">
+            and port = #{param1.port,jdbcType=INTEGER}
+        </if>
+        <if test="param1.ipValue != null">
+            and ip_value = #{param1.ipValue,jdbcType=BIGINT}
+        </if>
+        <if test="param1.country != null">
+            and country = #{param1.country,jdbcType=VARCHAR}
+        </if>
+        <if test="param1.area != null">
+            and area = #{param1.area,jdbcType=VARCHAR}
+        </if>
+        <if test="param1.region != null">
+            and region = #{param1.region,jdbcType=VARCHAR}
+        </if>
+        <if test="param1.city != null">
+            and city = #{param1.city,jdbcType=VARCHAR}
+        </if>
+        <if test="param1.isp != null">
+            and isp = #{param1.isp,jdbcType=VARCHAR}
+        </if>
+        <if test="param1.countryId != null">
+            and country_id = #{param1.countryId,jdbcType=INTEGER}
+        </if>
+        <if test="param1.areaId != null">
+            and area_id = #{param1.areaId,jdbcType=INTEGER}
+        </if>
+        <if test="param1.regionId != null">
+            and region_id = #{param1.regionId,jdbcType=INTEGER}
+        </if>
+        <if test="param1.cityId != null">
+            and city_id = #{param1.cityId,jdbcType=INTEGER}
+        </if>
+        <if test="param1.ispId != null">
+            and isp_id = #{param1.ispId,jdbcType=INTEGER}
+        </if>
+        <if test="param1.addressId != null">
+            and address_id = #{param1.addressId,jdbcType=BIGINT}
+        </if>
+        <if test="param1.transperent != null">
+            and transperent = #{param1.transperent,jdbcType=TINYINT}
+        </if>
+        <if test="param1.speed != null">
+            and speed = #{param1.speed,jdbcType=BIGINT}
+        </if>
+        <if test="param1.type != null">
+            and type = #{param1.type,jdbcType=TINYINT}
+        </if>
+        <if test="param1.connectionScore != null">
+            and connection_score = #{param1.connectionScore,jdbcType=BIGINT}
+        </if>
+        <if test="param1.availbelScore != null">
+            and availbel_score = #{param1.availbelScore,jdbcType=BIGINT}
+        </if>
+        <if test="param1.connectionScoreDate != null">
+            and connection_score_date = #{param1.connectionScoreDate,jdbcType=DATE}
+        </if>
+        <if test="param1.availbelScoreDate != null">
+            and availbel_score_date = #{param1.availbelScoreDate,jdbcType=DATE}
+        </if>
+        <if test="param1.createtime != null">
+            and createtime = #{param1.createtime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="param1.supportGfw != null">
+            and support_gfw = #{param1.supportGfw,jdbcType=BIT}
+        </if>
+        <if test="param1.gfwSpeed != null">
+            and gfw_speed = #{param1.gfwSpeed,jdbcType=BIGINT}
+        </if>
+        <if test="param1.source != null">
+            and source = #{param1.source,jdbcType=VARCHAR}
+        </if>
+        <if test="param1.crawlerKey != null">
+            and crawler_key = #{param1.crawlerKey,jdbcType=VARCHAR}
+        </if>
+        <if test="param2.sort != null">
+            order by
+            <foreach collection="param2.sort" item="order" separator=",">
+                ${order.property} ${order.direction}
+            </foreach>
+        </if>
+        <if test="param2.offset >= 0 and param2.pageSize > 0">
+            limit ${param2.offset}, ${param2.pageSize}
+        </if>
+    </select>
+</mapper>
