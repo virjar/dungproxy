@@ -54,6 +54,7 @@ public class CollectorTask implements Runnable, InitializingBean {
     @Override
     public void run() {
         long totalWaitTime = 10 * 60 * 1000;
+        logger.info("CollectorTask start");
         while (true) {
             try {
                 Collections.sort(Collectors, new Comparator<Collector>() {

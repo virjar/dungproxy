@@ -30,9 +30,9 @@ public interface ProxyRepository {
             @Param(value = "size") int size, @Param("timeColumnName") String timeColumnName,
             @Param("scoreColumnName") String scoreColumnName, @Param("condition") String condition);
 
-    int getMaxScore(@Param("scoreName") String scoreName);
+    Integer getMaxScore(@Param("scoreName") String scoreName);
 
-    int getMinScore(@Param("scoreName") String scoreName);
+    Integer getMinScore(@Param("scoreName") String scoreName);
 
     List<Proxy> findAvailable();
 }

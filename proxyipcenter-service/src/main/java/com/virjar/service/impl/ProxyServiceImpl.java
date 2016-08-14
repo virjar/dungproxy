@@ -98,8 +98,10 @@ public class ProxyServiceImpl implements ProxyService {
         int slot, frame;
         Proxy queryProxy = new Proxy();
         List<Proxy> ret = Lists.newArrayList();
-        int maxScore = proxyRepo.getMaxScore("availbelScore");
-        int minScore = proxyRepo.getMinScore("availbelScore");
+        Integer maxScore = proxyRepo.getMaxScore("availbel_score");
+        Integer minScore = proxyRepo.getMinScore("availbel_score");
+        maxScore = maxScore == null ? 0 : maxScore;
+        minScore = minScore == null ? 0 : minScore;
         int realValidBatchSize = validBatchSize;
         int realInvalidBatchSize = inValidBatchSize;
         if (maxScore == 0 && minScore == 0) {
@@ -160,8 +162,10 @@ public class ProxyServiceImpl implements ProxyService {
         int slot, frame;
         Proxy queryProxy = new Proxy();
         List<Proxy> ret = Lists.newArrayList();
-        int maxScore = proxyRepo.getMaxScore("connection_score");
-        int minScore = proxyRepo.getMinScore("connection_score");
+        Integer maxScore = proxyRepo.getMaxScore("connection_score");
+        Integer minScore = proxyRepo.getMinScore("connection_score");
+        maxScore = maxScore == null ? 0 : maxScore;
+        minScore = minScore == null ? 0 : minScore;
         int realValidBatchSize = validBatchSize;
         int realInvalidBatchSize = inValidBatchSize;
         if (maxScore == 0 && minScore == 0) {
