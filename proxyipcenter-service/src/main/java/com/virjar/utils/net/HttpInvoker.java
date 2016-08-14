@@ -7,7 +7,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -227,6 +229,7 @@ public class HttpInvoker {
                 }
                 return new HttpResult(statusCode, IOUtils.toString(content));
             } else if (response.getStatusLine().getStatusCode() == 302) {
+                System.out.println(JSON.toJSONString(response.getAllHeaders()));
                 Header header =  response.getHeaders("Location")[0];
                 String location = null;
                 if (header != null) {
