@@ -214,7 +214,7 @@ public class HttpInvoker {
             lastUrl = getMethod.getURI().toString();
 
             if (statusCode == 200) {
-                Header[] headers = getMethod.getHeaders("Content-Encoding");
+                Header[] headers = response.getHeaders("Content-Encoding");
                 if (headers != null && headers.length > 0 && headers[0].getValue().toLowerCase().contains("gzip")) {
                     out = new ByteArrayOutputStream();
                     gunzip = new GZIPInputStream(response.getEntity().getContent());
@@ -227,7 +227,7 @@ public class HttpInvoker {
                 }
                 return new HttpResult(statusCode, IOUtils.toString(content));
             } else if (response.getStatusLine().getStatusCode() == 302) {
-                Header header = getMethod.getHeaders("Location")[0];
+                Header header =  response.getHeaders("Location")[0];
                 String location = null;
                 if (header != null) {
                     location = header.getValue();
