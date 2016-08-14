@@ -193,7 +193,6 @@ public class Collector {
 		if(ret.size() ==0){
 			logger.info("empty resource for :"+url);
 		}
-		System.out.println(ret);
 		return ret;
 	}
 

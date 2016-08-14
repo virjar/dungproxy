@@ -39,6 +39,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        logger.info("AvailableValidater start");
         while (true) {
             try {
                 List<ProxyModel> needupdate = proxyService.find4availableupdate();

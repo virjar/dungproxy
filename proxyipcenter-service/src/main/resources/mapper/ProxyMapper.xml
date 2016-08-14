@@ -571,7 +571,7 @@
     <select id="findAvailable" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from proxyservice.proxy
-        where availbelScore >0 and connectionScore >0 order by availbelScore desc limit 200
+        from proxy
+        where availbel_score >0 and connection_score >0 order by availbel_score desc limit 200
     </select>
 </mapper>
