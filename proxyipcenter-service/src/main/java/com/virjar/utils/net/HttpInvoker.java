@@ -207,7 +207,7 @@ public class HttpInvoker {
             builder.setConnectionRequestTimeout(0);
             // 设置UA
             setHeader(getMethod, null, null);
-
+            getMethod.setConfig(builder.build());
             HttpResponse response = httpClient.execute(getMethod);
             int statusCode = response.getStatusLine().getStatusCode();
             content = response.getEntity().getContent();
