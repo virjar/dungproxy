@@ -14,6 +14,11 @@ public class SysConfig {
     private String validateBatchRatio;
     private int slotNumber;
     private int slotFactory;
+    private int availableCheckThread;
+    private int connectionCheckThread;
+    private int addreddSyncThread;
+    private int gfwSupportCheckThread;
+    private int ipCrawlerThread;
 
     private SysConfig() {
         load();
@@ -39,6 +44,11 @@ public class SysConfig {
             validateBatchRatio = properties.getProperty("system.validateBatchRatio", "1:1");
             slotFactory = NumberUtils.toInt(properties.getProperty("system.slotNumber"));
             slotNumber = NumberUtils.toInt(properties.getProperty("system.slotFactory"));
+            availableCheckThread = NumberUtils.toInt("system.thread.availableCheckThread", 10);
+            connectionCheckThread = NumberUtils.toInt("system.thread.connectionCheckThread", 20);
+            addreddSyncThread = NumberUtils.toInt("system.thread.addreddSyncThread", 5);
+            gfwSupportCheckThread = NumberUtils.toInt("system.thread.gfwSupportCheckThread", 5);
+            ipCrawlerThread = NumberUtils.toInt("system.thread.ipCrawlerThread", 30);
         } catch (IOException e) {
             throw new IllegalStateException("配置文件加载失败,系统不能启动", e);
         } finally {
@@ -64,5 +74,25 @@ public class SysConfig {
 
     public String getKeyverifyurl() {
         return keyverifyurl;
+    }
+
+    public int getAddreddSyncThread() {
+        return addreddSyncThread;
+    }
+
+    public int getAvailableCheckThread() {
+        return availableCheckThread;
+    }
+
+    public int getConnectionCheckThread() {
+        return connectionCheckThread;
+    }
+
+    public int getGfwSupportCheckThread() {
+        return gfwSupportCheckThread;
+    }
+
+    public int getIpCrawlerThread() {
+        return ipCrawlerThread;
     }
 }

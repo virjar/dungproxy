@@ -26,4 +26,6 @@ public interface ProxyService {
     List<ProxyModel> find4availableupdate();
 
     List<ProxyModel> find4connectionupdate();
+
+    void save(List<ProxyModel> draftproxys);
 }

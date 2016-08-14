@@ -2,15 +2,16 @@ package com.virjar.scheduler;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
@@ -25,32 +26,59 @@ public class AvailableValidater implements InitializingBean, Runnable {
 
     @Resource
     private BeanMapper beanMapper;
+
     private static final Logger logger = LoggerFactory.getLogger(AvailableValidater.class);
 
-    private ThreadPoolTaskExecutor executor;
+    private ExecutorService pool = Executors.newFixedThreadPool(SysConfig.getInstance().getAvailableCheckThread());
 
     @Override
     public void run() {
-        try {
-            List<ProxyModel> needupdate = proxyService.find4availableupdate();
-            if (needupdate.size() == 0) {
-                logger.info("no proxy need to update");
-                return;
-            }
-            for (ProxyModel proxy : needupdate) {
-                executor.execute(new ProxyAvailableTester(proxy));
-            }
-        } catch (Exception e) {
-            logger.error("error", e);
+        long totalWaitTime = 10 * 60 * 1000;
+        try {//有效性检查模块延迟启动,因为tomcat环境可能没有启用,验证接口不能启用
+            Thread.sleep(60 * 1000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        while (true) {
+            try {
+                List<ProxyModel> needupdate = proxyService.find4availableupdate();
+                if (needupdate.size() == 0) {
+                    logger.info("no proxy need to update");
+                    try {// 大约8分钟
+                        Thread.sleep(1 << 19);
+                    } catch (InterruptedException e) {
+                        logger.warn("thread sleep failed", e);
+                    }
+                    continue;
+                }
+                List<Future<Integer>> futures = Lists.newArrayList();
+                for (ProxyModel proxy : needupdate) {
+                    ProxyAvailableTester proxyAvailableTester = new ProxyAvailableTester(proxy);
+                    pool.submit(proxyAvailableTester);
+                }
+
+                long start = System.currentTimeMillis();
+                for (Future<Integer> future : futures) {
+                    try {
+                        // 等待十分钟
+                        future.get(totalWaitTime + start - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
+
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
+        new Thread(this).start();
     }
 
-    private class ProxyAvailableTester implements Runnable {
+    private class ProxyAvailableTester implements Callable {
         private ProxyModel proxy;
 
         public ProxyAvailableTester(ProxyModel proxy) {
@@ -59,9 +87,9 @@ public class AvailableValidater implements InitializingBean, Runnable {
         }
 
         @Override
-        public void run() {
+        public Integer call() throws Exception {
             if (proxy.getType() == null)
-                return;
+                return 0;
             Long availbelScore = proxy.getAvailbelScore();
             long slot = ScoreUtil.calAvailableSlot(availbelScore);
             slot = slot == 0 ? 1 : slot;
@@ -85,6 +113,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
             updateProxy.setAvailbelScoreDate(new Date());
             updateProxy.setSpeed(System.currentTimeMillis() - start);
             proxyService.updateByPrimaryKeySelective(updateProxy);
+            return 0;
         }
     }
 }

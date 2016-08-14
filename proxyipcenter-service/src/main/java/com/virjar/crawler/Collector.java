@@ -214,8 +214,6 @@ public class Collector {
 						if(!"true".equals(next.element("enable").getTextTrim())){
 							continue;
 						}
-						 
-						
 						Collector collecter = new Collector();
 						collecter.website = next.elementText("website");
 						String hierate = next.elementText("hierate");
