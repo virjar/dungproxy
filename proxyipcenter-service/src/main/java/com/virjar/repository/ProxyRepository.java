@@ -25,4 +25,12 @@ public interface ProxyRepository {
     int selectCount(Proxy proxy);
 
     List<Proxy> selectPage(Proxy proxy, Pageable pageable);
+
+    List<Proxy> getfromSlot(@Param(value = "start") int start, @Param(value = "end") int end,
+            @Param(value = "size") int size, @Param("timeColumnName") String timeColumnName,
+            @Param("scoreColumnName") String scoreColumnName, @Param("condition") String condition);
+
+    int getMaxScore(@Param("scoreName") String scoreName);
+
+    int getMinScore(@Param("scoreName") String scoreName);
 }

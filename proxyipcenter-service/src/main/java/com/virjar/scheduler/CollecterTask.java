@@ -1,98 +1,94 @@
 package com.virjar.scheduler;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.apache.log4j.Logger;
-import org.dom4j.DocumentException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.mantou.proxyservice.clean.Cleaner;
-import com.mantou.proxyservice.collection.Collecter;
-import com.mantou.proxyservice.proxeservice.entity.Proxy;
-import com.mantou.proxyservice.proxeservice.repository.ProxyRepository;
-import com.mantou.proxyservice.proxeservice.service.ProxyService;
+import com.virjar.crawler.Collector;
+import com.virjar.entity.Proxy;
+import com.virjar.repository.ProxyRepository;
+import com.virjar.service.ProxyService;
+import com.virjar.utils.ResourceFilter;
 
-public class CollecterTask implements Runnable {
+public class CollectorTask implements Runnable {
 
-	@Autowired
-	private ProxyService proxyService;
+    @Resource
+    private ProxyService proxyService;
 
-	@Autowired
-	private ProxyRepository proxyRepository;
-	static Logger logger = Logger.getLogger(CollecterTask.class);
-	
-	private ThreadPoolTaskExecutor executor;
-	
-	public ThreadPoolTaskExecutor getExecutor() {
-		return executor;
-	}
+    @Resource
+    private ProxyRepository proxyRepository;
+    private static final Logger logger = Logger.getLogger(CollectorTask.class);
 
-	public void setExecutor(ThreadPoolTaskExecutor executor) {
-		this.executor = executor;
-	}
+    private ThreadPoolTaskExecutor executor;
 
-	public static List<Collecter> getCollecters() {
-		return collecters;
-	}
+    public ThreadPoolTaskExecutor getExecutor() {
+        return executor;
+    }
 
+    public void setExecutor(ThreadPoolTaskExecutor executor) {
+        this.executor = executor;
+    }
 
-	static List<Collecter> collecters = null;
-	static{
-		try {
-			logger.info("start collecter");
-			collecters = Collecter.buildfromSource("/handmaper.xml");
-		} catch (DocumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		        /*
+    public static List<Collector> getCollectors() {
+        return Collectors;
+    }
+
+    static List<Collector> Collectors = null;
+    static {
+        try {
+            logger.info("start Collector");
+            Collectors = Collector.buildfromSource("/handmapper.xml");
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        /*
          * int i =0; if(i==0) return ;
          */
-		Collections.sort(collecters, new Comparator<Collecter>() {
-			@Override
-			public int compare(Collecter o1, Collecter o2) {//失败次数越多，被调度的可能性越小。成功的次数越多，被调度的可能性越小。没有成功也没有失败的，被调度的可能性最大
-				return (o1.getFailedTimes() * 10 - o1.getSucessTimes() *3) - (o2.getFailedTimes() * 10 - o2.getSucessTimes() *3);
-			}
-		});
-		for (Collecter collecter : collecters) {
+        Collections.sort(Collectors, new Comparator<Collector>() {
+            @Override
+            public int compare(Collector o1, Collector o2) {// 失败次数越多，被调度的可能性越小。成功的次数越多，被调度的可能性越小。没有成功也没有失败的，被调度的可能性最大
+                return (o1.getFailedTimes() * 10 - o1.getSucessTimes() * 3)
+                        - (o2.getFailedTimes() * 10 - o2.getSucessTimes() * 3);
+            }
+        });
+        for (Collector Collector : Collectors) {
             try {
-                executor.execute(new WebsiteCollect(collecter));
+                executor.execute(new WebsiteCollect(Collector));
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 logger.error(e);
             }
         }
-	}
+    }
 
-	private class WebsiteCollect implements Runnable{
+    private class WebsiteCollect implements Runnable {
 
-		private Collecter collecter;
-		
-		public WebsiteCollect(Collecter collecter) {
-			super();
-			this.collecter = collecter;
-		}
+        private Collector Collector;
 
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			List<Proxy> draftproxys = collecter.newProxy(proxyRepository);
-			Cleaner.filter(draftproxys);
-			proxyService.save(draftproxys);
-			
-		}
-		
-	}
+        public WebsiteCollect(Collector Collector) {
+            super();
+            this.Collector = Collector;
+        }
+
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            List<Proxy> draftproxys = Collector.newProxy(proxyRepository);
+            ResourceFilter.filter(draftproxys);
+            proxyService.save(draftproxys);
+        }
+
+    }
 }

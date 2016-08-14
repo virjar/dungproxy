@@ -7,13 +7,20 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.http.HttpHost;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 
-import com.virjar.entity.Proxy;
+import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
+import com.virjar.utils.ProxyUtil;
+import com.virjar.utils.ScoreUtil;
+import com.virjar.utils.SysConfig;
 
-public class ConnectionValidater implements Runnable {
+@Component
+public class ConnectionValidater implements Runnable, InitializingBean {
 
     @Resource
     private ProxyService proxyService;
@@ -22,23 +29,20 @@ public class ConnectionValidater implements Runnable {
 
     private Logger logger = Logger.getLogger(ConnectionValidater.class);
 
-    public ThreadPoolTaskExecutor getExecutor() {
-        return executor;
-    }
+    @Override
+    public void afterPropertiesSet() throws Exception {
 
-    public void setExecutor(ThreadPoolTaskExecutor executor) {
-        this.executor = executor;
     }
 
     public void run() {
 
         try {
-            List<Proxy> needupdate = proxyService.find4connectionupdate();
+            List<ProxyModel> needupdate = proxyService.find4connectionupdate();
             if (needupdate.size() == 0) {
                 logger.info("no proxy need to update");
                 return;
             }
-            for (Proxy proxy : needupdate) {
+            for (ProxyModel proxy : needupdate) {
                 executor.execute(new ProxyTester(proxy));
             }
         } catch (Exception e) {
@@ -47,52 +51,43 @@ public class ConnectionValidater implements Runnable {
     }
 
     private class ProxyTester implements Runnable {
-        private Proxy proxy;
+        private ProxyModel proxy;
 
-        public ProxyTester(Proxy proxy) {
+        public ProxyTester(ProxyModel proxy) {
             super();
             this.proxy = proxy;
         }
 
         @Override
         public void run() {
-            // TODO Auto-generated method stub
-            // now ignore socket and vpn
             if (proxy.getType() == null)
                 return;
+            Long connectionScore = proxy.getConnectionScore();
+            long slot = ScoreUtil.calAvailableSlot(connectionScore);
+            slot = slot == 0 ? 1 : slot;
             try {
                 if (ProxyUtil
                         .validateProxyConnect(new HttpHost(InetAddress.getByName(proxy.getIp()), proxy.getPort()))) {
-                    if (proxy.getDirection() < 0) {
-                        proxy.setDirection(1);
-                        proxy.setStability(proxy.getStability() + 1);
-                    }
-                    if (proxy.getConnectionlevel() < 0) {
-                        proxy.setConnectionlevel(1);
+                    if (proxy.getConnectionScore() < 0) {
+                        proxy.setConnectionScore(
+                                proxy.getConnectionScore() + slot * SysConfig.getInstance().getSlotFactory());
                     } else {
-                        proxy.setConnectionlevel(proxy.getConnectionlevel() + 1);
+                        proxy.setConnectionScore(proxy.getConnectionScore() + 1);
                     }
                 } else {
-                    if (proxy.getDirection() > 0) {
-                        proxy.setDirection(-1);
-                        proxy.setStability(proxy.getStability() + 1);
-                    }
-                    if (proxy.getConnectionlevel() > 0) {
-                        proxy.setConnectionlevel(proxy.getConnectionlevel() - 2);
+                    if (proxy.getConnectionScore() > 0) {
+                        proxy.setConnectionScore(
+                                proxy.getConnectionScore() - slot * SysConfig.getInstance().getSlotFactory());
                     } else {
-                        proxy.setConnectionlevel(-1);
+                        proxy.setConnectionScore(proxy.getConnectionScore() + 1);
                     }
                 }
-                Proxy updateProxy = new Proxy();
-                updateProxy.setConnectionlevel(proxy.getConnectionlevel());
+                ProxyModel updateProxy = new ProxyModel();
+                updateProxy.setConnectionScore(proxy.getConnectionScore());
                 updateProxy.setId(proxy.getId());
-                updateProxy.setDirection(proxy.getDirection());
-                updateProxy.setStability(proxy.getStability());
-                updateProxy.setLastupdate(new Date());
+                updateProxy.setConnectionScoreDate(new Date());
                 proxyService.updateByPrimaryKeySelective(updateProxy);
             } catch (UnknownHostException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
                 proxyService.deleteByPrimaryKey(proxy.getId());
             }
         }

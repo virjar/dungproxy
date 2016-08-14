@@ -8,7 +8,7 @@ import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.virjar.entity.Proxy;
+import com.virjar.model.ProxyModel;
 import com.virjar.utils.net.HttpInvoker;
 import com.virjar.utils.net.HttpResult;
 
@@ -53,7 +53,7 @@ public class ProxyUtil {
 
     }
 
-    public static boolean validateProxyAvailable(Proxy p) {
+    public static boolean validateProxyAvailable(ProxyModel p) {
         HttpResult request = null;
         try {
             request = new HttpInvoker(keysourceurl).setproxy(p.getIp(), p.getPort()).request();
@@ -64,8 +64,6 @@ public class ProxyUtil {
                 }
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
         }
 
         return false;

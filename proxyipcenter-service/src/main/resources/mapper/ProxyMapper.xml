@@ -549,4 +549,23 @@
             limit ${param2.offset}, ${param2.pageSize}
         </if>
     </select>
+    <select id="getfromSlot" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from proxy where
+        ${scoreColumnName} &gt;= #{start,jdbcType=INTEGER}
+        and  ${scoreColumnName} &lt;=
+        #{end,jdbcType=INTEGER}
+        <if test="condition != null">
+            ${condition}
+        </if>
+        order by ${timeColumnName}
+        limit #{size,jdbcType=INTEGER};
+    </select>
+    <select id="getMaxScore" resultType="java.lang.Integer">
+        select max(${scoreName}) from proxy
+    </select>
+    <select id="getMinScore" resultType="java.lang.Integer">
+        select max(${scoreName}) from proxy
+    </select>
 </mapper>

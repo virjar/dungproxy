@@ -22,4 +22,8 @@ public interface ProxyService {
     int selectCount(ProxyModel proxyModel);
 
     List<ProxyModel> selectPage(ProxyModel proxyModel, Pageable Pageable);
+
+    List<ProxyModel> find4availableupdate();
+
+    List<ProxyModel> find4connectionupdate();
 }
