@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.mantou.proxyservice.proxeservice.repository.OldProxyRepository">
+	<resultMap id="BaseResultMap"
+		type="com.mantou.proxyservice.proxeservice.entity.Proxy">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="ip" property="ip" jdbcType="VARCHAR" />
+		<result column="port" property="port" jdbcType="INTEGER" />
+		<result column="country" property="country" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="transperent" property="transperent" jdbcType="INTEGER" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="availblelevel" property="availblelevel"
+			jdbcType="INTEGER" />
+		<result column="lastupdate" property="lastupdate" jdbcType="TIMESTAMP" />
+		<result column="speed" property="speed" jdbcType="INTEGER" />
+		<result column="stability" property="stability" jdbcType="INTEGER" />
+		<result column="testtimes" property="testtimes" jdbcType="INTEGER" />
+		<result column="connectionlevel" property="connectionlevel"
+			jdbcType="INTEGER" />
+		<result column="direction" property="direction" jdbcType="INTEGER" />
+		<result column="googlesupport" property="googlesupport"
+			jdbcType="INTEGER" />
+		<result column="source" property="source" jdbcType="VARCHAR" />
+		<result column="lastavaibleupdate" property="lastavaibleupdate"
+			jdbcType="TIMESTAMP" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, ip, port, country, address, transperent, type,
+		availblelevel,
+		lastupdate,
+		speed, stability,
+		testtimes,connectionlevel,direction,googlesupport,source,lastavaibleupdate
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from proxy
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from proxy
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.mantou.proxyservice.proxeservice.entity.Proxy">
+		insert into proxy (id, ip,
+		port,
+		country, address, transperent,
+		type, availblelevel, lastupdate,
+		speed,
+		stability,
+		testtimes,connectionlevel,direction,googlesupport,source
+		,lastavaibleupdate
+		)
+		values
+		(#{id,jdbcType=INTEGER},
+		#{ip,jdbcType=VARCHAR},
+		#{port,jdbcType=INTEGER},
+		#{country,jdbcType=VARCHAR},
+		#{address,jdbcType=VARCHAR},
+		#{transperent,jdbcType=INTEGER},
+		#{type,jdbcType=INTEGER},
+		#{availblelevel,jdbcType=INTEGER},
+		#{lastupdate,jdbcType=TIMESTAMP},
+		#{speed,jdbcType=INTEGER},
+		#{stability,jdbcType=INTEGER},
+		#{testtimes,jdbcType=INTEGER},
+		#{connectionlevel,jdbcType=INTEGER},
+		#{direction,jdbcType=INTEGER},
+		#{googlesupport,jdbcType=INTEGER},
+		#{source,jdbcType=VARCHAR},
+		#{lastavaibleupdate,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.mantou.proxyservice.proxeservice.entity.Proxy">
+		insert into proxy
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="ip != null">
+				ip,
+			</if>
+			<if test="port != null">
+				port,
+			</if>
+			<if test="country != null">
+				country,
+			</if>
+			<if test="address != null">
+				address,
+			</if>
+			<if test="transperent != null">
+				transperent,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="availblelevel != null">
+				availblelevel,
+			</if>
+			<if test="lastupdate != null">
+				lastupdate,
+			</if>
+			<if test="speed != null">
+				speed,
+			</if>
+			<if test="stability != null">
+				stability,
+			</if>
+			<if test="testtimes != null">
+				testtimes,
+			</if>
+			<if test="connectionlevel != null">
+				connectionlevel,
+			</if>
+			<if test="direction != null">
+				direction,
+			</if>
+			<if test="googlesupport != null">
+				googlesupport,
+			</if>
+			<if test="source != null">
+				source,
+			</if>
+			<if test="lastavaibleupdate != null">
+				lastavaibleupdate,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="ip != null">
+				#{ip,jdbcType=VARCHAR},
+			</if>
+			<if test="port != null">
+				#{port,jdbcType=INTEGER},
+			</if>
+			<if test="country != null">
+				#{country,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				#{address,jdbcType=VARCHAR},
+			</if>
+			<if test="transperent != null">
+				#{transperent,jdbcType=INTEGER},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=INTEGER},
+			</if>
+			<if test="availblelevel != null">
+				#{availblelevel,jdbcType=INTEGER},
+			</if>
+			<if test="lastupdate != null">
+				#{lastupdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="speed != null">
+				#{speed,jdbcType=INTEGER},
+			</if>
+			<if test="stability != null">
+				#{stability,jdbcType=INTEGER},
+			</if>
+			<if test="testtimes != null">
+				#{testtimes,jdbcType=INTEGER},
+			</if>
+			<if test="connectionlevel != null">
+				#{connectionlevel,jdbcType=INTEGER},
+			</if>
+			<if test="direction != null">
+				#{direction,jdbcType=INTEGER},
+			</if>
+			<if test="googlesupport != null">
+				#{googlesupport,jdbcType=INTEGER},
+			</if>
+			<if test="source != null">
+				#{source,jdbcType=VARCHAR},
+			</if>
+			<if test="lastavaibleupdate != null">
+				#{lastavaibleupdate,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.mantou.proxyservice.proxeservice.entity.Proxy">
+		update proxy
+		<set>
+			<if test="ip != null">
+				ip = #{ip,jdbcType=VARCHAR},
+			</if>
+			<if test="port != null">
+				port = #{port,jdbcType=INTEGER},
+			</if>
+			<if test="country != null">
+				country = #{country,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				address = #{address,jdbcType=VARCHAR},
+			</if>
+			<if test="transperent != null">
+				transperent = #{transperent,jdbcType=INTEGER},
+			</if>
+			<if test="type != null">
+				type = #{type,jdbcType=INTEGER},
+			</if>
+			<if test="availblelevel != null">
+				availblelevel = #{availblelevel,jdbcType=INTEGER},
+			</if>
+			<if test="lastupdate != null">
+				lastupdate = #{lastupdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="speed != null">
+				speed = #{speed,jdbcType=INTEGER},
+			</if>
+			<if test="stability != null">
+				stability = #{stability,jdbcType=INTEGER},
+			</if>
+			<if test="testtimes != null">
+				testtimes = #{testtimes,jdbcType=INTEGER},
+			</if>
+			<if test="connectionlevel != null">
+				connectionlevel = #{connectionlevel,jdbcType=INTEGER},
+			</if>
+			<if test="direction != null">
+				direction = #{direction,jdbcType=INTEGER},
+			</if>
+			<if test="googlesupport != null">
+				googlesupport = #{googlesupport,jdbcType=INTEGER},
+			</if>
+			<if test="source != null">
+				source = #{source,jdbcType=VARCHAR},
+			</if>
+			<if test="lastavaibleupdate != null">
+				lastavaibleupdate
+				=#{lastavaibleupdate,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.mantou.proxyservice.proxeservice.entity.Proxy">
+		update proxy
+		set ip
+		= #{ip,jdbcType=VARCHAR},
+		port = #{port,jdbcType=INTEGER},
+		country =
+		#{country,jdbcType=VARCHAR},
+		address = #{address,jdbcType=VARCHAR},
+		transperent = #{transperent,jdbcType=INTEGER},
+		type =
+		#{type,jdbcType=INTEGER},
+		availblelevel =
+		#{availblelevel,jdbcType=INTEGER},
+		lastupdate =
+		#{lastupdate,jdbcType=TIMESTAMP},
+		speed =
+		#{speed,jdbcType=INTEGER},
+		stability = #{stability,jdbcType=INTEGER},
+		testtimes =
+		#{testtimes,jdbcType=INTEGER},
+		connectionlevel =
+		#{connectionlevel,jdbcType=INTEGER},
+		direction =
+		#{direction,jdbcType=INTEGER},
+		googlesupport =
+		#{googlesupport,jdbcType=VARCHAR},
+		source =
+		#{source,jdbcType=INTEGER},
+		lastavaibleupdate =#{lastavaibleupdate,jdbcType=TIMESTAMP}
+		where id =
+		#{id,jdbcType=INTEGER}
+	</update>
+
+	<select id="getMaxConnectionLevel" resultType="java.lang.Integer">
+		select
+		max(abs(connectionlevel)) from
+		proxy;
+	</select>
+	<select id="getMaxAvailableLevel" resultType="java.lang.Integer">
+		select
+		max(abs(availblelevel)) from
+		proxy;
+	</select>
+	<select id="selectCount" resultType="java.lang.Integer"
+		parameterType="com.mantou.proxyservice.proxeservice.entity.Proxy">
+		select count(*) from proxy
+		<where>
+			<if test="id != null">
+				and id = #{id,jdbcType=INTEGER}
+			</if>
+			<if test="ip != null">
+				and ip = #{ip,jdbcType=VARCHAR}
+			</if>
+			<if test="port != null">
+				and port = #{port,jdbcType=INTEGER}
+			</if>
+			<if test="country != null">
+				and country = #{country,jdbcType=VARCHAR}
+			</if>
+			<if test="address != null">
+				and address = #{address,jdbcType=VARCHAR}
+			</if>
+			<if test="transperent != null">
+				and transperent = #{transperent,jdbcType=INTEGER}
+			</if>
+			<if test="type != null">
+				and type = #{type,jdbcType=INTEGER}
+			</if>
+			<if test="availblelevel != null">
+				and availblelevel = #{availblelevel,jdbcType=INTEGER}
+			</if>
+			<if test="lastupdate != null">
+				and lastupdate = #{lastupdate,jdbcType=TIMESTAMP}
+			</if>
+			<if test="speed != null">
+				and speed = #{speed,jdbcType=INTEGER}
+			</if>
+			<if test="stability != null">
+				and stability = #{stability,jdbcType=INTEGER}
+			</if>
+			<if test="testtimes != null">
+				and testtimes = #{testtimes,jdbcType=INTEGER}
+			</if>
+			<if test="connectionlevel != null">
+				and connectionlevel = #{connectionlevel,jdbcType=INTEGER}
+			</if>
+			<if test="direction != null">
+				and direction = #{direction,jdbcType=INTEGER}
+			</if>
+			<if test="googlesupport != null">
+				and googlesupport = #{googlesupport,jdbcType=INTEGER}
+			</if>
+			<if test="source != null">
+				and source = #{source,jdbcType=VARCHAR}
+			</if>
+			<if test="lastavaibleupdate != null">
+				and lastavaibleupdate
+				=#{lastavaibleupdate,jdbcType=TIMESTAMP},
+			</if>
+		</where>
+	</select>
+	<select id="getfromAvailableslot" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from proxy where
+		abs(availblelevel) &gt;= #{param1,jdbcType=INTEGER}
+		and abs(availblelevel) &lt;=
+		#{param2,jdbcType=INTEGER}
+		and connectionlevel &gt; 0
+		and ( `type`=1 or `type`=2)
+		order by lastavaibleupdate
+		limit 0,#{param3,jdbcType=INTEGER};
+
+	</select>
+	<select id="getfromConnectionslot" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from proxy where
+		abs(connectionlevel) &gt;= #{param1,jdbcType=INTEGER}
+		and abs(connectionlevel) &lt;=
+		#{param2,jdbcType=INTEGER}
+		and ( `type`=1 or `type`=2)
+		order by lastupdate limit
+		0,#{param3,jdbcType=INTEGER};
+
+	</select>
+	<select id="selectPage" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from proxy where 1 = 1
+		<if test="param1.id != null">
+			and id = #{param1.id,jdbcType=INTEGER}
+		</if>
+		<if test="param1.ip != null">
+			and ip = #{param1.ip,jdbcType=VARCHAR}
+		</if>
+		<if test="param1.port != null">
+			and port = #{param1.port,jdbcType=INTEGER}
+		</if>
+		<if test="param1.country != null">
+			and country = #{param1.country,jdbcType=VARCHAR}
+		</if>
+		<if test="param1.address != null">
+			and address = #{param1.address,jdbcType=VARCHAR}
+		</if>
+		<if test="param1.transperent != null">
+			and transperent = #{param1.transperent,jdbcType=INTEGER}
+		</if>
+		<if test="param1.type != null">
+			and type = #{param1.type,jdbcType=INTEGER}
+		</if>
+		<if test="param1.availblelevel != null">
+			and availblelevel =
+			#{param1.availblelevel,jdbcType=INTEGER}
+		</if>
+		<if test="param1.lastupdate != null">
+			and lastupdate = #{param1.lastupdate,jdbcType=TIMESTAMP}
+		</if>
+		<if test="param1.speed != null">
+			and speed = #{param1.speed,jdbcType=INTEGER}
+		</if>
+		<if test="param1.stability != null">
+			and stability = #{param1.stability,jdbcType=INTEGER}
+		</if>
+		<if test="param1.testtimes != null">
+			and testtimes = #{param1.testtimes,jdbcType=INTEGER}
+		</if>
+		<if test="param1.connectionlevel != null">
+			and connectionlevel =
+			#{param1.connectionlevel,jdbcType=INTEGER}
+		</if>
+		<if test="param1.direction != null">
+			and direction = #{param1.direction,jdbcType=INTEGER}
+		</if>
+		<if test="param1.googlesupport != null">
+			and googlesupport =
+			#{param1.googlesupport,jdbcType=INTEGER}
+		</if>
+		<if test="param1.source != null">
+			and source = #{param1.source,jdbcType=VARCHAR}
+		</if>
+		<if test="param1.lastavaibleupdate != null">
+			and lastavaibleupdate
+			=#{param1.lastavaibleupdate,jdbcType=TIMESTAMP},
+		</if>
+		<if test="param2.sort != null">
+			order by
+			<foreach collection="param2.sort" item="order" separator=",">
+				${order.property} ${order.direction}
+			</foreach>
+		</if>
+		<if test="param2.offset >= 0 and param2.pageSize > 0">
+			limit ${param2.offset}, ${param2.pageSize}
+		</if>
+	</select>
+	<select id="findAvailable" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from proxyservice.proxy
+		where connectionlevel >0 and availblelevel >0 order by availblelevel desc limit 0,25
+	</select>
+</mapper>

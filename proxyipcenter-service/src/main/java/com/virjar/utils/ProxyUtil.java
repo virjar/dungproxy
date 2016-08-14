@@ -2,7 +2,9 @@ package com.virjar.utils;
 
 import java.net.*;
 import java.util.Enumeration;
+import java.util.List;
 
+import com.google.common.base.Splitter;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
@@ -108,5 +110,14 @@ public class ProxyUtil {
             }
         }
         return networkInterfaceName;
+    }
+    public static Long toIPValue(String ipAddress) {
+        List<String> strings = Splitter.on(".").trimResults().splitToList(ipAddress);
+        Long ret = 0L;
+        ret |= Long.parseLong(strings.get(0)) << 24;
+        ret |= Long.parseLong(strings.get(1)) << 16;
+        ret |= Long.parseLong(strings.get(2)) << 8;
+        ret |= Long.parseLong(strings.get(3));
+        return ret;
     }
 }

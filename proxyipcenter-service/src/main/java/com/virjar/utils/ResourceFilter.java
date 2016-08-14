@@ -35,6 +35,7 @@ public class ResourceFilter {
 			if(!proxy.getIp().matches(ipregex)){
 				iterator.remove();
 			}
+			proxy.setIpValue(ProxyUtil.toIPValue(proxy.getIp()));
 		}
 		return proxys;
 	}

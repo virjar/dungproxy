@@ -170,6 +170,7 @@ public class Collector {
 							continue;
 						}
 						parseObject.setAvailbelScore(0L);
+						parseObject.setConnectionScore(0L);
 						parseObject.setSource(url);
 						ret.add(parseObject);
 					}
