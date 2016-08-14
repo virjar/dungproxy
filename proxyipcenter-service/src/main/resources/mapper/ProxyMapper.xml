@@ -551,10 +551,10 @@
     </select>
     <select id="getfromSlot" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from proxy where
         ${scoreColumnName} &gt;= #{start,jdbcType=INTEGER}
-        and  ${scoreColumnName} &lt;=
+        and ${scoreColumnName} &lt;=
         #{end,jdbcType=INTEGER}
         <if test="condition != null">
             ${condition}
@@ -567,5 +567,11 @@
     </select>
     <select id="getMinScore" resultType="java.lang.Integer">
         select max(${scoreName}) from proxy
+    </select>
+    <select id="findAvailable" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from proxyservice.proxy
+        where availbelScore >0 and connectionScore >0 order by availbelScore desc limit 200
     </select>
 </mapper>

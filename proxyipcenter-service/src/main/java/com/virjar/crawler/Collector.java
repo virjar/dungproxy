@@ -154,20 +154,7 @@ public class Collector {
 				if(result.getStatusCode() == 200){
 					List<String> fetchresult = fetcher.fetch(result.responseBody);
 					if(fetchresult.size() == 0){
-						logger.info(result.responseBody);
-						if(!hasdetectcharset){
-							UniversalDetector detector =
-							         new org.mozilla.universalchardet.UniversalDetector(null);
-							     detector.handleData(result.responseBody, 0, result.responseBody.length);
-							     detector.dataEnd();
-							     String encoding = detector.getDetectedCharset();
-							     if(encoding != null){
-							    	 charset = encoding;
-							     }
-							     detector.reset();
-							     hasdetectcharset = true;
-						}
-						fetchresult = fetcher.fetch(new String(result.responseBody,charset));
+
 					}else{
 						failedtimes =0;
 						sucessTimes ++;
@@ -178,16 +165,11 @@ public class Collector {
 						try {
 							parseObject = JSONObject.parseObject(str, Proxy.class);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 							num --;
 							continue;
 						}
-						parseObject.setAvailblelevel(0);
-						if(parseObject.getType() == null){
-							parseObject.setType(ProxyType.HTTP.getType());
-						}
-						
+						parseObject.setAvailbelScore(0L);
 						parseObject.setSource(url);
 						ret.add(parseObject);
 					}

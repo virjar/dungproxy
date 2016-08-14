@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fetch verson="1.0">
+<!-- table在解析后，下面会出现一个tbody标签，所以直接写//table/tr将会匹配失败 -->
+	<property name="res" xpath="//table//tr" fetch="true">
+		<property name="ip" xpath="/td[1]/text()" regex="(.+?):.*"/>
+		<property name="port" xpath="/td[1]/text()" regex=".*:(\d*)"/>
+		<property name="address" xpath="/td[2]/text()" />
+			<property name="type" value="1"></property>
+	</property>
+</fetch>

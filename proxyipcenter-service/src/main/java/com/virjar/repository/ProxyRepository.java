@@ -33,4 +33,6 @@ public interface ProxyRepository {
     int getMaxScore(@Param("scoreName") String scoreName);
 
     int getMinScore(@Param("scoreName") String scoreName);
+
+    List<Proxy> findAvailable();
 }

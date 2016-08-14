@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fetch verson="1.0">
+	<property name="res" xpath="//div[@class='box694']/ul/li" fetch="true">
+		<property name="ip" xpath="/div[1]/text()" regex="(\d+\.\d+\.\d+\.\d+)" require="true"/>
+		<property name="port" xpath="/div[2]/text()" regex="(\d+)" require="true"/>
+		<property name="address" xpath="/div[4]/text()" />
+		<property name="type" value="1"></property>
+	</property>
+</fetch>

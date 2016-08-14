@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fetch verson="1.0">
+	<property name="res" xpath="//div[@class='table']/ul" fetch="true">
+		<property name="ip" xpath="/li[1]/text()" regex="(.+?):.*"/>
+		<property name="port" xpath="/li[1]/text()" regex=".*:(\d*)" />
+		<property name="address" xpath="/li[5]/text()" />
+
+		<test group="type">
+			<property name="typecheck" check="true" xpath="/li[2]/text()"
+				regex=".*(HTTPS).*"></property>
+			<property name="type" value="2"></property>
+		</test>
+		<test group="type">
+			<property name="typecheck" check="true" xpath="/li[2]/text()"
+				regex=".*(socket).*"></property>
+			<property name="type" value="3"></property>
+		</test>
+		<test group="type">
+			<property name="typecheck" check="true" xpath="/li[2]/text()"
+				regex=".*(vpn).*"></property>
+			<property name="type" value="4"></property>
+		</test>
+		<test group="type">
+			<property name="typecheck" check="true" xpath="/li[2]/text()"
+				regex="(HTTP)"></property>
+			<property name="type" value="1"></property>
+		</test>
+	</property>
+</fetch>

@@ -19,6 +19,7 @@ import com.virjar.entity.Proxy;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.service.ProxyService;
+import com.virjar.utils.ResourceFilter;
 import com.virjar.utils.SysConfig;
 
 @Service
@@ -214,5 +215,19 @@ public class ProxyServiceImpl implements ProxyService {
                 "connection_score_date", "connection_score", null));
 
         return beanMapper.mapAsList(ret, ProxyModel.class);
+    }
+
+    @Override
+    public void save(List<ProxyModel> draftproxys) {
+        for (Proxy proxy : beanMapper.mapAsList(draftproxys, Proxy.class)) {
+            Proxy queryProxy = new Proxy();
+            queryProxy.setIp(proxy.getIp());
+            queryProxy.setPort(proxy.getPort());
+            if (proxyRepo.selectCount(queryProxy) >= 1) {
+                ResourceFilter.addconflict(proxy);
+            } else {
+                proxyRepo.insertSelective(proxy);
+            }
+        }
     }
 }
