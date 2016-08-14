@@ -90,16 +90,16 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     private class WebsiteCollect implements Callable<Object> {
 
-        private Collector Collector;
+        private Collector collector;
 
-        public WebsiteCollect(Collector Collector) {
+        public WebsiteCollect(Collector collector) {
             super();
-            this.Collector = Collector;
+            this.collector = collector;
         }
 
         @Override
         public Object call() throws Exception {
-            List<Proxy> draftproxys = Collector.newProxy(proxyRepository);
+            List<Proxy> draftproxys = collector.newProxy(proxyRepository);
             ResourceFilter.filter(draftproxys);
             proxyService.save(beanMapper.mapAsList(draftproxys, ProxyModel.class));
             return this;
