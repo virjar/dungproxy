@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by nicholas on 8/14/2016.
  */
+@Component
 public class TaobaoAreaTask implements Runnable, InitializingBean {
 
     private String TAOBAOURL = "http://ip.taobao.com/service/getIpInfo.php?ip=";
@@ -28,7 +31,7 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
 
     private static final Logger logger = LoggerFactory.getLogger(TaobaoAreaTask.class);
 
-    @Autowired
+    @Resource
     private ProxyRepository proxyRepository;
 
     @Override
@@ -59,7 +62,13 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
                 request = httpInvoker.request();
                 jsonObject = JSONObject.parseObject(request.getResponseBody());
                 String data = jsonObject.get("data").toString();
-                proxy = JSON.parseObject(data, Proxy.class, Feature.IgnoreNotMatch);
+                JSONObject temp = JSONObject.parseObject(data);
+                proxy = JSON.parseObject(data, com.virjar.entity.Proxy.class, Feature.IgnoreNotMatch);
+                proxy.setCountryId(temp.get("country_id").toString());
+                proxy.setAreaId(temp.get("area_id").toString());
+                proxy.setRegionId(temp.get("region_id").toString());
+                proxy.setCityId(temp.get("city_id").toString());
+                proxy.setIspId(temp.get("isp_id").toString());
             } catch (Exception e) {
                 logger.error("getAreaError" + e);
                 proxy = new Proxy();

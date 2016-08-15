@@ -12,11 +12,11 @@
         <result column="region" property="region" jdbcType="VARCHAR"/>
         <result column="city" property="city" jdbcType="VARCHAR"/>
         <result column="isp" property="isp" jdbcType="VARCHAR"/>
-        <result column="country_id" property="countryId" jdbcType="INTEGER"/>
-        <result column="area_id" property="areaId" jdbcType="INTEGER"/>
-        <result column="region_id" property="regionId" jdbcType="INTEGER"/>
-        <result column="city_id" property="cityId" jdbcType="INTEGER"/>
-        <result column="isp_id" property="ispId" jdbcType="INTEGER"/>
+        <result column="country_id" property="countryId" jdbcType="VARCHAR"/>
+        <result column="area_id" property="areaId" jdbcType="VARCHAR"/>
+        <result column="region_id" property="regionId" jdbcType="VARCHAR"/>
+        <result column="city_id" property="cityId" jdbcType="VARCHAR"/>
+        <result column="isp_id" property="ispId" jdbcType="VARCHAR"/>
         <result column="address_id" property="addressId" jdbcType="BIGINT"/>
         <result column="transperent" property="transperent" jdbcType="TINYINT"/>
         <result column="speed" property="speed" jdbcType="BIGINT"/>
@@ -61,8 +61,8 @@
     values (#{id,jdbcType=BIGINT}, #{ip,jdbcType=CHAR}, #{proxyIp,jdbcType=CHAR}, #{port,jdbcType=INTEGER}, 
       #{ipValue,jdbcType=BIGINT}, #{country,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, 
       #{region,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{isp,jdbcType=VARCHAR}, 
-      #{countryId,jdbcType=INTEGER}, #{areaId,jdbcType=INTEGER}, #{regionId,jdbcType=INTEGER}, 
-      #{cityId,jdbcType=INTEGER}, #{ispId,jdbcType=INTEGER}, #{addressId,jdbcType=BIGINT}, 
+      #{countryId,jdbcType=VARCHAR}, #{areaId,jdbcType=VARCHAR}, #{regionId,jdbcType=VARCHAR},
+      #{cityId,jdbcType=VARCHAR}, #{ispId,jdbcType=VARCHAR}, #{addressId,jdbcType=BIGINT},
       #{transperent,jdbcType=TINYINT}, #{speed,jdbcType=BIGINT}, #{type,jdbcType=TINYINT}, 
       #{connectionScore,jdbcType=BIGINT}, #{availbelScore,jdbcType=BIGINT}, #{connectionScoreDate,jdbcType=DATE}, 
       #{availbelScoreDate,jdbcType=DATE}, #{createtime,jdbcType=TIMESTAMP}, #{supportGfw,jdbcType=BIT}, 
@@ -189,19 +189,19 @@
                 #{isp,jdbcType=VARCHAR},
             </if>
             <if test="countryId != null">
-                #{countryId,jdbcType=INTEGER},
+                #{countryId,jdbcType=VARCHAR},
             </if>
             <if test="areaId != null">
-                #{areaId,jdbcType=INTEGER},
+                #{areaId,jdbcType=VARCHAR},
             </if>
             <if test="regionId != null">
-                #{regionId,jdbcType=INTEGER},
+                #{regionId,jdbcType=VARCHAR},
             </if>
             <if test="cityId != null">
-                #{cityId,jdbcType=INTEGER},
+                #{cityId,jdbcType=VARCHAR},
             </if>
             <if test="ispId != null">
-                #{ispId,jdbcType=INTEGER},
+                #{ispId,jdbcType=VARCHAR},
             </if>
             <if test="addressId != null">
                 #{addressId,jdbcType=BIGINT},
@@ -275,19 +275,19 @@
                 isp = #{isp,jdbcType=VARCHAR},
             </if>
             <if test="countryId != null">
-                country_id = #{countryId,jdbcType=INTEGER},
+                country_id = #{countryId,jdbcType=VARCHAR},
             </if>
             <if test="areaId != null">
-                area_id = #{areaId,jdbcType=INTEGER},
+                area_id = #{areaId,jdbcType=VARCHAR},
             </if>
             <if test="regionId != null">
-                region_id = #{regionId,jdbcType=INTEGER},
+                region_id = #{regionId,jdbcType=VARCHAR},
             </if>
             <if test="cityId != null">
-                city_id = #{cityId,jdbcType=INTEGER},
+                city_id = #{cityId,jdbcType=VARCHAR},
             </if>
             <if test="ispId != null">
-                isp_id = #{ispId,jdbcType=INTEGER},
+                isp_id = #{ispId,jdbcType=VARCHAR},
             </if>
             <if test="addressId != null">
                 address_id = #{addressId,jdbcType=BIGINT},
@@ -342,11 +342,11 @@
       region = #{region,jdbcType=VARCHAR},
       city = #{city,jdbcType=VARCHAR},
       isp = #{isp,jdbcType=VARCHAR},
-      country_id = #{countryId,jdbcType=INTEGER},
-      area_id = #{areaId,jdbcType=INTEGER},
-      region_id = #{regionId,jdbcType=INTEGER},
-      city_id = #{cityId,jdbcType=INTEGER},
-      isp_id = #{ispId,jdbcType=INTEGER},
+      country_id = #{countryId,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=VARCHAR},
+      region_id = #{regionId,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      isp_id = #{ispId,jdbcType=VARCHAR},
       address_id = #{addressId,jdbcType=BIGINT},
       transperent = #{transperent,jdbcType=TINYINT},
       speed = #{speed,jdbcType=BIGINT},
@@ -396,19 +396,19 @@
                 and isp = #{isp,jdbcType=VARCHAR}
             </if>
             <if test="countryId != null">
-                and country_id = #{countryId,jdbcType=INTEGER}
+                and country_id = #{countryId,jdbcType=VARCHAR}
             </if>
             <if test="areaId != null">
-                and area_id = #{areaId,jdbcType=INTEGER}
+                and area_id = #{areaId,jdbcType=VARCHAR}
             </if>
             <if test="regionId != null">
-                and region_id = #{regionId,jdbcType=INTEGER}
+                and region_id = #{regionId,jdbcType=VARCHAR}
             </if>
             <if test="cityId != null">
-                and city_id = #{cityId,jdbcType=INTEGER}
+                and city_id = #{cityId,jdbcType=VARCHAR}
             </if>
             <if test="ispId != null">
-                and isp_id = #{ispId,jdbcType=INTEGER}
+                and isp_id = #{ispId,jdbcType=VARCHAR}
             </if>
             <if test="addressId != null">
                 and address_id = #{addressId,jdbcType=BIGINT}
@@ -486,19 +486,19 @@
             and isp = #{param1.isp,jdbcType=VARCHAR}
         </if>
         <if test="param1.countryId != null">
-            and country_id = #{param1.countryId,jdbcType=INTEGER}
+            and country_id = #{param1.countryId,jdbcType=VARCHAR}
         </if>
         <if test="param1.areaId != null">
-            and area_id = #{param1.areaId,jdbcType=INTEGER}
+            and area_id = #{param1.areaId,jdbcType=VARCHAR}
         </if>
         <if test="param1.regionId != null">
-            and region_id = #{param1.regionId,jdbcType=INTEGER}
+            and region_id = #{param1.regionId,jdbcType=VARCHAR}
         </if>
         <if test="param1.cityId != null">
-            and city_id = #{param1.cityId,jdbcType=INTEGER}
+            and city_id = #{param1.cityId,jdbcType=VARCHAR}
         </if>
         <if test="param1.ispId != null">
-            and isp_id = #{param1.ispId,jdbcType=INTEGER}
+            and isp_id = #{param1.ispId,jdbcType=VARCHAR}
         </if>
         <if test="param1.addressId != null">
             and address_id = #{param1.addressId,jdbcType=BIGINT}
