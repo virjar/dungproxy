@@ -27,6 +27,7 @@ public class ProxyUtil {
     private static final String keysourceurl = SysConfig.getInstance().getKeyverifyurl();
     private static InetAddress localAddr;
     private static final Logger logger = LoggerFactory.getLogger(ProxyUtil.class);
+    private BrowserHttpClient httpClient = new BrowserHttpClient();
     static {
         init();
     }
@@ -58,7 +59,7 @@ public class ProxyUtil {
     public static boolean validateProxyAvailable(ProxyModel p) {
         HttpResult request = null;
         try {
-            request = new HttpInvoker(keysourceurl).setproxy(p.getIp(), p.getPort()).request();
+            String response = BrowserHttpClientPool.getInstance().borrow().setProxy(p.getIp(), p.getPort()).get(keysourceurl);
             if (request != null) {
                 String key = new String(request.getResponseBody());
                 if (key != null && key.contains("428174328")) {
