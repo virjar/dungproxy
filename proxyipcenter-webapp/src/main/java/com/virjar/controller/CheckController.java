@@ -21,7 +21,7 @@ import com.virjar.utils.Tranparent;
 public class CheckController {
     @RequestMapping(value = "/checkIp", method = RequestMethod.GET)
     public ResponseEntity<ResponseEnvelope<Object>> getDomainqueueById(HttpServletRequest request) {
-        int transparent = checkTransparent(request);
+        byte transparent = checkTransparent(request);
         String remoteAddr = request.getRemoteAddr();
         AvailbelCheckResponse availbelCheckResponse = new AvailbelCheckResponse();
         availbelCheckResponse.setTransparent(transparent);
@@ -30,7 +30,7 @@ public class CheckController {
         return ReturnUtil.retSuccess(availbelCheckResponse);
     }
 
-    private int checkTransparent(HttpServletRequest request) {
+    private byte checkTransparent(HttpServletRequest request) {
 
         String ipAddress = request.getHeader("x-forwarded-for");
         if (!StringUtils.isEmpty(ipAddress)) {

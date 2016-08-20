@@ -5,7 +5,7 @@ package com.virjar.model;
  */
 public class AvailbelCheckResponse {
     public static final String staticKey = "taiye";
-    private Integer transparent;
+    private Byte transparent;
     private String key ;
     private String remoteAddr;
     public String getKey() {
@@ -16,11 +16,11 @@ public class AvailbelCheckResponse {
         this.key = key;
     }
 
-    public Integer getTransparent() {
+    public Byte getTransparent() {
         return transparent;
     }
 
-    public void setTransparent(Integer transparent) {
+    public void setTransparent(Byte transparent) {
         this.transparent = transparent;
     }
 

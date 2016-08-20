@@ -52,7 +52,7 @@ public class BrowserHttpClientPool {
 
     public BrowserHttpClient borrow() {
         try {
-            return noKeyPool.borrowObject(commUserKey);
+            return noKeyPool.borrowObject(commUserKey).setAutoReturn(true);
         } catch (Exception e) {
             logger.error("can not borrow httpClient", e);
             return null;

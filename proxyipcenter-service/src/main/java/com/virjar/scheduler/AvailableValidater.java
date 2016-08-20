@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
+import com.virjar.model.AvailbelCheckResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -79,6 +80,14 @@ public class AvailableValidater implements InitializingBean, Runnable {
         new Thread(this).start();
     }
 
+    private class SocketAvailableTester implements Callable{
+
+        @Override
+        public Object call() throws Exception {
+            return null;
+        }
+    }
+
     private class ProxyAvailableTester implements Callable {
         private ProxyModel proxy;
 
@@ -95,7 +104,10 @@ public class AvailableValidater implements InitializingBean, Runnable {
             long slot = ScoreUtil.calAvailableSlot(availbelScore);
             slot = slot == 0 ? 1 : slot;
             long start = System.currentTimeMillis();
-            if (ProxyUtil.validateProxyAvailable(proxy)) {
+            AvailbelCheckResponse response = ProxyUtil.validateProxyAvailable(proxy);
+            if (response != null) {
+                proxy.setTransperent(response.getTransparent());
+                proxy.setProxyIp(response.getRemoteAddr());
                 if (availbelScore < 0) {
                     proxy.setAvailbelScore(proxy.getAvailbelScore() + slot * SysConfig.getInstance().getSlotFactory());
                 } else {

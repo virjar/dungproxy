@@ -4,7 +4,9 @@ import java.net.*;
 import java.util.Enumeration;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Splitter;
+import com.virjar.model.AvailbelCheckResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
@@ -56,20 +58,17 @@ public class ProxyUtil {
 
     }
 
-    public static boolean validateProxyAvailable(ProxyModel p) {
-        HttpResult request = null;
+    public static AvailbelCheckResponse validateProxyAvailable(ProxyModel p) {
         try {
             String response = BrowserHttpClientPool.getInstance().borrow().setProxy(p.getIp(), p.getPort()).get(keysourceurl);
-            if (request != null) {
-                String key = new String(request.getResponseBody());
-                if (key != null && key.contains("428174328")) {
-                    return true;
-                }
+            AvailbelCheckResponse availbelCheckResponse = JSONObject.parseObject(response, AvailbelCheckResponse.class);
+            if(availbelCheckResponse!= null && AvailbelCheckResponse.staticKey.equals(availbelCheckResponse.getKey())){
+                return availbelCheckResponse;
             }
         } catch (Exception e) {
         }
 
-        return false;
+        return null;
     }
 
     public static boolean validateProxyConnect(HttpHost p) {

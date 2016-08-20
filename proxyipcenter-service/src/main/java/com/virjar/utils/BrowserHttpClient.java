@@ -59,6 +59,8 @@ public class BrowserHttpClient {
 
     private Header[] defaultHeaders = buildBaseHeaders().toArray(new Header[] {});
 
+    private boolean autoReturn = true;
+
     public static List<Header> buildBaseHeaders() {
         List<Header> headers = Lists.newArrayList();
         Header userAgent = new BasicHeader("User-Agent",
@@ -79,6 +81,11 @@ public class BrowserHttpClient {
 
     public BrowserHttpClient setProxy(String ip, int port) {
         this.requestConfig = RequestConfig.copy(requestConfig).setProxy(new HttpHost(ip, port)).build();
+        return this;
+    }
+
+    public BrowserHttpClient setAutoReturn(boolean autoReturn) {
+        this.autoReturn = autoReturn;
         return this;
     }
 
@@ -162,10 +169,16 @@ public class BrowserHttpClient {
     }
 
     public String get(String url) throws IOException {
+        if(autoReturn){
+            BrowserHttpClientPool.getInstance().returnBack(this);
+        }
         return get(url, defaultHeaders);
     }
 
     public String get(String url, Header[] headers) throws IOException {
+        if(autoReturn){
+            BrowserHttpClientPool.getInstance().returnBack(this);
+        }
         HttpGet httpGet = new HttpGet(url);
         httpGet.setConfig(requestConfig);
         Integer statusCode = HttpStatus.SC_OK;
