@@ -23,8 +23,8 @@
         <result column="type" property="type" jdbcType="TINYINT"/>
         <result column="connection_score" property="connectionScore" jdbcType="BIGINT"/>
         <result column="availbel_score" property="availbelScore" jdbcType="BIGINT"/>
-        <result column="connection_score_date" property="connectionScoreDate" jdbcType="DATE"/>
-        <result column="availbel_score_date" property="availbelScoreDate" jdbcType="DATE"/>
+        <result column="connection_score_date" property="connectionScoreDate" jdbcType="DATETIME"/>
+        <result column="availbel_score_date" property="availbelScoreDate" jdbcType="DATETIME"/>
         <result column="createtime" property="createtime" jdbcType="TIMESTAMP"/>
         <result column="support_gfw" property="supportGfw" jdbcType="BIT"/>
         <result column="gfw_speed" property="gfwSpeed" jdbcType="BIGINT"/>
@@ -64,8 +64,8 @@
       #{countryId,jdbcType=VARCHAR}, #{areaId,jdbcType=VARCHAR}, #{regionId,jdbcType=VARCHAR},
       #{cityId,jdbcType=VARCHAR}, #{ispId,jdbcType=VARCHAR}, #{addressId,jdbcType=BIGINT},
       #{transperent,jdbcType=TINYINT}, #{speed,jdbcType=BIGINT}, #{type,jdbcType=TINYINT}, 
-      #{connectionScore,jdbcType=BIGINT}, #{availbelScore,jdbcType=BIGINT}, #{connectionScoreDate,jdbcType=DATE}, 
-      #{availbelScoreDate,jdbcType=DATE}, #{createtime,jdbcType=TIMESTAMP}, #{supportGfw,jdbcType=BIT}, 
+      #{connectionScore,jdbcType=BIGINT}, #{availbelScore,jdbcType=BIGINT}, #{connectionScoreDate,jdbcType=DATETIME},
+      #{availbelScoreDate,jdbcType=DATETIME}, #{createtime,jdbcType=TIMESTAMP}, #{supportGfw,jdbcType=BIT},
       #{gfwSpeed,jdbcType=BIGINT}, #{source,jdbcType=VARCHAR}, #{crawlerKey,jdbcType=VARCHAR}
       )
   </insert>
@@ -222,10 +222,10 @@
                 #{availbelScore,jdbcType=BIGINT},
             </if>
             <if test="connectionScoreDate != null">
-                #{connectionScoreDate,jdbcType=DATE},
+                #{connectionScoreDate,jdbcType=DATETIME},
             </if>
             <if test="availbelScoreDate != null">
-                #{availbelScoreDate,jdbcType=DATE},
+                #{availbelScoreDate,jdbcType=DATETIME},
             </if>
             <if test="createtime != null">
                 #{createtime,jdbcType=TIMESTAMP},
@@ -308,10 +308,10 @@
                 availbel_score = #{availbelScore,jdbcType=BIGINT},
             </if>
             <if test="connectionScoreDate != null">
-                connection_score_date = #{connectionScoreDate,jdbcType=DATE},
+                connection_score_date = #{connectionScoreDate,jdbcType=DATETIME},
             </if>
             <if test="availbelScoreDate != null">
-                availbel_score_date = #{availbelScoreDate,jdbcType=DATE},
+                availbel_score_date = #{availbelScoreDate,jdbcType=DATETIME},
             </if>
             <if test="createtime != null">
                 createtime = #{createtime,jdbcType=TIMESTAMP},
@@ -353,8 +353,8 @@
       type = #{type,jdbcType=TINYINT},
       connection_score = #{connectionScore,jdbcType=BIGINT},
       availbel_score = #{availbelScore,jdbcType=BIGINT},
-      connection_score_date = #{connectionScoreDate,jdbcType=DATE},
-      availbel_score_date = #{availbelScoreDate,jdbcType=DATE},
+      connection_score_date = #{connectionScoreDate,jdbcType=DATETIME},
+      availbel_score_date = #{availbelScoreDate,jdbcType=DATETIME},
       createtime = #{createtime,jdbcType=TIMESTAMP},
       support_gfw = #{supportGfw,jdbcType=BIT},
       gfw_speed = #{gfwSpeed,jdbcType=BIGINT},
@@ -429,10 +429,10 @@
                 and availbel_score = #{availbelScore,jdbcType=BIGINT}
             </if>
             <if test="connectionScoreDate != null">
-                and connection_score_date = #{connectionScoreDate,jdbcType=DATE}
+                and connection_score_date = #{connectionScoreDate,jdbcType=DATETIME}
             </if>
             <if test="availbelScoreDate != null">
-                and availbel_score_date = #{availbelScoreDate,jdbcType=DATE}
+                and availbel_score_date = #{availbelScoreDate,jdbcType=DATETIME}
             </if>
             <if test="createtime != null">
                 and createtime = #{createtime,jdbcType=TIMESTAMP}
@@ -519,10 +519,10 @@
             and availbel_score = #{param1.availbelScore,jdbcType=BIGINT}
         </if>
         <if test="param1.connectionScoreDate != null">
-            and connection_score_date = #{param1.connectionScoreDate,jdbcType=DATE}
+            and connection_score_date = #{param1.connectionScoreDate,jdbcType=DATETIME}
         </if>
         <if test="param1.availbelScoreDate != null">
-            and availbel_score_date = #{param1.availbelScoreDate,jdbcType=DATE}
+            and availbel_score_date = #{param1.availbelScoreDate,jdbcType=DATETIME}
         </if>
         <if test="param1.createtime != null">
             and createtime = #{param1.createtime,jdbcType=TIMESTAMP}
