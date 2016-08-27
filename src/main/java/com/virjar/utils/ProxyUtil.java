@@ -130,6 +130,7 @@ public class ProxyUtil {
      */
     public static AvailbelCheckResponse validateProxyAvailable(ProxyModel p) {
         if (p.getType() == null) {
+            logger.info("已知类型资源验证");
             AvailbelCheckResponse availbelCheckResponse = httpCheck(p);
             if (availbelCheckResponse != null) {
                 return availbelCheckResponse;
@@ -141,6 +142,7 @@ public class ProxyUtil {
             logger.info("不能成功验证的资源,请尝试其他方案验证 {}", JSONObject.toJSONString(p));
             return null;
         } else {
+            logger.info("未知类型资源验证");
             ProxyType type = ProxyType.from(p.getType());
             if (type == null) {
                 logger.error("不能识别的已定义代理类型:{},代理为:{}", p.getType(), JSON.toJSONString(p));

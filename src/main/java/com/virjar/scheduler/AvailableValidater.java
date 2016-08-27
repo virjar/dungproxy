@@ -56,7 +56,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
             try {
                 logger.info("begin available check");
                 List<ProxyModel> needupdate = proxyService.find4availableupdate();
-                logger.info("待跟新可用性资源数目:{}", needupdate.size());
+                logger.info("待跟新可用性资源数目:{},资源:{}", needupdate.size(), JSONObject.toJSON(needupdate));
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
                     try {// 大约8分钟
@@ -138,7 +138,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                         updateProxy.setType(response.getType());
                     }
                 }
-
+                logger.info("更新结果:{}", JSONObject.toJSONString(updateProxy));
                 proxyService.updateByPrimaryKeySelective(updateProxy);
                 return 0;
             } catch (Exception e) {
