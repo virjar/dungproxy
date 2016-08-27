@@ -42,7 +42,7 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
     private Integer maxPage = null;
     private Integer nowPage = 0;
     private volatile boolean isRuning = false;
-    private RateLimiter limiter = RateLimiter.create(1D);
+    private RateLimiter limiter = RateLimiter.create(8D);
 
     @Override
     public void run() {

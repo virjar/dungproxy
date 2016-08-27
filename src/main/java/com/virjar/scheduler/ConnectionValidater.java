@@ -74,8 +74,6 @@ public class ConnectionValidater implements Runnable, InitializingBean {
 
         @Override
         public Object call() throws Exception {
-            if (proxy.getType() == null)
-                return this;
             Long connectionScore = proxy.getConnectionScore();
             long slot = ScoreUtil.calAvailableSlot(connectionScore);
             slot = slot == 0 ? 1 : slot;
