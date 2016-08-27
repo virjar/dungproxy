@@ -26,15 +26,15 @@ public class ProxyModel {
 
     private String isp;
 
-    private Integer countryId;
+    private String countryId;
 
-    private Integer areaId;
+    private String areaId;
 
-    private Integer regionId;
+    private String regionId;
 
-    private Integer cityId;
+    private String cityId;
 
-    private Integer ispId;
+    private String ispId;
 
     private Long addressId;
 
@@ -142,44 +142,44 @@ public class ProxyModel {
         this.isp = isp;
     }
 
-    public Integer getCountryId() {
-        return countryId;
-    }
-
-    public void setCountryId(Integer countryId) {
-        this.countryId = countryId;
-    }
-
-    public Integer getAreaId() {
+    public String getAreaId() {
         return areaId;
     }
 
-    public void setAreaId(Integer areaId) {
+    public void setAreaId(String areaId) {
         this.areaId = areaId;
     }
 
-    public Integer getRegionId() {
-        return regionId;
-    }
-
-    public void setRegionId(Integer regionId) {
-        this.regionId = regionId;
-    }
-
-    public Integer getCityId() {
+    public String getCityId() {
         return cityId;
     }
 
-    public void setCityId(Integer cityId) {
+    public void setCityId(String cityId) {
         this.cityId = cityId;
     }
 
-    public Integer getIspId() {
+    public String getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(String countryId) {
+        this.countryId = countryId;
+    }
+
+    public String getIspId() {
         return ispId;
     }
 
-    public void setIspId(Integer ispId) {
+    public void setIspId(String ispId) {
         this.ispId = ispId;
+    }
+
+    public String getRegionId() {
+        return regionId;
+    }
+
+    public void setRegionId(String regionId) {
+        this.regionId = regionId;
     }
 
     public Long getAddressId() {

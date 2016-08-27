@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -41,7 +42,7 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
     private Integer maxPage = null;
     private Integer nowPage = 0;
     private volatile boolean isRuning = false;
-    private RateLimiter limiter = RateLimiter.create(9.0);
+    private RateLimiter limiter = RateLimiter.create(1D);
 
     @Override
     public void run() {
@@ -59,9 +60,19 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
 
         while (isRuning) {
             List<Proxy> proxyList = find4Update();
+            if (proxyList.size() == 0) {
+                maxPage = null;
+                continue;
+            }
             for (Proxy proxy : proxyList) {
                 Proxy area = getArea(proxy.getIp());
                 area.setId(proxy.getId());
+                if (StringUtils.isEmpty(area.getCountry()) && StringUtils.isEmpty(area.getArea())
+                        && StringUtils.isEmpty(area.getIsp())) {
+                    logger.warn("地址未知获取失败,response {},proxy:{}", JSONObject.toJSONString(area),
+                            JSONObject.toJSONString(proxy));
+                    continue;
+                }
                 proxyRepository.updateByPrimaryKeySelective(area);
             }
         }
