@@ -6,7 +6,6 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.virjar.model.AvailbelCheckResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
+import com.virjar.model.AvailbelCheckResponse;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
 import com.virjar.utils.ProxyUtil;
@@ -32,16 +32,26 @@ public class AvailableValidater implements InitializingBean, Runnable {
 
     private ExecutorService pool = Executors.newFixedThreadPool(SysConfig.getInstance().getAvailableCheckThread());
 
+    private volatile boolean isRunning = false;
+
     @Override
     public void run() {
-        long totalWaitTime = 10 * 60 * 1000;
-        try {//有效性检查模块延迟启动,因为tomcat环境可能没有启用,验证接口不能启用
+        long totalWaitTime;
+        totalWaitTime = 10 * 60 * 1000;
+        try {// 有效性检查模块延迟启动,因为tomcat环境可能没有启用,验证接口不能启用
             Thread.sleep(60 * 1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        isRunning = true;
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                AvailableValidater.this.isRunning = false;
+            }
+        });
         logger.info("AvailableValidater start");
-        while (true) {
+        while (isRunning) {
             try {
                 List<ProxyModel> needupdate = proxyService.find4availableupdate();
                 if (needupdate.size() == 0) {
@@ -80,30 +90,19 @@ public class AvailableValidater implements InitializingBean, Runnable {
         new Thread(this).start();
     }
 
-    private class SocketAvailableTester implements Callable{
-
-        @Override
-        public Object call() throws Exception {
-            return null;
-        }
-    }
-
     private class ProxyAvailableTester implements Callable {
         private ProxyModel proxy;
 
-        public ProxyAvailableTester(ProxyModel proxy) {
+        ProxyAvailableTester(ProxyModel proxy) {
             super();
             this.proxy = proxy;
         }
 
         @Override
         public Integer call() throws Exception {
-            if (proxy.getType() == null)
-                return 0;
             Long availbelScore = proxy.getAvailbelScore();
             long slot = ScoreUtil.calAvailableSlot(availbelScore);
             slot = slot == 0 ? 1 : slot;
-            long start = System.currentTimeMillis();
             AvailbelCheckResponse response = ProxyUtil.validateProxyAvailable(proxy);
             if (response != null) {
                 proxy.setTransperent(response.getTransparent());
@@ -124,7 +123,15 @@ public class AvailableValidater implements InitializingBean, Runnable {
             updateProxy.setAvailbelScore(proxy.getAvailbelScore());
             updateProxy.setId(proxy.getId());
             updateProxy.setAvailbelScoreDate(new Date());
-            updateProxy.setSpeed(System.currentTimeMillis() - start);
+            if (response != null) {
+                updateProxy.setSpeed(response.getSpeed());
+                updateProxy.setProxyIp(response.getRemoteAddr());
+                updateProxy.setTransperent(response.getTransparent());
+                if (response.getType() != null) {
+                    updateProxy.setType(response.getType());
+                }
+            }
+
             proxyService.updateByPrimaryKeySelective(updateProxy);
             return 0;
         }

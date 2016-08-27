@@ -1,5 +1,18 @@
 package com.virjar.scheduler;
 
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Component;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
@@ -8,16 +21,6 @@ import com.virjar.entity.Proxy;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.utils.net.HttpInvoker;
 import com.virjar.utils.net.HttpResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by nicholas on 8/14/2016.
@@ -25,25 +28,43 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class TaobaoAreaTask implements Runnable, InitializingBean {
 
-    private String TAOBAOURL = "http://ip.taobao.com/service/getIpInfo.php?ip=";
+    private static final String TAOBAOURL = "http://ip.taobao.com/service/getIpInfo.php?ip=";
 
-    ScheduledExecutorService getAreaThread = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService getAreaThread = Executors.newScheduledThreadPool(1);
 
     private static final Logger logger = LoggerFactory.getLogger(TaobaoAreaTask.class);
 
     @Resource
     private ProxyRepository proxyRepository;
 
+    private static final int batchSize = 1000;
+    private Integer maxPage = null;
+    private Integer nowPage = 0;
+    private volatile boolean isRuning = false;
+    private RateLimiter limiter = RateLimiter.create(9.0);
+
     @Override
     public void run() {
-        getAreaThread.scheduleAtFixedRate(new Runnable() {
+        /*
+         * getAreaThread.scheduleAtFixedRate(new Runnable() {
+         * @Override public void run() { for (long i = 1l; i <= 1000l; i++) { setArea(i); } } }, 0, 1, TimeUnit.DAYS);
+         */
+        isRuning = true;
+        Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                for (long i = 1l; i <= 1000l; i++) {
-                    setArea(i);
-                }
+                TaobaoAreaTask.this.isRuning = false;
             }
-        }, 0, 1, TimeUnit.DAYS);
+        });
+
+        while (isRuning) {
+            List<Proxy> proxyList = find4Update();
+            for (Proxy proxy : proxyList) {
+                Proxy area = getArea(proxy.getIp());
+                area.setId(proxy.getId());
+                proxyRepository.updateByPrimaryKeySelective(area);
+            }
+        }
     }
 
     @Override
@@ -51,9 +72,20 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
         new Thread(this).start();
     }
 
+    private List<Proxy> find4Update() {
+        if (maxPage == null || nowPage > maxPage) {
+            // first run or reset page
+            int totalRecord = proxyRepository.selectCount(new Proxy());
+            nowPage = 0;
+            maxPage = totalRecord / batchSize + 1;
+        }
+        List<Proxy> areaUpdate = proxyRepository.find4AreaUpdate(new PageRequest(nowPage, batchSize));
+        nowPage++;
+        return areaUpdate;
+    }
+
     private Proxy getArea(String ipAddr) {
-        RateLimiter limiter = RateLimiter.create(9.0);
-        if (limiter.tryAcquire()) {
+        if (limiter.tryAcquire(1, 1000, TimeUnit.MILLISECONDS)) {
             HttpInvoker httpInvoker = new HttpInvoker(TAOBAOURL + ipAddr);
             HttpResult request;
             Proxy proxy;
@@ -76,7 +108,7 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
             return proxy;
         } else {
             logger.info("QPS limit..." + ipAddr);
-            return new Proxy();
+            return getArea(ipAddr);
         }
     }
 

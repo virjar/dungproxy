@@ -35,4 +35,6 @@ public interface ProxyRepository {
     Integer getMinScore(@Param("scoreName") String scoreName);
 
     List<Proxy> findAvailable();
+
+    List<Proxy> find4AreaUpdate(@Param("page") Pageable pageable);
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -26,7 +27,6 @@ import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.virjar.utils.NullUtil;
 
 public class HttpInvoker {
 
@@ -140,9 +140,9 @@ public class HttpInvoker {
                 "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.122 Safari/537.36");
         method.addHeader("Accept-Encoding", "gzip,deflate");
         method.addHeader("Accept-Language", "zh-CN,zh;q=0.8");
-        if (!NullUtil.isNull(origin))
+        if (StringUtils.isNotEmpty(origin))
             method.addHeader("Origin", origin);
-        if (!NullUtil.isNull(referer))
+        if (StringUtils.isNotEmpty(referer))
             method.addHeader("Referer", referer);
     }
 

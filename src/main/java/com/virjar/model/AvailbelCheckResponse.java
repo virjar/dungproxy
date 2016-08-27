@@ -8,6 +8,8 @@ public class AvailbelCheckResponse {
     private Byte transparent;
     private String key ;
     private String remoteAddr;
+    private Long speed;
+    private Byte type;
     public String getKey() {
         return key;
     }
@@ -30,5 +32,21 @@ public class AvailbelCheckResponse {
 
     public void setRemoteAddr(String remoteAddr) {
         this.remoteAddr = remoteAddr;
+    }
+
+    public Long getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(Long speed) {
+        this.speed = speed;
+    }
+
+    public Byte getType() {
+        return type;
+    }
+
+    public void setType(Byte type) {
+        this.type = type;
     }
 }

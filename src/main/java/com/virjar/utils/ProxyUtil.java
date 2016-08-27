@@ -1,20 +1,20 @@
 package com.virjar.utils;
 
+import java.io.InputStream;
 import java.net.*;
 import java.util.Enumeration;
 import java.util.List;
 
-import com.alibaba.fastjson.JSONObject;
-import com.google.common.base.Splitter;
-import com.virjar.model.AvailbelCheckResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Splitter;
+import com.virjar.model.AvailbelCheckResponse;
 import com.virjar.model.ProxyModel;
-import com.virjar.utils.net.HttpInvoker;
-import com.virjar.utils.net.HttpResult;
 
 /**
  * ClassName:ProxyUtil
@@ -25,11 +25,9 @@ import com.virjar.utils.net.HttpResult;
  * @Date 2014-2-16 下午04:20:07
  */
 public class ProxyUtil {
-    public final static String testkey = "if a client get this string,we think proxy is realy avaible. qq group 428174328";
     private static final String keysourceurl = SysConfig.getInstance().getKeyverifyurl();
     private static InetAddress localAddr;
     private static final Logger logger = LoggerFactory.getLogger(ProxyUtil.class);
-    private BrowserHttpClient httpClient = new BrowserHttpClient();
     static {
         init();
     }
@@ -58,17 +56,89 @@ public class ProxyUtil {
 
     }
 
-    public static AvailbelCheckResponse validateProxyAvailable(ProxyModel p) {
+    /**
+     * socket是否区分V4 & V5? 看javaAPI好像可以自动识别,那么其他API是否也应该能自动识别了?
+     * 
+     * @param p
+     * @return
+     */
+    private static AvailbelCheckResponse socketCheck(ProxyModel p) {
+        InputStream is = null;
         try {
-            String response = BrowserHttpClientPool.getInstance().borrow().setProxy(p.getIp(), p.getPort()).get(keysourceurl);
-            AvailbelCheckResponse availbelCheckResponse = JSONObject.parseObject(response, AvailbelCheckResponse.class);
-            if(availbelCheckResponse!= null && AvailbelCheckResponse.staticKey.equals(availbelCheckResponse.getKey())){
+            long start = System.currentTimeMillis();
+            SocketAddress socketAddress = new InetSocketAddress(p.getIp(), p.getPort());
+            URL url = new URL(keysourceurl);
+            URLConnection urlConnection = url.openConnection(new Proxy(Proxy.Type.SOCKS, socketAddress));
+            urlConnection.setUseCaches(false);
+            is = urlConnection.getInputStream();
+            AvailbelCheckResponse availbelCheckResponse = JSONObject.parseObject(IOUtils.toString(is),
+                    AvailbelCheckResponse.class);
+            if (availbelCheckResponse != null
+                    && AvailbelCheckResponse.staticKey.equals(availbelCheckResponse.getKey())) {
+                availbelCheckResponse.setSpeed(System.currentTimeMillis() - start);
+                availbelCheckResponse.setType(ProxyType.SOCKET.getType());
                 return availbelCheckResponse;
             }
         } catch (Exception e) {
+            // doNothing
+        } finally {
+            IOUtils.closeQuietly(is);
         }
-
         return null;
+    }
+
+    private static AvailbelCheckResponse httpCheck(ProxyModel p) {
+        try {
+            long start = System.currentTimeMillis();
+            String response = BrowserHttpClientPool.getInstance().borrow().setProxy(p.getIp(), p.getPort())
+                    .get(keysourceurl);
+            AvailbelCheckResponse availbelCheckResponse = JSONObject.parseObject(response, AvailbelCheckResponse.class);
+            if (availbelCheckResponse != null
+                    && AvailbelCheckResponse.staticKey.equals(availbelCheckResponse.getKey())) {
+                availbelCheckResponse.setSpeed(System.currentTimeMillis() - start);
+                availbelCheckResponse.setType(ProxyType.HTTP.getType());
+                return availbelCheckResponse;
+            }
+        } catch (Exception e) {
+            // doNothing
+        }
+        return null;
+    }
+
+    /**
+     * 可用性验证在本方法计算响应时间
+     * 
+     * @param p 代理
+     * @return
+     */
+    public static AvailbelCheckResponse validateProxyAvailable(ProxyModel p) {
+        if (p.getType() == null) {
+            AvailbelCheckResponse availbelCheckResponse = httpCheck(p);
+            if (availbelCheckResponse != null) {
+                return availbelCheckResponse;
+            }
+            availbelCheckResponse = socketCheck(p);
+            if (availbelCheckResponse != null) {
+                return availbelCheckResponse;
+            }
+            logger.info("不能成功验证的资源,请尝试其他方案验证 {}", JSONObject.toJSONString(p));
+            return null;
+        } else {
+            ProxyType type = ProxyType.from(p.getType());
+            if (type == null) {
+                logger.error("不能识别的已定义代理类型:{},代理为:{}", p.getType(), JSON.toJSONString(p));
+                return null;
+            }
+            switch (type) {
+            case HTTP:
+            case HTTPHTTPS:
+                return httpCheck(p);
+            case SOCKET:
+                return socketCheck(p);
+            default:
+                return null;// 不会发生
+            }
+        }
     }
 
     public static boolean validateProxyConnect(HttpHost p) {
@@ -111,6 +181,7 @@ public class ProxyUtil {
         }
         return networkInterfaceName;
     }
+
     public static Long toIPValue(String ipAddress) {
         List<String> strings = Splitter.on(".").trimResults().splitToList(ipAddress);
         Long ret = 0L;

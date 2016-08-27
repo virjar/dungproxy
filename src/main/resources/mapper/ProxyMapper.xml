@@ -574,4 +574,14 @@
         from proxy
         where availbel_score >0 and connection_score >0 order by availbel_score desc limit 200
     </select>
+
+    <select id="find4AreaUpdate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from proxy
+        where country is null and area is null
+        <if test="page.offset >= 0 and page.pageSize > 0">
+            limit ${page.offset}, ${page.pageSize}
+        </if>
+    </select>
 </mapper>

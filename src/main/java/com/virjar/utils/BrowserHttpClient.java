@@ -169,23 +169,17 @@ public class BrowserHttpClient {
     }
 
     public String get(String url) throws IOException {
-        if(autoReturn){
-            BrowserHttpClientPool.getInstance().returnBack(this);
-        }
         return get(url, defaultHeaders);
     }
 
     public String get(String url, Header[] headers) throws IOException {
-        if(autoReturn){
-            BrowserHttpClientPool.getInstance().returnBack(this);
-        }
+
         HttpGet httpGet = new HttpGet(url);
         httpGet.setConfig(requestConfig);
         Integer statusCode = HttpStatus.SC_OK;
         if (headers != null && headers.length > 0) {
             httpGet.setHeaders(headers);
         }
-
         try {
             HttpResponse httpResponse = browserHttpClient.execute(httpGet);
             logger.info("statusCode:{}", httpResponse.getStatusLine().getStatusCode());
@@ -202,7 +196,9 @@ public class BrowserHttpClient {
             throw e;
         } finally {
             httpGet.releaseConnection();
-
+            if (autoReturn) {
+                BrowserHttpClientPool.getInstance().returnBack(this);
+            }
         }
     }
 
