@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.crawler.Collector;
@@ -36,7 +35,12 @@ public class CollectorTask implements Runnable, InitializingBean {
     private ProxyRepository proxyRepository;
     private static final Logger logger = LoggerFactory.getLogger(CollectorTask.class);
 
-    private ExecutorService pool = Executors.newFixedThreadPool(SysConfig.getInstance().getIpCrawlerThread());
+    // 一般来说线程池不会有空转的,我希望所有线程能够随时工作,线程池除了节省线程创建和销毁开销,同时起限流作用,如果任务提交太多,则使用主线程进行工作
+    // 从而阻塞主线程任务产生逻辑
+    private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getIpCrawlerThread(),
+            SysConfig.getInstance().getIpCrawlerThread(), 0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<Runnable>(2), Executors.defaultThreadFactory(),
+            new ThreadPoolExecutor.CallerRunsPolicy());
 
     public static List<Collector> getCollectors() {
         return Collectors;
@@ -58,7 +62,7 @@ public class CollectorTask implements Runnable, InitializingBean {
         logger.info("CollectorTask start");
         while (true) {
             try {
-                //logger.info("begin proxy collect start");
+                 //logger.info("begin proxy collect start");
                 Collections.sort(Collectors, new Comparator<Collector>() {
                     @Override
                     public int compare(Collector o1, Collector o2) {// 失败次数越多，被调度的可能性越小。成功的次数越多，被调度的可能性越小。没有成功也没有失败的，被调度的可能性最大
@@ -81,7 +85,7 @@ public class CollectorTask implements Runnable, InitializingBean {
                 }
             } catch (Exception e) {
                 // do nothing
-                logger.error("error when collect proxy",e);
+                logger.error("error when collect proxy", e);
             }
         }
     }
@@ -103,7 +107,7 @@ public class CollectorTask implements Runnable, InitializingBean {
         @Override
         public Object call() throws Exception {
             List<Proxy> draftproxys = collector.newProxy(proxyRepository);
-            //logger.info("收集到的新资源:{}", JSON.toJSONString(draftproxys));
+            // logger.info("收集到的新资源:{}", JSON.toJSONString(draftproxys));
             ResourceFilter.filter(draftproxys);
             proxyService.save(beanMapper.mapAsList(draftproxys, ProxyModel.class));
             return this;

@@ -31,7 +31,11 @@ public class AvailableValidater implements InitializingBean, Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(AvailableValidater.class);
 
-    private ExecutorService pool = Executors.newFixedThreadPool(SysConfig.getInstance().getAvailableCheckThread());
+    // 一般来说线程池不会有空转的,我希望所有线程能够随时工作,线程池除了节省线程创建和销毁开销,同时起限流作用,如果任务提交太多,则使用主线程进行工作
+    // 从而阻塞主线程任务产生逻辑
+    private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getAvailableCheckThread(),
+            SysConfig.getInstance().getAvailableCheckThread(), 0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<Runnable>(2), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
 
     private volatile boolean isRunning = false;
 
@@ -56,7 +60,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
             try {
                 logger.info("begin available check");
                 List<ProxyModel> needupdate = proxyService.find4availableupdate();
-                logger.info("待跟新可用性资源数目:{},资源:{}", needupdate.size(), JSONObject.toJSON(needupdate));
+               // logger.info("待跟新可用性资源数目:{},资源:{}", needupdate.size(), JSONObject.toJSON(needupdate));
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
                     try {// 大约8分钟

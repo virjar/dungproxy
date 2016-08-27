@@ -26,7 +26,12 @@ public class ConnectionValidater implements Runnable, InitializingBean {
     @Resource
     private ProxyService proxyService;
 
-    private ExecutorService pool = Executors.newFixedThreadPool(SysConfig.getInstance().getConnectionCheckThread());
+    // 一般来说线程池不会有空转的,我希望所有线程能够随时工作,线程池除了节省线程创建和销毁开销,同时起限流作用,如果任务提交太多,则使用主线程进行工作
+    // 从而阻塞主线程任务产生逻辑
+    private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getConnectionCheckThread(),
+            SysConfig.getInstance().getConnectionCheckThread(), 0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<Runnable>(2), Executors.defaultThreadFactory(),
+            new ThreadPoolExecutor.CallerRunsPolicy());
 
     private Logger logger = Logger.getLogger(ConnectionValidater.class);
 
