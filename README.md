@@ -76,3 +76,18 @@ slot是对资源评分的一个划段,它可能随着资源的score变动而变�
 
 </html>
 ```
+```
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>ERROR: Gateway Timeout</title></head>
+<body><h2>ERROR: Gateway Timeout</h2>
+<hr noshade size="1px"/>
+
+<p>While trying to retrieve the URL <a href="http://www.scumall.com/">http://www.scumall.com/</a>:</p>
+<ul><li><strong>Connection timed out</strong></li></ul>
+
+<p>Your cache administrator is <a href="mailto:webmaster">webmaster</a>.
+<br clear="all"/><hr noshade size="1px"/>
+<address>Generated Sat, 27 Aug 2016 17:56:33 GMT by 189.17.105.72 (Mikrotik HttpProxy)</address>
+</body></html>
+```
