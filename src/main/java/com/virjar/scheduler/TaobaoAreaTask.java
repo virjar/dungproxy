@@ -82,7 +82,7 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
                     }
                 }
             } catch (Exception e) {
-                logger.error("error when address query");
+                logger.error("error when address query",e);
             }
         }
     }

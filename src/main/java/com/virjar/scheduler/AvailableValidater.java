@@ -81,7 +81,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 }
             } catch (Exception e) {
                 // do nothing
-                logger.error("error when check available");
+                logger.error("error when check available", e);
             }
         }
 
