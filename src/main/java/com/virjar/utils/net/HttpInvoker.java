@@ -202,9 +202,9 @@ public class HttpInvoker {
                 builder.setProxy(new HttpHost(proxyIp, proxyPort));
             }
 
-            builder.setConnectTimeout(0);
-            builder.setSocketTimeout(0);
-            builder.setConnectionRequestTimeout(0);
+            builder.setConnectTimeout(5000);
+            builder.setSocketTimeout(10000);
+            builder.setConnectionRequestTimeout(5000);
             // 设置UA
             setHeader(getMethod, null, null);
             getMethod.setConfig(builder.build());
