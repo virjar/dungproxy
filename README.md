@@ -51,3 +51,28 @@ slot是对资源评分的一个划段,它可能随着资源的score变动而变�
 
 #消重原理
 资源入库之前会进行消重,因为爬虫爬取的数据量比较大,入库前消重可以减轻数据库压力。消重使用bloomFilter实现
+
+#unhandle
+
+```
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+  
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style type="text/css">html,body{height:100%;padding:0;margin:0;}.oc{display:table;width:100%;height:100%;}.ic{display:table-cell;vertical-align:middle;height:100%;}div.msg{display:block;border:1px solid #30c;padding:0;width:500px;font-family:helvetica,sans-serif;margin:10px auto;}h1{font-weight:bold;color:#fff;font-size:14px;margin:0;padding:2px;text-align:center;background: #30c;}p{font-size:12px;margin:15px auto;width:75%;font-family:helvetica,sans-serif;text-align:left;}</style>
+    <title>Access Denined</title></head>
+  
+  <body>
+    <div class="oc">
+      <div class="ic">
+        <div class="msg">
+          <h1>Access Denined</h1>
+          <p>The maximum web proxy user limit has been reached.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+
+</html>
+```
