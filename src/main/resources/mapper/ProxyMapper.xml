@@ -557,7 +557,7 @@
         and ${scoreColumnName} &lt;=
         #{end,jdbcType=INTEGER}
         <if test="condition != null">
-            ${condition}
+            and ${condition}
         </if>
         order by ${timeColumnName}
         limit #{size,jdbcType=INTEGER};
