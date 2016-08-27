@@ -59,21 +59,30 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
         });
 
         while (isRuning) {
-            List<Proxy> proxyList = find4Update();
-            if (proxyList.size() == 0) {
-                maxPage = null;
-                continue;
-            }
-            for (Proxy proxy : proxyList) {
-                Proxy area = getArea(proxy.getIp());
-                area.setId(proxy.getId());
-                if (StringUtils.isEmpty(area.getCountry()) && StringUtils.isEmpty(area.getArea())
-                        && StringUtils.isEmpty(area.getIsp())) {
-                    logger.warn("地址未知获取失败,response {},proxy:{}", JSONObject.toJSONString(area),
-                            JSONObject.toJSONString(proxy));
+            logger.info("begin proxy address collect start");
+            try {
+                List<Proxy> proxyList = find4Update();
+                if (proxyList.size() == 0) {
+                    maxPage = null;
                     continue;
                 }
-                proxyRepository.updateByPrimaryKeySelective(area);
+                for (Proxy proxy : proxyList) {
+                    try {
+                        Proxy area = getArea(proxy.getIp());
+                        area.setId(proxy.getId());
+                        if (StringUtils.isEmpty(area.getCountry()) && StringUtils.isEmpty(area.getArea())
+                                && StringUtils.isEmpty(area.getIsp())) {
+                            logger.warn("地址未知获取失败,response {},proxy:{}", JSONObject.toJSONString(area),
+                                    JSONObject.toJSONString(proxy));
+                            continue;
+                        }
+                        proxyRepository.updateByPrimaryKeySelective(area);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("error when address query");
             }
         }
     }

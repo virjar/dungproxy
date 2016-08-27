@@ -58,6 +58,7 @@ public class CollectorTask implements Runnable, InitializingBean {
         logger.info("CollectorTask start");
         while (true) {
             try {
+                logger.info("begin proxy collect start");
                 Collections.sort(Collectors, new Comparator<Collector>() {
                     @Override
                     public int compare(Collector o1, Collector o2) {// 失败次数越多，被调度的可能性越小。成功的次数越多，被调度的可能性越小。没有成功也没有失败的，被调度的可能性最大
@@ -80,6 +81,7 @@ public class CollectorTask implements Runnable, InitializingBean {
                 }
             } catch (Exception e) {
                 // do nothing
+                logger.error("error when collect proxy",e);
             }
         }
     }

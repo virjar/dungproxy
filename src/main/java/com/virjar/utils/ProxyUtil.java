@@ -81,6 +81,7 @@ public class ProxyUtil {
             }
         } catch (Exception e) {
             // doNothing
+            e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -93,9 +94,14 @@ public class ProxyUtil {
 //        proxyModel.setPort(3128);
 //        AvailbelCheckResponse availbelCheckResponse = httpCheck(proxyModel);
 //        System.out.println(JSONObject.toJSONString(availbelCheckResponse));
-        HttpHost httpHost =new HttpHost(InetAddress.getByName("78.85.14.140"), 8080);
+       // HttpHost httpHost =new HttpHost(InetAddress.getByName("187.161.105.133"), 53796);
 
-        validateProxyConnect(httpHost);
+       // validateProxyConnect(httpHost);
+        ProxyModel proxyModel = new ProxyModel();
+        proxyModel.setIp("187.161.105.133");
+        proxyModel.setPort(53796);
+        AvailbelCheckResponse availbelCheckResponse = socketCheck(proxyModel);
+        System.out.println(JSONObject.toJSONString(availbelCheckResponse));
     }
 
     private static AvailbelCheckResponse httpCheck(ProxyModel p) {

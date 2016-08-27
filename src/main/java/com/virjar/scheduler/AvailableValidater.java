@@ -53,6 +53,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
         logger.info("AvailableValidater start");
         while (isRunning) {
             try {
+                logger.info("begin available check");
                 List<ProxyModel> needupdate = proxyService.find4availableupdate();
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
@@ -80,6 +81,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 }
             } catch (Exception e) {
                 // do nothing
+                logger.error("error when check available");
             }
         }
 

@@ -40,6 +40,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
         logger.info("Component start");
         while (true) {
             try {
+                logger.info("begin connection check");
                 List<ProxyModel> needupdate = proxyService.find4connectionupdate();
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
@@ -59,7 +60,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                     }
                 }
             } catch (Exception e) {
-                logger.error("error", e);
+                logger.error("error when check connection ", e);
             }
         }
     }
