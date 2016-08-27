@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.model.AvailbelCheckResponse;
@@ -55,6 +56,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
             try {
                 logger.info("begin available check");
                 List<ProxyModel> needupdate = proxyService.find4availableupdate();
+                logger.info("待跟新可用性资源数目:{}", needupdate.size());
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
                     try {// 大约8分钟
@@ -101,40 +103,47 @@ public class AvailableValidater implements InitializingBean, Runnable {
         }
 
         @Override
-        public Integer call() throws Exception {
-            Long availbelScore = proxy.getAvailbelScore();
-            long slot = ScoreUtil.calAvailableSlot(availbelScore);
-            slot = slot == 0 ? 1 : slot;
-            AvailbelCheckResponse response = ProxyUtil.validateProxyAvailable(proxy);
-            if (response != null) {
-                proxy.setTransperent(response.getTransparent());
-                proxy.setProxyIp(response.getRemoteAddr());
-                if (availbelScore < 0) {
-                    proxy.setAvailbelScore(proxy.getAvailbelScore() + slot * SysConfig.getInstance().getSlotFactory());
+        public Integer call() {
+            try {
+                Long availbelScore = proxy.getAvailbelScore();
+                long slot = ScoreUtil.calAvailableSlot(availbelScore);
+                slot = slot == 0 ? 1 : slot;
+                AvailbelCheckResponse response = ProxyUtil.validateProxyAvailable(proxy);
+                if (response != null) {
+                    proxy.setTransperent(response.getTransparent());
+                    proxy.setProxyIp(response.getRemoteAddr());
+                    if (availbelScore < 0) {
+                        proxy.setAvailbelScore(
+                                proxy.getAvailbelScore() + slot * SysConfig.getInstance().getSlotFactory());
+                    } else {
+                        proxy.setAvailbelScore(proxy.getAvailbelScore() + 1);
+                    }
                 } else {
-                    proxy.setAvailbelScore(proxy.getAvailbelScore() + 1);
+                    if (availbelScore < 0) {
+                        proxy.setAvailbelScore(proxy.getAvailbelScore() - 1);
+                    } else {
+                        proxy.setAvailbelScore(
+                                proxy.getAvailbelScore() - slot * SysConfig.getInstance().getSlotFactory());
+                    }
                 }
-            } else {
-                if (availbelScore < 0) {
-                    proxy.setAvailbelScore(proxy.getAvailbelScore() - 1);
-                } else {
-                    proxy.setAvailbelScore(proxy.getAvailbelScore() - slot * SysConfig.getInstance().getSlotFactory());
+                ProxyModel updateProxy = new ProxyModel();
+                updateProxy.setAvailbelScore(proxy.getAvailbelScore());
+                updateProxy.setId(proxy.getId());
+                updateProxy.setAvailbelScoreDate(new Date());
+                if (response != null) {
+                    updateProxy.setSpeed(response.getSpeed());
+                    updateProxy.setProxyIp(response.getRemoteAddr());
+                    updateProxy.setTransperent(response.getTransparent());
+                    if (response.getType() != null) {
+                        updateProxy.setType(response.getType());
+                    }
                 }
-            }
-            ProxyModel updateProxy = new ProxyModel();
-            updateProxy.setAvailbelScore(proxy.getAvailbelScore());
-            updateProxy.setId(proxy.getId());
-            updateProxy.setAvailbelScoreDate(new Date());
-            if (response != null) {
-                updateProxy.setSpeed(response.getSpeed());
-                updateProxy.setProxyIp(response.getRemoteAddr());
-                updateProxy.setTransperent(response.getTransparent());
-                if (response.getType() != null) {
-                    updateProxy.setType(response.getType());
-                }
-            }
 
-            proxyService.updateByPrimaryKeySelective(updateProxy);
+                proxyService.updateByPrimaryKeySelective(updateProxy);
+                return 0;
+            } catch (Exception e) {
+                logger.error("error when check available {}", JSONObject.toJSONString(proxy), e);
+            }
             return 0;
         }
     }
