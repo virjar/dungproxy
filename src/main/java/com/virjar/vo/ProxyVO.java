@@ -34,7 +34,7 @@ public class ProxyVO {
 
     private String cityId;
 
-    private Integer ispId;
+    private String ispId;
 
     private Long addressId;
 
@@ -166,20 +166,20 @@ public class ProxyVO {
         this.countryId = countryId;
     }
 
+    public String getIspId() {
+        return ispId;
+    }
+
+    public void setIspId(String ispId) {
+        this.ispId = ispId;
+    }
+
     public String getRegionId() {
         return regionId;
     }
 
     public void setRegionId(String regionId) {
         this.regionId = regionId;
-    }
-
-    public Integer getIspId() {
-        return ispId;
-    }
-
-    public void setIspId(Integer ispId) {
-        this.ispId = ispId;
     }
 
     public Long getAddressId() {

@@ -71,7 +71,7 @@ public class ProxyUtil {
             URLConnection urlConnection = url.openConnection(new Proxy(Proxy.Type.SOCKS, socketAddress));
             urlConnection.setUseCaches(false);
             is = urlConnection.getInputStream();
-            AvailbelCheckResponse availbelCheckResponse = JSONObject.parseObject(IOUtils.toString(is),
+            AvailbelCheckResponse availbelCheckResponse = JSONUtils.parse(IOUtils.toString(is),
                     AvailbelCheckResponse.class);
             if (availbelCheckResponse != null
                     && AvailbelCheckResponse.staticKey.equals(availbelCheckResponse.getKey())) {
@@ -87,12 +87,20 @@ public class ProxyUtil {
         return null;
     }
 
+    public static void main(String[] args) {
+        ProxyModel proxyModel = new ProxyModel();
+        proxyModel.setIp("202.106.16.36");
+        proxyModel.setPort(3128);
+        AvailbelCheckResponse availbelCheckResponse = httpCheck(proxyModel);
+
+    }
+
     private static AvailbelCheckResponse httpCheck(ProxyModel p) {
         try {
             long start = System.currentTimeMillis();
             String response = BrowserHttpClientPool.getInstance().borrow().setProxy(p.getIp(), p.getPort())
                     .get(keysourceurl);
-            AvailbelCheckResponse availbelCheckResponse = JSONObject.parseObject(response, AvailbelCheckResponse.class);
+            AvailbelCheckResponse availbelCheckResponse = JSONUtils.parse(response, AvailbelCheckResponse.class);
             if (availbelCheckResponse != null
                     && AvailbelCheckResponse.staticKey.equals(availbelCheckResponse.getKey())) {
                 availbelCheckResponse.setSpeed(System.currentTimeMillis() - start);
