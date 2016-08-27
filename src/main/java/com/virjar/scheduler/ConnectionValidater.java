@@ -91,7 +91,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                         proxy.setConnectionScore(
                                 proxy.getConnectionScore() - slot * SysConfig.getInstance().getSlotFactory());
                     } else {
-                        proxy.setConnectionScore(proxy.getConnectionScore() + 1);
+                        proxy.setConnectionScore(proxy.getConnectionScore() - 1);
                     }
                 }
                 ProxyModel updateProxy = new ProxyModel();

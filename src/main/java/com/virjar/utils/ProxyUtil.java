@@ -87,12 +87,15 @@ public class ProxyUtil {
         return null;
     }
 
-    public static void main(String[] args) {
-        ProxyModel proxyModel = new ProxyModel();
-        proxyModel.setIp("202.106.16.36");
-        proxyModel.setPort(3128);
-        AvailbelCheckResponse availbelCheckResponse = httpCheck(proxyModel);
-        System.out.println(JSONObject.toJSONString(availbelCheckResponse));
+    public static void main(String[] args) throws UnknownHostException {
+//        ProxyModel proxyModel = new ProxyModel();
+//        proxyModel.setIp("202.106.16.36");
+//        proxyModel.setPort(3128);
+//        AvailbelCheckResponse availbelCheckResponse = httpCheck(proxyModel);
+//        System.out.println(JSONObject.toJSONString(availbelCheckResponse));
+        HttpHost httpHost =new HttpHost(InetAddress.getByName("78.85.14.140"), 8080);
+
+        validateProxyConnect(httpHost);
     }
 
     private static AvailbelCheckResponse httpCheck(ProxyModel p) {
