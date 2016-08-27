@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.crawler.Collector;
@@ -100,6 +101,7 @@ public class CollectorTask implements Runnable, InitializingBean {
         @Override
         public Object call() throws Exception {
             List<Proxy> draftproxys = collector.newProxy(proxyRepository);
+            logger.info("收集到的新资源:{}", JSON.toJSONString(draftproxys));
             ResourceFilter.filter(draftproxys);
             proxyService.save(beanMapper.mapAsList(draftproxys, ProxyModel.class));
             return this;

@@ -92,7 +92,7 @@ public class ProxyUtil {
         proxyModel.setIp("202.106.16.36");
         proxyModel.setPort(3128);
         AvailbelCheckResponse availbelCheckResponse = httpCheck(proxyModel);
-
+        System.out.println(JSONObject.toJSONString(availbelCheckResponse));
     }
 
     private static AvailbelCheckResponse httpCheck(ProxyModel p) {
