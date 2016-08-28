@@ -70,6 +70,8 @@ public class ProxyUtil {
             URL url = new URL(keysourceurl);
             URLConnection urlConnection = url.openConnection(new Proxy(Proxy.Type.SOCKS, socketAddress));
             urlConnection.setUseCaches(false);
+            urlConnection.setConnectTimeout(1000);
+            urlConnection.setReadTimeout(3000);
             is = urlConnection.getInputStream();
             AvailbelCheckResponse availbelCheckResponse = JSONUtils.parse(IOUtils.toString(is),
                     AvailbelCheckResponse.class);
@@ -89,14 +91,14 @@ public class ProxyUtil {
     }
 
     public static void main(String[] args) throws UnknownHostException {
-//        ProxyModel proxyModel = new ProxyModel();
-//        proxyModel.setIp("202.106.16.36");
-//        proxyModel.setPort(3128);
-//        AvailbelCheckResponse availbelCheckResponse = httpCheck(proxyModel);
-//        System.out.println(JSONObject.toJSONString(availbelCheckResponse));
-       // HttpHost httpHost =new HttpHost(InetAddress.getByName("187.161.105.133"), 53796);
+        // ProxyModel proxyModel = new ProxyModel();
+        // proxyModel.setIp("202.106.16.36");
+        // proxyModel.setPort(3128);
+        // AvailbelCheckResponse availbelCheckResponse = httpCheck(proxyModel);
+        // System.out.println(JSONObject.toJSONString(availbelCheckResponse));
+        // HttpHost httpHost =new HttpHost(InetAddress.getByName("187.161.105.133"), 53796);
 
-       // validateProxyConnect(httpHost);
+        // validateProxyConnect(httpHost);
         ProxyModel proxyModel = new ProxyModel();
         proxyModel.setIp("187.161.105.133");
         proxyModel.setPort(53796);
