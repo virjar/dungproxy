@@ -35,7 +35,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
     // 从而阻塞主线程任务产生逻辑
     private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getAvailableCheckThread(),
             SysConfig.getInstance().getAvailableCheckThread(), 0L, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<Runnable>(2), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+            new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
 
     private volatile boolean isRunning = false;
 

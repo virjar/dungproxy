@@ -39,7 +39,7 @@ public class CollectorTask implements Runnable, InitializingBean {
     // 从而阻塞主线程任务产生逻辑
     private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getIpCrawlerThread(),
             SysConfig.getInstance().getIpCrawlerThread(), 0L, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<Runnable>(2), Executors.defaultThreadFactory(),
+            new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.CallerRunsPolicy());
 
     public static List<Collector> getCollectors() {

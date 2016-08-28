@@ -30,7 +30,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
     // 从而阻塞主线程任务产生逻辑
     private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getConnectionCheckThread(),
             SysConfig.getInstance().getConnectionCheckThread(), 0L, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<Runnable>(2), Executors.defaultThreadFactory(),
+            new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.CallerRunsPolicy());
 
     private Logger logger = Logger.getLogger(ConnectionValidater.class);
