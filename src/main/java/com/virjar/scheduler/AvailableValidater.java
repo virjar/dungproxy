@@ -73,7 +73,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 List<Future<Integer>> futures = Lists.newArrayList();
                 for (ProxyModel proxy : needupdate) {
                     ProxyAvailableTester proxyAvailableTester = new ProxyAvailableTester(proxy);
-                    pool.submit(proxyAvailableTester);
+                    futures.add(pool.submit(proxyAvailableTester));
                 }
 
                 long start = System.currentTimeMillis();
@@ -98,7 +98,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
         new Thread(this).start();
     }
 
-    private class ProxyAvailableTester implements Callable {
+    private class ProxyAvailableTester implements Callable<Integer> {
         private ProxyModel proxy;
 
         ProxyAvailableTester(ProxyModel proxy) {
