@@ -64,6 +64,11 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
                 List<Proxy> proxyList = find4Update();
                 if (proxyList.size() == 0) {
                     maxPage = null;
+                    try {
+                        Thread.sleep(8 * 60 * 60 * 1000);
+                    } catch (InterruptedException e) {
+                        // doNothing
+                    }
                     continue;
                 }
                 for (Proxy proxy : proxyList) {
@@ -82,7 +87,7 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
                     }
                 }
             } catch (Exception e) {
-                logger.error("error when address query",e);
+                logger.error("error when address query", e);
             }
         }
     }
