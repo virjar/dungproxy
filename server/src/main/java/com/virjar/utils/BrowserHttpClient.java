@@ -182,7 +182,6 @@ public class BrowserHttpClient {
         }
         try {
             HttpResponse httpResponse = browserHttpClient.execute(httpGet);
-            logger.info("statusCode:{}", httpResponse.getStatusLine().getStatusCode());
             statusCode = httpResponse.getStatusLine().getStatusCode();
             Header[] headersRes = httpResponse.getAllHeaders();
             for (Header header : headersRes) {
@@ -211,7 +210,6 @@ public class BrowserHttpClient {
 
         try {
             HttpResponse httpResponse = browserHttpClient.execute(httpGet);
-            logger.info("statusCode:{}", httpResponse.getStatusLine().getStatusCode());
             return httpResponse.getStatusLine().getStatusCode();
         } finally {
             httpGet.releaseConnection();
@@ -298,7 +296,6 @@ public class BrowserHttpClient {
             httpPost.setEntity(new UrlEncodedFormEntity(nvPairs, Charsets.UTF_8.toString()));
             httpPost.setHeaders(headers);
             HttpResponse httpResp = browserHttpClient.execute(httpPost);
-            logger.info("statusCode:{}", httpResp.getStatusLine().getStatusCode());
             return EntityUtils.toString(httpResp.getEntity(), Charsets.UTF_8.toString());
         } finally {
             if (httpPost != null) {
