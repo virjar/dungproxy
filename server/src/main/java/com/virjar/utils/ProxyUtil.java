@@ -101,9 +101,9 @@ public class ProxyUtil {
 
         // validateProxyConnect(httpHost);
         ProxyModel proxyModel = new ProxyModel();
-        proxyModel.setIp("187.161.105.133");
-        proxyModel.setPort(53796);
-        AvailbelCheckResponse availbelCheckResponse = socketCheck(proxyModel);
+        proxyModel.setIp("202.106.16.36");
+        proxyModel.setPort(3128);
+        AvailbelCheckResponse availbelCheckResponse = validateProxyAvailable(proxyModel);
         System.out.println(JSONObject.toJSONString(availbelCheckResponse));
     }
 
@@ -126,6 +126,8 @@ public class ProxyUtil {
         }
         return null;
     }
+
+
 
     /**
      * 可用性验证在本方法计算响应时间
