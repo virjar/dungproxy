@@ -554,19 +554,18 @@
         <include refid="Base_Column_List"/>
         from proxy where
         ${scoreColumnName} &gt;= #{start,jdbcType=INTEGER}
-        and ${scoreColumnName} &lt;=
-        #{end,jdbcType=INTEGER}
+        and ${scoreColumnName} &lt;= #{end,jdbcType=INTEGER}
         <if test="condition != null">
             and ${condition}
         </if>
         order by ${timeColumnName}
-        limit #{size,jdbcType=INTEGER};
+        limit 0,#{size,jdbcType=INTEGER};
     </select>
     <select id="getMaxScore" resultType="java.lang.Integer">
         select max(${scoreName}) from proxy
     </select>
     <select id="getMinScore" resultType="java.lang.Integer">
-        select max(${scoreName}) from proxy
+        select min(${scoreName}) from proxy
     </select>
     <select id="findAvailable" resultMap="BaseResultMap">
         select

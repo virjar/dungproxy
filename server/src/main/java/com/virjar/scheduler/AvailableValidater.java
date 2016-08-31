@@ -45,7 +45,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
         long totalWaitTime;
         totalWaitTime = 10 * 60 * 1000;
         try {// 有效性检查模块延迟启动,因为tomcat环境可能没有启用,验证接口不能启用
-            Thread.sleep(60 * 1000L);
+            Thread.sleep(5 * 1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -118,7 +118,7 @@ public class ProxyUtil {
                 availbelCheckResponse.setSpeed(System.currentTimeMillis() - start);
                 availbelCheckResponse.setType(ProxyType.HTTP.getType());
                 return availbelCheckResponse;
-            } else if (StringUtils.isNotBlank(response)) {
+            } else if (StringUtils.isNotBlank(response) && SysConfig.getInstance().recordFaildResponse()) {
                 logger.info("check error response is {}", response);
             }
         } catch (Exception e) {
@@ -126,8 +126,6 @@ public class ProxyUtil {
         }
         return null;
     }
-
-
 
     /**
      * 可用性验证在本方法计算响应时间

@@ -6,6 +6,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,6 +38,8 @@ public class ProxyServiceImpl implements ProxyService {
     private int connectionValidBatchSize;
     private int connectionInValidBatchSize;
 
+    private static final Logger logger = LoggerFactory.getLogger(ProxyServiceImpl.class);
+
     @PostConstruct
     public void init() {
         int avaliableValidateBatchSize = SysConfig.getInstance().getAvaliableValidateBatchSize();
@@ -51,6 +55,14 @@ public class ProxyServiceImpl implements ProxyService {
         inValidNum = NumberUtils.toInt(ratio.get(1));
         connectionValidBatchSize = connectionValidateBatchSize * validNum / (validNum + inValidNum);
         connectionInValidBatchSize = connectionValidateBatchSize - connectionValidBatchSize;
+
+        if (avaliableValidateBatchSize < SysConfig.getInstance().getAvaliableSlotFactory()
+                || avaliableInValidBatchSize < SysConfig.getInstance().getAvaliableSlotFactory()
+                || connectionInValidBatchSize < SysConfig.getInstance().getConnectionSlotFactory()
+                || connectionValidBatchSize < SysConfig.getInstance().getConnectionSlotFactory()) {
+            logger.error("error config:");
+            throw new IllegalArgumentException("batch size and slot factory config error");
+        }
     }
 
     @Transactional
@@ -105,6 +117,7 @@ public class ProxyServiceImpl implements ProxyService {
 
     @Override
     public List<ProxyModel> find4availableupdate() {
+
         int slot, frame;
         Proxy queryProxy = new Proxy();
         List<Proxy> ret = Lists.newArrayList();
@@ -140,13 +153,12 @@ public class ProxyServiceImpl implements ProxyService {
             ret.addAll(proxyRepo.getfromSlot(i * frame, (i + 1) * frame,
                     needsize / SysConfig.getInstance().getAvaliableSlotFactory(), "availbel_score_date",
                     "availbel_score", "connection_score > 0"));
-            needsize = avaliableValidBatchSize - ret.size();
+            needsize = realValidBatchSize - ret.size();
         }
-        ret.addAll(proxyRepo.getfromSlot((slot - 1) * frame, slot * frame + maxScore, needsize, "availbel_score_date",
+        ret.addAll(proxyRepo.getfromSlot((slot - 1) * frame, maxScore, needsize, "availbel_score_date",
                 "availbel_score", "connection_score > 0"));
-
         // 无效资源选取
-        if (minScore < -SysConfig.getInstance().getAvaliableSlotNumber()) {
+        if (minScore > (-SysConfig.getInstance().getAvaliableSlotNumber())) {
             frame = 1;
             slot = minScore;
         } else {
@@ -154,14 +166,15 @@ public class ProxyServiceImpl implements ProxyService {
             slot = SysConfig.getInstance().getAvaliableSlotNumber();
         }
 
-        needsize = realInvalidBatchSize;
+        needsize = realInvalidBatchSize + realValidBatchSize - ret.size();
         for (int i = 0; i < slot - 1; i++) {// 模型，高级别槽获取数量是低级别的1/2， 大批量数据将会严格服从 log{SlotFactory}n。
             ret.addAll(proxyRepo.getfromSlot((i + 1) * -frame, i * -frame,
                     needsize / SysConfig.getInstance().getAvaliableSlotFactory(), "availbel_score_date",
                     "availbel_score", "connection_score > 0"));
-            needsize = avaliableValidBatchSize - ret.size();
+
+            needsize = realInvalidBatchSize + realValidBatchSize - ret.size();
         }
-        ret.addAll(proxyRepo.getfromSlot(slot * -frame, (slot + 1) * -frame + maxScore, needsize, "availbel_score_date",
+        ret.addAll(proxyRepo.getfromSlot(minScore, (slot - 1) * -frame, needsize, "availbel_score_date",
                 "availbel_score", "connection_score > 0"));
 
         return beanMapper.mapAsList(ret, ProxyModel.class);
@@ -201,16 +214,19 @@ public class ProxyServiceImpl implements ProxyService {
 
         int needsize = realValidBatchSize;
         for (int i = 0; i < slot - 1; i++) {// 模型，高级别槽获取数量是低级别的1/2， 大批量数据将会严格服从 log{SlotFactory}n。
+            logger.info("in:start{} end {} size:{} slot:{}", i * frame, (i + 1) * frame,
+                    needsize / SysConfig.getInstance().getConnectionSlotFactory(), slot);
             ret.addAll(proxyRepo.getfromSlot(i * frame, (i + 1) * frame,
                     needsize / SysConfig.getInstance().getConnectionSlotFactory(), "availbel_score_date",
                     "connection_score", null));
-            needsize = connectionValidBatchSize - ret.size();
+            needsize = realValidBatchSize - ret.size();
         }
-        ret.addAll(proxyRepo.getfromSlot((slot - 1) * frame, slot * frame + maxScore, needsize, "connection_score_date",
+        logger.info("end:  start:{} end:{} size {}", (slot - 1) * frame, maxScore, needsize);
+        ret.addAll(proxyRepo.getfromSlot((slot - 1) * frame, maxScore, needsize, "connection_score_date",
                 "connection_score", null));
 
         // 无效资源选取
-        if (minScore < -SysConfig.getInstance().getConnectionSlotNumber()) {
+        if (minScore > (-SysConfig.getInstance().getConnectionSlotNumber())) {
             frame = 1;
             slot = minScore;
         } else {
@@ -218,15 +234,15 @@ public class ProxyServiceImpl implements ProxyService {
             slot = SysConfig.getInstance().getConnectionSlotNumber();
         }
 
-        needsize = realInvalidBatchSize;
+        needsize = realInvalidBatchSize + realValidBatchSize - ret.size();
         for (int i = 0; i < slot - 1; i++) {// 模型，高级别槽获取数量是低级别的1/2， 大批量数据将会严格服从 log{SlotFactory}n。
             ret.addAll(proxyRepo.getfromSlot((i + 1) * -frame, i * -frame,
                     needsize / SysConfig.getInstance().getConnectionSlotFactory(), "connection_score_date",
                     "connection_score", null));
-            needsize = connectionValidBatchSize - ret.size();
+            needsize = realInvalidBatchSize + realValidBatchSize - ret.size();
         }
-        ret.addAll(proxyRepo.getfromSlot(slot * -frame, (slot + 1) * -frame + maxScore, needsize,
-                "connection_score_date", "connection_score", null));
+        ret.addAll(proxyRepo.getfromSlot(minScore, (slot - 1) * -frame, needsize, "connection_score_date",
+                "connection_score", null));
 
         return beanMapper.mapAsList(ret, ProxyModel.class);
     }

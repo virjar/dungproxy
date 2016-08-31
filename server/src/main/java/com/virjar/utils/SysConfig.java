@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 public class SysConfig {
@@ -52,14 +53,14 @@ public class SysConfig {
             keyverifyurl = properties.getProperty("system.availablecheck.url");
             avaliableValidateBatchSize = NumberUtils.toInt(properties.getProperty("avaliable.validateBatchSize"), 768);
             avaliableValidateBatchRatio = properties.getProperty("avaliable.validateBatchRatio", "1:1");
-            avaliableSlotFactory = NumberUtils.toInt(properties.getProperty("avaliable.slotNumber"));
-            avaliableSlotNumber = NumberUtils.toInt(properties.getProperty("avaliable.slotFactory"));
+            avaliableSlotFactory = NumberUtils.toInt(properties.getProperty("avaliable.slotFactory"));
+            avaliableSlotNumber = NumberUtils.toInt(properties.getProperty("avaliable.slotNumber"));
 
             connectionValidateBatchSize = NumberUtils.toInt(properties.getProperty("connection.validateBatchSize"),
                     768);
             connectionValidateBatchRatio = properties.getProperty("connection.validateBatchRatio", "1:1");
-            connectionSlotFactory = NumberUtils.toInt(properties.getProperty("connection.slotNumber"));
-            connectionSlotNumber = NumberUtils.toInt(properties.getProperty("connection.slotFactory"));
+            connectionSlotFactory = NumberUtils.toInt(properties.getProperty("connection.slotFactory"));
+            connectionSlotNumber = NumberUtils.toInt(properties.getProperty("connection.slotNumber"));
 
             availableCheckThread = NumberUtils.toInt("system.thread.availableCheckThread", 10);
             connectionCheckThread = NumberUtils.toInt("system.thread.connectionCheckThread", 20);
@@ -127,5 +128,13 @@ public class SysConfig {
 
     public int getIpCrawlerThread() {
         return ipCrawlerThread;
+    }
+
+    public String getPropertis(String key) {
+        return properties.getProperty(key);
+    }
+
+    public boolean recordFaildResponse() {
+        return StringUtils.equalsIgnoreCase("true", properties.getProperty("system.record_fail_response=false"));
     }
 }
