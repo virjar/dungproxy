@@ -1,7 +1,5 @@
 package com.virjar.utils;
 
-import com.virjar.core.beanmapper.MapClass;
-
 /**
  * Created by virjar on 16/8/14.
  */
@@ -35,16 +33,16 @@ public class ScoreUtil {
 
     private static long calcFrame(long max, long min, long score) {
         if (score > 0) {
-            if (max < SysConfig.getInstance().getSlotNumber()) {
+            if (max < SysConfig.getInstance().getAvaliableSlotNumber()) {
                 return 1;
             } else {
-                return max / SysConfig.getInstance().getSlotNumber();
+                return max / SysConfig.getInstance().getAvaliableSlotNumber();
             }
         } else {
-            if (-min < SysConfig.getInstance().getSlotNumber()) {
+            if (-min < SysConfig.getInstance().getAvaliableSlotNumber()) {
                 return 1;
             } else {
-                return -min / SysConfig.getInstance().getSlotNumber();
+                return -min / SysConfig.getInstance().getAvaliableSlotNumber();
             }
         }
     }

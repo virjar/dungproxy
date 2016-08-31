@@ -30,17 +30,27 @@ public class ProxyServiceImpl implements ProxyService {
     @Resource
     private ProxyRepository proxyRepo;
 
-    private int validBatchSize;
-    private int inValidBatchSize;
+    private int avaliableValidBatchSize;
+    private int avaliableInValidBatchSize;
+
+    private int connectionValidBatchSize;
+    private int connectionInValidBatchSize;
 
     @PostConstruct
     public void init() {
-        int batchSize = SysConfig.getInstance().getValidateBatchSize();
-        List<String> ratio = Splitter.on(":").splitToList(SysConfig.getInstance().getValidateBatchRatio());
+        int avaliableValidateBatchSize = SysConfig.getInstance().getAvaliableValidateBatchSize();
+        List<String> ratio = Splitter.on(":").splitToList(SysConfig.getInstance().getAvaliableValidateBatchRatio());
         int validNum = NumberUtils.toInt(ratio.get(0));
         int inValidNum = NumberUtils.toInt(ratio.get(1));
-        validBatchSize = batchSize * validNum / (validNum + inValidNum);
-        inValidNum = batchSize - validBatchSize;
+        avaliableValidBatchSize = avaliableValidateBatchSize * validNum / (validNum + inValidNum);
+        avaliableInValidBatchSize = avaliableValidateBatchSize - avaliableValidBatchSize;
+
+        int connectionValidateBatchSize = SysConfig.getInstance().getConnectionValidateBatchSize();
+        ratio = Splitter.on(":").splitToList(SysConfig.getInstance().getConnectionValidateBatchRatio());
+        validNum = NumberUtils.toInt(ratio.get(0));
+        inValidNum = NumberUtils.toInt(ratio.get(1));
+        connectionValidBatchSize = connectionValidateBatchSize * validNum / (validNum + inValidNum);
+        connectionInValidBatchSize = connectionValidateBatchSize - connectionValidBatchSize;
     }
 
     @Transactional
@@ -102,54 +112,54 @@ public class ProxyServiceImpl implements ProxyService {
         Integer minScore = proxyRepo.getMinScore("availbel_score");
         maxScore = maxScore == null ? 0 : maxScore;
         minScore = minScore == null ? 0 : minScore;
-        int realValidBatchSize = validBatchSize;
-        int realInvalidBatchSize = inValidBatchSize;
+        int realValidBatchSize = avaliableValidBatchSize;
+        int realInvalidBatchSize = avaliableInValidBatchSize;
         if (maxScore == 0 && minScore == 0) {
             return beanMapper.mapAsList(
                     proxyRepo.selectPage(queryProxy,
-                            new PageRequest(0, validBatchSize + inValidBatchSize,
+                            new PageRequest(0, avaliableValidBatchSize + avaliableInValidBatchSize,
                                     new Sort(new Sort.Order(Sort.Direction.DESC, "availbel_score_date")))),
                     ProxyModel.class);
         } else if (maxScore == 0) {
-            realInvalidBatchSize = validBatchSize + inValidBatchSize;
+            realInvalidBatchSize = avaliableValidBatchSize + avaliableInValidBatchSize;
         } else if (minScore == 0) {
-            realValidBatchSize = validBatchSize + inValidBatchSize;
+            realValidBatchSize = avaliableValidBatchSize + avaliableInValidBatchSize;
         }
 
         // 有效资源选取
-        if (maxScore < SysConfig.getInstance().getSlotNumber()) {
+        if (maxScore < SysConfig.getInstance().getAvaliableSlotNumber()) {
             frame = 1;
             slot = maxScore;
         } else {
-            frame = maxScore / SysConfig.getInstance().getSlotNumber();
-            slot = SysConfig.getInstance().getSlotNumber();
+            frame = maxScore / SysConfig.getInstance().getAvaliableSlotNumber();
+            slot = SysConfig.getInstance().getAvaliableSlotNumber();
         }
 
         int needsize = realValidBatchSize;
         for (int i = 0; i < slot - 1; i++) {// 模型，高级别槽获取数量是低级别的1/2， 大批量数据将会严格服从 log{SlotFactory}n。
             ret.addAll(proxyRepo.getfromSlot(i * frame, (i + 1) * frame,
-                    needsize / SysConfig.getInstance().getSlotFactory(), "availbel_score_date", "availbel_score",
-                    "connection_score > 0"));
-            needsize = validBatchSize - ret.size();
+                    needsize / SysConfig.getInstance().getAvaliableSlotFactory(), "availbel_score_date",
+                    "availbel_score", "connection_score > 0"));
+            needsize = avaliableValidBatchSize - ret.size();
         }
         ret.addAll(proxyRepo.getfromSlot((slot - 1) * frame, slot * frame + maxScore, needsize, "availbel_score_date",
                 "availbel_score", "connection_score > 0"));
 
         // 无效资源选取
-        if (minScore < -SysConfig.getInstance().getSlotNumber()) {
+        if (minScore < -SysConfig.getInstance().getAvaliableSlotNumber()) {
             frame = 1;
             slot = minScore;
         } else {
-            frame = -minScore / SysConfig.getInstance().getSlotNumber();
-            slot = SysConfig.getInstance().getSlotNumber();
+            frame = -minScore / SysConfig.getInstance().getAvaliableSlotNumber();
+            slot = SysConfig.getInstance().getAvaliableSlotNumber();
         }
 
         needsize = realInvalidBatchSize;
         for (int i = 0; i < slot - 1; i++) {// 模型，高级别槽获取数量是低级别的1/2， 大批量数据将会严格服从 log{SlotFactory}n。
             ret.addAll(proxyRepo.getfromSlot((i + 1) * -frame, i * -frame,
-                    needsize / SysConfig.getInstance().getSlotFactory(), "availbel_score_date", "availbel_score",
-                    "connection_score > 0"));
-            needsize = validBatchSize - ret.size();
+                    needsize / SysConfig.getInstance().getAvaliableSlotFactory(), "availbel_score_date",
+                    "availbel_score", "connection_score > 0"));
+            needsize = avaliableValidBatchSize - ret.size();
         }
         ret.addAll(proxyRepo.getfromSlot(slot * -frame, (slot + 1) * -frame + maxScore, needsize, "availbel_score_date",
                 "availbel_score", "connection_score > 0"));
@@ -166,54 +176,54 @@ public class ProxyServiceImpl implements ProxyService {
         Integer minScore = proxyRepo.getMinScore("connection_score");
         maxScore = maxScore == null ? 0 : maxScore;
         minScore = minScore == null ? 0 : minScore;
-        int realValidBatchSize = validBatchSize;
-        int realInvalidBatchSize = inValidBatchSize;
+        int realValidBatchSize = connectionValidBatchSize;
+        int realInvalidBatchSize = connectionInValidBatchSize;
         if (maxScore == 0 && minScore == 0) {
             return beanMapper.mapAsList(
                     proxyRepo.selectPage(queryProxy,
-                            new PageRequest(0, validBatchSize + inValidBatchSize,
+                            new PageRequest(0, connectionValidBatchSize + connectionInValidBatchSize,
                                     new Sort(new Sort.Order(Sort.Direction.DESC, "connection_score_date")))),
                     ProxyModel.class);
         } else if (maxScore == 0) {
-            realInvalidBatchSize = validBatchSize + inValidBatchSize;
+            realInvalidBatchSize = connectionValidBatchSize + connectionInValidBatchSize;
         } else if (minScore == 0) {
-            realValidBatchSize = validBatchSize + inValidBatchSize;
+            realValidBatchSize = connectionValidBatchSize + connectionInValidBatchSize;
         }
 
         // 有效资源选取
-        if (maxScore < SysConfig.getInstance().getSlotNumber()) {
+        if (maxScore < SysConfig.getInstance().getConnectionSlotNumber()) {
             frame = 1;
             slot = maxScore;
         } else {
-            frame = maxScore / SysConfig.getInstance().getSlotNumber();
-            slot = SysConfig.getInstance().getSlotNumber();
+            frame = maxScore / SysConfig.getInstance().getConnectionSlotNumber();
+            slot = SysConfig.getInstance().getConnectionSlotNumber();
         }
 
         int needsize = realValidBatchSize;
         for (int i = 0; i < slot - 1; i++) {// 模型，高级别槽获取数量是低级别的1/2， 大批量数据将会严格服从 log{SlotFactory}n。
             ret.addAll(proxyRepo.getfromSlot(i * frame, (i + 1) * frame,
-                    needsize / SysConfig.getInstance().getSlotFactory(), "availbel_score_date", "connection_score",
-                    null));
-            needsize = validBatchSize - ret.size();
+                    needsize / SysConfig.getInstance().getConnectionSlotFactory(), "availbel_score_date",
+                    "connection_score", null));
+            needsize = connectionValidBatchSize - ret.size();
         }
         ret.addAll(proxyRepo.getfromSlot((slot - 1) * frame, slot * frame + maxScore, needsize, "connection_score_date",
                 "connection_score", null));
 
         // 无效资源选取
-        if (minScore < -SysConfig.getInstance().getSlotNumber()) {
+        if (minScore < -SysConfig.getInstance().getConnectionSlotNumber()) {
             frame = 1;
             slot = minScore;
         } else {
-            frame = -minScore / SysConfig.getInstance().getSlotNumber();
-            slot = SysConfig.getInstance().getSlotNumber();
+            frame = -minScore / SysConfig.getInstance().getConnectionSlotNumber();
+            slot = SysConfig.getInstance().getConnectionSlotNumber();
         }
 
         needsize = realInvalidBatchSize;
         for (int i = 0; i < slot - 1; i++) {// 模型，高级别槽获取数量是低级别的1/2， 大批量数据将会严格服从 log{SlotFactory}n。
             ret.addAll(proxyRepo.getfromSlot((i + 1) * -frame, i * -frame,
-                    needsize / SysConfig.getInstance().getSlotFactory(), "connection_score_date", "connection_score",
-                    null));
-            needsize = validBatchSize - ret.size();
+                    needsize / SysConfig.getInstance().getConnectionSlotFactory(), "connection_score_date",
+                    "connection_score", null));
+            needsize = connectionValidBatchSize - ret.size();
         }
         ret.addAll(proxyRepo.getfromSlot(slot * -frame, (slot + 1) * -frame + maxScore, needsize,
                 "connection_score_date", "connection_score", null));

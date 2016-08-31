@@ -10,10 +10,17 @@ import org.apache.commons.lang3.math.NumberUtils;
 public class SysConfig {
 
     private String keyverifyurl;
-    private int validateBatchSize;
-    private String validateBatchRatio;
-    private int slotNumber;
-    private int slotFactory;
+
+    private int avaliableValidateBatchSize;
+    private String avaliableValidateBatchRatio;
+    private int avaliableSlotNumber;
+    private int avaliableSlotFactory;
+
+    private int connectionValidateBatchSize;
+    private String connectionValidateBatchRatio;
+    private int connectionSlotNumber;
+    private int connectionSlotFactory;
+
     private int availableCheckThread;
     private int connectionCheckThread;
     private int addreddSyncThread;
@@ -29,6 +36,8 @@ public class SysConfig {
         instance = new SysConfig();
     }
 
+    private Properties properties;
+
     public static SysConfig getInstance() {
         return instance;
     }
@@ -39,11 +48,19 @@ public class SysConfig {
             Properties properties = new Properties();
             resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
             properties.load(resourceAsStream);
+            this.properties = properties;
             keyverifyurl = properties.getProperty("system.availablecheck.url");
-            validateBatchSize = NumberUtils.toInt(properties.getProperty("system.validateBatchSize"), 768);
-            validateBatchRatio = properties.getProperty("system.validateBatchRatio", "1:1");
-            slotFactory = NumberUtils.toInt(properties.getProperty("system.slotNumber"));
-            slotNumber = NumberUtils.toInt(properties.getProperty("system.slotFactory"));
+            avaliableValidateBatchSize = NumberUtils.toInt(properties.getProperty("avaliable.validateBatchSize"), 768);
+            avaliableValidateBatchRatio = properties.getProperty("avaliable.validateBatchRatio", "1:1");
+            avaliableSlotFactory = NumberUtils.toInt(properties.getProperty("avaliable.slotNumber"));
+            avaliableSlotNumber = NumberUtils.toInt(properties.getProperty("avaliable.slotFactory"));
+
+            connectionValidateBatchSize = NumberUtils.toInt(properties.getProperty("connection.validateBatchSize"),
+                    768);
+            connectionValidateBatchRatio = properties.getProperty("connection.validateBatchRatio", "1:1");
+            connectionSlotFactory = NumberUtils.toInt(properties.getProperty("connection.slotNumber"));
+            connectionSlotNumber = NumberUtils.toInt(properties.getProperty("connection.slotFactory"));
+
             availableCheckThread = NumberUtils.toInt("system.thread.availableCheckThread", 10);
             connectionCheckThread = NumberUtils.toInt("system.thread.connectionCheckThread", 20);
             addreddSyncThread = NumberUtils.toInt("system.thread.addreddSyncThread", 5);
@@ -56,20 +73,36 @@ public class SysConfig {
         }
     }
 
-    public String getValidateBatchRatio() {
-        return validateBatchRatio;
+    public String getAvaliableValidateBatchRatio() {
+        return avaliableValidateBatchRatio;
     }
 
-    public int getValidateBatchSize() {
-        return validateBatchSize;
+    public int getAvaliableValidateBatchSize() {
+        return avaliableValidateBatchSize;
     }
 
-    public int getSlotFactory() {
-        return slotFactory;
+    public int getAvaliableSlotFactory() {
+        return avaliableSlotFactory;
     }
 
-    public int getSlotNumber() {
-        return slotNumber;
+    public int getAvaliableSlotNumber() {
+        return avaliableSlotNumber;
+    }
+
+    public int getConnectionSlotFactory() {
+        return connectionSlotFactory;
+    }
+
+    public int getConnectionSlotNumber() {
+        return connectionSlotNumber;
+    }
+
+    public String getConnectionValidateBatchRatio() {
+        return connectionValidateBatchRatio;
+    }
+
+    public int getConnectionValidateBatchSize() {
+        return connectionValidateBatchSize;
     }
 
     public String getKeyverifyurl() {

@@ -7,6 +7,7 @@
         <property name="mediaTypes">
             <value>html=text/html
                 json=application/json
+                json=*/*
             </value>
         </property>
         <property name="defaultContentType" value="text/html"/>

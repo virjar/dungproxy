@@ -126,7 +126,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                         proxy.setAvailbelScore(proxy.getAvailbelScore() - 1);
                     } else {
                         proxy.setAvailbelScore(
-                                proxy.getAvailbelScore() - slot * SysConfig.getInstance().getSlotFactory());
+                                proxy.getAvailbelScore() - slot * SysConfig.getInstance().getAvaliableSlotFactory());
                     }
                 }
                 ProxyModel updateProxy = new ProxyModel();
