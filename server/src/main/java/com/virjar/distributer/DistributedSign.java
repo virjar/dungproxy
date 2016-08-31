@@ -45,4 +45,99 @@ public class DistributedSign {
     public void add(String str) {
 
     }
+
+    /**
+     * 使用指定的hash参数产生hash值。对于同样的字符串,在不同hash参数下应该产生不同的hash value
+     *
+     * @param s a character sequence.
+     * @param strLength the length of <code>s</code>.
+     * @param funtionIndex a hash function index (smaller than {@link #totalBits}).
+     * @return the position in the filter corresponding to <code>s</code> for the hash function <code>k</code>.
+     */
+    private long hash(final CharSequence s, final int strLength, final int funtionIndex) {
+        final int[] w = weight[funtionIndex];
+        int h = 0, i = strLength;
+        while (i-- != 0)
+            h ^= s.charAt(i) * w[i % NUMBER_OF_WEIGHTS];
+        return ((long) h - Integer.MIN_VALUE) % totalBits;
+    }
+
+    /**
+     * Checks whether the given character sequence is in this filter.
+     *
+     * <P>
+     * Note that this method may return true on a character sequence that is has not been added to the filter. This will
+     * happen with probability 2<sub>-<var>d</var></sub>, where <var>d</var> is the number of hash functions specified
+     * at creation time, if the number of the elements in the filter is less than <var>n</var>, the number of expected
+     * elements specified at creation time.
+     *
+     * @param str a character sequence.
+     * @return true if the sequence is in the filter (or if a sequence with the same hash sequence is in the filter).
+     */
+
+    public boolean contains(final CharSequence str) {
+        int i = hashFunction, length = str.length();
+        while (i-- != 0)
+            if (!getBit(hash(str, length, i)))
+                return false;
+        return true;
+    }
+
+    /**
+     * Adds a character sequence to the filter.
+     *
+     * @param s a character sequence.
+     * @return true if the character sequence was not in the filter (but see {@link #contains(CharSequence)}).
+     */
+
+    public boolean add(final CharSequence s) {
+        boolean result = false;
+        int i = hashFunction, length = s.length();
+        long hash;
+        while (i-- != 0) {
+            hash = hash(s, length, i);
+            if (!getBit(hash)) {
+                result = true;
+            }
+            setBit(hash);
+        }
+        if (result)
+            size++;
+        return result;
+    }
+
+    protected final static long ADDRESS_BITS_PER_UNIT = 5; // 32=2^5
+    protected final static long BIT_INDEX_MASK = 31; // = BITS_PER_UNIT - 1;
+
+    /**
+     * Returns from the local bitvector the value of the bit with the specified index. The value is <tt>true</tt> if the
+     * bit with the index <tt>bitIndex</tt> is currently set; otherwise, returns <tt>false</tt>.
+     *
+     * (adapted from cern.colt.bitvector.QuickBitVector)
+     *
+     * @param bitIndex the bit index.
+     * @return the value of the bit with the specified index.
+     */
+    protected boolean getBit(long bitIndex) {
+        return ((bits[(int) (bitIndex >> ADDRESS_BITS_PER_UNIT)] & (1 << (bitIndex & BIT_INDEX_MASK))) != 0);
+    }
+
+    /**
+     * Changes the bit with index <tt>bitIndex</tt> in local bitvector.
+     *
+     * (adapted from cern.colt.bitvector.QuickBitVector)
+     *
+     * @param bitIndex the index of the bit to be set.
+     */
+    protected void setBit(long bitIndex) {
+        bits[(int) (bitIndex >> ADDRESS_BITS_PER_UNIT)] |= 1 << (bitIndex & BIT_INDEX_MASK);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.archive.util.BloomFilter#getSizeBytes()
+     */
+    public long getSizeBytes() {
+        return bits.length * 4;
+    }
 }

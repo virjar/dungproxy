@@ -86,9 +86,8 @@ public class ConnectionValidater implements Runnable, InitializingBean {
             try {
                 if (ProxyUtil
                         .validateProxyConnect(new HttpHost(InetAddress.getByName(proxy.getIp()), proxy.getPort()))) {
-                    if (proxy.getConnectionScore() < 0) {
-                        proxy.setConnectionScore(
-                                proxy.getConnectionScore() + slot * SysConfig.getInstance().getSlotFactory());
+                    if (proxy.getConnectionScore() < 0) {// 不可用到可用,直接扭转,不用逐级升权
+                        proxy.setConnectionScore(1L);
                     } else {
                         proxy.setConnectionScore(proxy.getConnectionScore() + 1);
                     }

@@ -1,8 +1,6 @@
 package com.virjar.scheduler;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
 import javax.annotation.Resource;
@@ -13,6 +11,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.crawler.Collector;
 import com.virjar.entity.Proxy;
@@ -33,6 +32,7 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     @Resource
     private ProxyRepository proxyRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(CollectorTask.class);
 
     // 一般来说线程池不会有空转的,我希望所有线程能够随时工作,线程池除了节省线程创建和销毁开销,同时起限流作用,如果任务提交太多,则使用主线程进行工作
@@ -56,13 +56,15 @@ public class CollectorTask implements Runnable, InitializingBean {
         }
     }
 
+    private Map<Collector, Long> sleepTimeStamp = Maps.newHashMap();
+
     @Override
     public void run() {
-        long totalWaitTime = 10 * 60 * 1000;
+        long totalWaitTime = 30 * 60 * 1000;
         logger.info("CollectorTask start");
         while (true) {
             try {
-                 //logger.info("begin proxy collect start");
+                // logger.info("begin proxy collect start");
                 Collections.sort(Collectors, new Comparator<Collector>() {
                     @Override
                     public int compare(Collector o1, Collector o2) {// 失败次数越多，被调度的可能性越小。成功的次数越多，被调度的可能性越小。没有成功也没有失败的，被调度的可能性最大
@@ -90,8 +92,16 @@ public class CollectorTask implements Runnable, InitializingBean {
         }
     }
 
+    private void init() {
+        Random random = new Random();
+        for (Collector collector : Collectors) {
+            sleepTimeStamp.put(collector, System.currentTimeMillis() + random.nextInt() % 60000);
+        }
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
+        init();
         new Thread(this).start();
     }
 
@@ -102,10 +112,15 @@ public class CollectorTask implements Runnable, InitializingBean {
         public WebsiteCollect(Collector collector) {
             super();
             this.collector = collector;
+
         }
 
         @Override
         public Object call() throws Exception {
+            Long aLong = sleepTimeStamp.get(collector);// 开机随机暂停,放弃任务错开爬虫集中访问导致网络拥堵
+            if (aLong != null && System.currentTimeMillis() < aLong) {
+                return this;
+            }
             List<Proxy> draftproxys = collector.newProxy(proxyRepository);
             // logger.info("收集到的新资源:{}", JSON.toJSONString(draftproxys));
             ResourceFilter.filter(draftproxys);

@@ -35,7 +35,8 @@ public class AvailableValidater implements InitializingBean, Runnable {
     // 从而阻塞主线程任务产生逻辑
     private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getAvailableCheckThread(),
             SysConfig.getInstance().getAvailableCheckThread(), 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+            new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
+            new ThreadPoolExecutor.CallerRunsPolicy());
 
     private volatile boolean isRunning = false;
 
@@ -59,7 +60,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
         while (isRunning) {
             try {
                 List<ProxyModel> needupdate = proxyService.find4availableupdate();
-               // logger.info("待跟新可用性资源数目:{},资源:{}", needupdate.size(), JSONObject.toJSON(needupdate));
+                // logger.info("待跟新可用性资源数目:{},资源:{}", needupdate.size(), JSONObject.toJSON(needupdate));
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
                     try {// 大约8分钟
@@ -115,9 +116,8 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 if (response != null) {
                     proxy.setTransperent(response.getTransparent());
                     proxy.setProxyIp(response.getRemoteAddr());
-                    if (availbelScore < 0) {
-                        proxy.setAvailbelScore(
-                                proxy.getAvailbelScore() + slot * SysConfig.getInstance().getSlotFactory());
+                    if (availbelScore < 0) {// 不可用到可用,直接扭转,不用逐级升权
+                        proxy.setAvailbelScore(1L);
                     } else {
                         proxy.setAvailbelScore(proxy.getAvailbelScore() + 1);
                     }
