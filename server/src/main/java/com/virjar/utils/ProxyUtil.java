@@ -83,7 +83,7 @@ public class ProxyUtil {
             }
         } catch (Exception e) {
             // doNothing
-            e.printStackTrace();
+            //e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(is);
         }
