@@ -6,6 +6,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +84,7 @@ public class ProxyUtil {
             }
         } catch (Exception e) {
             // doNothing
-            //e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -110,13 +111,15 @@ public class ProxyUtil {
         try {
             long start = System.currentTimeMillis();
             String response = BrowserHttpClientPool.getInstance().borrow().setProxy(p.getIp(), p.getPort())
-                    .get(keysourceurl);
+                    .get(keysourceurl + "?ip=" + p.getIp() + "&port=" + p.getPort());
             AvailbelCheckResponse availbelCheckResponse = JSONUtils.parse(response, AvailbelCheckResponse.class);
             if (availbelCheckResponse != null
                     && AvailbelCheckResponse.staticKey.equals(availbelCheckResponse.getKey())) {
                 availbelCheckResponse.setSpeed(System.currentTimeMillis() - start);
                 availbelCheckResponse.setType(ProxyType.HTTP.getType());
                 return availbelCheckResponse;
+            } else if (StringUtils.isNotBlank(response)) {
+                logger.info("check error response is {}", response);
             }
         } catch (Exception e) {
             // doNothing

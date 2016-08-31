@@ -14,10 +14,14 @@ public class JSONUtils {
         if (StringUtils.isEmpty(str)) {
             return null;
         }
-        JSONObject jsonObject = JSON.parseObject(str);
-        Boolean status = jsonObject.getBoolean("status");
-        if (BooleanUtils.isTrue(status)) {
-            return jsonObject.getObject("data", clazz);
+        try {
+            JSONObject jsonObject = JSON.parseObject(str);
+            Boolean status = jsonObject.getBoolean("status");
+            if (BooleanUtils.isTrue(status)) {
+                return jsonObject.getObject("data", clazz);
+            }
+        }catch (Exception e){
+            //
         }
         return null;
     }
