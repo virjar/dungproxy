@@ -215,7 +215,7 @@ public class ProxyServiceImpl implements ProxyService {
         int needsize = realValidBatchSize;
         for (int i = 0; i < slot - 1; i++) {// 模型，高级别槽获取数量是低级别的1/2， 大批量数据将会严格服从 log{SlotFactory}n。
             ret.addAll(proxyRepo.getfromSlot(i * frame, (i + 1) * frame,
-                    needsize / SysConfig.getInstance().getConnectionSlotFactory(), "availbel_score_date",
+                    needsize / SysConfig.getInstance().getConnectionSlotFactory(), "connection_score_date",
                     "connection_score", null));
             needsize = realValidBatchSize - ret.size();
         }

@@ -113,9 +113,6 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 long slot = ScoreUtil.calAvailableSlot(availbelScore);
                 slot = slot == 0 ? 1 : slot;
                 AvailbelCheckResponse response = ProxyUtil.validateProxyAvailable(proxy);
-                if (proxy.getIp().equals("202.106.16.36")) {
-                    logger.info("tag:202.106.16.36,{}", JSONObject.toJSONString(response));
-                }
                 if (response != null) {
                     proxy.setTransperent(response.getTransparent());
                     proxy.setProxyIp(response.getRemoteAddr());

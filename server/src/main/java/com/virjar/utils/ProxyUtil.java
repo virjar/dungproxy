@@ -172,7 +172,7 @@ public class ProxyUtil {
             socket = new Socket();
             socket.bind(new InetSocketAddress(localAddr, 0));
             InetSocketAddress endpointSocketAddr = new InetSocketAddress(p.getAddress().getHostAddress(), p.getPort());
-            socket.connect(endpointSocketAddr, 3000);
+            socket.connect(endpointSocketAddr, 9000);
             logger.debug("SUCCESS - connection established! Local: " + localAddr.getHostAddress() + " remote: " + p);
             return true;
         } catch (Exception e) {
