@@ -120,10 +120,14 @@ public class AvailableValidater implements InitializingBean, Runnable {
                     }
                     proxy.setConnectionScore(proxy.getConnectionScore() + 2);// 可用性验证本身包含连接性验证
                 } else {
-                    if (availbelScore < 0) {
+                    if (availbelScore <= 0) {// 等于0的时候,也会出现在这里,
                         proxy.setAvailbelScore(proxy.getAvailbelScore() - 1);
                     } else {
-                        proxy.setAvailbelScore(proxy.getAvailbelScore() - (long) Math.log((double) availbelScore));
+                        // 通过这里保证灵敏性,对于高质量资源,如果探测到不可用,那么将会快速降权。降权因子根据当前打分决定(分值其实也是权重,分值越高排序越考前),
+                        // 降权分值复合对数函数,保证站得越高,摔的越快,但是又不能是和当前分值成线性关系。所以找了一个对数函数来降权。
+                        // 计算降权分值的时候,在原分值上面加3的原因是这里对数是以e为底的对数(e=2.71828),这样算出来的分值必须大于等于1,小于1起不到降权效果
+                        // 计算机是离散的,
+                        proxy.setAvailbelScore(proxy.getAvailbelScore() - (long) Math.log((double) availbelScore) + 3);
                         logger.warn("可用打分由可用转变为不可用 preScore:{} ip为:{}", availbelScore, JSONObject.toJSONString(proxy));
                     }
                 }

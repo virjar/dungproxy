@@ -97,7 +97,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                     if (proxy.getConnectionScore() > 0) {
                         long preScore = proxy.getConnectionScore();
                         proxy.setConnectionScore(
-                                proxy.getConnectionScore() - (int) Math.log((double) proxy.getConnectionScore()));
+                                proxy.getConnectionScore() - (int) Math.log((double) proxy.getConnectionScore() + 3));
                         logger.warn("连接打分由可用转变为不可用 prescore:{}  ip为:{}", preScore, JSONObject.toJSONString(proxy));
                     } else {
                         proxy.setConnectionScore(proxy.getConnectionScore() - 1);
