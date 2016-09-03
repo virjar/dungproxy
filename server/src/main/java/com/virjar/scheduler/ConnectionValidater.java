@@ -9,10 +9,12 @@ import java.util.concurrent.*;
 import javax.annotation.Resource;
 
 import org.apache.http.HttpHost;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
@@ -33,7 +35,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
             new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.CallerRunsPolicy());
 
-    private Logger logger = Logger.getLogger(ConnectionValidater.class);
+    private Logger logger = LoggerFactory.getLogger(ConnectionValidater.class);
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -45,7 +47,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
         logger.info("Component start");
         while (true) {
             try {
-               // logger.info("begin connection check");
+                // logger.info("begin connection check");
                 List<ProxyModel> needupdate = proxyService.find4connectionupdate();
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
@@ -84,8 +86,12 @@ public class ConnectionValidater implements Runnable, InitializingBean {
             long slot = ScoreUtil.calAvailableSlot(connectionScore);
             slot = slot == 0 ? 1 : slot;
             try {
-                if (ProxyUtil
-                        .validateProxyConnect(new HttpHost(InetAddress.getByName(proxy.getIp()), proxy.getPort()))) {
+                Boolean aBoolean = ProxyUtil
+                        .validateProxyConnect(new HttpHost(InetAddress.getByName(proxy.getIp()), proxy.getPort()));
+                if (aBoolean == null) {
+                    return this;
+                }
+                if (aBoolean) {
                     if (proxy.getConnectionScore() < 0) {// 不可用到可用,直接扭转,不用逐级升权
                         proxy.setConnectionScore(1L);
                     } else {
@@ -95,6 +101,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                     if (proxy.getConnectionScore() > 0) {
                         proxy.setConnectionScore(
                                 proxy.getConnectionScore() - slot * SysConfig.getInstance().getAvaliableSlotFactory());
+                        logger.warn("连接打分由可用转变为不可用 ip为:{}", JSONObject.toJSONString(proxy));
                     } else {
                         proxy.setConnectionScore(proxy.getConnectionScore() - 1);
                     }
@@ -105,7 +112,14 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                 updateProxy.setConnectionScoreDate(new Date());
                 proxyService.updateByPrimaryKeySelective(updateProxy);
             } catch (UnknownHostException e) {
+                logger.warn("ip不合法 {}", JSONObject.toJSONString(proxy), e);
                 proxyService.deleteByPrimaryKey(proxy.getId());
+            } finally {
+                try {
+                    Thread.sleep(1000);// 等待系统释放连接资源
+                } catch (Exception e) {
+                    //
+                }
             }
             return this;
         }

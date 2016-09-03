@@ -1,5 +1,6 @@
 package com.virjar.utils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
 import java.util.Enumeration;
@@ -162,22 +163,39 @@ public class ProxyUtil {
         }
     }
 
-    public static boolean validateProxyConnect(HttpHost p) {
+    private static Socket newLocalSocket() {
+        for (int i = 0; i < 3; i++) {
+            Socket socket = new Socket();
+            try {
+                socket.bind(new InetSocketAddress(localAddr, 0));
+                return socket;
+            } catch (IOException e) {
+                logger.warn("系统资源足,本地端口开启失败");
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    public static Boolean validateProxyConnect(HttpHost p) {
         if (localAddr == null) {
             logger.error("cannot get local ip");
             throw new IllegalStateException("cannot get local ip");
         }
-        Socket socket = null;
+        Socket socket = newLocalSocket();
+        if (socket == null) {
+            return null;
+        }
         try {
-            socket = new Socket();
-            socket.bind(new InetSocketAddress(localAddr, 0));
             InetSocketAddress endpointSocketAddr = new InetSocketAddress(p.getAddress().getHostAddress(), p.getPort());
             socket.connect(endpointSocketAddr, 9000);
-            logger.debug("SUCCESS - connection established! Local: " + localAddr.getHostAddress() + " remote: " + p);
             return true;
         } catch (Exception e) {
             // 日志级别为debug,失败的IP数量非常多
-            logger.debug("FAILRE - CAN not connect! Local: " + localAddr.getHostAddress() + " remote: " + p);
         } finally {
             IOUtils.closeQuietly(socket);
         }

@@ -121,11 +121,12 @@ public class AvailableValidater implements InitializingBean, Runnable {
                     } else {
                         proxy.setAvailbelScore(proxy.getAvailbelScore() + 1);
                     }
-                    proxy.setConnectionScore(proxy.getConnectionScore() + 2);//可用性验证本身包含连接性验证
+                    proxy.setConnectionScore(proxy.getConnectionScore() + 2);// 可用性验证本身包含连接性验证
                 } else {
                     if (availbelScore < 0) {
                         proxy.setAvailbelScore(proxy.getAvailbelScore() - 1);
                     } else {
+                        logger.warn("可用打分由可用转变为不可用 ip为:{}", JSONObject.toJSONString(proxy));
                         proxy.setAvailbelScore(
                                 proxy.getAvailbelScore() - slot * SysConfig.getInstance().getAvaliableSlotFactory());
                     }
@@ -150,6 +151,12 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 return 0;
             } catch (Exception e) {
                 logger.error("error when check available {}", JSONObject.toJSONString(proxy), e);
+            }finally {
+                try {
+                    Thread.sleep(1000);//等待系统释放连接资源
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             return 0;
         }
