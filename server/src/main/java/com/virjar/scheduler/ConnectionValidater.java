@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
 import com.virjar.utils.ProxyUtil;
-import com.virjar.utils.ScoreUtil;
 import com.virjar.utils.SysConfig;
 
 @Component
@@ -82,9 +81,6 @@ public class ConnectionValidater implements Runnable, InitializingBean {
 
         @Override
         public Object call() throws Exception {
-            Long connectionScore = proxy.getConnectionScore();
-            long slot = ScoreUtil.calAvailableSlot(connectionScore);
-            slot = slot == 0 ? 1 : slot;
             try {
                 Boolean aBoolean = ProxyUtil
                         .validateProxyConnect(new HttpHost(InetAddress.getByName(proxy.getIp()), proxy.getPort()));
@@ -99,9 +95,10 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                     }
                 } else {
                     if (proxy.getConnectionScore() > 0) {
+                        long preScore = proxy.getConnectionScore();
                         proxy.setConnectionScore(
-                                proxy.getConnectionScore() - slot * SysConfig.getInstance().getAvaliableSlotFactory());
-                        logger.warn("连接打分由可用转变为不可用 ip为:{}", JSONObject.toJSONString(proxy));
+                                proxy.getConnectionScore() - (int) Math.log((double) proxy.getConnectionScore()));
+                        logger.warn("连接打分由可用转变为不可用 prescore:{}  ip为:{}", preScore, JSONObject.toJSONString(proxy));
                     } else {
                         proxy.setConnectionScore(proxy.getConnectionScore() - 1);
                     }
@@ -115,11 +112,9 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                 logger.warn("ip不合法 {}", JSONObject.toJSONString(proxy), e);
                 proxyService.deleteByPrimaryKey(proxy.getId());
             } finally {
-               /* try {
-                    Thread.sleep(1000);// 等待系统释放连接资源
-                } catch (Exception e) {
-                    //
-                }*/
+                /*
+                 * try { Thread.sleep(1000);// 等待系统释放连接资源 } catch (Exception e) { // }
+                 */
             }
             return this;
         }

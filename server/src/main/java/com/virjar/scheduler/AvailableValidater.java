@@ -18,7 +18,6 @@ import com.virjar.model.AvailbelCheckResponse;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
 import com.virjar.utils.ProxyUtil;
-import com.virjar.utils.ScoreUtil;
 import com.virjar.utils.SysConfig;
 
 @Component
@@ -110,8 +109,6 @@ public class AvailableValidater implements InitializingBean, Runnable {
         public Integer call() {
             try {
                 Long availbelScore = proxy.getAvailbelScore();
-                long slot = ScoreUtil.calAvailableSlot(availbelScore);
-                slot = slot == 0 ? 1 : slot;
                 AvailbelCheckResponse response = ProxyUtil.validateProxyAvailable(proxy);
                 if (response != null) {
                     proxy.setTransperent(response.getTransparent());
@@ -126,9 +123,8 @@ public class AvailableValidater implements InitializingBean, Runnable {
                     if (availbelScore < 0) {
                         proxy.setAvailbelScore(proxy.getAvailbelScore() - 1);
                     } else {
-                        logger.warn("可用打分由可用转变为不可用 ip为:{}", JSONObject.toJSONString(proxy));
-                        proxy.setAvailbelScore(
-                                proxy.getAvailbelScore() - slot * SysConfig.getInstance().getAvaliableSlotFactory());
+                        proxy.setAvailbelScore(proxy.getAvailbelScore() - (long) Math.log((double) availbelScore));
+                        logger.warn("可用打分由可用转变为不可用 preScore:{} ip为:{}", availbelScore, JSONObject.toJSONString(proxy));
                     }
                 }
                 ProxyModel updateProxy = new ProxyModel();
@@ -151,12 +147,10 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 return 0;
             } catch (Exception e) {
                 logger.error("error when check available {}", JSONObject.toJSONString(proxy), e);
-            }finally {
-               /* try {
-                    Thread.sleep(1000);//等待系统释放连接资源
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
+            } finally {
+                /*
+                 * try { Thread.sleep(1000);//等待系统释放连接资源 } catch (InterruptedException e) { e.printStackTrace(); }
+                 */
             }
             return 0;
         }
