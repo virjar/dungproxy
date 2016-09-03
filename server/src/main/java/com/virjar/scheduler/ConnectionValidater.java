@@ -115,11 +115,11 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                 logger.warn("ip不合法 {}", JSONObject.toJSONString(proxy), e);
                 proxyService.deleteByPrimaryKey(proxy.getId());
             } finally {
-                try {
+               /* try {
                     Thread.sleep(1000);// 等待系统释放连接资源
                 } catch (Exception e) {
                     //
-                }
+                }*/
             }
             return this;
         }

@@ -152,11 +152,11 @@ public class AvailableValidater implements InitializingBean, Runnable {
             } catch (Exception e) {
                 logger.error("error when check available {}", JSONObject.toJSONString(proxy), e);
             }finally {
-                try {
+               /* try {
                     Thread.sleep(1000);//等待系统释放连接资源
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
+                }*/
             }
             return 0;
         }
