@@ -7,9 +7,9 @@ import java.util.Random;
  */
 public class DistributedSign {
     // 每个签名容器最多存500个IP使用信息,如果超过,服务器将会强制重置
-    private static final int maxNumber = 500;
+    private static final int maxNumber = 300;
     // hash标记位,一般来说这个数值越高越不容易出现数据冲突,但是相对来说容器大小将会增加。服务器使用的是22个,考虑客户端数据量较小,设置为10
-    private static final int hashFunction = 10;
+    private static final int hashFunction = 5;
     // 随机种子,我们这里只是使用一个种子产生数字序列,用来散列数据,所以这个数值作为客户端服务器协议的一部分,共同约定即可,无特殊含义
     private static final int seed = 516;
     final public static int NUMBER_OF_WEIGHTS = 2083; // CHANGED FROM 16
@@ -38,12 +38,34 @@ public class DistributedSign {
         }
     }
 
-    public String sign() {
-        return null;
+    public static DistributedSign unSign(String sign) {
+        byte[] decode = BaseSixtyfour.decode(sign);
+        DistributedSign distributedSign = new DistributedSign();
+
+        distributedSign.size = ((int) decode[0] << 24) | (int) decode[1] << 18 | (int) decode[2] << 8 | (int) decode[3];
+        int n = decode.length / 4 - 1;
+        int[] bits = new int[n];
+        for (int i = 0; i < n; i++) {
+            bits[i] = (int) decode[i * 4 + 4] << 24 | (int) decode[i * 4 + 5] << 16 | (int) decode[i * 4 + 6] << 8
+                    | decode[i * 4 + 7];
+        }
+        distributedSign.bits = bits;
+        return distributedSign;
     }
 
-    public void add(String str) {
-
+    public String sign() {
+        byte[] data = new byte[bits.length * 4 + 4];
+        data[0] = (byte) ((size >>> 24) & 0xff);
+        data[1] = (byte) ((size >>> 16) & 0xff);
+        data[2] = (byte) ((size >>> 8) & 0xff);
+        data[3] = (byte) ((size) & 0xff);
+        for (int i = 0; i < bits.length; i++) {
+            data[i * 4 + 4] = (byte) ((bits[i] >>> 24) & 0xff);
+            data[i * 4 + 5] = (byte) ((bits[i] >>> 16) & 0xff);
+            data[i * 4 + 6] = (byte) ((bits[i] >>> 8) & 0xff);
+            data[i * 4 + 7] = (byte) ((bits[i]) & 0xff);
+        }
+        return BaseSixtyfour.encode(data);
     }
 
     /**
@@ -139,5 +161,17 @@ public class DistributedSign {
      */
     public long getSizeBytes() {
         return bits.length * 4;
+    }
+
+    public static void main(String[] args) {
+        DistributedSign distributedSign = new DistributedSign();
+        distributedSign.add("test");
+        distributedSign.add("weijia.deng");
+        String sign = distributedSign.sign();
+        System.out.println(sign);
+        DistributedSign distributedSign1 = DistributedSign.unSign(sign);
+        System.out.println(distributedSign1.size);
+        System.out.println(distributedSign1.contains("weijia.deng"));
+        System.out.println(distributedSign1.contains("weijia"));
     }
 }

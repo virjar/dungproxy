@@ -113,8 +113,8 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 long slot = ScoreUtil.calAvailableSlot(availbelScore);
                 slot = slot == 0 ? 1 : slot;
                 AvailbelCheckResponse response = ProxyUtil.validateProxyAvailable(proxy);
-                if(proxy.getIp().equals("202.106.16.36")){
-                    logger.info("tag:202.106.16.36,{}",JSONObject.toJSONString(response));
+                if (proxy.getIp().equals("202.106.16.36")) {
+                    logger.info("tag:202.106.16.36,{}", JSONObject.toJSONString(response));
                 }
                 if (response != null) {
                     proxy.setTransperent(response.getTransparent());
@@ -124,6 +124,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                     } else {
                         proxy.setAvailbelScore(proxy.getAvailbelScore() + 1);
                     }
+                    proxy.setConnectionScore(proxy.getConnectionScore() + 2);//可用性验证本身包含连接性验证
                 } else {
                     if (availbelScore < 0) {
                         proxy.setAvailbelScore(proxy.getAvailbelScore() - 1);
@@ -136,6 +137,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 updateProxy.setAvailbelScore(proxy.getAvailbelScore());
                 updateProxy.setId(proxy.getId());
                 updateProxy.setAvailbelScoreDate(new Date());
+                updateProxy.setConnectionScore(proxy.getConnectionScore());
                 if (response != null) {
                     updateProxy.setSpeed(response.getSpeed());
                     updateProxy.setProxyIp(response.getRemoteAddr());
@@ -144,8 +146,8 @@ public class AvailableValidater implements InitializingBean, Runnable {
                         updateProxy.setType(response.getType());
                     }
                 }
-                if(proxy.getIp().equals("202.106.16.36")){
-                    logger.info("tag:202.106.16.36,{}",JSONObject.toJSONString(updateProxy));
+                if (proxy.getIp().equals("202.106.16.36")) {
+                    logger.info("tag:202.106.16.36,{}", JSONObject.toJSONString(updateProxy));
                 }
                 proxyService.updateByPrimaryKeySelective(updateProxy);
                 return 0;

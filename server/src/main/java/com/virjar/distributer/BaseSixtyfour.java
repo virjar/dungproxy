@@ -4,7 +4,7 @@ package com.virjar.distributer;
  * Created by virjar on 16/8/31.
  */
 public class BaseSixtyfour {
-    private static final char[] base64std = "Ad56789+/FGHlmnopqrBuvwxNOPYZabcstefghijCDEWXyz01IJKLM234kQRSTUV"
+    private static final char[] base64std = "9+#FGHlmBuvwxNOPYZabnoAd5678pqrcstefghijCDEWXyz01IJKLM234kQRSTUV"
             .toCharArray();
     private static final int[] base64res = new int[128];
 
