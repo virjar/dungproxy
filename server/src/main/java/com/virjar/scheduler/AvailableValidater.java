@@ -127,7 +127,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                         // 降权分值复合对数函数,保证站得越高,摔的越快,但是又不能是和当前分值成线性关系。所以找了一个对数函数来降权。
                         // 计算降权分值的时候,在原分值上面加3的原因是这里对数是以e为底的对数(e=2.71828),这样算出来的分值必须大于等于1,小于1起不到降权效果
                         // 计算机是离散的,
-                        proxy.setAvailbelScore(proxy.getAvailbelScore() - (long) Math.log((double) availbelScore) + 3);
+                        proxy.setAvailbelScore(proxy.getAvailbelScore() - (long) Math.log((double) availbelScore + 3));
                         logger.warn("可用打分由可用转变为不可用 preScore:{} ip为:{}", availbelScore, JSONObject.toJSONString(proxy));
                     }
                 }
