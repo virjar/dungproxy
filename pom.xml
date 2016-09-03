@@ -9,5 +9,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>server</module>
+        <module>client</module>
+        <module>repeater</module>
     </modules>
 </project>
