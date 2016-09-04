@@ -170,7 +170,7 @@ public class ProxyUtil {
                 socket.bind(new InetSocketAddress(localAddr, 0));
                 return socket;
             } catch (IOException e) {
-                logger.warn("系统资源足,本地端口开启失败");
+                logger.warn("系统资源不足,本地端口开启失败");
                 try {
                     Thread.sleep(250);
                 } catch (InterruptedException e1) {
@@ -192,7 +192,7 @@ public class ProxyUtil {
         }
         try {
             InetSocketAddress endpointSocketAddr = new InetSocketAddress(p.getAddress().getHostAddress(), p.getPort());
-            socket.connect(endpointSocketAddr, 9000);
+            socket.connect(endpointSocketAddr, 4000);
             return true;
         } catch (Exception e) {
             // 日志级别为debug,失败的IP数量非常多
