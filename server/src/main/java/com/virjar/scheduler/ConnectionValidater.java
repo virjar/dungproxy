@@ -65,6 +65,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                         e.printStackTrace();
                     }
                 }
+                Thread.sleep(9000);//等待9秒钟,用于系统释放套接字资源
             } catch (Exception e) {
                 logger.error("error when check connection ", e);
             }
