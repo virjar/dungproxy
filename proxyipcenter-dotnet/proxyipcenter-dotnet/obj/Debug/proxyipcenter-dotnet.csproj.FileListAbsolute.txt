@@ -1,5 +1,0 @@
-D:\lajinanpiao\oschina\proxyipcenter\proxyipcenter-dotnet\proxyipcenter-dotnet\bin\Debug\proxyipcenter-dotnet.dll
-D:\lajinanpiao\oschina\proxyipcenter\proxyipcenter-dotnet\proxyipcenter-dotnet\bin\Debug\proxyipcenter-dotnet.pdb
-D:\lajinanpiao\oschina\proxyipcenter\proxyipcenter-dotnet\proxyipcenter-dotnet\obj\Debug\proxyipcenter-dotnet.csprojResolveAssemblyReference.cache
-D:\lajinanpiao\oschina\proxyipcenter\proxyipcenter-dotnet\proxyipcenter-dotnet\obj\Debug\proxyipcenter-dotnet.dll
-D:\lajinanpiao\oschina\proxyipcenter\proxyipcenter-dotnet\proxyipcenter-dotnet\obj\Debug\proxyipcenter-dotnet.pdb
