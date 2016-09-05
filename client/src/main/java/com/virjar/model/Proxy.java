@@ -198,7 +198,9 @@ public class Proxy {
 
         UNKNOWN(0, "未知"),
         ADSL(1, "ADSL代理"),
-        FREE(3, "免费代理");
+        FREE(3, "免费代理"),
+        SOCKS5_NOAUTH(99, "socks5 no auth"),
+        FIXED_IP_FLI(4, "固定代理");
 
         public final int code;
         public final String desc;

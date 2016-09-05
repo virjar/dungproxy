@@ -15,6 +15,7 @@ public class NamedThreadFactory implements ThreadFactory {
     private final boolean mDaemo;
     private final ThreadGroup mGroup;
 
+    //默认为守护线程
     public NamedThreadFactory(String prefix) {
         this(prefix, true);
     }

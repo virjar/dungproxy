@@ -1,4 +1,4 @@
-package com.virjar.util;
+package com.virjar.common.util;
 
 import com.virjar.model.Proxy;
 import org.apache.commons.pool2.BaseObjectPool;

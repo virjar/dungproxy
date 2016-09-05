@@ -1,4 +1,4 @@
-package com.virjar.util;
+package com.virjar.common.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

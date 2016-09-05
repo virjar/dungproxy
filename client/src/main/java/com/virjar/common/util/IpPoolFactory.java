@@ -1,4 +1,4 @@
-package com.virjar.util;
+package com.virjar.common.util;
 
 /**
  *
