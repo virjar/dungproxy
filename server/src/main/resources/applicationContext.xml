@@ -36,4 +36,5 @@
     <bean id="beanMapper" class="com.virjar.core.beanmapper.OrikaBeanMapper">
         <property name="basePackage" value="com.virjar.model.**"/>
     </bean>
+    <bean class="com.virjar.distributer.DistributeService"/>
 </beans>
