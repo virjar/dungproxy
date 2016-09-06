@@ -45,3 +45,4 @@ catalina.base_IS_UNDEFINED/
 nohup.out
 
 /proxyipcenter-dotnet/proxyipcenter-dotnet/obj
+/proxyipcenter-dotnet/UnitTestForProxy/obj
