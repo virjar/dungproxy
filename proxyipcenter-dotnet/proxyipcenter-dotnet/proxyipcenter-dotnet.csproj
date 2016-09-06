@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Http\HttpPackage.cs" />
+    <Compile Include="Model\Phone.cs" />
     <Compile Include="Model\ProxyInfo.cs" />
     <Compile Include="ProxyipCenterClicent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
