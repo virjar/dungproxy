@@ -23,27 +23,27 @@ namespace proxyipcenter_dotnet.DAL
 				MySqlParameter[] para = new MySqlParameter[]
 					{
 						new MySqlParameter("@ip", ToDBValue(proxy.ip)),
-						new MySqlParameter("@proxy_ip", ToDBValue(proxy.proxy_ip)),
+						new MySqlParameter("@proxy_ip", ToDBValue(proxy.proxyIp)),
 						new MySqlParameter("@port", ToDBValue(proxy.port)),
-						new MySqlParameter("@ip_value", ToDBValue(proxy.ip_value)),
+						new MySqlParameter("@ip_value", ToDBValue(proxy.ipValue)),
 						new MySqlParameter("@country", ToDBValue(proxy.country)),
 						new MySqlParameter("@area", ToDBValue(proxy.area)),
 						new MySqlParameter("@region", ToDBValue(proxy.region)),
 						new MySqlParameter("@city", ToDBValue(proxy.city)),
 						new MySqlParameter("@isp", ToDBValue(proxy.isp)),
-						new MySqlParameter("@country_id", ToDBValue(proxy.country_id)),
-						new MySqlParameter("@area_id", ToDBValue(proxy.area_id)),
-						new MySqlParameter("@region_id", ToDBValue(proxy.region_id)),
-						new MySqlParameter("@city_id", ToDBValue(proxy.city_id)),
-						new MySqlParameter("@isp_id", ToDBValue(proxy.isp_id)),
-						new MySqlParameter("@address_id", ToDBValue(proxy.address_id)),
+						new MySqlParameter("@country_id", ToDBValue(proxy.countryId)),
+						new MySqlParameter("@area_id", ToDBValue(proxy.areaId)),
+						new MySqlParameter("@region_id", ToDBValue(proxy.regionId)),
+						new MySqlParameter("@city_id", ToDBValue(proxy.cityId)),
+						new MySqlParameter("@isp_id", ToDBValue(proxy.ispId)),
+						new MySqlParameter("@address_id", ToDBValue(proxy.addressId)),
 						new MySqlParameter("@transperent", ToDBValue(proxy.transperent)),
 						new MySqlParameter("@speed", ToDBValue(proxy.speed)),
 						new MySqlParameter("@type", ToDBValue(proxy.type)),
-						new MySqlParameter("@connection_score", ToDBValue(proxy.connection_score)),
-						new MySqlParameter("@availbel_score", ToDBValue(proxy.availbel_score)),
-						new MySqlParameter("@connection_score_date", ToDBValue(proxy.connection_score_date)),
-						new MySqlParameter("@availbel_score_date", ToDBValue(proxy.availbel_score_date)),
+						new MySqlParameter("@connection_score", ToDBValue(proxy.connectionScore)),
+						new MySqlParameter("@availbel_score", ToDBValue(proxy.availbelScore)),
+						new MySqlParameter("@connection_score_date", ToDBValue(proxy.connectionScoreDate)),
+						new MySqlParameter("@availbel_score_date", ToDBValue(proxy.availbelScoreDate)),
 						new MySqlParameter("@createtime", ToDBValue(proxy.createtime)),
 						new MySqlParameter("@support_gfw", ToDBValue(proxy.support_gfw)),
 						new MySqlParameter("@gfw_speed", ToDBValue(proxy.gfw_speed)),
@@ -126,27 +126,27 @@ namespace proxyipcenter_dotnet.DAL
 			{
 				new MySqlParameter("@id", proxy.id)
 					,new MySqlParameter("@ip", ToDBValue(proxy.ip))
-					,new MySqlParameter("@proxy_ip", ToDBValue(proxy.proxy_ip))
+					,new MySqlParameter("@proxy_ip", ToDBValue(proxy.proxyIp))
 					,new MySqlParameter("@port", ToDBValue(proxy.port))
-					,new MySqlParameter("@ip_value", ToDBValue(proxy.ip_value))
+					,new MySqlParameter("@ip_value", ToDBValue(proxy.ipValue))
 					,new MySqlParameter("@country", ToDBValue(proxy.country))
 					,new MySqlParameter("@area", ToDBValue(proxy.area))
 					,new MySqlParameter("@region", ToDBValue(proxy.region))
 					,new MySqlParameter("@city", ToDBValue(proxy.city))
 					,new MySqlParameter("@isp", ToDBValue(proxy.isp))
-					,new MySqlParameter("@country_id", ToDBValue(proxy.country_id))
-					,new MySqlParameter("@area_id", ToDBValue(proxy.area_id))
-					,new MySqlParameter("@region_id", ToDBValue(proxy.region_id))
-					,new MySqlParameter("@city_id", ToDBValue(proxy.city_id))
-					,new MySqlParameter("@isp_id", ToDBValue(proxy.isp_id))
-					,new MySqlParameter("@address_id", ToDBValue(proxy.address_id))
+					,new MySqlParameter("@country_id", ToDBValue(proxy.countryId))
+					,new MySqlParameter("@area_id", ToDBValue(proxy.areaId))
+					,new MySqlParameter("@region_id", ToDBValue(proxy.regionId))
+					,new MySqlParameter("@city_id", ToDBValue(proxy.cityId))
+					,new MySqlParameter("@isp_id", ToDBValue(proxy.ispId))
+					,new MySqlParameter("@address_id", ToDBValue(proxy.addressId))
 					,new MySqlParameter("@transperent", ToDBValue(proxy.transperent))
 					,new MySqlParameter("@speed", ToDBValue(proxy.speed))
 					,new MySqlParameter("@type", ToDBValue(proxy.type))
-					,new MySqlParameter("@connection_score", ToDBValue(proxy.connection_score))
-					,new MySqlParameter("@availbel_score", ToDBValue(proxy.availbel_score))
-					,new MySqlParameter("@connection_score_date", ToDBValue(proxy.connection_score_date))
-					,new MySqlParameter("@availbel_score_date", ToDBValue(proxy.availbel_score_date))
+					,new MySqlParameter("@connection_score", ToDBValue(proxy.connectionScore))
+					,new MySqlParameter("@availbel_score", ToDBValue(proxy.availbelScore))
+					,new MySqlParameter("@connection_score_date", ToDBValue(proxy.connectionScoreDate))
+					,new MySqlParameter("@availbel_score_date", ToDBValue(proxy.availbelScoreDate))
 					,new MySqlParameter("@createtime", ToDBValue(proxy.createtime))
 					,new MySqlParameter("@support_gfw", ToDBValue(proxy.support_gfw))
 					,new MySqlParameter("@gfw_speed", ToDBValue(proxy.gfw_speed))
@@ -189,28 +189,28 @@ namespace proxyipcenter_dotnet.DAL
 
 			proxy.id = (long)ToModelValue(dr,"id");
 			proxy.ip = (string)ToModelValue(dr,"ip");
-			proxy.proxy_ip = (string)ToModelValue(dr,"proxy_ip");
+			proxy.proxyIp = (string)ToModelValue(dr,"proxy_ip");
 			proxy.port = (int?)ToModelValue(dr,"port");
-			proxy.ip_value = (long?)ToModelValue(dr,"ip_value");
+			proxy.ipValue = (long?)ToModelValue(dr,"ip_value");
 			proxy.country = (string)ToModelValue(dr,"country");
 			proxy.area = (string)ToModelValue(dr,"area");
 			proxy.region = (string)ToModelValue(dr,"region");
 			proxy.city = (string)ToModelValue(dr,"city");
 			proxy.isp = (string)ToModelValue(dr,"isp");
-			proxy.country_id = (string)ToModelValue(dr,"country_id");
-			proxy.area_id = (string)ToModelValue(dr,"area_id");
-			proxy.region_id = (string)ToModelValue(dr,"region_id");
-			proxy.city_id = (string)ToModelValue(dr,"city_id");
-			proxy.isp_id = (string)ToModelValue(dr,"isp_id");
-			proxy.address_id = (long?)ToModelValue(dr,"address_id");
+			proxy.countryId = (string)ToModelValue(dr,"country_id");
+			proxy.areaId = (string)ToModelValue(dr,"area_id");
+			proxy.regionId = (string)ToModelValue(dr,"region_id");
+			proxy.cityId = (string)ToModelValue(dr,"city_id");
+			proxy.ispId = (string)ToModelValue(dr,"isp_id");
+			proxy.addressId = (long?)ToModelValue(dr,"address_id");
 			proxy.transperent = (sbyte?)ToModelValue(dr,"transperent");
 			proxy.speed = (long?)ToModelValue(dr,"speed");
 			proxy.type = (sbyte?)ToModelValue(dr,"type");
-			proxy.connection_score = (long)ToModelValue(dr,"connection_score");
-			proxy.availbel_score = (long)ToModelValue(dr,"availbel_score");
-			proxy.connection_score_date = (DateTime?)ToModelValue(dr,"connection_score_date");
-			proxy.availbel_score_date = (DateTime?)ToModelValue(dr,"availbel_score_date");
-			proxy.createtime = (DateTime)ToModelValue(dr,"createtime");
+			proxy.connectionScore = (long)ToModelValue(dr,"connection_score");
+			proxy.availbelScore = (long)ToModelValue(dr,"availbel_score");
+			proxy.connectionScoreDate = (long)ToModelValue(dr,"connection_score_date");
+			proxy.availbelScoreDate = (long)ToModelValue(dr,"availbel_score_date");
+			proxy.createtime = (long)ToModelValue(dr,"createtime");
 			proxy.support_gfw = (sbyte?)ToModelValue(dr,"support_gfw");
 			proxy.gfw_speed = (long?)ToModelValue(dr,"gfw_speed");
 			proxy.source = (string)ToModelValue(dr,"source");

@@ -1,7 +1,9 @@
 ﻿//============================================================
 //http://codelover.link author:李国宝
 //============================================================
-
+//============================================================
+//此处的属性名请与json包中对应的名字保持一致 否则解析会非常困难
+//============================================================
 using proxyipcenter_dotnet.DAL;
 using System;
 using System.Collections.Generic;
@@ -9,6 +11,7 @@ using System.Text;
 
 namespace proxyipcenter_dotnet.Model
 {	
+
 	[Serializable()]
     
     /// <summary>
@@ -34,7 +37,7 @@ namespace proxyipcenter_dotnet.Model
         /// <summary>
         /// 代理IP，也就是目标网站最终看到的IP（多级代理的情况ip和proxy_ip不会相同）
         /// </summary>
-		public string proxy_ip{get;set;}
+		public string proxyIp { get;set;}
             
         /// <summary>
         /// 端口号
@@ -44,7 +47,7 @@ namespace proxyipcenter_dotnet.Model
         /// <summary>
         /// ip的数字表示，用于过滤连续IP问题
         /// </summary>
-		public long? ip_value{get;set;}
+		public long? ipValue { get;set;}
             
         /// <summary>
         /// 国家
@@ -74,32 +77,32 @@ namespace proxyipcenter_dotnet.Model
         /// <summary>
         /// 国家代码
         /// </summary>
-		public string country_id{get;set;}
+		public string countryId{ get;set;}
             
         /// <summary>
         /// 地区代码
         /// </summary>
-		public string area_id{get;set;}
+		public string areaId{ get;set;}
             
         /// <summary>
         /// 省级代码
         /// </summary>
-		public string region_id{get;set;}
+		public string regionId{ get;set;}
             
         /// <summary>
         /// 城市代码
         /// </summary>
-		public string city_id{get;set;}
+		public string cityId{ get;set;}
             
         /// <summary>
         /// isp代码
         /// </summary>
-		public string isp_id{get;set;}
+		public string ispId{ get;set;}
             
         /// <summary>
         /// 地理位置ID，融合各个地理位置获取的一个数字，数值约接近表示实际地理位置约接近
         /// </summary>
-		public long? address_id{get;set;}
+		public long? addressId{get;set;}
             
         /// <summary>
         /// 透明度(高匿，普通，透明)
@@ -119,27 +122,27 @@ namespace proxyipcenter_dotnet.Model
         /// <summary>
         /// 连接性打分
         /// </summary>
-		public long connection_score{get;set;}
+		public long connectionScore { get;set;}
             
         /// <summary>
         /// 可用性打分
         /// </summary>
-		public long availbel_score{get;set;}
+		public long availbelScore { get;set;}
             
         /// <summary>
         /// 连接性打分时间
         /// </summary>
-		public DateTime? connection_score_date{get;set;}
+		public long connectionScoreDate { get;set;}
             
         /// <summary>
         /// 可用性打分时间
         /// </summary>
-		public DateTime? availbel_score_date{get;set;}
+		public long availbelScoreDate { get;set;}
             
         /// <summary>
         /// 收录时间
         /// </summary>
-		public DateTime createtime{get;set;}
+		public long createtime { get;set;}
             
         /// <summary>
         /// 是否支持翻墙
@@ -175,6 +178,10 @@ namespace proxyipcenter_dotnet.Model
         public static IEnumerable<Proxy> LoadAvailableProxyList(int pageCount=0)
         {
             return dal.GetAvailableProxyList(pageCount);
+        }
+        public Proxy()
+        {
+
         }
 
         #endregion
