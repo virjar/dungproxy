@@ -1,4 +1,7 @@
-﻿using System;
+﻿//========================
+//死宅真可怕 天天沉迷于东方
+//========================
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
