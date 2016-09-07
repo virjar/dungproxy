@@ -137,15 +137,15 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 updateProxy.setAvailbelScoreDate(new Date());
                 updateProxy.setConnectionScore(proxy.getConnectionScore());
                 if (response != null) {
-                    updateProxy.setSpeed(response.getSpeed());
+                    if (proxy.getSpeed() == null) {
+                        proxy.setSpeed(0L);
+                    }
+                    updateProxy.setSpeed((proxy.getSpeed() * 9 + response.getSpeed()) / 10);
                     updateProxy.setProxyIp(response.getRemoteAddr());
                     updateProxy.setTransperent(response.getTransparent());
                     if (response.getType() != null) {
                         updateProxy.setType(response.getType());
                     }
-                }
-                if (proxy.getIp().equals("202.106.16.36")) {
-                    logger.info("tag:202.106.16.36,{}", JSONObject.toJSONString(updateProxy));
                 }
                 proxyService.updateByPrimaryKeySelective(updateProxy);
                 return 0;
