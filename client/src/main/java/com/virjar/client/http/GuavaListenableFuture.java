@@ -1,4 +1,4 @@
-package com.virjar.http;
+package com.virjar.client.http;
 
 /**
  * Description: GuavaListenableFuture

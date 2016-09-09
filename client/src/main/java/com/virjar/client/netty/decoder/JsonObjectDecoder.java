@@ -1,4 +1,4 @@
-package com.virjar.decoder;
+package com.virjar.client.netty.decoder;
 
 /**
  * Description: JsonObjectDecoder

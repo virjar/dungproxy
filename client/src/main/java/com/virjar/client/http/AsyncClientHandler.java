@@ -1,4 +1,4 @@
-package com.virjar.http;
+package com.virjar.client.http;
 
 import com.ning.http.client.AsyncHandler;
 import com.ning.http.client.AsyncHandlerExtensions;

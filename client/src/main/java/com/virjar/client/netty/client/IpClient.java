@@ -1,7 +1,7 @@
-package com.virjar.netty.client;
+package com.virjar.client.netty.client;
 
 
-import com.virjar.netty.handler.TimeClientHandler;
+import com.virjar.client.netty.handler.TimeClientHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;

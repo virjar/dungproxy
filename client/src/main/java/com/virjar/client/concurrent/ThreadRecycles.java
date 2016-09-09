@@ -1,4 +1,4 @@
-package com.virjar.concurrent;
+package com.virjar.client.concurrent;
 
 /**
  * Description: ThreadRecycles

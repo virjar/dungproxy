@@ -1,4 +1,4 @@
-package com.virjar.concurrent;
+package com.virjar.client.concurrent;
 
 /**
  * Description: ManagedScheduledThreadPool
@@ -6,10 +6,12 @@ package com.virjar.concurrent;
  * @author lingtong.fu
  * @version 2016-09-04 12:43
  */
+
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +55,7 @@ public class ManagedScheduledThreadPool extends ScheduledThreadPoolExecutor impl
 
     protected void afterExecute(Runnable r, Throwable ex) {
         try {
-            long e = ((Long)local.get()).longValue();
+            long e = ((Long) local.get()).longValue();
             local.remove();
             this.finishTime.addAndGet(System.currentTimeMillis() - e);
         } catch (Throwable var11) {
@@ -68,7 +70,7 @@ public class ManagedScheduledThreadPool extends ScheduledThreadPoolExecutor impl
             super.afterExecute(r, ex);
         }
 
-        if(ex != null) {
+        if (ex != null) {
             log.warn("在线程池中捕获到未知异常:" + ex, ex);
         }
 

@@ -2,8 +2,8 @@ package com.virjar;
 
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
+import com.virjar.client.proxyclient.VirjarAsyncClient;
 import com.virjar.model.Phone;
-import com.virjar.netty.client.VirjarAsyncClient;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;

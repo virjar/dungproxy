@@ -1,4 +1,4 @@
-package com.virjar.concurrent;
+package com.virjar.client.concurrent;
 
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.Iterator;

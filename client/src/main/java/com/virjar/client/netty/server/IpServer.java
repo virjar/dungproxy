@@ -1,4 +1,4 @@
-package com.virjar.netty.server;
+package com.virjar.client.netty.server;
 
 /**
  *
@@ -6,7 +6,7 @@ package com.virjar.netty.server;
  */
 
 
-import com.virjar.netty.handler.TimeServerHandler;
+import com.virjar.client.netty.handler.TimeServerHandler;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

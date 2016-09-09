@@ -1,4 +1,4 @@
-package com.virjar.netty.handler;
+package com.virjar.client.netty.handler;
 
 /**
  *

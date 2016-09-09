@@ -1,4 +1,4 @@
-package com.virjar.http;
+package com.virjar.client.http;
 
 /**
  * 存储请求参数的类, 包括但不仅限于
@@ -10,7 +10,9 @@ package com.virjar.http;
  * @author lingtong.fu
  * @version 2016-09-04 22:49
  */
+
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.ning.http.client.ProxyServer;
 
 import java.util.Collections;

@@ -1,7 +1,7 @@
-package com.virjar.concurrent;
+package com.virjar.client.concurrent;
 
 /**
- * Description: ManagedExecutors
+ * Description: 管理和创建线程
  *
  * @author lingtong.fu
  * @version 2016-09-04 12:40
@@ -118,7 +118,7 @@ public class ManagedExecutors {
         for(int i$ = 0; i$ < len$; ++i$) {
             StackTraceElement st = arr$[i$];
             String className = st.getClassName();
-            if(!className.startsWith("con.virjar.concurrent")) {
+            if(!className.startsWith("con.virjar")) {
                 name = "anon-" + st.getClassName() + "." + st.getMethodName() + ":" + st.getLineNumber();
                 return new NamedThreadFactory(name);
             }
