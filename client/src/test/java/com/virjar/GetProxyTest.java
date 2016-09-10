@@ -1,17 +1,16 @@
 package com.virjar;
 
-import com.ning.http.client.AsyncCompletionHandler;
-import com.ning.http.client.Response;
-import com.virjar.client.proxyclient.VirjarAsyncClient;
-import com.virjar.entity.Proxy;
-import com.virjar.model.Phone;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.ning.http.client.AsyncCompletionHandler;
+import com.ning.http.client.Response;
+import com.virjar.client.http.HttpOption;
+import com.virjar.client.proxyclient.VirjarAsyncClient;
+import com.virjar.entity.Proxy;
 
 /**
  * Description: getProxyTest
@@ -30,10 +29,10 @@ public class GetProxyTest {
     public static void main(String[] args) {
         GetProxyTest getProxyTest = new GetProxyTest();
 
-        System.out.println(getProxyTest.getAv(baiduurl));
+        System.out.println(getProxyTest.getAv(url));
     }
 
-    public  String getAv(String url) {
+    public String getAv(String url) {
         String s = null;
         try {
             s = getFuture(url).get(60000, TimeUnit.MILLISECONDS);
@@ -50,8 +49,9 @@ public class GetProxyTest {
     }
 
     public static Future<String> getFuture(String url) throws IOException {
-
-        return client.get(url, new AsyncCompletionHandler<String>() {
+        HttpOption httpOption = new HttpOption();
+        httpOption.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        return client.get(url, httpOption, new AsyncCompletionHandler<String>() {
             @Override
             public String onCompleted(Response response) throws Exception {
                 if (response.getStatusCode() == 200) {

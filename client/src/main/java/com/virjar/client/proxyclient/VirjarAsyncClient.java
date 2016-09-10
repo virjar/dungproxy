@@ -65,6 +65,7 @@ public class VirjarAsyncClient {
         setConnectionTimeoutInMs(1000);
         setRequestTimeoutInMs(60000);
         setUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) Chrome/27.0.1453.94 Safari/537.36 hc/8.0.1");
+
     }
 
     @PreDestroy
