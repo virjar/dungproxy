@@ -1,4 +1,4 @@
-package com.virjar.common.util;
+package com.virjar.ippool;
 
 /**
  *
