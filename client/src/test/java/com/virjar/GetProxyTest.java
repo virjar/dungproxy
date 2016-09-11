@@ -1,6 +1,7 @@
 package com.virjar;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +12,9 @@ import com.ning.http.client.Response;
 import com.virjar.client.http.HttpOption;
 import com.virjar.client.proxyclient.VirjarAsyncClient;
 import com.virjar.entity.Proxy;
+import com.virjar.model.AvProxy;
+import com.virjar.utils.JSONUtils;
+import org.junit.Test;
 
 /**
  * Description: getProxyTest
@@ -25,24 +29,27 @@ public class GetProxyTest {
     private static final String url = "http://115.159.40.202:8080/proxyipcenter/av";
 
     private static final String baiduurl = "https://www.baidu.com/";
-
-    public static void main(String[] args) {
+    @Test
+    public  void getProxyTest() {
         GetProxyTest getProxyTest = new GetProxyTest();
 
-        System.out.println(getProxyTest.getAv(url));
+        String s = getProxyTest.getAv(url);
+        List<AvProxy> list = JSONUtils.parseList(s, AvProxy.class);
+
+        if (list != null) {
+            for (AvProxy avProxy: list) {
+                System.out.println(avProxy.toString());
+            }
+            System.out.println(list.size());
+        }
+
     }
 
     public String getAv(String url) {
         String s = null;
         try {
             s = getFuture(url).get(60000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return s;

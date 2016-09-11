@@ -8,6 +8,8 @@ package com.virjar.client.proxyclient;
  */
 public class ProxyClient extends VirjarAsyncClient{
 
+
+
     public ProxyClient() {
         super();
     }
