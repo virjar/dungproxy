@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.virjar.model.AvProxy;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Description: AvProxyCollector
@@ -15,4 +16,13 @@ public class AvProxyCollector {
 
     private List<AvProxy> avProxies = Lists.newArrayList();
     private Integer pollingIndex;
+    private ConcurrentLinkedQueue<AvProxy> avProxiesQueue;
+
+    public AvProxy pollingProxy(){
+        return null;
+    }
+    // 更新
+    public void updateAvProxy() {
+
+    }
 }

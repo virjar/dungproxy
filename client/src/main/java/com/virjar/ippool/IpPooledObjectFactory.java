@@ -5,13 +5,11 @@ package com.virjar.ippool;
  * Created by lingtong.fu on 2016/8/30.
  */
 
-import com.google.common.collect.Lists;
 import com.virjar.model.AvProxy;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
-import java.util.List;
 
 public class IpPooledObjectFactory implements PooledObjectFactory<AvProxy> {
 
