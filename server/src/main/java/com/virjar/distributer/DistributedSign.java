@@ -1,6 +1,12 @@
 package com.virjar.distributer;
 
+import java.util.List;
 import java.util.Random;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.virjar.entity.Proxy;
+import com.virjar.model.ProxyModel;
 
 /**
  * 标示已经被分配过的IP,使用bloomFilter的思想,传递一个签名 Created by virjar on 16/8/31. 该容器
@@ -163,15 +169,36 @@ public class DistributedSign {
         return bits.length * 4;
     }
 
-    public static void main(String[] args) {
-        DistributedSign distributedSign = new DistributedSign();
-        distributedSign.add("test");
-        distributedSign.add("weijia.deng");
-        String sign = distributedSign.sign();
-        System.out.println(sign);
-        DistributedSign distributedSign1 = DistributedSign.unSign(sign);
-        System.out.println(distributedSign1.size);
-        System.out.println(distributedSign1.contains("weijia.deng"));
-        System.out.println(distributedSign1.contains("weijia"));
+    public boolean contains(Proxy proxy) {
+        return contains(proxy.getIp() + ":" + proxy.getPort());
     }
+
+    public boolean contains(ProxyModel proxy) {
+        return contains(proxy.getIp() + ":" + proxy.getPort());
+    }
+
+    public static String resign(String usedSign, List<ProxyModel> distribute) {
+        DistributedSign sign = null;
+        if (!StringUtils.isEmpty(usedSign)) {
+            try {
+                sign = DistributedSign.unSign(usedSign);
+            } catch (Exception e) {
+            }
+        }
+        if (sign == null) {
+            sign = new DistributedSign();
+        }
+        int failedNumber = 0;
+        for (ProxyModel proxyModel : distribute) {
+            if (!sign.add(proxyModel.getIp() + ":" + proxyModel.getPort())) {
+                failedNumber++;
+            }
+        }
+        if (failedNumber > distribute.size() / 5) {
+            return empty;
+        }
+        return sign.sign();
+    }
+
+    private static String empty = new DistributedSign().sign();
 }

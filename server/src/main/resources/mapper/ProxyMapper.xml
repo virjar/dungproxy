@@ -583,4 +583,25 @@
             limit ${page.offset}, ${page.pageSize}
         </if>
     </select>
+
+    <select id="find4Distribute" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from proxy
+        where speed &lt; ${proxy.speed,jdbcType=Integer}
+        <if test="proxy.country != null">
+            and country = ${proxy.country,jdbcType=VARCHAR}
+        </if>
+        <if test="proxy.area != null">
+            and area = ${proxy.area,jdbcType=VARCHAR}
+        </if>
+        <if test="proxy.isp != null">
+            and area = ${proxy.isp,jdbcType=VARCHAR}
+        </if>
+        <if test="proxy.supportGfw != null">
+            and support_gfw = ${proxy.support_gfw,jdbcType=VARCHAR}
+        </if>
+        order by availbel_score desc ,availbel_score_date desc
+        limit 0,#{num}
+    </select>
 </mapper>
