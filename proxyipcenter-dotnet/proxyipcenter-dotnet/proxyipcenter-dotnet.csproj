@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Decoder\JsonObjectDecoder.cs" />
+    <Compile Include="HTTPHelper.cs" />
     <Compile Include="Model\MyDBHelper.cs" />
     <Compile Include="Model\Proxy.cs" />
     <Compile Include="Model\ProxyDAL.cs" />
