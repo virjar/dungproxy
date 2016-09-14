@@ -30,7 +30,7 @@
         <result column="gfw_speed" property="gfwSpeed" jdbcType="BIGINT"/>
         <result column="source" property="source" jdbcType="VARCHAR"/>
         <result column="crawler_key" property="crawlerKey" jdbcType="VARCHAR"/>
-        <result column="lostheader" property="lostheader" javaType="BIT"/>
+        <result column="lostheader" property="lostheader" jdbcType="BIT"/>
     </resultMap>
     <sql id="Base_Column_List">
     id, ip, proxy_ip, port, ip_value, country, area, region, city, isp, country_id, area_id, 
@@ -337,7 +337,7 @@
             <if test="crawlerKey != null">
                 crawler_key = #{crawlerKey,jdbcType=VARCHAR},
             </if>
-            <if test="lostheader != nul">
+            <if test="lostheader != null">
                 lostheader = #{lostheader,jdbcType=BIT}
             </if>
         </set>
