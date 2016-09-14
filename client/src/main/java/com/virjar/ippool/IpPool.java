@@ -15,7 +15,6 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
  */
 public class IpPool extends GenericObjectPool<AvProxy> {
 
-
     public IpPool(PooledObjectFactory<AvProxy> factory) {
         super(factory);
     }
