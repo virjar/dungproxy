@@ -30,12 +30,13 @@
         <result column="gfw_speed" property="gfwSpeed" jdbcType="BIGINT"/>
         <result column="source" property="source" jdbcType="VARCHAR"/>
         <result column="crawler_key" property="crawlerKey" jdbcType="VARCHAR"/>
+        <result column="lostheader" property="lostheader" javaType="BIT"/>
     </resultMap>
     <sql id="Base_Column_List">
     id, ip, proxy_ip, port, ip_value, country, area, region, city, isp, country_id, area_id, 
     region_id, city_id, isp_id, address_id, transperent, speed, type, connection_score, 
     availbel_score, connection_score_date, availbel_score_date, createtime, support_gfw, 
-    gfw_speed, source, crawler_key
+    gfw_speed, source, crawler_key, lostheader
   </sql>
     <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
         select
@@ -56,7 +57,7 @@
       transperent, speed, type, 
       connection_score, availbel_score, connection_score_date, 
       availbel_score_date, createtime, support_gfw, 
-      gfw_speed, source, crawler_key
+      gfw_speed, source, crawler_key,lostheader
       )
     values (#{id,jdbcType=BIGINT}, #{ip,jdbcType=CHAR}, #{proxyIp,jdbcType=CHAR}, #{port,jdbcType=INTEGER}, 
       #{ipValue,jdbcType=BIGINT}, #{country,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, 
@@ -67,6 +68,7 @@
       #{connectionScore,jdbcType=BIGINT}, #{availbelScore,jdbcType=BIGINT}, #{connectionScoreDate,jdbcType=TIMESTAMP},
       #{availbelScoreDate,jdbcType=TIMESTAMP}, #{createtime,jdbcType=TIMESTAMP}, #{supportGfw,jdbcType=BIT},
       #{gfwSpeed,jdbcType=BIGINT}, #{source,jdbcType=VARCHAR}, #{crawlerKey,jdbcType=VARCHAR}
+      #{lostheader,jdbcType=BIT}
       )
   </insert>
     <insert id="insertSelective" parameterType="com.virjar.entity.Proxy">
@@ -156,6 +158,10 @@
             <if test="crawlerKey != null">
                 crawler_key,
             </if>
+            <if test="lostheader != null">
+                lostheader,
+            </if>
+
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -241,6 +247,9 @@
             </if>
             <if test="crawlerKey != null">
                 #{crawlerKey,jdbcType=VARCHAR},
+            </if>
+            <if test="lostheader != null">
+                #{lostheader,jdbcType=BIT}
             </if>
         </trim>
     </insert>
@@ -328,6 +337,9 @@
             <if test="crawlerKey != null">
                 crawler_key = #{crawlerKey,jdbcType=VARCHAR},
             </if>
+            <if test="lostheader != nul">
+                lostheader = #{lostheader,jdbcType=BIT}
+            </if>
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
@@ -359,7 +371,8 @@
       support_gfw = #{supportGfw,jdbcType=BIT},
       gfw_speed = #{gfwSpeed,jdbcType=BIGINT},
       source = #{source,jdbcType=VARCHAR},
-      crawler_key = #{crawlerKey,jdbcType=VARCHAR}
+      crawler_key = #{crawlerKey,jdbcType=VARCHAR},
+      lostheader = #{lostheader,jdbcType=BIT}
     where id = #{id,jdbcType=BIGINT}
   </update>
     <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.entity.Proxy">
@@ -448,6 +461,9 @@
             </if>
             <if test="crawlerKey != null">
                 and crawler_key = #{crawlerKey,jdbcType=VARCHAR}
+            </if>
+            <if test="lostheader != null">
+                and lostheader = #{lostheader,jdbcType=BIT}
             </if>
         </where>
     </select>
@@ -539,6 +555,9 @@
         <if test="param1.crawlerKey != null">
             and crawler_key = #{param1.crawlerKey,jdbcType=VARCHAR}
         </if>
+        <if test="param1.lostheader != null">
+            and lostheader = #{param1.lostheader,jdbcType=BIT}
+        </if>
         <if test="param2.sort != null">
             order by
             <foreach collection="param2.sort" item="order" separator=",">
@@ -600,6 +619,9 @@
         </if>
         <if test="proxy.supportGfw != null">
             and support_gfw = ${proxy.support_gfw,jdbcType=VARCHAR}
+        </if>
+        <if test="lostheader !=null">
+            and lostheader = #{proxy.lostheader,jdbcType=BIT}
         </if>
         order by availbel_score desc ,availbel_score_date desc
         limit 0,#{num}

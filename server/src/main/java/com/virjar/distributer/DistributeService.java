@@ -83,7 +83,7 @@ public class DistributeService {
         }
 
         if (requestForm.getHeaderLoseAllow()) {
-            // TODO
+            queryProxy.setLostheader(false);
         }
 
         queryProxy.setSpeed((long) (int) requestForm.getMaxPing());

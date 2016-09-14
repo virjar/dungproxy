@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,8 +112,8 @@ public class ProxyUtil {
     private static AvailbelCheckResponse httpCheck(ProxyModel p) {
         try {
             long start = System.currentTimeMillis();
-            String response = BrowserHttpClientPool.getInstance().borrow().setProxy(p.getIp(), p.getPort())
-                    .get(keysourceurl + "?ip=" + p.getIp() + "&port=" + p.getPort());
+            String response = BrowserHttpClientPool.getInstance().borrow().setProxy(p.getIp(), p.getPort()).get(
+                    keysourceurl + "?ip=" + p.getIp() + "&port=" + p.getPort(), new Header[] { Constant.CHECK_HEADER });
             AvailbelCheckResponse availbelCheckResponse = JSONUtils.parse(response, AvailbelCheckResponse.class);
             if (availbelCheckResponse != null
                     && AvailbelCheckResponse.staticKey.equals(availbelCheckResponse.getKey())) {

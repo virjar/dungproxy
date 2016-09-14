@@ -62,6 +62,8 @@ public class ProxyVO {
 
     private String crawlerKey;
 
+    private Boolean lostheader;
+
     public Long getId() {
         return id;
     }
@@ -284,5 +286,13 @@ public class ProxyVO {
 
     public void setCrawlerKey(String crawlerKey) {
         this.crawlerKey = crawlerKey;
+    }
+
+    public Boolean getLostheader() {
+        return lostheader;
+    }
+
+    public void setLostheader(Boolean lostheader) {
+        this.lostheader = lostheader;
     }
 }
