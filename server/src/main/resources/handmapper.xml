@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <handmapers>
     <maper>
+        <!-- 需要翻墙-->
         <website>http://cn-proxy.com/</website>
         <fetcher>/fetcher/cn-proxy.xml</fetcher>
         <hierate>3h</hierate>
         <batchsize>5</batchsize>
         <wildcardgenerator>http://cn-proxy.com/</wildcardgenerator>
-        <enable>false</enable>
+        <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
     <maper>
@@ -16,10 +17,11 @@
         <batchsize>5</batchsize>
         <wildcardgenerator>http://cn-proxy.com/archives/218
         </wildcardgenerator>
-        <enable>false</enable>
+        <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
     <maper>
+        <!-- 翻墙加按钮点击验证 -->
         <website>http://free-proxy.cz/en/</website>
         <fetcher>/fetcher/free-proxy_cz.xml</fetcher>
         <wildcardgenerator>http://free-proxy.cz/en/proxylist/main/#{autoincreament}
@@ -29,12 +31,14 @@
         <enable>false</enable>
     </maper>
     <maper>
+        <!-- 翻墙 -->
         <website>http://free-proxy-list.net/</website>
         <fetcher>/fetcher/free-proxy-list_net.xml</fetcher>
         <wildcardgenerator>http://free-proxy-list.net/</wildcardgenerator>
         <hierate>3h</hierate>
         <batchsize>5</batchsize>
-        <enable>false</enable>
+        <enable>true</enable>
+        <useproxy>true</useproxy>
     </maper>
     <maper>
         <!-- 国外网站，估计需要翻墙，这个待后续框架扩展之后使用 -->
@@ -42,7 +46,8 @@
         <fetcher></fetcher>
         <classgenerator></classgenerator>
         <wildcardgenerator></wildcardgenerator>
-        <enable>false</enable>
+        <enable>true</enable>
+        <useproxy>true</useproxy>
     </maper>
     <maper>
         <website>http://ip.baizhongsou.com/</website>
@@ -60,54 +65,19 @@
         <wildcardgenerator>http://ip.izmoney.com/</wildcardgenerator>
         <enable>true</enable>
     </maper>
+
     <maper>
-        <website>http://ip.izmoney.com/</website>
-        <fetcher>/fetcher/ip_izmoney_com.xml</fetcher>
-        <hierate>3h</hierate>
-        <batchsize>5</batchsize>
-        <wildcardgenerator>http://ip.izmoney.com/search/foreign/high/index.html
-        </wildcardgenerator>
-        <enable>false</enable>
-    </maper>
-    <maper>
-        <website>http://ip.izmoney.com/</website>
-        <fetcher>/fetcher/ip_izmoney_com.xml</fetcher>
-        <hierate>3h</hierate>
-        <batchsize>5</batchsize>
-        <wildcardgenerator>http://ip.izmoney.com/search/foreign/normal/index.html
-        </wildcardgenerator>
-        <enable>false</enable>
-    </maper>
-    <maper>
-        <website>http://ip.izmoney.com/</website>
-        <batchsize>5</batchsize>
-        <fetcher>/fetcher/ip_izmoney_com.xml</fetcher>
-        <hierate>3h</hierate>
-        <wildcardgenerator>http://ip.izmoney.com/search/china/high/index.html
-        </wildcardgenerator>
-        <enable>false</enable>
-    </maper>
-    <maper>
-        <website>http://ip.izmoney.com/</website>
-        <fetcher>/fetcher/ip_izmoney_com.xml</fetcher>
-        <batchsize>5</batchsize>
-        <hierate>3h</hierate>
-        <wildcardgenerator>http://ip.izmoney.com/search/china/normal/index.html
-        </wildcardgenerator>
-        <enable>false</enable>
-    </maper>
-    <maper>
-        <!-- 除第一页数据均被隐藏 -->
+        <!-- 格式带css样式,特殊处理,先不启用 -->
         <website>http://ip.qiaodm.com/</website>
         <fetcher>/fetcher/ip_qiaodm_com.xml</fetcher>
-        <classgenerator></classgenerator>
         <hierate>2m</hierate>
         <batchsize>5</batchsize>
         <wildcardgenerator>http://ip.qiaodm.com/</wildcardgenerator>
         <enable>false</enable>
     </maper>
     <maper>
-        <!-- 国外网站，估计需要翻墙，这个待后续框架扩展之后使用 -->
+        <!-- 国外网站，需要翻墙,数据为json格式 -->
+        <!-- https://nordvpn.com/wp-admin/admin-ajax.php?searchParameters[0][name]=proxy-country&searchParameters[0][value]=&searchParameters[1][name]=proxy-ports&searchParameters[1][value]=&offset=50&limit=25&action=getProxies -->
         <website>https://nordvpn.com/free-proxy-list/</website>
         <fetcher></fetcher>
         <classgenerator></classgenerator>
@@ -115,7 +85,7 @@
         <enable>false</enable>
     </maper>
     <maper>
-        <!-- 需要JavaScript支持 -->
+        <!-- 需要JavaScript支持 这个不提取端口号,直接使用端口探测机制-->
         <website>http://pachong.org/anonymous.html</website>
         <fetcher>/fetcher/pachong_org.xml</fetcher>
         <classgenerator></classgenerator>
@@ -125,17 +95,18 @@
         <minusflag>document.write</minusflag>
          -->
         <wildcardgenerator>http://pachong.org/</wildcardgenerator>
-        <enable>false</enable>
+        <enable>true</enable>
     </maper>
     <maper>
-        <!-- 需要JavaScript支持 -->
+        <!-- 需要JavaScript支持  直接走端口探测流程-->
         <website>http://proxy.goubanjia.com/</website>
-        <fetcher></fetcher>
+        <fetcher>/fetcher/proxy_goubanjia_com.xml</fetcher>
         <classgenerator></classgenerator>
         <wildcardgenerator>http://proxy.goubanjia.com/</wildcardgenerator>
-        <enable>false</enable>
+        <enable>true</enable>
     </maper>
     <maper>
+        <!-- 国外网站,需要翻墙,同时因为存在特殊代码片段植入,所以暂时不开启-->
         <website>http://proxy-list.org/english/index.php</website>
         <fetcher>/fetcher/proxy-list_org.xml</fetcher>
         <classgenerator></classgenerator>
@@ -143,15 +114,17 @@
         </wildcardgenerator>
         <batchsize>140</batchsize>
         <hierate>1m</hierate>
-        <enable>false</enable>
+        <enable>true</enable>
+        <useproxy>true</useproxy>
     </maper>
     <maper>
-        <!-- 国外网站，目前国内不可访问 -->
-        <website>http://proxylist.hidemyass.com/2#listable</website>
+        <!-- 国外网站，目前国内不可访问  可以做,css代码混淆-->
+        <website>http://proxylist.hidemyass.com/#{autoincreament}#listable</website>
         <fetcher></fetcher>
         <classgenerator></classgenerator>
         <wildcardgenerator></wildcardgenerator>
         <enable>false</enable>
+        <useproxy>true</useproxy>
     </maper>
     <maper>
         <website>http://www.3464.com/data/Proxy/http/</website>
@@ -190,16 +163,6 @@
         <useproxy>true</useproxy>
     </maper>
 
-    <!-- 重定向至66ip，本域名不可用 -->
-    <maper>
-        <website>http://www.cn379.cn/</website>
-        <fetcher>/fetcher/www_66ip_cn.xml</fetcher>
-        <classgenerator></classgenerator>
-        <hierate>2m</hierate>
-        <batchsize>5</batchsize>
-        <wildcardgenerator>http://www.cn379.cn/</wildcardgenerator>
-        <enable>false</enable>
-    </maper>
     <maper>
         <!-- 双重加密，Base64.decode(str_rot13("ZwVkYwRjYwRjZv4lZQZ="),后续实现解码器 function
             str_rot13(str) { return (str + '') .replace(/[a-z]/gi, function(s) { return
@@ -222,33 +185,6 @@
         </classgenerator>
         <batchsize>1100</batchsize>
         <enable>true</enable>
-    </maper>
-    <maper>
-        <website>http://www.haodailiip.com/</website>
-        <fetcher>/fetcher/www_haodailiip_com.xml</fetcher>
-        <wildcardgenerator>http://www.haodailiip.com/guonei/#{autoincreament}
-        </wildcardgenerator>
-        <batchsize>1000</batchsize>
-        <hierate>6h</hierate>
-        <enable>false</enable>
-    </maper>
-    <maper>
-        <website>http://www.haodailiip.com/</website>
-        <fetcher>/fetcher/www_haodailiip_com.xml</fetcher>
-        <batchsize>1000</batchsize>
-        <hierate>6h</hierate>
-        <wildcardgenerator>http://www.haodailiip.com/guoji/#{autoincreament}
-        </wildcardgenerator>
-        <enable>false</enable>
-    </maper>
-    <maper>
-        <website>http://www.haodailiip.com/</website>
-        <fetcher>/fetcher/www_haodailiip_com.xml</fetcher>
-        <batchsize>1000</batchsize>
-        <hierate>6h</hierate>
-        <wildcardgenerator>http://www.haodailiip.com/other/#{autoincreament}
-        </wildcardgenerator>
-        <enable>false</enable>
     </maper>
     <maper>
         <website>http://www.kuaidaili.com/</website>

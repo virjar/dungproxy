@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<handmapers>
+    <maper>
+        <!-- 需要JavaScript支持 -->
+        <website>http://pachong.org/anonymous.html</website>
+        <fetcher>/fetcher/pachong_org.xml</fetcher>
+        <hierate>3h</hierate>
+        <wildcardgenerator>http://pachong.org/</wildcardgenerator>
+        <enable>true</enable>
+    </maper>
+</handmapers>

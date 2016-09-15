@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
             logger.warn("port check component not start,ip add failed");
             return false;
         }
-        return instance.addIp(ip);
+        return !StringUtils.isEmpty(ip) && instance.addIp(ip);
     }
 
     public boolean addIp(String ip) {
