@@ -183,10 +183,11 @@
         <website>http://www.66ip.cn/</website>
         <fetcher>/fetcher/www_66ip_cn.xml</fetcher>
         <batchsize>1000</batchsize>
-        <hierate>4h</hierate>
+        <hierate>5m</hierate>
         <wildcardgenerator>http://www.66ip.cn/#{autoincreament}.html
         </wildcardgenerator>
         <enable>true</enable>
+        <useproxy>true</useproxy>
     </maper>
 
     <!-- 重定向至66ip，本域名不可用 -->
@@ -389,7 +390,7 @@
         <wildcardgenerator>http://www.xicidaili.com/nn/#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
-        <hierate>1h</hierate>
+        <hierate>5m</hierate>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
@@ -408,7 +409,7 @@
         <wildcardgenerator>http://www.xicidaili.com/wn/#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
-        <hierate>1h</hierate>
+        <hierate>5m</hierate>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
@@ -418,7 +419,7 @@
         <wildcardgenerator>http://www.xicidaili.com/wt/#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
-        <hierate>1h</hierate>
+        <hierate>5m</hierate>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
@@ -428,7 +429,7 @@
         <wildcardgenerator>http://www.xicidaili.com/qq/#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
-        <hierate>1h</hierate>
+        <hierate>5m</hierate>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
