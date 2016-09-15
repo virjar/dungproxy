@@ -68,7 +68,15 @@ public class ProxyServiceImpl implements ProxyService {
     @Transactional
     @Override
     public int create(ProxyModel proxyModel) {
-        return proxyRepo.insert(beanMapper.map(proxyModel, Proxy.class));
+        Proxy queryProxy = new Proxy();
+        queryProxy.setIp(proxyModel.getIp());
+        queryProxy.setPort(proxyModel.getPort());
+        if (proxyRepo.selectCount(queryProxy) >= 1) {
+            ResourceFilter.addConflict(queryProxy);
+            return 0;
+        } else {
+            return proxyRepo.insert(beanMapper.map(proxyModel, Proxy.class));
+        }
     }
 
     @Transactional
@@ -251,7 +259,7 @@ public class ProxyServiceImpl implements ProxyService {
             queryProxy.setIp(proxy.getIp());
             queryProxy.setPort(proxy.getPort());
             if (proxyRepo.selectCount(queryProxy) >= 1) {
-                ResourceFilter.addconflict(proxy);
+                ResourceFilter.addConflict(proxy);
             } else {
                 proxyRepo.insertSelective(proxy);
             }

@@ -39,4 +39,6 @@ public interface ProxyRepository {
     List<Proxy> find4AreaUpdate(@Param("page") Pageable pageable);
 
     List<Proxy> find4Distribute(@Param("num") int num, @Param("proxy") Proxy proxy);
+
+    List<Integer> getPortList();
 }

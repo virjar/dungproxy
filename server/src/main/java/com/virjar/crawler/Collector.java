@@ -234,21 +234,6 @@ public class Collector {
                             }
                         }
 
-                        String javascriptflag = next.elementText("javasript");
-                        if ("true".equals(javascriptflag)) {
-                            collecter.javascript = true;
-                            collecter.resultwait = new DefaultHtmlUnitResultWait();
-                            List<Element> elements = next.elements("minusflag");
-                            for (Element element : elements) {
-                                collecter.resultwait.addminusflag(element.getTextTrim());
-                            }
-
-                            elements = next.elements("plusflag");
-                            for (Element element : elements) {
-                                collecter.resultwait.addplusflag(element.getTextTrim());
-                            }
-
-                        }
 
                         collecter.useProxy = "true".equals(next.elementText("useproxy"));
 

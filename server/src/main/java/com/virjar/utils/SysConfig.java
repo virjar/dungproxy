@@ -27,6 +27,7 @@ public class SysConfig {
     private int addreddSyncThread;
     private int gfwSupportCheckThread;
     private int ipCrawlerThread;
+    private int portCheckThread;
 
     private SysConfig() {
         load();
@@ -67,6 +68,7 @@ public class SysConfig {
             addreddSyncThread = NumberUtils.toInt("system.thread.addreddSyncThread", 5);
             gfwSupportCheckThread = NumberUtils.toInt("system.thread.gfwSupportCheckThread", 5);
             ipCrawlerThread = NumberUtils.toInt("system.thread.ipCrawlerThread", 30);
+            portCheckThread = NumberUtils.toInt("system.thread.portCheckThread", 10);
         } catch (IOException e) {
             throw new IllegalStateException("配置文件加载失败,系统不能启动", e);
         } finally {
@@ -136,5 +138,9 @@ public class SysConfig {
 
     public boolean recordFaildResponse() {
         return StringUtils.equalsIgnoreCase("true", properties.getProperty("system.record_fail_response=false"));
+    }
+
+    public int getPortCheckThread() {
+        return portCheckThread;
     }
 }

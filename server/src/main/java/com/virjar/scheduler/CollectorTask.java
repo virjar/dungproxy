@@ -45,14 +45,14 @@ public class CollectorTask implements Runnable, InitializingBean {
             new ThreadPoolExecutor.CallerRunsPolicy());
 
     public static List<Collector> getCollectors() {
-        return Collectors;
+        return collectors;
     }
 
-    static List<Collector> Collectors = null;
+    static List<Collector> collectors = null;
     static {
         try {
             logger.info("start Collector");
-            Collectors = Collector.buildfromSource("/handmapper.xml");
+            collectors = Collector.buildfromSource("/handmapper.xml");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,7 +68,7 @@ public class CollectorTask implements Runnable, InitializingBean {
         while (isRunning) {
             try {
                 // logger.info("begin proxy collect start");
-                Collections.sort(Collectors, new Comparator<Collector>() {
+                Collections.sort(collectors, new Comparator<Collector>() {
                     @Override
                     public int compare(Collector o1, Collector o2) {// 失败次数越多，被调度的可能性越小。成功的次数越多，被调度的可能性越小。没有成功也没有失败的，被调度的可能性最大
                         return (o1.getFailedTimes() * 10 - o1.getSucessTimes() * 3)
@@ -76,7 +76,7 @@ public class CollectorTask implements Runnable, InitializingBean {
                     }
                 });
                 List<Future<Object>> futures = Lists.newArrayList();
-                for (Collector collector : Collectors) {
+                for (Collector collector : collectors) {
                     futures.add(pool.submit(new WebsiteCollect(collector)));
                 }
                 long start = System.currentTimeMillis();
@@ -97,7 +97,7 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     private void init() {
         Random random = new Random();
-        for (Collector collector : Collectors) {
+        for (Collector collector : collectors) {
             sleepTimeStamp.put(collector, System.currentTimeMillis() + random.nextInt() % 60000);
         }
     }

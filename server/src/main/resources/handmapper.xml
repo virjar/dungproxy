@@ -47,7 +47,6 @@
     <maper>
         <website>http://ip.baizhongsou.com/</website>
         <fetcher>/fetcher/ip_baizhongsou_com.xml</fetcher>
-        <charset>gb2312</charset>
         <hierate>35m</hierate>
         <batchsize>5</batchsize>
         <wildcardgenerator>http://ip.baizhongsou.com/</wildcardgenerator>
@@ -159,7 +158,6 @@
         <fetcher>/fetcher/www_3464_com.xml</fetcher>
         <batchsize>5</batchsize>
         <hierate>3h</hierate>
-        <charset>gb2312</charset>
         <wildcardgenerator>http://www.3464.com/data/Proxy/Http/
         </wildcardgenerator>
         <enable>true</enable>
@@ -169,7 +167,6 @@
         <fetcher>/fetcher/www_3464_com_socket5.xml</fetcher>
         <batchsize>5</batchsize>
         <hierate>3h</hierate>
-        <charset>gb2312</charset>
         <wildcardgenerator>http://www.3464.com/data/Proxy/Socks5/
         </wildcardgenerator>
         <enable>true</enable>
@@ -220,7 +217,6 @@
         <website>http://www.cz88.net/proxy/</website>
         <fetcher>/fetcher/www_cz88_net.xml</fetcher>
         <hierate>24h</hierate>
-        <charset>gb18030</charset>
         <classgenerator>com.mantou.proxyservice.collection.generator.ChunZhenGenerator
         </classgenerator>
         <batchsize>1100</batchsize>
@@ -310,7 +306,6 @@
     <maper>
         <website>http://www.nianshao.me/</website>
         <fetcher>/fetcher/www_nianshao_me.xml</fetcher>
-        <charset>gb2312</charset>
         <wildcardgenerator>http://www.nianshao.me/?stype=1&amp;page=#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
@@ -321,7 +316,6 @@
         <website>http://www.nianshao.me/</website>
         <fetcher>/fetcher/www_nianshao_me.xml</fetcher>
         <classgenerator></classgenerator>
-        <charset>gb2312</charset>
         <wildcardgenerator>http://www.nianshao.me/?stype=2&amp;page=#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
@@ -331,7 +325,6 @@
     <maper>
         <website>http://www.nianshao.me/</website>
         <fetcher>/fetcher/www_nianshao_me.xml</fetcher>
-        <charset>gb2312</charset>
         <wildcardgenerator>http://www.nianshao.me/?stype=5&amp;page=#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
@@ -345,7 +338,6 @@
         <classgenerator></classgenerator>
         <hierate>5m</hierate>
         <batchsize>400</batchsize>
-        <charset>gb2312</charset>
         <wildcardgenerator>http://www.proxy.com.ru/list_#{autoincreament}.html
         </wildcardgenerator>
         <enable>false</enable>
