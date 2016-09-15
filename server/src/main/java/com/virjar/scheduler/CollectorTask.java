@@ -35,6 +35,8 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     private static final Logger logger = LoggerFactory.getLogger(CollectorTask.class);
 
+    private boolean isRunning = false;
+
     // 一般来说线程池不会有空转的,我希望所有线程能够随时工作,线程池除了节省线程创建和销毁开销,同时起限流作用,如果任务提交太多,则使用主线程进行工作
     // 从而阻塞主线程任务产生逻辑
     private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getIpCrawlerThread(),
@@ -60,9 +62,10 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     @Override
     public void run() {
+        isRunning = true;
         long totalWaitTime = 30 * 60 * 1000;
         logger.info("CollectorTask start");
-        while (true) {
+        while (isRunning) {
             try {
                 // logger.info("begin proxy collect start");
                 Collections.sort(Collectors, new Comparator<Collector>() {
