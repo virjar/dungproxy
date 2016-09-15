@@ -3,6 +3,7 @@ package com.virjar.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.virjar.core.rest.ResponseEnvelope;
 import com.virjar.core.utils.ReturnUtil;
 import com.virjar.model.AvailbelCheckResponse;
+import com.virjar.utils.Constant;
 import com.virjar.utils.Tranparent;
 
 /**
@@ -19,7 +21,7 @@ import com.virjar.utils.Tranparent;
 @Controller
 @RequestMapping("/proxyipcenter")
 public class CheckController {
-    @RequestMapping(value = "/checkIp", method = RequestMethod.GET)
+    @RequestMapping(value = "/checkIp", method = RequestMethod.GET, produces = MediaType.ALL_VALUE)
     public ResponseEntity<ResponseEnvelope<Object>> getDomainqueueById(HttpServletRequest request) {
         byte transparent = checkTransparent(request);
         String remoteAddr = request.getRemoteAddr();
@@ -27,6 +29,8 @@ public class CheckController {
         availbelCheckResponse.setTransparent(transparent);
         availbelCheckResponse.setKey(AvailbelCheckResponse.staticKey);
         availbelCheckResponse.setRemoteAddr(remoteAddr);
+        String header = request.getHeader(Constant.HEADER_CHECK_HEADER);
+        availbelCheckResponse.setLostHeader(StringUtils.isEmpty(header));
         return ReturnUtil.retSuccess(availbelCheckResponse);
     }
 

@@ -1,6 +1,7 @@
 package com.virjar.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -19,11 +20,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.google.common.collect.Maps;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.core.rest.ResponseEnvelope;
 import com.virjar.core.utils.ReturnCode;
 import com.virjar.core.utils.ReturnUtil;
 import com.virjar.distributer.DistributeService;
+import com.virjar.distributer.DistributedSign;
 import com.virjar.distributer.RequestForm;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
@@ -105,6 +108,10 @@ public class ProxyRestApiController {
     @RequestMapping("av")
     public ResponseEntity<ResponseEnvelope<Object>> avaliable(RequestForm requestForm) {
         List<ProxyModel> distribute = distributeService.distribute(requestForm);
-        return ReturnUtil.retSuccess(beanMapper.mapAsList(distribute, ProxyVO.class));
+        Map<String, Object> ret = Maps.newHashMap();
+        ret.put("sign", DistributedSign.resign(requestForm.getUsedSign(), distribute));
+        ret.put("num", distribute.size());
+        ret.put("data", beanMapper.mapAsList(distribute, ProxyVO.class));
+        return ReturnUtil.retSuccess(ret);
     }
 }

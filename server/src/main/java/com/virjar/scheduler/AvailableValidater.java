@@ -140,6 +140,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                     if (proxy.getSpeed() == null) {
                         proxy.setSpeed(0L);
                     }
+                    updateProxy.setLostheader(response.isLostHeader());
                     updateProxy.setSpeed((proxy.getSpeed() * 9 + response.getSpeed()) / 10);
                     updateProxy.setProxyIp(response.getRemoteAddr());
                     updateProxy.setTransperent(response.getTransparent());

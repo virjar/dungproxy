@@ -10,6 +10,7 @@ public class AvailbelCheckResponse {
     private String remoteAddr;
     private Long speed;
     private Byte type;
+    private boolean lostHeader = false;
     public String getKey() {
         return key;
     }
@@ -48,5 +49,13 @@ public class AvailbelCheckResponse {
 
     public void setType(Byte type) {
         this.type = type;
+    }
+
+    public boolean isLostHeader() {
+        return lostHeader;
+    }
+
+    public void setLostHeader(boolean lostHeader) {
+        this.lostHeader = lostHeader;
     }
 }
