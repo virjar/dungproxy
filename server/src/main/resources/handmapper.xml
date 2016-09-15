@@ -67,7 +67,7 @@
         <batchsize>5</batchsize>
         <wildcardgenerator>http://ip.izmoney.com/search/foreign/high/index.html
         </wildcardgenerator>
-        <enable>true</enable>
+        <enable>false</enable>
     </maper>
     <maper>
         <website>http://ip.izmoney.com/</website>
@@ -76,7 +76,7 @@
         <batchsize>5</batchsize>
         <wildcardgenerator>http://ip.izmoney.com/search/foreign/normal/index.html
         </wildcardgenerator>
-        <enable>true</enable>
+        <enable>false</enable>
     </maper>
     <maper>
         <website>http://ip.izmoney.com/</website>
@@ -85,7 +85,7 @@
         <hierate>3h</hierate>
         <wildcardgenerator>http://ip.izmoney.com/search/china/high/index.html
         </wildcardgenerator>
-        <enable>true</enable>
+        <enable>false</enable>
     </maper>
     <maper>
         <website>http://ip.izmoney.com/</website>
@@ -94,7 +94,7 @@
         <hierate>3h</hierate>
         <wildcardgenerator>http://ip.izmoney.com/search/china/normal/index.html
         </wildcardgenerator>
-        <enable>true</enable>
+        <enable>false</enable>
     </maper>
     <maper>
         <!-- 除第一页数据均被隐藏 -->

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -16,6 +17,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.virjar.crawler.extractor.XmlModeFetcher;
 import com.virjar.entity.Proxy;
 import com.virjar.repository.ProxyRepository;
@@ -57,7 +59,7 @@ public class Collector {
 
     private boolean useProxy = false;
 
-    private String lastUrl ="";
+    private String lastUrl = "";
 
     public String getErrorinfo() {
         return errorinfo;
@@ -119,9 +121,49 @@ public class Collector {
         this.getnumber = getnumber;
     }
 
+    private List<Proxy> avaliableProxy = Lists.newArrayList();
+
     private Proxy randomChooseOne(List<Proxy> proxies) {
         Random random = new Random();
         return proxies.get(random.nextInt(proxies.size()));
+    }
+
+    private volatile boolean isPrehotting = false;
+
+    private class PreHotThread extends Thread {
+        private String testUrl;
+        private List<Proxy> proxies;
+
+        public PreHotThread(List<Proxy> proxies, String testUrl) {
+            this.proxies = proxies;
+            this.testUrl = testUrl;
+        }
+
+        @Override
+        public void run() {
+            if (isPrehotting) {
+                return;
+            }
+            isPrehotting = true;
+            List<Proxy> realProxy = Lists.newArrayList();
+            for (Proxy proxy : proxies) {
+                HttpInvoker httpInvoker = new HttpInvoker(testUrl);
+                httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
+                for (int i = 0; i < 3; i++) {
+                    try {
+                        HttpResult request = httpInvoker.request();
+                        if ((request.getStatusCode() == 200 && StringUtils.isNoneBlank(request.getResponseBody()))
+                                || request.getStatusCode() == 302) {
+                            realProxy.add(proxy);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            avaliableProxy = realProxy;
+            isPrehotting = false;
+        }
     }
 
     public List<Proxy> newProxy(ProxyRepository proxyRepository) {
@@ -141,11 +183,15 @@ public class Collector {
                 lastUrl = url;
                 HttpInvoker httpInvoker = new HttpInvoker(url);
                 if (useProxy) {
-                    List<Proxy> available = proxyRepository.findAvailable();
-                    if (available.size() > 0) {
-                        Proxy proxy = randomChooseOne(available);
-                        httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
+                    Proxy proxy;
+                    if (avaliableProxy.size() == 0) {
+                        List<Proxy> available = proxyRepository.findAvailable();
+                        proxy = randomChooseOne(available);
+                    } else {
+                        proxy = randomChooseOne(avaliableProxy);
                     }
+                    httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
+
                 }
                 if (!javascript) {
                     result = httpInvoker.request();
@@ -236,7 +282,6 @@ public class Collector {
                                 e.printStackTrace();
                             }
                         }
-
 
                         collecter.useProxy = "true".equals(next.elementText("useproxy"));
 
