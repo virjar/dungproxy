@@ -5,17 +5,23 @@ package com.virjar.ippool;
  * Created by lingtong.fu on 2016/8/30.
  */
 
+import com.virjar.ippool.schedule.Preheater;
 import com.virjar.model.AvProxy;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
+import javax.annotation.Resource;
+
 
 public class IpPooledObjectFactory implements PooledObjectFactory<AvProxy> {
 
+    @Resource
+    private Preheater preheater;
+
     public PooledObject<AvProxy> makeObject() throws Exception {
         System.out.println("make Object");
-        AvProxy AvProxy = new AvProxy();
+        AvProxy AvProxy = preheater.getAvProxy();
         return new DefaultPooledObject<AvProxy>(AvProxy);
     }
 
