@@ -147,6 +147,9 @@ public class Collector {
             isPrehotting = true;
             List<Proxy> realProxy = Lists.newArrayList();
             for (Proxy proxy : proxies) {
+                if (proxy.getTransperent() != 0) {
+                    continue;
+                }
                 HttpInvoker httpInvoker = new HttpInvoker(testUrl);
                 httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
                 for (int i = 0; i < 3; i++) {
@@ -155,9 +158,10 @@ public class Collector {
                         if ((request.getStatusCode() == 200 && StringUtils.isNoneBlank(request.getResponseBody()))
                                 || request.getStatusCode() == 302) {
                             realProxy.add(proxy);
+                            break;
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        // do Nothing
                     }
                 }
             }
@@ -186,11 +190,11 @@ public class Collector {
                     Proxy proxy;
                     if (avaliableProxy.size() == 0) {
                         List<Proxy> available = proxyRepository.findAvailable();
-                        proxy = randomChooseOne(available);
+                        new PreHotThread(available, url).start();
                     } else {
                         proxy = randomChooseOne(avaliableProxy);
+                        httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
                     }
-                    httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
 
                 }
                 if (!javascript) {

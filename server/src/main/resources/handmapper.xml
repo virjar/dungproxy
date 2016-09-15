@@ -7,7 +7,7 @@
         <batchsize>5</batchsize>
         <wildcardgenerator>http://cn-proxy.com/</wildcardgenerator>
         <enable>false</enable>
-        <useproxy>false</useproxy>
+        <useproxy>true</useproxy>
     </maper>
     <maper>
         <website>http://cn-proxy.com/</website>
@@ -17,7 +17,7 @@
         <wildcardgenerator>http://cn-proxy.com/archives/218
         </wildcardgenerator>
         <enable>false</enable>
-        <useproxy>false</useproxy>
+        <useproxy>true</useproxy>
     </maper>
     <maper>
         <website>http://free-proxy.cz/en/</website>
@@ -183,7 +183,7 @@
         <website>http://www.66ip.cn/</website>
         <fetcher>/fetcher/www_66ip_cn.xml</fetcher>
         <batchsize>1000</batchsize>
-        <hierate>5m</hierate>
+        <hierate>30m</hierate>
         <wildcardgenerator>http://www.66ip.cn/#{autoincreament}.html
         </wildcardgenerator>
         <enable>true</enable>
@@ -390,7 +390,7 @@
         <wildcardgenerator>http://www.xicidaili.com/nn/#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
-        <hierate>5m</hierate>
+        <hierate>1h</hierate>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
@@ -409,7 +409,7 @@
         <wildcardgenerator>http://www.xicidaili.com/wn/#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
-        <hierate>5m</hierate>
+        <hierate>1h</hierate>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
@@ -419,7 +419,7 @@
         <wildcardgenerator>http://www.xicidaili.com/wt/#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
-        <hierate>5m</hierate>
+        <hierate>1h</hierate>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
@@ -429,7 +429,7 @@
         <wildcardgenerator>http://www.xicidaili.com/qq/#{autoincreament}
         </wildcardgenerator>
         <batchsize>1000</batchsize>
-        <hierate>5m</hierate>
+        <hierate>1h</hierate>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>

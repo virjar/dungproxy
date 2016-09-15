@@ -590,7 +590,7 @@
         select
         <include refid="Base_Column_List"/>
         from proxy
-        where availbel_score >0 and connection_score >0 order by availbel_score desc limit 200
+        where availbel_score >0 and connection_score >0 order by availbel_score desc limit 1000
     </select>
 
     <select id="find4AreaUpdate" resultMap="BaseResultMap">

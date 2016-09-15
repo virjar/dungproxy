@@ -47,7 +47,8 @@ public class ConnectionValidater implements Runnable, InitializingBean {
         isRunning = true;
         long totalWaitTime = 10 * 60 * 1000;
         logger.info("Component start");
-        while (true) {
+
+        while (isRunning) {
             try {
                 // logger.info("begin connection check");
                 List<ProxyModel> needupdate = proxyService.find4connectionupdate();
