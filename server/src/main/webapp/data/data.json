@@ -1,0 +1,282 @@
+[
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 70,
+        "errorinfo": "1111asdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffwqefsadfdasf",
+        "hibtate": 10800000,
+        "website": "http://cn-proxy.com/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 100,
+        "errorinfo": "",
+        "hibtate": 10800000,
+        "website": "http://cn-proxy.com/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 300000,
+        "website": "http://free-proxy.cz/en/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 300,
+        "errorinfo": "",
+        "hibtate": 10800000,
+        "website": "http://free-proxy-list.net/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "gb2312",
+        "collectNumber": 117,
+        "errorinfo": "",
+        "hibtate": 2100000,
+        "website": "http://ip.baizhongsou.com/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 13,
+        "errorinfo": "",
+        "hibtate": 10800000,
+        "website": "http://ip.izmoney.com/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 13,
+        "errorinfo": "",
+        "hibtate": 10800000,
+        "website": "http://ip.izmoney.com/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 13,
+        "errorinfo": "",
+        "hibtate": 10800000,
+        "website": "http://ip.izmoney.com/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 13,
+        "errorinfo": "",
+        "hibtate": 10800000,
+        "website": "http://ip.izmoney.com/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 13,
+        "errorinfo": "",
+        "hibtate": 10800000,
+        "website": "http://ip.izmoney.com/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 15,
+        "errorinfo": "",
+        "hibtate": 120000,
+        "website": "http://ip.qiaodm.com/"
+    },
+    {
+        "batchSize": 140,
+        "charset": "utf-8",
+        "collectNumber": 140,
+        "errorinfo": "",
+        "hibtate": 60000,
+        "website": "http://proxy-list.org/english/index.php"
+    },
+    {
+        "batchSize": 5,
+        "charset": "gb2312",
+        "collectNumber": 122,
+        "errorinfo": "",
+        "hibtate": 10800000,
+        "website": "http://www.3464.com/data/Proxy/http/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "gb2312",
+        "collectNumber": 17,
+        "errorinfo": "",
+        "hibtate": 10800000,
+        "website": "http://www.3464.com/data/Proxy/http/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 14400000,
+        "website": "http://www.66ip.cn/"
+    },
+    {
+        "batchSize": 5,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 120000,
+        "website": "http://www.cn379.cn/"
+    },
+    {
+        "batchSize": 1100,
+        "charset": "gb18030",
+        "collectNumber": 1111,
+        "errorinfo": "",
+        "hibtate": 86400000,
+        "website": "http://www.cz88.net/proxy/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 21600000,
+        "website": "http://www.haodailiip.com/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 21600000,
+        "website": "http://www.haodailiip.com/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 1020,
+        "errorinfo": "",
+        "hibtate": 21600000,
+        "website": "http://www.haodailiip.com/"
+    },
+    {
+        "batchSize": 600,
+        "charset": "UTF-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 600000,
+        "website": "http://www.kuaidaili.com/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.kuaidaili.com/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.kuaidaili.com/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.kuaidaili.com/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.kuaidaili.com/"
+    },
+    {
+        "batchSize": 500,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.mrhinkydink.com/proxies.htm"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "gb2312",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.nianshao.me/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "gb2312",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.nianshao.me/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "gb2312",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.nianshao.me/"
+    },
+    {
+        "batchSize": 400,
+        "charset": "gb2312",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 300000,
+        "website": "http://www.proxy.com.ru/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.xici.net.co/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.xici.net.co/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.xici.net.co/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.xici.net.co/"
+    },
+    {
+        "batchSize": 1000,
+        "charset": "utf-8",
+        "collectNumber": 0,
+        "errorinfo": "",
+        "hibtate": 3600000,
+        "website": "http://www.xici.net.co/"
+    }
+]
