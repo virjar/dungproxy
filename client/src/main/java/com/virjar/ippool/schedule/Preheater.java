@@ -5,7 +5,6 @@ import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import com.virjar.client.http.HttpOption;
 import com.virjar.client.proxyclient.VirjarAsyncClient;
-import com.virjar.common.cache.Domains;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.Proxy;
 import com.virjar.ippool.IpPool;
