@@ -3,17 +3,16 @@
 	<thead>
 		<tr>
 			<th>batchSize</th>
-			<th>charset</th>
+			<th>lastUrl</th>
 			<th>collectNumber</th>
-			<th>errorinfo</th>
-			<th>hibtate</th>
-			<th>website</th>
+			<th>错误信息</th>
+			<th>休眠间隔</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr ng-repeat="data in tabledata" ng-class="{{data.collectNumber}}==0?'danger':'info'">
 			<td>{{data.batchSize}}</td>
-			<td>{{data.charset}}</td>
+			<td>{{data.lastUrl}}</td>
 			<td>{{data.collectNumber}}</td>
 			<td ng-show="showErrorinfo(isshow)">
 				<a href="" ng-click="isshow=!isshow" ng-show="'{{data.errorinfo}}'!=0">
@@ -24,9 +23,9 @@
 				<a href="" ng-click="isshow=!isshow" style="color:#FF0033;">{{data.errorinfo}}</a>
 			</td>
 			<td>{{data.hibtate | hibdate}}</td>
-			<td>{{data.website}}</td>
+			<!--<td>{{data.website}}</td>
 			<td><button class="btn btn-default btn-sm" style="border-radius:6px;">operat1</button></td>
 			<td><button class="btn btn-default btn-sm" style="border-radius:6px;">operat2</button></td>
-		</tr>
+		--></tr>
 	</tbody>
 </table>

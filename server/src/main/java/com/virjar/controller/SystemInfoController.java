@@ -47,7 +47,7 @@ public class SystemInfoController {
         for (Collector collecter : collecters) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("batchSize", collecter.getBatchsize());
-            jsonObject.put("charset", collecter.getCharset());
+            jsonObject.put("lastUrl", collecter.getLastUrl());
             jsonObject.put("collectNumber", collecter.getGetnumber());
             jsonObject.put("hibtate", collecter.getHibrate());
             jsonObject.put("website", collecter.getWebsite());

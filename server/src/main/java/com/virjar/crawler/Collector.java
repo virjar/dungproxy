@@ -57,6 +57,8 @@ public class Collector {
 
     private boolean useProxy = false;
 
+    private String lastUrl ="";
+
     public String getErrorinfo() {
         return errorinfo;
     }
@@ -136,6 +138,7 @@ public class Collector {
             try {
                 HttpResult result = null;
                 url = urlGenerator.newURL();
+                lastUrl = url;
                 HttpInvoker httpInvoker = new HttpInvoker(url);
                 if (useProxy) {
                     List<Proxy> available = proxyRepository.findAvailable();
@@ -293,5 +296,9 @@ public class Collector {
 
     public int getSucessTimes() {
         return sucessTimes;
+    }
+
+    public String getLastUrl() {
+        return lastUrl;
     }
 }
