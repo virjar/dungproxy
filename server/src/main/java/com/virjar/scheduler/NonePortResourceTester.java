@@ -66,7 +66,8 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
             bloomFilter = new BloomFilter64bit(60000, 10);
             addTimes = 0;
         }
-        return bloomFilter.add(ip) && ipTaskQueue.offer(ip);
+        return !(ip.startsWith("192.168") || ip.startsWith("10.") || ip.equals("127.0.0.1")) && bloomFilter.add(ip)
+                && ipTaskQueue.offer(ip);
     }
 
     @Override
