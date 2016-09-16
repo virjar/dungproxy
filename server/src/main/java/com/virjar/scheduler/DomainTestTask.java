@@ -33,7 +33,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(DomainTestTask.class);
 
     private boolean isRunning = false;
-    private ExecutorService pool = new ThreadPoolExecutor(2, SysConfig.getInstance().getDomainCheckThread(), 30000L,
+    private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getDomainCheckThread(), SysConfig.getInstance().getDomainCheckThread(), 30000L,
             TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.CallerRunsPolicy());
 
