@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -104,6 +105,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
                 List<Proxy> available = proxyRepository.findAvailable();// 系统可用IP,根据权值排序
                 logger.info("domain check total:{} url:{}", available.size(), url);
                 for (Proxy proxy : available) {
+                    logger.info("domain check :{}", JSONObject.toJSONString(proxy));
                     if (ProxyUtil.checkUrl(beanMapper.map(proxy, ProxyModel.class), url)) {
                         DomainIpModel domainIpModel = new DomainIpModel();
                         domainIpModel.setIp(proxy.getIp());
