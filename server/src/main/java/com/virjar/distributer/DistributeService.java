@@ -14,7 +14,6 @@ import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.Proxy;
 import com.virjar.model.ProxyModel;
-import com.virjar.repository.DomainqueueRepository;
 import com.virjar.repository.ProxyRepository;
 
 /**
@@ -26,8 +25,6 @@ public class DistributeService {
 
     @Resource
     private ProxyRepository proxyRepository;
-    @Resource
-    private DomainqueueRepository domainqueueRepository;
 
     @Resource
     private BeanMapper beanMapper;

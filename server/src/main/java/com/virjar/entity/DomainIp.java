@@ -1,9 +1,11 @@
 package com.virjar.entity;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Domainqueue {
+public class DomainIp {
     private Long id;
 
     private String domain;
@@ -15,6 +17,12 @@ public class Domainqueue {
     private Integer port;
 
     private Long domainScore;
+
+    private Date domainScoreDate;
+
+    private Date createtime;
+
+    private Long speed;
 
     public Long getId() {
         return id;
@@ -62,5 +70,29 @@ public class Domainqueue {
 
     public void setDomainScore(Long domainScore) {
         this.domainScore = domainScore;
+    }
+
+    public Date getDomainScoreDate() {
+        return domainScoreDate;
+    }
+
+    public void setDomainScoreDate(Date domainScoreDate) {
+        this.domainScoreDate = domainScoreDate;
+    }
+
+    public Date getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(Date createtime) {
+        this.createtime = createtime;
+    }
+
+    public Long getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(Long speed) {
+        this.speed = speed;
     }
 }
