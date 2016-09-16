@@ -26,7 +26,8 @@ import org.jboss.netty.util.HashedWheelTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.sun.deploy.Environment.setUserAgent;
+//jdk1.7没有这个方法,编译不通过
+//import static com.sun.deploy.Environment.setUserAgent;
 
 import com.ning.http.client.AsyncHttpClientConfig.Builder;
 
@@ -64,7 +65,7 @@ public class VirjarAsyncClient {
         // request conf
         setConnectionTimeoutInMs(1000);
         setRequestTimeoutInMs(60000);
-        setUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) Chrome/27.0.1453.94 Safari/537.36 hc/8.0.1");
+       // setUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) Chrome/27.0.1453.94 Safari/537.36 hc/8.0.1");
 
     }
 
