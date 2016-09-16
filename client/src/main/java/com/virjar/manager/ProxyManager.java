@@ -1,5 +1,11 @@
 package com.virjar.manager;
 
+import com.virjar.common.util.LogUtils;
+import com.virjar.ippool.IpPool;
+import com.virjar.ippool.IpPoolConfig;
+import com.virjar.ippool.IpPooledObjectFactory;
+import com.virjar.model.AvProxy;
+
 /**
  * Description: ProxyManager
  *
@@ -7,4 +13,22 @@ package com.virjar.manager;
  * @version 2016-09-06 19:48
  */
 public class ProxyManager {
+
+    private IpPool ipPool;
+
+    public ProxyManager() {
+        LogUtils.info("ProxyManager ------ init");
+        initIpPool();
+    }
+
+    private void initIpPool() {
+        LogUtils.info("ProxyManager ------ initIpPool");
+        IpPoolConfig ipPoolConfig = new IpPoolConfig();
+        IpPooledObjectFactory ipPooledObjectFactory = new IpPooledObjectFactory();
+        this.ipPool = new IpPool(ipPooledObjectFactory, ipPoolConfig);
+    }
+
+    public AvProxy getAvProxy() throws Exception {
+        return ipPool.borrowObject();
+    }
 }

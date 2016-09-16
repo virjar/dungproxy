@@ -10,7 +10,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.virjar.model.DomainqueueModel;
 
 import java.util.List;
 
@@ -18,11 +17,11 @@ public class Domains {
     /**
      * id与Domain映射, id <=> Domain
      */
-    private static BiMap<Long, DomainqueueModel> idDomainMap = Maps.synchronizedBiMap(HashBiMap.<Long, DomainqueueModel>create());
+    /*private static BiMap<Long, DomainqueueModel> idDomainMap = Maps.synchronizedBiMap(HashBiMap.<Long, DomainqueueModel>create());
 
-    /**
+    *//**
      * 通过Id获取domain
-     */
+     *//*
     public static DomainqueueModel getDomain(Long domainId) {
         return idDomainMap.get(domainId);
     }
@@ -62,12 +61,12 @@ public class Domains {
         }
     };
 
-    /**
+    *//**
      * 通过domain获取id
-     */
+     *//*
     public static Long getDomainId() {
         DomainqueueModel domain = domainParam.get();
         return idDomainMap.inverse().get(domain);
-    }
+    }*/
 
 }

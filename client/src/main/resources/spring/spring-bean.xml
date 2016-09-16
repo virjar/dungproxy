@@ -3,6 +3,7 @@
        xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
@@ -14,5 +15,17 @@
     <bean id="beanMapper" class="com.virjar.core.beanmapper.OrikaBeanMapper">
         <property name="basePackage" value="com.virjar.model.**"/>
     </bean>
+
+    <!-- Spring定时器注解开关
+    <task:annotation-driven />-->
+
+    <!-- Spring Task  -->
+    <!-- fixed-delay:表示从上一个"任务完成"开始到下一个任务开始的间隔，单位是毫秒。  -->
+    <!--fixedRate：表示从上一个"任务开始" 到下一个任务开始的间隔，单位是毫秒。 -->
+    <task:scheduled-tasks scheduler="clientScheduler">
+        <task:scheduled ref="preheater" method="updateProxy" fixed-delay="60000"/>
+    </task:scheduled-tasks>
+
+    <task:scheduler id="clientScheduler" pool-size="8"/>
 
 </beans>
