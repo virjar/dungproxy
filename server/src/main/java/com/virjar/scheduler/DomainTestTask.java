@@ -6,12 +6,12 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Sets;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.Proxy;
@@ -34,8 +34,9 @@ public class DomainTestTask implements Runnable, InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(DomainTestTask.class);
 
     private boolean isRunning = false;
-    private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getDomainCheckThread(), SysConfig.getInstance().getDomainCheckThread(), 30000L,
-            TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
+    private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getDomainCheckThread(),
+            SysConfig.getInstance().getDomainCheckThread(), 30000L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.CallerRunsPolicy());
 
     private static DomainTestTask instance = null;
@@ -105,7 +106,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
                 List<Proxy> available = proxyRepository.findAvailable();// 系统可用IP,根据权值排序
                 logger.info("domain check total:{} url:{}", available.size(), url);
                 for (Proxy proxy : available) {
-                    logger.info("domain check :{}", JSONObject.toJSONString(proxy));
+                    logger.info("url:{} domain check :{}", url, JSONObject.toJSONString(proxy));
                     if (ProxyUtil.checkUrl(beanMapper.map(proxy, ProxyModel.class), url)) {
                         DomainIpModel domainIpModel = new DomainIpModel();
                         domainIpModel.setIp(proxy.getIp());
@@ -117,8 +118,9 @@ public class DomainTestTask implements Runnable, InitializingBean {
                 }
                 logger.info("check end");
                 return null;
-            }catch ( Exception e){
-                logger.info("domain check error",e);
+            } catch (Throwable e) {
+                e.printStackTrace();
+                logger.info("domain check error", e);
             }
             return null;
         }
@@ -126,7 +128,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        new Thread(this).start();
+        new Thread(this,"").start();
         instance = this;
     }
 
