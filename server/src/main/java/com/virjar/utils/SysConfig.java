@@ -28,6 +28,7 @@ public class SysConfig {
     private int gfwSupportCheckThread;
     private int ipCrawlerThread;
     private int portCheckThread;
+    private int domainCheckThread;
 
     private SysConfig() {
         load();
@@ -63,12 +64,13 @@ public class SysConfig {
             connectionSlotFactory = NumberUtils.toInt(properties.getProperty("connection.slotFactory"));
             connectionSlotNumber = NumberUtils.toInt(properties.getProperty("connection.slotNumber"));
 
-            availableCheckThread = NumberUtils.toInt("system.thread.availableCheckThread", 10);
+            availableCheckThread = NumberUtils.toInt("system.thread.availableCheckThread", 2);
             connectionCheckThread = NumberUtils.toInt("system.thread.connectionCheckThread", 20);
             addreddSyncThread = NumberUtils.toInt("system.thread.addreddSyncThread", 5);
             gfwSupportCheckThread = NumberUtils.toInt("system.thread.gfwSupportCheckThread", 5);
-            ipCrawlerThread = NumberUtils.toInt("system.thread.ipCrawlerThread", 30);
+            ipCrawlerThread = NumberUtils.toInt("system.thread.ipCrawlerThread", 2);
             portCheckThread = NumberUtils.toInt("system.thread.portCheckThread", 10);
+            domainCheckThread = NumberUtils.toInt("system.thread.domainCheckThread", 5);
         } catch (IOException e) {
             throw new IllegalStateException("配置文件加载失败,系统不能启动", e);
         } finally {
@@ -142,5 +144,9 @@ public class SysConfig {
 
     public int getPortCheckThread() {
         return portCheckThread;
+    }
+
+    public int getDomainCheckThread() {
+        return domainCheckThread;
     }
 }
