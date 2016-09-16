@@ -295,8 +295,8 @@ public class ProxyModel implements Comparable<ProxyModel> {
 
     @Override
     public int compareTo(ProxyModel o) {
-        return (int) (this.getAvailbelScore() * 3 + this.getConnectionScore() - o.getAvailbelScore() * 3
-                - o.getConnectionScore());
+        return (int) (o.getAvailbelScore() * 3 + o.getConnectionScore() - this.getAvailbelScore() * 3
+                - this.getConnectionScore());
     }
 
     @Override

@@ -62,7 +62,7 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     @Override
     public void run() {
-        isRunning = true;
+        isRunning = SysConfig.getInstance().isIpCrawlerEnable();
         long totalWaitTime = 50 * 60 * 1000;
         logger.info("CollectorTask start");
         while (isRunning) {

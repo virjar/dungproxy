@@ -76,7 +76,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
 
     @Override
     public void run() {
-        isRunning = true;
+        isRunning = SysConfig.getInstance().isDomainCheckEnable();
         while (isRunning) {
             try {
                 String url = domainTaskQueue.take();
@@ -99,17 +99,24 @@ public class DomainTestTask implements Runnable, InitializingBean {
         }
 
         @Override
-        public Object call() throws Exception {
-            List<Proxy> available = proxyRepository.findAvailable();// 系统可用IP,根据权值排序
-            for (Proxy proxy : available) {
-                if (ProxyUtil.checkUrl(beanMapper.map(proxy, ProxyModel.class), url)) {
-                    DomainIpModel domainIpModel = new DomainIpModel();
-                    domainIpModel.setIp(proxy.getIp());
-                    domainIpModel.setPort(proxy.getPort());
-                    domainIpModel.setDomain(CommonUtil.extractDomain(url));
-                    domainIpModel.setProxyId(proxy.getId());
-                    domainIpService.create(domainIpModel);
+        public Object call() {
+            try {
+                List<Proxy> available = proxyRepository.findAvailable();// 系统可用IP,根据权值排序
+                logger.info("domain check total:{} url:{}", available.size(), url);
+                for (Proxy proxy : available) {
+                    if (ProxyUtil.checkUrl(beanMapper.map(proxy, ProxyModel.class), url)) {
+                        DomainIpModel domainIpModel = new DomainIpModel();
+                        domainIpModel.setIp(proxy.getIp());
+                        domainIpModel.setPort(proxy.getPort());
+                        domainIpModel.setDomain(CommonUtil.extractDomain(url));
+                        domainIpModel.setProxyId(proxy.getId());
+                        domainIpService.create(domainIpModel);
+                    }
                 }
+                logger.info("check end");
+                return null;
+            }catch ( Exception e){
+                logger.info("domain check error",e);
             }
             return null;
         }

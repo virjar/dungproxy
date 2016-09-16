@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.core.rest.ResponseEnvelope;
@@ -17,6 +18,7 @@ import com.virjar.core.utils.ReturnUtil;
 import com.virjar.entity.Proxy;
 import com.virjar.model.AvailbelCheckResponse;
 import com.virjar.model.ProxyModel;
+import com.virjar.scheduler.DomainTestTask;
 import com.virjar.service.ProxyService;
 import com.virjar.utils.Constant;
 import com.virjar.utils.ProxyUtil;
@@ -35,6 +37,12 @@ public class CheckController {
 
     @Resource
     private BeanMapper beanMapper;
+
+    @RequestMapping(value = "/checkUrlTask", method = RequestMethod.GET)
+    public ResponseEntity<ResponseEnvelope<Object>> checkUrlTask(@RequestParam("url") String url) {
+        Boolean b = DomainTestTask.sendDomainTask(url);
+        return ReturnUtil.retSuccess(b);
+    }
 
     @RequestMapping(value = "/checkIp", method = RequestMethod.GET, produces = MediaType.ALL_VALUE)
     public ResponseEntity<ResponseEnvelope<Object>> getDomainqueueById(HttpServletRequest request) {
