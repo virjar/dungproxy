@@ -44,7 +44,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
     }
 
     public void run() {
-        isRunning = true;
+        isRunning = SysConfig.getInstance().isConnectionEnable();
         long totalWaitTime = 10 * 60 * 1000;
         logger.info("Component start");
 

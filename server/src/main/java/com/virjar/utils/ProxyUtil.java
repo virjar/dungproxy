@@ -129,6 +129,20 @@ public class ProxyUtil {
         return null;
     }
 
+    public static boolean checkUrl(ProxyModel proxy, String url) {
+        for (int i = 0; i < 3; i++) {
+            try {
+                // 可能有问题,资源不可用,响应也有可能不是空。需要客户端代理失败决策方案出来之后进行优化
+                int status = BrowserHttpClientPool.getInstance().borrow().setProxy(proxy.getIp(), proxy.getPort())
+                        .getStatus(url, null);
+                return status == 200;
+            } catch (IOException e) {
+                // do nothing
+            }
+        }
+        return false;
+    }
+
     /**
      * 可用性验证在本方法计算响应时间
      * 

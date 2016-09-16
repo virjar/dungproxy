@@ -270,4 +270,14 @@ public class ProxyServiceImpl implements ProxyService {
             }
         }
     }
+
+
+    @Override
+    public ProxyModel selectByIpPort(String ip, int port) {
+        Proxy proxy = new Proxy();
+        proxy.setIp(ip);
+        proxy.setPort(port);
+        List<Proxy> proxies = proxyRepo.selectPage(proxy, new PageRequest(0, 1));
+        return (proxies.size() > 0) ? beanMapper.map(proxies.get(0), ProxyModel.class) : null;
+    }
 }

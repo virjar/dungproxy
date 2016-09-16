@@ -28,4 +28,6 @@ public interface ProxyService {
     List<ProxyModel> find4connectionupdate();
 
     void save(List<ProxyModel> draftproxys);
+
+    ProxyModel selectByIpPort(String ip,int port);
 }

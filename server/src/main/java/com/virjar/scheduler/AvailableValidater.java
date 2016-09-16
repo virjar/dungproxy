@@ -48,7 +48,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        isRunning = true;
+        isRunning = SysConfig.getInstance().isAvailableEnable();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

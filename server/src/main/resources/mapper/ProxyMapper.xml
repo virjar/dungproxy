@@ -607,24 +607,24 @@
         select
         <include refid="Base_Column_List"/>
         from proxy
-        where speed &lt; ${proxy.speed,jdbcType=Integer}
+        where speed &lt; #{proxy.speed,jdbcType=BIGINT}
         <if test="proxy.country != null">
-            and country = ${proxy.country,jdbcType=VARCHAR}
+            and country = #{proxy.country,jdbcType=VARCHAR}
         </if>
         <if test="proxy.area != null">
-            and area = ${proxy.area,jdbcType=VARCHAR}
+            and area = #{proxy.area,jdbcType=VARCHAR}
         </if>
         <if test="proxy.isp != null">
-            and area = ${proxy.isp,jdbcType=VARCHAR}
+            and area = #{proxy.isp,jdbcType=VARCHAR}
         </if>
         <if test="proxy.supportGfw != null">
-            and support_gfw = ${proxy.support_gfw,jdbcType=VARCHAR}
+            and support_gfw = #{proxy.support_gfw,jdbcType=VARCHAR}
         </if>
-        <if test="lostheader !=null">
+        <if test="proxy.lostheader !=null">
             and lostheader = #{proxy.lostheader,jdbcType=BIT}
         </if>
         order by availbel_score desc ,availbel_score_date desc
-        limit 0,#{num}
+        limit 0,${num}
     </select>
 
     <select id="getPortList" resultType="java.lang.Integer">

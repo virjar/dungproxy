@@ -1,6 +1,8 @@
 package com.virjar.distributer;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -8,13 +10,20 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.virjar.core.beanmapper.BeanMapper;
+import com.virjar.entity.DomainIp;
 import com.virjar.entity.Proxy;
 import com.virjar.model.ProxyModel;
+import com.virjar.repository.DomainIpRepository;
 import com.virjar.repository.ProxyRepository;
+import com.virjar.scheduler.DomainTestTask;
+import com.virjar.service.ProxyService;
+import com.virjar.utils.CommonUtil;
 
 /**
  * 分发IP资源 Created by virjar on 16/8/27.
@@ -25,6 +34,12 @@ public class DistributeService {
 
     @Resource
     private ProxyRepository proxyRepository;
+
+    @Resource
+    private DomainIpRepository domainIpRepository;
+
+    @Resource
+    private ProxyService proxyService;
 
     @Resource
     private BeanMapper beanMapper;
@@ -40,7 +55,46 @@ public class DistributeService {
             return beanMapper.mapAsList(available, ProxyModel.class);
         }
         // TODO 如果数据多了,需要压缩排序?
-        return beanMapper.mapAsList(available.subList(0, requestForm.getNum()), ProxyModel.class);
+        List<ProxyModel> proxyModels = beanMapper.mapAsList(available, ProxyModel.class);
+        Map<String, ProxyModel> data = Maps.newHashMap();
+        for (ProxyModel proxyModel : proxyModels) {
+            data.put(proxyModel.getIp() + ":" + proxyModel.getPort(), proxyModel);
+        }
+        List<DomainIp> domainTested = get4DomainTested(requestForm);
+        for (DomainIp domainIp : domainTested) {
+            ProxyModel proxyModel = data.get(domainIp.getIp() + ":" + domainIp.getPort());
+            if (proxyModel == null) {
+                proxyModel = proxyService.selectByIpPort(domainIp.getIp(), domainIp.getPort());
+                if (proxyModel != null) {
+                    proxyModels.add(proxyModel);
+                }
+            }
+            if (proxyModel != null) {// 调整权重
+                proxyModel.setAvailbelScore((proxyModel.getAvailbelScore() + domainIp.getDomainScore() * 9) / 10);
+            }
+        }
+        Collections.sort(proxyModels);
+
+        return proxyModels.subList(0, requestForm.getNum());
+    }
+
+    private List<DomainIp> get4DomainTested(RequestForm requestForm) {
+        String checkUrl = requestForm.getCheckUrl();
+        if (StringUtils.isEmpty(checkUrl)) {
+            return Lists.newArrayList();
+        }
+        String domain = CommonUtil.extractDomain(checkUrl);
+        if (StringUtils.isEmpty(domain)) {
+            return Lists.newArrayList();
+        }
+        DomainIp domainIp = new DomainIp();
+        domainIp.setDomain(domain);
+        List<DomainIp> domainIps = domainIpRepository.selectPage(domainIp,
+                new PageRequest(0, requestForm.getNum() * 3));
+        if (domainIps.size() == 0) {
+            DomainTestTask.sendDomainTask(checkUrl);
+        }
+        return domainIps;
     }
 
     private List<Proxy> filterUsed(String usedSign, List<Proxy> dbProxy) {

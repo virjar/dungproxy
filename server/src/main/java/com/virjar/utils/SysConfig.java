@@ -28,6 +28,13 @@ public class SysConfig {
     private int gfwSupportCheckThread;
     private int ipCrawlerThread;
     private int portCheckThread;
+    private int domainCheckThread;
+
+    private boolean availableEnable = true;
+    private boolean connectionEnable = true;
+    private boolean ipCrawlerEnable = true;
+    private boolean portCheckEnable = true;
+    private boolean domainCheckEnable = true;
 
     private SysConfig() {
         load();
@@ -63,12 +70,20 @@ public class SysConfig {
             connectionSlotFactory = NumberUtils.toInt(properties.getProperty("connection.slotFactory"));
             connectionSlotNumber = NumberUtils.toInt(properties.getProperty("connection.slotNumber"));
 
-            availableCheckThread = NumberUtils.toInt("system.thread.availableCheckThread", 10);
-            connectionCheckThread = NumberUtils.toInt("system.thread.connectionCheckThread", 20);
-            addreddSyncThread = NumberUtils.toInt("system.thread.addreddSyncThread", 5);
-            gfwSupportCheckThread = NumberUtils.toInt("system.thread.gfwSupportCheckThread", 5);
-            ipCrawlerThread = NumberUtils.toInt("system.thread.ipCrawlerThread", 30);
-            portCheckThread = NumberUtils.toInt("system.thread.portCheckThread", 10);
+            availableCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.availableCheckThread"), 2);
+            connectionCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.connectionCheckThread"),
+                    20);
+            addreddSyncThread = NumberUtils.toInt(properties.getProperty("system.thread.addreddSyncThread"), 5);
+            gfwSupportCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.gfwSupportCheckThread"), 5);
+            ipCrawlerThread = NumberUtils.toInt(properties.getProperty("system.thread.ipCrawlerThread"), 2);
+            portCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.portCheckThread"), 10);
+            domainCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.domainCheckThread"), 5);
+
+            availableEnable = "true".equalsIgnoreCase(properties.getProperty("system.component.availablecheck.enable"));
+            connectionEnable = "true".equalsIgnoreCase(properties.getProperty("system.component.connection.enable"));
+            portCheckEnable = "true".equalsIgnoreCase(properties.getProperty("system.component.portcheck.enable"));
+            domainCheckEnable = "true".equalsIgnoreCase(properties.getProperty("system.component.domaincheck.enable"));
+            ipCrawlerEnable = "true".equalsIgnoreCase(properties.getProperty("system.component.ipcrawler.enable"));
         } catch (IOException e) {
             throw new IllegalStateException("配置文件加载失败,系统不能启动", e);
         } finally {
@@ -142,5 +157,29 @@ public class SysConfig {
 
     public int getPortCheckThread() {
         return portCheckThread;
+    }
+
+    public int getDomainCheckThread() {
+        return domainCheckThread;
+    }
+
+    public boolean isAvailableEnable() {
+        return availableEnable;
+    }
+
+    public boolean isConnectionEnable() {
+        return connectionEnable;
+    }
+
+    public boolean isDomainCheckEnable() {
+        return domainCheckEnable;
+    }
+
+    public boolean isIpCrawlerEnable() {
+        return ipCrawlerEnable;
+    }
+
+    public boolean isPortCheckEnable() {
+        return portCheckEnable;
     }
 }

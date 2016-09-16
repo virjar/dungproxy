@@ -2,10 +2,7 @@ package com.virjar.model;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProxyModel {
+public class ProxyModel implements Comparable<ProxyModel> {
     private Long id;
 
     private String ip;
@@ -294,5 +291,33 @@ public class ProxyModel {
 
     public void setLostheader(Boolean lostheader) {
         this.lostheader = lostheader;
+    }
+
+    @Override
+    public int compareTo(ProxyModel o) {
+        return (int) (o.getAvailbelScore() * 3 + o.getConnectionScore() - this.getAvailbelScore() * 3
+                - this.getConnectionScore());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        ProxyModel proxy = (ProxyModel) o;
+
+        if (ip != null ? !ip.equals(proxy.ip) : proxy.ip != null)
+            return false;
+        return port != null ? port.equals(proxy.port) : proxy.port == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = ip != null ? ip.hashCode() : 0;
+        result = 31 * result + (port != null ? port.hashCode() : 0);
+        return result;
     }
 }

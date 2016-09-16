@@ -1,9 +1,11 @@
 package com.virjar.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +27,27 @@ public class DomainIpServiceImpl implements DomainIpService {
     @Transactional
     @Override
     public int create(DomainIpModel domainIpModel) {
-        return domainIpRepo.insert(beanMapper.map(domainIpModel, DomainIp.class));
+
+        DomainIp domainIp = beanMapper.map(domainIpModel, DomainIp.class);
+        DomainIp query = new DomainIp();
+        // 逻辑上,这三个字段作为主键
+        query.setIp(domainIp.getIp());
+        query.setPort(domainIp.getPort());
+        query.setDomain(domainIp.getDomain());
+        List<DomainIp> domainIps = domainIpRepo.selectPage(query, new PageRequest(0, 1));
+        if (domainIps.size() > 0) {
+            // update
+            domainIp.setId(domainIps.get(0).getId());
+            domainIp.setDomainScore((domainIp.getDomainScore() + domainIps.get(0).getDomainScore() * 9) / 10);
+            return domainIpRepo.updateByPrimaryKeySelective(domainIp);
+        } else {
+            // insert
+            if (domainIp.getDomainScore() == null) {
+                domainIp.setDomainScore(1L);
+            }
+            domainIp.setCreatetime(new Date());
+            return domainIpRepo.insert(domainIp);
+        }
     }
 
     @Transactional

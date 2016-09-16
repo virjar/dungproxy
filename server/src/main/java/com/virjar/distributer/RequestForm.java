@@ -22,6 +22,7 @@ public class RequestForm {
     // 和matchSequnce不同的是,他不会根据标量按照顺序过滤,而是根据运算规则指定权重排序
     private String matchExpression;// transparent:10,matchISP:100,maxPing:50 -1/maxPing
     private String domain;// 打算访问的目标网站域名
+    private String checkUrl;
     private Boolean supportPost;// 很多代理可能只能支持GET方法,不支持POST这个字段先留着,暂不支持通过这种方式过滤
 
     public String getArea() {
@@ -150,5 +151,13 @@ public class RequestForm {
 
     public void setUserInteral(Boolean userInteral) {
         this.userInteral = userInteral;
+    }
+
+    public String getCheckUrl() {
+        return checkUrl;
+    }
+
+    public void setCheckUrl(String checkUrl) {
+        this.checkUrl = checkUrl;
     }
 }

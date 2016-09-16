@@ -73,7 +73,7 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
 
     @Override
     public void run() {
-        isRunning = true;
+        isRunning = SysConfig.getInstance().isPortCheckEnable();
         ports = proxyRepository.getPortList();
         isRunning = true;
         if (ports.size() < 100) {// 认为是新启动的系统,执行默认代码

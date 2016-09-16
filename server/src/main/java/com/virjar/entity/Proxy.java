@@ -2,10 +2,7 @@ package com.virjar.entity;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Proxy {
+public class Proxy  {
     private Long id;
 
     private String ip;
@@ -295,4 +292,6 @@ public class Proxy {
     public void setLostheader(Boolean lostheader) {
         this.lostheader = lostheader;
     }
+
+
 }
