@@ -57,24 +57,29 @@ public class DomainTestTask implements Runnable, InitializingBean {
     }
 
     public boolean addUrlTask(String url) {
-        String domain = CommonUtil.extractDomain(url);
-        if (domain == null) {
+        try {
+            String domain = CommonUtil.extractDomain(url);
+            if (domain == null) {
+                return false;
+            }
+            /**
+             * 下面逻辑根据domain去重
+             */
+            if (runningDomains.contains(domain)) {
+                return true;
+            } else {
+                synchronized (domain.intern()) {
+                    if (runningDomains.contains(domain)) {
+                        return true;
+                    }
+                    runningDomains.add(domain);
+                }
+            }
+            return domainTaskQueue.offer(url);
+        } catch (Exception e) {
+            logger.error("为啥任务仍不进来?", e);
             return false;
         }
-        /**
-         * 下面逻辑根据domain去重
-         */
-        if (runningDomains.contains(domain)) {
-            return true;
-        } else {
-            synchronized (domain.intern()) {
-                if (runningDomains.contains(domain)) {
-                    return true;
-                }
-                runningDomains.add(domain);
-            }
-        }
-        return domainTaskQueue.offer(url);
     }
 
     @Override
