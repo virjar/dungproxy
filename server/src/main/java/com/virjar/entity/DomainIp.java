@@ -24,6 +24,8 @@ public class DomainIp {
 
     private Long speed;
 
+    private String testUrl;
+
     public Long getId() {
         return id;
     }
@@ -94,5 +96,13 @@ public class DomainIp {
 
     public void setSpeed(Long speed) {
         this.speed = speed;
+    }
+
+    public String getTestUrl() {
+        return testUrl;
+    }
+
+    public void setTestUrl(String testUrl) {
+        this.testUrl = testUrl;
     }
 }

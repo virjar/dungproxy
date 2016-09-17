@@ -39,6 +39,8 @@ public class DomainIpServiceImpl implements DomainIpService {
             // update
             domainIp.setId(domainIps.get(0).getId());
             domainIp.setDomainScore((domainIp.getDomainScore() + domainIps.get(0).getDomainScore() * 9) / 10);
+            domainIp.setDomainScoreDate(new Date());
+            domainIp.setTestUrl(domainIpModel.getTestUrl());
             return domainIpRepo.updateByPrimaryKeySelective(domainIp);
         } else {
             // insert

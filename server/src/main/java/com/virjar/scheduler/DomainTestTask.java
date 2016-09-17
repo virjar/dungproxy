@@ -1,5 +1,6 @@
 package com.virjar.scheduler;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -113,6 +114,8 @@ public class DomainTestTask implements Runnable, InitializingBean {
                         domainIpModel.setPort(proxy.getPort());
                         domainIpModel.setDomain(CommonUtil.extractDomain(url));
                         domainIpModel.setProxyId(proxy.getId());
+                        domainIpModel.setTestUrl(url);
+                        domainIpModel.setDomainScoreDate(new Date());
                         domainIpService.create(domainIpModel);
                     }
                 }
@@ -121,6 +124,8 @@ public class DomainTestTask implements Runnable, InitializingBean {
             } catch (Throwable e) {
                 e.printStackTrace();
                 logger.info("domain check error", e);
+            } finally {// 结束后清除锁,允许任务再次触发
+                runningDomains.remove(CommonUtil.extractDomain(url));
             }
             return null;
         }
@@ -128,7 +133,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        new Thread(this,"").start();
+        new Thread(this, "").start();
         instance = this;
     }
 
