@@ -38,7 +38,8 @@ public class DomainIpServiceImpl implements DomainIpService {
         if (domainIps.size() > 0) {
             // update
             domainIp.setId(domainIps.get(0).getId());
-            domainIp.setDomainScore((domainIp.getDomainScore() + domainIps.get(0).getDomainScore() * 9) / 10);
+            domainIp.setDomainScore(
+                    (nullToLong(domainIp.getDomainScore()) + nullToLong(domainIps.get(0).getDomainScore()) * 9) / 10);
             domainIp.setDomainScoreDate(new Date());
             domainIp.setTestUrl(domainIpModel.getTestUrl());
             return domainIpRepo.updateByPrimaryKeySelective(domainIp);
@@ -50,6 +51,13 @@ public class DomainIpServiceImpl implements DomainIpService {
             domainIp.setCreatetime(new Date());
             return domainIpRepo.insert(domainIp);
         }
+    }
+
+    private long nullToLong(Long number) {
+        if (number == null) {
+            return 0;
+        }
+        return number;
     }
 
     @Transactional

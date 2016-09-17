@@ -133,14 +133,35 @@ public class DomainTestTask implements Runnable, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        new Thread(this, "").start();
+        new Thread(this, "domain_test_task").start();
         instance = this;
     }
 
     public static void main(String[] args) {
         DomainTestTask domainTestTask = new DomainTestTask();
-        System.out.println(CommonUtil.extractDomain("http://www.scumall.com"));
-        System.out.println(CommonUtil.extractDomain("www.baidu.com"));
-        System.out.println(CommonUtil.extractDomain("http://git.oschina.net/virjar/proxyipcenter/commits/master"));
+        /*
+         * System.out.println(CommonUtil.extractDomain("http://www.scumall.com"));
+         * System.out.println(CommonUtil.extractDomain("www.baidu.com"));
+         * System.out.println(CommonUtil.extractDomain("http://git.oschina.net/virjar/proxyipcenter/commits/master"));
+         */
+        domainTestTask.addUrlTask("http://www.scumall.com");
+        domainTestTask.addUrlTask("http://git.oschina.net/virjar/proxyipcenter/");
+        domainTestTask.addUrlTask("http://www.cnblogs.com/linjiqin/p/3214725.html");
+        domainTestTask.addUrlTask("http://blog.sina.com.cn/s/blog_7768d2210101ajj6.html");
+        domainTestTask.addUrlTask("http://china.ynet.com/3.1/1609/17/11742693.html");
+        domainTestTask.addUrlTask(
+                "https://www.aliyun.com/product/ddos/?utm_medium=images&utm_source=criteo&utm_campaign=lf&utm_content=se_276183");
+        domainTestTask.addUrlTask("http://cn.ynet.com/3.1/1609/17/11742182.html");
+        domainTestTask.addUrlTask("http://news.163.com/photoview/00AP0001/2198365.html#p=C14T5IU900AP0001");
+        domainTestTask.addUrlTask("http://www.bobo.com/660000?f=163.picRec");
+        domainTestTask.addUrlTask("http://china.ynet.com/3.1/1609/16/11739239.html");
+        domainTestTask.addUrlTask("http://war.163.com/16/0915/08/C109SQQC000181KT.html");
+        domainTestTask.addUrlTask("http://bbs.tiexue.net/post2_11429708_1.html");
+        domainTestTask.addUrlTask("http://fun.youth.cn/yl24xs/201609/t20160916_8662334_1.htm");
+        domainTestTask.addUrlTask("http://www.chinadaily.com.cn/interface/yidian/1138561/2016-09-17/cd_26809500.html");
+        domainTestTask.addUrlTask("http://china.ynet.com/3.1/1609/16/11741080.html");
+        domainTestTask.addUrlTask("http://china.ynet.com/3.1/1609/16/11741050.html");
+        domainTestTask.addUrlTask("http://news.wmxa.cn/n/201609/373635_2.html");
+
     }
 }
