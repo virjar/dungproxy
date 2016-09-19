@@ -1,6 +1,5 @@
 package com.virjar;
 
-import org.junit.Test;
 
 import java.util.TimerTask;
 import java.util.concurrent.Executors;

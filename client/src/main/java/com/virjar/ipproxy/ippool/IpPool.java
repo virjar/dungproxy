@@ -1,4 +1,4 @@
-package com.virjar.ipproxy.httpclient.ippool;
+package com.virjar.ipproxy.ippool;
 
 import com.virjar.model.AvProxy;
 import org.apache.commons.pool2.PooledObjectFactory;

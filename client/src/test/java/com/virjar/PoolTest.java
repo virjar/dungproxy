@@ -1,8 +1,9 @@
 package com.virjar;
 
-import com.virjar.ipproxy.httpclient.ippool.IpPool;
-import com.virjar.ipproxy.httpclient.ippool.IpPoolConfig;
-import com.virjar.ipproxy.httpclient.ippool.IpPooledObjectFactory;
+
+import com.virjar.ipproxy.ippool.IpPool;
+import com.virjar.ipproxy.ippool.IpPoolConfig;
+import com.virjar.ipproxy.ippool.IpPooledObjectFactory;
 import com.virjar.model.AvProxy;
 import org.junit.Test;
 
