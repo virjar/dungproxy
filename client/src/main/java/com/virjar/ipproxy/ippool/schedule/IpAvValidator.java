@@ -1,4 +1,4 @@
-package com.virjar.ippool.schedule;
+package com.virjar.ipproxy.ippool.schedule;
 
 /**
  * Description: 本地可用Proxy验证

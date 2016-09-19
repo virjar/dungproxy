@@ -10,7 +10,7 @@
                            http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-    <bean id="preheater" class="com.virjar.ippool.schedule.Preheater" init-method="init"/>
+    <bean id="preheater" class="com.virjar.ipproxy.httpclient.ippool.schedule.Preheater" init-method="init"/>
 
     <bean id="beanMapper" class="com.virjar.core.beanmapper.OrikaBeanMapper">
         <property name="basePackage" value="com.virjar.model.**"/>
