@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.virjar.repository.ProxyLowQualityRepository">
+    <resultMap id="BaseResultMap" type="com.virjar.entity.Proxy">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="ip" property="ip" jdbcType="CHAR"/>
+        <result column="proxy_ip" property="proxyIp" jdbcType="CHAR"/>
+        <result column="port" property="port" jdbcType="INTEGER"/>
+        <result column="ip_value" property="ipValue" jdbcType="BIGINT"/>
+        <result column="country" property="country" jdbcType="VARCHAR"/>
+        <result column="area" property="area" jdbcType="VARCHAR"/>
+        <result column="region" property="region" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="isp" property="isp" jdbcType="VARCHAR"/>
+        <result column="country_id" property="countryId" jdbcType="VARCHAR"/>
+        <result column="area_id" property="areaId" jdbcType="VARCHAR"/>
+        <result column="region_id" property="regionId" jdbcType="VARCHAR"/>
+        <result column="city_id" property="cityId" jdbcType="VARCHAR"/>
+        <result column="isp_id" property="ispId" jdbcType="VARCHAR"/>
+        <result column="address_id" property="addressId" jdbcType="BIGINT"/>
+        <result column="transperent" property="transperent" jdbcType="TINYINT"/>
+        <result column="speed" property="speed" jdbcType="BIGINT"/>
+        <result column="type" property="type" jdbcType="TINYINT"/>
+        <result column="connection_score" property="connectionScore" jdbcType="BIGINT"/>
+        <result column="availbel_score" property="availbelScore" jdbcType="BIGINT"/>
+        <result column="connection_score_date" property="connectionScoreDate" jdbcType="TIMESTAMP"/>
+        <result column="availbel_score_date" property="availbelScoreDate" jdbcType="TIMESTAMP"/>
+        <result column="createtime" property="createtime" jdbcType="TIMESTAMP"/>
+        <result column="support_gfw" property="supportGfw" jdbcType="BIT"/>
+        <result column="gfw_speed" property="gfwSpeed" jdbcType="BIGINT"/>
+        <result column="source" property="source" jdbcType="VARCHAR"/>
+        <result column="crawler_key" property="crawlerKey" jdbcType="VARCHAR"/>
+        <result column="lostheader" property="lostheader" jdbcType="BIT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, ip, proxy_ip, port, ip_value, country, area, region, city, isp, country_id, area_id, 
+    region_id, city_id, isp_id, address_id, transperent, speed, type, connection_score, 
+    availbel_score, connection_score_date, availbel_score_date, createtime, support_gfw, 
+    gfw_speed, source, crawler_key, lostheader
+  </sql>
+    <insert id="insert" parameterType="com.virjar.entity.Proxy">
+    insert into proxy_low_quality (id, ip, proxy_ip, port,
+      ip_value, country, area, 
+      region, city, isp, 
+      country_id, area_id, region_id, 
+      city_id, isp_id, address_id, 
+      transperent, speed, type, 
+      connection_score, availbel_score, connection_score_date, 
+      availbel_score_date, createtime, support_gfw, 
+      gfw_speed, source, crawler_key,lostheader
+      )
+    values (#{id,jdbcType=BIGINT}, #{ip,jdbcType=CHAR}, #{proxyIp,jdbcType=CHAR}, #{port,jdbcType=INTEGER}, 
+      #{ipValue,jdbcType=BIGINT}, #{country,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, 
+      #{region,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{isp,jdbcType=VARCHAR}, 
+      #{countryId,jdbcType=VARCHAR}, #{areaId,jdbcType=VARCHAR}, #{regionId,jdbcType=VARCHAR},
+      #{cityId,jdbcType=VARCHAR}, #{ispId,jdbcType=VARCHAR}, #{addressId,jdbcType=BIGINT},
+      #{transperent,jdbcType=TINYINT}, #{speed,jdbcType=BIGINT}, #{type,jdbcType=TINYINT}, 
+      #{connectionScore,jdbcType=BIGINT}, #{availbelScore,jdbcType=BIGINT}, #{connectionScoreDate,jdbcType=TIMESTAMP},
+      #{availbelScoreDate,jdbcType=TIMESTAMP}, #{createtime,jdbcType=TIMESTAMP}, #{supportGfw,jdbcType=BIT},
+      #{gfwSpeed,jdbcType=BIGINT}, #{source,jdbcType=VARCHAR}, #{crawlerKey,jdbcType=VARCHAR}
+      #{lostheader,jdbcType=BIT}
+      )
+  </insert>
+
+    <insert id="insertSelective" parameterType="com.virjar.entity.Proxy">
+        insert into proxy_low_quality
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="proxyIp != null">
+                proxy_ip,
+            </if>
+            <if test="port != null">
+                port,
+            </if>
+            <if test="ipValue != null">
+                ip_value,
+            </if>
+            <if test="country != null">
+                country,
+            </if>
+            <if test="area != null">
+                area,
+            </if>
+            <if test="region != null">
+                region,
+            </if>
+            <if test="city != null">
+                city,
+            </if>
+            <if test="isp != null">
+                isp,
+            </if>
+            <if test="countryId != null">
+                country_id,
+            </if>
+            <if test="areaId != null">
+                area_id,
+            </if>
+            <if test="regionId != null">
+                region_id,
+            </if>
+            <if test="cityId != null">
+                city_id,
+            </if>
+            <if test="ispId != null">
+                isp_id,
+            </if>
+            <if test="addressId != null">
+                address_id,
+            </if>
+            <if test="transperent != null">
+                transperent,
+            </if>
+            <if test="speed != null">
+                speed,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="connectionScore != null">
+                connection_score,
+            </if>
+            <if test="availbelScore != null">
+                availbel_score,
+            </if>
+            <if test="connectionScoreDate != null">
+                connection_score_date,
+            </if>
+            <if test="availbelScoreDate != null">
+                availbel_score_date,
+            </if>
+            <if test="createtime != null">
+                createtime,
+            </if>
+            <if test="supportGfw != null">
+                support_gfw,
+            </if>
+            <if test="gfwSpeed != null">
+                gfw_speed,
+            </if>
+            <if test="source != null">
+                source,
+            </if>
+            <if test="crawlerKey != null">
+                crawler_key,
+            </if>
+            <if test="lostheader != null">
+                lostheader,
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="ip != null">
+                #{ip,jdbcType=CHAR},
+            </if>
+            <if test="proxyIp != null">
+                #{proxyIp,jdbcType=CHAR},
+            </if>
+            <if test="port != null">
+                #{port,jdbcType=INTEGER},
+            </if>
+            <if test="ipValue != null">
+                #{ipValue,jdbcType=BIGINT},
+            </if>
+            <if test="country != null">
+                #{country,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null">
+                #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="region != null">
+                #{region,jdbcType=VARCHAR},
+            </if>
+            <if test="city != null">
+                #{city,jdbcType=VARCHAR},
+            </if>
+            <if test="isp != null">
+                #{isp,jdbcType=VARCHAR},
+            </if>
+            <if test="countryId != null">
+                #{countryId,jdbcType=VARCHAR},
+            </if>
+            <if test="areaId != null">
+                #{areaId,jdbcType=VARCHAR},
+            </if>
+            <if test="regionId != null">
+                #{regionId,jdbcType=VARCHAR},
+            </if>
+            <if test="cityId != null">
+                #{cityId,jdbcType=VARCHAR},
+            </if>
+            <if test="ispId != null">
+                #{ispId,jdbcType=VARCHAR},
+            </if>
+            <if test="addressId != null">
+                #{addressId,jdbcType=BIGINT},
+            </if>
+            <if test="transperent != null">
+                #{transperent,jdbcType=TINYINT},
+            </if>
+            <if test="speed != null">
+                #{speed,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=TINYINT},
+            </if>
+            <if test="connectionScore != null">
+                #{connectionScore,jdbcType=BIGINT},
+            </if>
+            <if test="availbelScore != null">
+                #{availbelScore,jdbcType=BIGINT},
+            </if>
+            <if test="connectionScoreDate != null">
+                #{connectionScoreDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="availbelScoreDate != null">
+                #{availbelScoreDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createtime != null">
+                #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="supportGfw != null">
+                #{supportGfw,jdbcType=BIT},
+            </if>
+            <if test="gfwSpeed != null">
+                #{gfwSpeed,jdbcType=BIGINT},
+            </if>
+            <if test="source != null">
+                #{source,jdbcType=VARCHAR},
+            </if>
+            <if test="crawlerKey != null">
+                #{crawlerKey,jdbcType=VARCHAR},
+            </if>
+            <if test="lostheader != null">
+                #{lostheader,jdbcType=BIT}
+            </if>
+        </trim>
+    </insert>
+</mapper>

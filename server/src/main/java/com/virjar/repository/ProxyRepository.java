@@ -1,12 +1,11 @@
 package com.virjar.repository;
 
-import java.util.List;
-
+import com.virjar.entity.Proxy;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.virjar.entity.Proxy;
+import java.util.List;
 
 @Repository
 public interface ProxyRepository {
@@ -41,4 +40,6 @@ public interface ProxyRepository {
     List<Proxy> find4Distribute(@Param("num") int num, @Param("proxy") Proxy proxy);
 
     List<Integer> getPortList();
+
+    List<Proxy> getLowProxy(@Param("step") int step,@Param("threshold") int threshold);
 }
