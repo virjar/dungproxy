@@ -1,4 +1,4 @@
-package com.virjar.ippool.schedule;
+package com.virjar.ipproxy.ippool.schedule;
 
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.RateLimiter;

@@ -1,18 +1,18 @@
-package com.virjar.ippool;
+package com.virjar.ipproxy.ippool;
 
 /**
  *
  * Created by lingtong.fu on 2016/8/30.
  */
 
-import com.virjar.ippool.schedule.Preheater;
-import com.virjar.model.AvProxy;
+import javax.annotation.Resource;
+
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
-import javax.annotation.Resource;
-
+import com.virjar.ipproxy.ippool.schedule.Preheater;
+import com.virjar.model.AvProxy;
 
 public class IpPooledObjectFactory extends BasePooledObjectFactory<AvProxy> {
 
@@ -31,7 +31,7 @@ public class IpPooledObjectFactory extends BasePooledObjectFactory<AvProxy> {
 
     public PooledObject<AvProxy> makeObject() throws Exception {
         System.out.println("make null Object");
-        //TODO 本地可用Proxy验证
+        // TODO 本地可用Proxy验证
         AvProxy AvProxy = preheater.getAvProxy();
         return wrap(AvProxy);
     }

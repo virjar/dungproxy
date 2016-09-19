@@ -3,6 +3,7 @@ package com.virjar.service;
 import java.util.Date;
 import java.util.List;
 
+import com.virjar.model.ProxyModel;
 import org.springframework.data.domain.Pageable;
 
 import com.virjar.model.DomainIpModel;
@@ -23,4 +24,6 @@ public interface DomainIpService {
     int selectCount(DomainIpModel domainIpModel);
 
     List<DomainIpModel> selectPage(DomainIpModel domainIpModel, Pageable Pageable);
+
+    List<ProxyModel> convert(List<DomainIpModel> domainIpModels);
 }

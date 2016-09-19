@@ -1,132 +1,143 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.virjar.repository.DomainIpRepository" >
-  <resultMap id="BaseResultMap" type="com.virjar.entity.DomainIp" >
-    <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="domain" property="domain" jdbcType="VARCHAR" />
-    <result column="proxy_id" property="proxyId" jdbcType="BIGINT" />
-    <result column="ip" property="ip" jdbcType="CHAR" />
-    <result column="port" property="port" jdbcType="INTEGER" />
-    <result column="domain_score" property="domainScore" jdbcType="BIGINT" />
-    <result column="domain_score_date" property="domainScoreDate" jdbcType="TIMESTAMP" />
-    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
-    <result column="speed" property="speed" jdbcType="BIGINT" />
-  </resultMap>
-  <sql id="Base_Column_List" >
-    id, domain, proxy_id, ip, port, domain_score, domain_score_date, createtime, speed
+<mapper namespace="com.virjar.repository.DomainIpRepository">
+    <resultMap id="BaseResultMap" type="com.virjar.entity.DomainIp">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="domain" property="domain" jdbcType="VARCHAR"/>
+        <result column="proxy_id" property="proxyId" jdbcType="BIGINT"/>
+        <result column="ip" property="ip" jdbcType="CHAR"/>
+        <result column="port" property="port" jdbcType="INTEGER"/>
+        <result column="domain_score" property="domainScore" jdbcType="BIGINT"/>
+        <result column="domain_score_date" property="domainScoreDate" jdbcType="TIMESTAMP"/>
+        <result column="createtime" property="createtime" jdbcType="TIMESTAMP"/>
+        <result column="speed" property="speed" jdbcType="BIGINT"/>
+        <result column="test_url" property="testUrl" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, domain, proxy_id, ip, port, domain_score, domain_score_date, createtime, speed,test_url
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    select 
-    <include refid="Base_Column_List" />
-    from domainip
-    where id = #{id,jdbcType=BIGINT}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from domainip
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from domainip
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.virjar.entity.DomainIp" >
+    <insert id="insert" parameterType="com.virjar.entity.DomainIp">
     insert into domainip (id, domain, proxy_id, 
       ip, port, domain_score, 
-      domain_score_date, createtime, speed
+      domain_score_date, createtime, speed,test_url
       )
     values (#{id,jdbcType=BIGINT}, #{domain,jdbcType=VARCHAR}, #{proxyId,jdbcType=BIGINT}, 
       #{ip,jdbcType=CHAR}, #{port,jdbcType=INTEGER}, #{domainScore,jdbcType=BIGINT}, 
-      #{domainScoreDate,jdbcType=TIMESTAMP}, #{createtime,jdbcType=TIMESTAMP}, #{speed,jdbcType=BIGINT}
+      #{domainScoreDate,jdbcType=TIMESTAMP}, #{createtime,jdbcType=TIMESTAMP}, #{speed,jdbcType=BIGINT},
+      #{testUrl,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.virjar.entity.DomainIp" >
-    insert into domainip
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
-      <if test="domain != null" >
-        domain,
-      </if>
-      <if test="proxyId != null" >
-        proxy_id,
-      </if>
-      <if test="ip != null" >
-        ip,
-      </if>
-      <if test="port != null" >
-        port,
-      </if>
-      <if test="domainScore != null" >
-        domain_score,
-      </if>
-      <if test="domainScoreDate != null" >
-        domain_score_date,
-      </if>
-      <if test="createtime != null" >
-        createtime,
-      </if>
-      <if test="speed != null" >
-        speed,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=BIGINT},
-      </if>
-      <if test="domain != null" >
-        #{domain,jdbcType=VARCHAR},
-      </if>
-      <if test="proxyId != null" >
-        #{proxyId,jdbcType=BIGINT},
-      </if>
-      <if test="ip != null" >
-        #{ip,jdbcType=CHAR},
-      </if>
-      <if test="port != null" >
-        #{port,jdbcType=INTEGER},
-      </if>
-      <if test="domainScore != null" >
-        #{domainScore,jdbcType=BIGINT},
-      </if>
-      <if test="domainScoreDate != null" >
-        #{domainScoreDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createtime != null" >
-        #{createtime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="speed != null" >
-        #{speed,jdbcType=BIGINT},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.virjar.entity.DomainIp" >
-    update domainip
-    <set >
-      <if test="domain != null" >
-        domain = #{domain,jdbcType=VARCHAR},
-      </if>
-      <if test="proxyId != null" >
-        proxy_id = #{proxyId,jdbcType=BIGINT},
-      </if>
-      <if test="ip != null" >
-        ip = #{ip,jdbcType=CHAR},
-      </if>
-      <if test="port != null" >
-        port = #{port,jdbcType=INTEGER},
-      </if>
-      <if test="domainScore != null" >
-        domain_score = #{domainScore,jdbcType=BIGINT},
-      </if>
-      <if test="domainScoreDate != null" >
-        domain_score_date = #{domainScoreDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createtime != null" >
-        createtime = #{createtime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="speed != null" >
-        speed = #{speed,jdbcType=BIGINT},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.virjar.entity.DomainIp" >
+    <insert id="insertSelective" parameterType="com.virjar.entity.DomainIp">
+        insert into domainip
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="domain != null">
+                domain,
+            </if>
+            <if test="proxyId != null">
+                proxy_id,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="port != null">
+                port,
+            </if>
+            <if test="domainScore != null">
+                domain_score,
+            </if>
+            <if test="domainScoreDate != null">
+                domain_score_date,
+            </if>
+            <if test="createtime != null">
+                createtime,
+            </if>
+            <if test="speed != null">
+                speed,
+            </if>
+            <if test="testUrl !=null">
+                test_url,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="domain != null">
+                #{domain,jdbcType=VARCHAR},
+            </if>
+            <if test="proxyId != null">
+                #{proxyId,jdbcType=BIGINT},
+            </if>
+            <if test="ip != null">
+                #{ip,jdbcType=CHAR},
+            </if>
+            <if test="port != null">
+                #{port,jdbcType=INTEGER},
+            </if>
+            <if test="domainScore != null">
+                #{domainScore,jdbcType=BIGINT},
+            </if>
+            <if test="domainScoreDate != null">
+                #{domainScoreDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createtime != null">
+                #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="speed != null">
+                #{speed,jdbcType=BIGINT},
+            </if>
+            <if test="testUrl !=null">
+                #{testUrl,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.virjar.entity.DomainIp">
+        update domainip
+        <set>
+            <if test="domain != null">
+                domain = #{domain,jdbcType=VARCHAR},
+            </if>
+            <if test="proxyId != null">
+                proxy_id = #{proxyId,jdbcType=BIGINT},
+            </if>
+            <if test="ip != null">
+                ip = #{ip,jdbcType=CHAR},
+            </if>
+            <if test="port != null">
+                port = #{port,jdbcType=INTEGER},
+            </if>
+            <if test="domainScore != null">
+                domain_score = #{domainScore,jdbcType=BIGINT},
+            </if>
+            <if test="domainScoreDate != null">
+                domain_score_date = #{domainScoreDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createtime != null">
+                createtime = #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="speed != null">
+                speed = #{speed,jdbcType=BIGINT},
+            </if>
+            <if test="testUrl != null">
+                test_url =#{testUrl,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.virjar.entity.DomainIp">
     update domainip
     set domain = #{domain,jdbcType=VARCHAR},
       proxy_id = #{proxyId,jdbcType=BIGINT},
@@ -135,80 +146,87 @@
       domain_score = #{domainScore,jdbcType=BIGINT},
       domain_score_date = #{domainScoreDate,jdbcType=TIMESTAMP},
       createtime = #{createtime,jdbcType=TIMESTAMP},
-      speed = #{speed,jdbcType=BIGINT}
+      speed = #{speed,jdbcType=BIGINT},
+      test_url = #{testUrl,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.entity.DomainIp" >
-    select count(*) from domainip
-    <where >
-      <if test="id != null" >
-        and id = #{id,jdbcType=BIGINT}
-      </if>
-      <if test="domain != null" >
-        and domain = #{domain,jdbcType=VARCHAR}
-      </if>
-      <if test="proxyId != null" >
-        and proxy_id = #{proxyId,jdbcType=BIGINT}
-      </if>
-      <if test="ip != null" >
-        and ip = #{ip,jdbcType=CHAR}
-      </if>
-      <if test="port != null" >
-        and port = #{port,jdbcType=INTEGER}
-      </if>
-      <if test="domainScore != null" >
-        and domain_score = #{domainScore,jdbcType=BIGINT}
-      </if>
-      <if test="domainScoreDate != null" >
-        and domain_score_date = #{domainScoreDate,jdbcType=TIMESTAMP}
-      </if>
-      <if test="createtime != null" >
-        and createtime = #{createtime,jdbcType=TIMESTAMP}
-      </if>
-      <if test="speed != null" >
-        and speed = #{speed,jdbcType=BIGINT}
-      </if>
-    </where>
-  </select>
-  <select id="selectPage" resultMap="BaseResultMap" >
-    select 
-    <include refid="Base_Column_List" />
-    from domainip where 1 = 1 
-    <if test="param1.id != null" >
-      and id = #{param1.id,jdbcType=BIGINT}
-    </if>
-    <if test="param1.domain != null" >
-      and domain = #{param1.domain,jdbcType=VARCHAR}
-    </if>
-    <if test="param1.proxyId != null" >
-      and proxy_id = #{param1.proxyId,jdbcType=BIGINT}
-    </if>
-    <if test="param1.ip != null" >
-      and ip = #{param1.ip,jdbcType=CHAR}
-    </if>
-    <if test="param1.port != null" >
-      and port = #{param1.port,jdbcType=INTEGER}
-    </if>
-    <if test="param1.domainScore != null" >
-      and domain_score = #{param1.domainScore,jdbcType=BIGINT}
-    </if>
-    <if test="param1.domainScoreDate != null" >
-      and domain_score_date = #{param1.domainScoreDate,jdbcType=TIMESTAMP}
-    </if>
-    <if test="param1.createtime != null" >
-      and createtime = #{param1.createtime,jdbcType=TIMESTAMP}
-    </if>
-    <if test="param1.speed != null" >
-      and speed = #{param1.speed,jdbcType=BIGINT}
-    </if>
-    <if test="param2.sort != null" >
-      order by 
-      <foreach collection="param2.sort" item="order" separator="," >
-        ${order.property} ${order.direction}
-      </foreach>
-    </if>
-    <if test="param2.offset >= 0 and param2.pageSize > 0" >
-      limit ${param2.offset}, ${param2.pageSize}
-    </if>
-  </select>
+    <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.entity.DomainIp">
+        select count(*) from domainip
+        <where>
+            <if test="id != null">
+                and id = #{id,jdbcType=BIGINT}
+            </if>
+            <if test="domain != null">
+                and domain = #{domain,jdbcType=VARCHAR}
+            </if>
+            <if test="proxyId != null">
+                and proxy_id = #{proxyId,jdbcType=BIGINT}
+            </if>
+            <if test="ip != null">
+                and ip = #{ip,jdbcType=CHAR}
+            </if>
+            <if test="port != null">
+                and port = #{port,jdbcType=INTEGER}
+            </if>
+            <if test="domainScore != null">
+                and domain_score = #{domainScore,jdbcType=BIGINT}
+            </if>
+            <if test="domainScoreDate != null">
+                and domain_score_date = #{domainScoreDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="createtime != null">
+                and createtime = #{createtime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="speed != null">
+                and speed = #{speed,jdbcType=BIGINT}
+            </if>
+            <if test="testUrl !=null">
+                and test_url = #{testUrl,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="selectPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from domainip where 1 = 1
+        <if test="param1.id != null">
+            and id = #{param1.id,jdbcType=BIGINT}
+        </if>
+        <if test="param1.domain != null">
+            and domain = #{param1.domain,jdbcType=VARCHAR}
+        </if>
+        <if test="param1.proxyId != null">
+            and proxy_id = #{param1.proxyId,jdbcType=BIGINT}
+        </if>
+        <if test="param1.ip != null">
+            and ip = #{param1.ip,jdbcType=CHAR}
+        </if>
+        <if test="param1.port != null">
+            and port = #{param1.port,jdbcType=INTEGER}
+        </if>
+        <if test="param1.domainScore != null">
+            and domain_score = #{param1.domainScore,jdbcType=BIGINT}
+        </if>
+        <if test="param1.domainScoreDate != null">
+            and domain_score_date = #{param1.domainScoreDate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="param1.createtime != null">
+            and createtime = #{param1.createtime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="param1.speed != null">
+            and speed = #{param1.speed,jdbcType=BIGINT}
+        </if>
+        <if test="param1.testUrl != null">
+            and test_url = #{testUrl,jdbcType=VARCHAR}
+        </if>
+        <if test="param2.sort != null">
+            order by
+            <foreach collection="param2.sort" item="order" separator=",">
+                ${order.property} ${order.direction}
+            </foreach>
+        </if>
+        <if test="param2.offset >= 0 and param2.pageSize > 0">
+            limit ${param2.offset}, ${param2.pageSize}
+        </if>
+    </select>
 </mapper>

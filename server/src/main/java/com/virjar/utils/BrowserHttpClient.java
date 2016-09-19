@@ -202,17 +202,23 @@ public class BrowserHttpClient {
     }
 
     public int getStatus(String url, Header[] headers) throws IOException {
-        HttpGet httpGet = new HttpGet(url);
-        httpGet.setConfig(requestConfig);
-        if (headers != null && headers.length > 0) {
-            httpGet.setHeaders(headers);
-        }
-
+        HttpGet httpGet = null;
         try {
+            httpGet = new HttpGet(url);
+            httpGet.setConfig(requestConfig);
+            if (headers != null && headers.length > 0) {
+                httpGet.setHeaders(headers);
+            }
+
             HttpResponse httpResponse = browserHttpClient.execute(httpGet);
             return httpResponse.getStatusLine().getStatusCode();
         } finally {
-            httpGet.releaseConnection();
+            if (httpGet != null) {
+                httpGet.releaseConnection();
+            }
+            if (autoReturn) {
+                BrowserHttpClientPool.getInstance().returnBack(this);
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-package com.virjar.ippool;
+package com.virjar.ipproxy.ippool;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 

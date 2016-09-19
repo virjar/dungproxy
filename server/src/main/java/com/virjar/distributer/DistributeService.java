@@ -1,8 +1,7 @@
 package com.virjar.distributer;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -14,14 +13,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.DomainIp;
 import com.virjar.entity.Proxy;
+import com.virjar.model.DomainIpModel;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.DomainIpRepository;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.scheduler.DomainTestTask;
+import com.virjar.service.DomainIpService;
 import com.virjar.service.ProxyService;
 import com.virjar.utils.CommonUtil;
 
@@ -39,6 +40,9 @@ public class DistributeService {
     private DomainIpRepository domainIpRepository;
 
     @Resource
+    private DomainIpService domainIpService;
+
+    @Resource
     private ProxyService proxyService;
 
     @Resource
@@ -48,34 +52,42 @@ public class DistributeService {
 
     public List<ProxyModel> distribute(RequestForm requestForm) {
         trimRequestForm(requestForm);
-        Proxy proxy = genCondition(requestForm);
-        List<Proxy> available = proxyRepository.find4Distribute(5000, proxy);
-        available = filterUsed(requestForm.getUsedSign(), available);
-        if (available.size() < requestForm.getNum() || "strict".equals(requestForm.getDistributeStrategy())) {
-            return beanMapper.mapAsList(available, ProxyModel.class);
-        }
-        // TODO 如果数据多了,需要压缩排序?
-        List<ProxyModel> proxyModels = beanMapper.mapAsList(available, ProxyModel.class);
-        Map<String, ProxyModel> data = Maps.newHashMap();
-        for (ProxyModel proxyModel : proxyModels) {
-            data.put(proxyModel.getIp() + ":" + proxyModel.getPort(), proxyModel);
-        }
-        List<DomainIp> domainTested = get4DomainTested(requestForm);
-        for (DomainIp domainIp : domainTested) {
-            ProxyModel proxyModel = data.get(domainIp.getIp() + ":" + domainIp.getPort());
-            if (proxyModel == null) {
-                proxyModel = proxyService.selectByIpPort(domainIp.getIp(), domainIp.getPort());
-                if (proxyModel != null) {
-                    proxyModels.add(proxyModel);
-                }
-            }
-            if (proxyModel != null) {// 调整权重
-                proxyModel.setAvailbelScore((proxyModel.getAvailbelScore() + domainIp.getDomainScore() * 9) / 10);
-            }
-        }
-        Collections.sort(proxyModels);
 
-        return proxyModels.subList(0, requestForm.getNum());
+        List<ProxyModel> ret;
+        // 第一步,查询domain库
+        List<DomainIp> domainTestedProxys = get4DomainTested(requestForm);
+        ret = domainIpService.convert(beanMapper.mapAsList(domainTestedProxys, DomainIpModel.class));
+        ret = filterUsed(requestForm.getUsedSign(), ret);
+        if (ret.size() > requestForm.getNum()) {
+            return ret;
+        }
+
+        // TODO 第二步,由调度任务跑出domain的元数据,根据元数据查询
+        // 元数据模块还没有实现好,暂时不实现这个模块
+
+        // 第三步,根据查询参数查询
+        Proxy proxy = genCondition(requestForm);// 现在这里比较慢,等待韦轩分表优化后观察
+        List<ProxyModel> available = beanMapper.mapAsList(proxyRepository.find4Distribute(1500 - ret.size(), proxy),
+                ProxyModel.class);
+        available = filterUsed(requestForm.getUsedSign(), available);
+        ret = merge(ret, available);
+        if (ret.size() < requestForm.getNum() || "strict".equals(requestForm.getDistributeStrategy())) {
+            return ret;
+        }
+
+        if (ret.size() >= requestForm.getNum()) {
+            return ret.subList(0, requestForm.getNum());
+        }
+
+        // 第四步,随即选取资源填充
+        // TODO
+        return ret;
+    }
+
+    private List<ProxyModel> merge(List<ProxyModel> list1, List<ProxyModel> list2) {
+        Set<ProxyModel> set = Sets.newHashSet(list1);
+        set.addAll(list2);
+        return Lists.newArrayList(set);
     }
 
     private List<DomainIp> get4DomainTested(RequestForm requestForm) {
@@ -89,16 +101,15 @@ public class DistributeService {
         }
         DomainIp domainIp = new DomainIp();
         domainIp.setDomain(domain);
-        List<DomainIp> domainIps = domainIpRepository.selectPage(domainIp,
-                new PageRequest(0, requestForm.getNum() * 3));
+        List<DomainIp> domainIps = domainIpRepository.selectPage(domainIp, new PageRequest(0, Integer.MAX_VALUE));
         if (domainIps.size() == 0) {
             DomainTestTask.sendDomainTask(checkUrl);
         }
         return domainIps;
     }
 
-    private List<Proxy> filterUsed(String usedSign, List<Proxy> dbProxy) {
-        List<Proxy> ret = Lists.newArrayList();
+    private List<ProxyModel> filterUsed(String usedSign, List<ProxyModel> dbProxy) {
+        List<ProxyModel> ret = Lists.newArrayList();
         if (StringUtils.isEmpty(usedSign)) {
             ret.addAll(dbProxy);
             return ret;
@@ -110,7 +121,7 @@ public class DistributeService {
             logger.error("used unsigned failed ", e);
         }
         if (sign != null) {
-            for (Proxy proxy : dbProxy) {
+            for (ProxyModel proxy : dbProxy) {
                 if (!sign.contains(proxy)) {
                     ret.add(proxy);
                 }

@@ -10,10 +10,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.DomainIp;
+import com.virjar.entity.Proxy;
 import com.virjar.model.DomainIpModel;
+import com.virjar.model.ProxyModel;
 import com.virjar.repository.DomainIpRepository;
+import com.virjar.repository.ProxyRepository;
 import com.virjar.service.DomainIpService;
 
 @Service
@@ -23,6 +27,9 @@ public class DomainIpServiceImpl implements DomainIpService {
 
     @Resource
     private DomainIpRepository domainIpRepo;
+
+    @Resource
+    private ProxyRepository proxyRepository;
 
     @Transactional
     @Override
@@ -38,7 +45,10 @@ public class DomainIpServiceImpl implements DomainIpService {
         if (domainIps.size() > 0) {
             // update
             domainIp.setId(domainIps.get(0).getId());
-            domainIp.setDomainScore((domainIp.getDomainScore() + domainIps.get(0).getDomainScore() * 9) / 10);
+            domainIp.setDomainScore(
+                    (nullToLong(domainIp.getDomainScore()) + nullToLong(domainIps.get(0).getDomainScore()) * 9) / 10);
+            domainIp.setDomainScoreDate(new Date());
+            domainIp.setTestUrl(domainIpModel.getTestUrl());
             return domainIpRepo.updateByPrimaryKeySelective(domainIp);
         } else {
             // insert
@@ -48,6 +58,13 @@ public class DomainIpServiceImpl implements DomainIpService {
             domainIp.setCreatetime(new Date());
             return domainIpRepo.insert(domainIp);
         }
+    }
+
+    private long nullToLong(Long number) {
+        if (number == null) {
+            return 1;
+        }
+        return number;
     }
 
     @Transactional
@@ -92,5 +109,17 @@ public class DomainIpServiceImpl implements DomainIpService {
     public List<DomainIpModel> selectPage(DomainIpModel domainIpModel, Pageable pageable) {
         List<DomainIp> domainIpList = domainIpRepo.selectPage(beanMapper.map(domainIpModel, DomainIp.class), pageable);
         return beanMapper.mapAsList(domainIpList, DomainIpModel.class);
+    }
+
+    @Override
+    public List<ProxyModel> convert(List<DomainIpModel> domainIpModels) {
+        List<ProxyModel> ret = Lists.newArrayList();
+        for (DomainIpModel domainIpModel : domainIpModels) {
+            Proxy proxy = proxyRepository.selectByPrimaryKey(domainIpModel.getProxyId());
+            if (proxy != null) {
+                ret.add(beanMapper.map(proxy, ProxyModel.class));
+            }
+        }
+        return ret;
     }
 }
