@@ -66,7 +66,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     private final RequestConfig defaultConfig;
     private final List<Closeable> closeables;
 
-    public CrawlerHttpClient(final ClientExecChain execChain, final HttpClientConnectionManager connManager,
+    CrawlerHttpClient(final ClientExecChain execChain, final HttpClientConnectionManager connManager,
             final HttpRoutePlanner routePlanner, final Lookup<CookieSpecProvider> cookieSpecRegistry,
             final Lookup<AuthSchemeProvider> authSchemeRegistry, final CookieStore cookieStore,
             final CredentialsProvider credentialsProvider, final RequestConfig defaultConfig,
