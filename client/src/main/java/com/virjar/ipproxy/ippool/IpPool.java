@@ -1,10 +1,11 @@
-package com.virjar.ipproxy.httpclient.ippool;
+package com.virjar.ipproxy.ippool;
 
-import com.virjar.model.AvProxy;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.AbandonedConfig;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+
+import com.virjar.model.AvProxy;
 
 /**
  * Description: IpListPool
@@ -22,7 +23,8 @@ public class IpPool extends GenericObjectPool<AvProxy> {
         super(factory, config);
     }
 
-    public IpPool(PooledObjectFactory<AvProxy> factory, GenericObjectPoolConfig config, AbandonedConfig abandonedConfig) {
+    public IpPool(PooledObjectFactory<AvProxy> factory, GenericObjectPoolConfig config,
+            AbandonedConfig abandonedConfig) {
         super(factory, config, abandonedConfig);
     }
 }

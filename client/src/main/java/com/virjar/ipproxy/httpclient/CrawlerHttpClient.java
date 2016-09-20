@@ -2,11 +2,14 @@ package com.virjar.ipproxy.httpclient;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -38,11 +41,16 @@ import org.apache.http.params.HttpParamsNames;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
+import org.apache.http.util.EntityUtils;
+
+import com.virjar.ipproxy.util.CharSetDector;
 
 /**
  * 包装httpclient,应该继承它 Created by virjar on 16/9/19.
  */
 public class CrawlerHttpClient extends CloseableHttpClient implements Configurable {
+
+    private static final CrawlerHttpClient instance = CrawlerHttpClientBuilder.create().build();
 
     public static void main(String[] args) {
         HttpClient httpClient = HttpClientBuilder.create().build();
@@ -217,5 +225,42 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
         };
 
+    }
+
+    public static String getQuatity(String url, String proxyIp, int proxyPort) {
+        try {
+            return get(url, proxyIp, proxyPort);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 这种方式要自动探测字符集,不能使用默认,作为客户端,应对的是各种目标网站,不能使用客户端所在环境的默认字符集的
+     * 
+     * @param url
+     * @param proxyIp
+     * @param proxyPort
+     * @return
+     * @throws IOException
+     */
+    public static String get(String url, String proxyIp, int proxyPort) throws IOException {
+        HttpGet get = new HttpGet(url);
+        if (StringUtils.isNotEmpty(proxyIp)) {
+            RequestConfig build = RequestConfig.custom().setRedirectsEnabled(true).setCircularRedirectsAllowed(true)
+                    .setProxy(new HttpHost(proxyIp, proxyPort)).build();
+            get.setConfig(build);
+        }
+        CloseableHttpResponse execute = instance.execute(get);
+        byte[] bytes = EntityUtils.toByteArray(execute.getEntity());
+        Header[] headers = execute.getHeaders("Content-Type");
+        String charset = CharSetDector.detectHeader(headers);
+        if (charset == null) {
+            charset = CharSetDector.detectHtmlContent(bytes);
+        }
+        if (charset == null) {
+            charset = Charset.defaultCharset().name();
+        }
+        return new String(bytes, charset);
     }
 }

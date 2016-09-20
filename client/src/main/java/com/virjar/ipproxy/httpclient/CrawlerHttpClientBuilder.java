@@ -44,7 +44,6 @@ import org.apache.http.impl.execchain.*;
 import org.apache.http.protocol.*;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
-import org.apache.http.util.VersionInfo;
 
 /**
  * Created by virjar on 16/9/19.
@@ -899,7 +898,7 @@ public class CrawlerHttpClientBuilder {
                 userAgentCopy = System.getProperty("http.agent");
             }
             if (userAgentCopy == null) {// TODO 把这里换掉,强制设置为一个真实浏览器的UA
-                userAgentCopy = VersionInfo.getUserAgent("Apache-HttpClient", "org.apache.http.client", getClass());
+                userAgentCopy = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36";
             }
         }
 
