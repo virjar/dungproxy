@@ -7,7 +7,12 @@ import com.virjar.ipproxy.httpclient.CrawlerHttpClient;
  */
 public class Main {
     public static void main(String[] args) {
-        String quatity = CrawlerHttpClient.getQuatity("http://www.66ip.cn/4.html", "122.72.18.160", 80);
+        long start = System.currentTimeMillis();
+        String quatity = CrawlerHttpClient.getQuatity(
+                "http://proxy-list.org/english/index.php?p=2",
+                "118.144.104.254",
+                3128);
         System.out.println(quatity);
+        System.out.println(System.currentTimeMillis() - start);
     }
 }

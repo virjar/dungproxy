@@ -247,7 +247,8 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     public static String get(String url, String proxyIp, int proxyPort) throws IOException {
         HttpGet get = new HttpGet(url);
         if (StringUtils.isNotEmpty(proxyIp)) {
-            RequestConfig build = RequestConfig.custom().setRedirectsEnabled(true).setCircularRedirectsAllowed(true)
+            RequestConfig build = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
+                    .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true)
                     .setProxy(new HttpHost(proxyIp, proxyPort)).build();
             get.setConfig(build);
         }
