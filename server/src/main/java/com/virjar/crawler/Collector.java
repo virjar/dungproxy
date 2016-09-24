@@ -2,6 +2,7 @@ package com.virjar.crawler;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -232,7 +233,7 @@ public class Collector {
                     continue;
                 }
             } catch (Exception e) {
-                if (!(e instanceof SocketTimeoutException)) {
+                if (!(e instanceof SocketTimeoutException) && !(e instanceof SocketException)) {
                     logger.error("收集器 " + url + " 错误栈如下：", e);
                 }
                 errorinfo = url + ":" + e;

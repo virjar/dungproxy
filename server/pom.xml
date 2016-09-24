@@ -505,6 +505,12 @@
                 <deploy.type>prod</deploy.type>
             </properties>
         </profile>
+        <profile>
+            <id>guobao</id>
+            <properties>
+                <deploy.type>guobao</deploy.type>
+            </properties>
+        </profile>
     </profiles>
     <build>
         <finalName>proxyipcenter</finalName>
