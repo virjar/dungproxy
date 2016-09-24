@@ -53,6 +53,7 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
     private static NonePortResourceTester instance;
 
     private void init() {
+        instance = this;
         isRunning = SysConfig.getInstance().getPortCheckThread() > 0;
         if (!isRunning) {
             logger.info("port-resource-collect task not running");
@@ -62,7 +63,6 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
                 SysConfig.getInstance().getPortCheckThread(), 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("port-resource-collect"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
-        instance = this;
         new Thread(this).start();
     }
 

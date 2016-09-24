@@ -56,6 +56,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
     private Set<String> runningDomains = Sets.newConcurrentHashSet();
 
     private void init() {
+        instance = this;
         isRunning = SysConfig.getInstance().getDomainCheckThread() > 0;
         if (!isRunning) {
             logger.info("domain check task is not running");
@@ -65,7 +66,6 @@ public class DomainTestTask implements Runnable, InitializingBean {
                 SysConfig.getInstance().getDomainCheckThread(), 30000L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("domain-check"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
-        instance = this;
         new Thread(this).start();
     }
 
