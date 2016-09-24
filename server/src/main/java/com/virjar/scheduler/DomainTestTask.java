@@ -167,13 +167,13 @@ public class DomainTestTask implements Runnable, InitializingBean {
 
         @Override
         public Object call() throws Exception {
-            DomainIpModel domainIpModel = new DomainIpModel();
-            domainIpModel.setDomain(domain);
-            int total = domainIpService.selectCount(domainIpModel);
+            DomainIpModel queryDomainIpModel = new DomainIpModel();
+            queryDomainIpModel.setDomain(domain);
+            int total = domainIpService.selectCount(queryDomainIpModel);
             int pageSize = 100;
             int totalPage = (total + pageSize - 1) / pageSize;// 计算分页场景下页码总数需要这样算,这叫0舍1入。不舍1入?(考虑四舍五入怎么实现)
             for (int nowPage = 0; nowPage < totalPage; nowPage++) {
-                List<DomainIpModel> domainIpModels = domainIpService.selectPage(domainIpModel,
+                List<DomainIpModel> domainIpModels = domainIpService.selectPage(queryDomainIpModel,
                         new PageRequest(nowPage, pageSize));
                 for (DomainIpModel domainIp : domainIpModels) {
 
@@ -197,7 +197,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
                     domainIp.setSpeed(null);
                     domainIp.setCreatetime(null);
                     domainIp.setDomainScoreDate(new Date());
-                    domainIpService.updateByPrimaryKeySelective(domainIpModel);// 只更新关心的数据,防止并发环境下的各种同步问题,不是数据库同步,而是逻辑层
+                    domainIpService.updateByPrimaryKeySelective(domainIp);// 只更新关心的数据,防止并发环境下的各种同步问题,不是数据库同步,而是逻辑层
                 }
             }
             return null;
