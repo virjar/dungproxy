@@ -154,6 +154,9 @@ public class DomainTestTask implements Runnable, InitializingBean {
         }
     }
 
+    /**
+     * 检测曾经检测过的资源,
+     */
     private class HistoryUrlTester implements Callable {
 
         private String domain;
@@ -215,6 +218,12 @@ public class DomainTestTask implements Runnable, InitializingBean {
         @Override
         public Object call() {
             try {
+                DomainMetaModel domainMetaModel = new DomainMetaModel();
+                domainMetaModel.setDomain(CommonUtil.extractDomain(url));
+                if (domainMetaService.selectCount(domainMetaModel) == 0) {
+                    domainMetaService.createSelective(domainMetaModel);
+                }
+
                 List<Proxy> available = proxyRepository.findAvailable();// 系统可用IP,根据权值排序
                 logger.info("domain check total:{} url:{}", available.size(), url);
                 for (Proxy proxy : available) {

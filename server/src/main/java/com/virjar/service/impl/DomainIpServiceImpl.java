@@ -44,9 +44,13 @@ public class DomainIpServiceImpl implements DomainIpService {
         List<DomainIp> domainIps = domainIpRepo.selectPage(query, new PageRequest(0, 1));
         if (domainIps.size() > 0) {
             // update
-            domainIp.setId(domainIps.get(0).getId());
-            domainIp.setDomainScore(
-                    (nullToLong(domainIp.getDomainScore()) + nullToLong(domainIps.get(0).getDomainScore()) * 9) / 10);
+            DomainIp originDomainIp = domainIps.get(0);
+            domainIp.setId(originDomainIp.getId());
+            if (originDomainIp.getDomainScore() <= 0) {
+                domainIp.setDomainScore(1L);
+            } else {
+                domainIp.setDomainScore(originDomainIp.getDomainScore() + 1);
+            }
             domainIp.setDomainScoreDate(new Date());
             domainIp.setTestUrl(domainIpModel.getTestUrl());
             return domainIpRepo.updateByPrimaryKeySelective(domainIp);
@@ -58,13 +62,6 @@ public class DomainIpServiceImpl implements DomainIpService {
             domainIp.setCreatetime(new Date());
             return domainIpRepo.insert(domainIp);
         }
-    }
-
-    private long nullToLong(Long number) {
-        if (number == null) {
-            return 1;
-        }
-        return number;
     }
 
     @Transactional
