@@ -54,7 +54,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
     }
 
     public void run() {
-        long totalWaitTime = 10 * 60 * 1000;
+        long totalWaitTime = 100 * 60 * 1000;
         logger.info("Component start");
 
         while (isRunning) {

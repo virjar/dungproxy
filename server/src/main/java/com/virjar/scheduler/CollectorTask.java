@@ -60,7 +60,7 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     @Override
     public void run() {
-        long totalWaitTime = 50 * 60 * 1000;
+        long totalWaitTime = 100 * 60 * 1000;
         logger.info("CollectorTask start");
         while (isRunning) {
             try {
