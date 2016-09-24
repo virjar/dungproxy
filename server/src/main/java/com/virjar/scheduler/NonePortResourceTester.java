@@ -1,5 +1,6 @@
 package com.virjar.scheduler;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -47,17 +48,38 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
 
     private BloomFilter bloomFilter = new BloomFilter64bit(60000, 10);
     private int addTimes = 0;
-    private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getPortCheckThread(),
-            SysConfig.getInstance().getPortCheckThread(), 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.CallerRunsPolicy());
+    private ExecutorService pool = null;
 
     private static NonePortResourceTester instance;
+
+    private void init() {
+        isRunning = SysConfig.getInstance().getPortCheckThread() > 0;
+        if (!isRunning) {
+            logger.info("port-resource-collect task not running");
+            return;
+        }
+        pool = new ThreadPoolExecutor(SysConfig.getInstance().getPortCheckThread(),
+                SysConfig.getInstance().getPortCheckThread(), 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("port-resource-collect"),
+                new ThreadPoolExecutor.CallerRunsPolicy());
+        instance = this;
+        new Thread(this).start();
+    }
 
     public static boolean sendIp(String ip) {
         if (instance == null) {
             logger.warn("port check component not start,ip add failed");
             return false;
+        }
+        if (!instance.isRunning) {
+            try {
+                BrowserHttpClientPool.getInstance().borrow()
+                        .get(String.format(SysConfig.getInstance().get("system.port.test.forward.url"), ip));
+            } catch (IOException e) {
+                logger.info("port check forward error:", e);
+                return false;
+            }
+            return true;
         }
         return !StringUtils.isEmpty(ip) && instance.addIp(ip);
     }
@@ -73,7 +95,6 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
 
     @Override
     public void run() {
-        isRunning = SysConfig.getInstance().isPortCheckEnable();
         ports = proxyRepository.getPortList();
         isRunning = true;
         if (ports.size() < 100) {// 认为是新启动的系统,执行默认代码
@@ -131,8 +152,7 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        new Thread(this).start();
-        instance = this;
+        init();
     }
 
     private void buildDefaultPort(List<Integer> ports) {

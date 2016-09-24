@@ -19,6 +19,7 @@ import com.virjar.entity.Proxy;
 import com.virjar.model.AvailbelCheckResponse;
 import com.virjar.model.ProxyModel;
 import com.virjar.scheduler.DomainTestTask;
+import com.virjar.scheduler.NonePortResourceTester;
 import com.virjar.service.ProxyService;
 import com.virjar.utils.Constant;
 import com.virjar.utils.ProxyUtil;
@@ -37,6 +38,12 @@ public class CheckController {
 
     @Resource
     private BeanMapper beanMapper;
+
+    @RequestMapping(value = "/portCheck", method = RequestMethod.GET)
+    public ResponseEntity<ResponseEnvelope<Object>> checkPort(@RequestParam("ip") String ip) {
+        boolean b = NonePortResourceTester.sendIp(ip);
+        return ReturnUtil.retSuccess(b);
+    }
 
     @RequestMapping(value = "/checkUrlTask", method = RequestMethod.GET)
     public ResponseEntity<ResponseEnvelope<Object>> checkUrlTask(@RequestParam("url") String url) {

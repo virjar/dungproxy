@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +69,12 @@ public class DomainMetaServiceImpl implements DomainMetaService {
     @Transactional(readOnly = true)
     @Override
     public List<DomainMetaModel> selectPage(DomainMetaModel domainMetaModel, Pageable pageable) {
+        if(domainMetaModel == null){
+            domainMetaModel = new DomainMetaModel();
+        }
+        if(pageable == null){
+            pageable = new PageRequest(0,Integer.MAX_VALUE);
+        }
         List<DomainMeta> domainMetaList = domainMetaRepo.selectPage(beanMapper.map(domainMetaModel, DomainMeta.class),
                 pageable);
         return beanMapper.mapAsList(domainMetaList, DomainMetaModel.class);

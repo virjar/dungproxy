@@ -5,6 +5,7 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
+import com.virjar.utils.NameThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -39,10 +40,7 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     // 一般来说线程池不会有空转的,我希望所有线程能够随时工作,线程池除了节省线程创建和销毁开销,同时起限流作用,如果任务提交太多,则使用主线程进行工作
     // 从而阻塞主线程任务产生逻辑
-    private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getIpCrawlerThread(),
-            SysConfig.getInstance().getIpCrawlerThread(), 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.CallerRunsPolicy());
+    private ExecutorService pool = null;
 
     public static List<Collector> getCollectors() {
         return collectors;
@@ -62,7 +60,6 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     @Override
     public void run() {
-        isRunning = SysConfig.getInstance().isIpCrawlerEnable();
         long totalWaitTime = 50 * 60 * 1000;
         logger.info("CollectorTask start");
         while (isRunning) {
@@ -96,16 +93,26 @@ public class CollectorTask implements Runnable, InitializingBean {
     }
 
     private void init() {
+        isRunning = SysConfig.getInstance().getIpCrawlerThread() > 0;
+        if (!isRunning) {
+            logger.info("collector task is not running");
+            return;
+        }
+        pool = new ThreadPoolExecutor(SysConfig.getInstance().getIpCrawlerThread(),
+                SysConfig.getInstance().getIpCrawlerThread(), 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(),new NameThreadFactory("collector"),
+                new ThreadPoolExecutor.CallerRunsPolicy());
         Random random = new Random();
         for (Collector collector : collectors) {
             sleepTimeStamp.put(collector, System.currentTimeMillis() + random.nextInt() % 60000);
         }
+        new Thread(this).start();
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         init();
-        new Thread(this).start();
+
     }
 
     private class WebsiteCollect implements Callable<Object> {

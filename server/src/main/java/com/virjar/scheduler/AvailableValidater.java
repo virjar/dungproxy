@@ -17,6 +17,7 @@ import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.model.AvailbelCheckResponse;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
+import com.virjar.utils.NameThreadFactory;
 import com.virjar.utils.ProxyUtil;
 import com.virjar.utils.SysConfig;
 
@@ -30,14 +31,22 @@ public class AvailableValidater implements InitializingBean, Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(AvailableValidater.class);
 
-    // 一般来说线程池不会有空转的,我希望所有线程能够随时工作,线程池除了节省线程创建和销毁开销,同时起限流作用,如果任务提交太多,则使用主线程进行工作
-    // 从而阻塞主线程任务产生逻辑
-    private ExecutorService pool = new ThreadPoolExecutor(SysConfig.getInstance().getAvailableCheckThread(),
-            SysConfig.getInstance().getAvailableCheckThread(), 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.CallerRunsPolicy());
+    private ExecutorService pool = null;
 
     private volatile boolean isRunning = false;
+
+    private void init() {
+        isRunning = SysConfig.getInstance().getAvailableCheckThread() > 0;
+        if (!isRunning) {
+            logger.info("avaliable validater is not enable");
+            return;
+        }
+        pool = new ThreadPoolExecutor(SysConfig.getInstance().getAvailableCheckThread(),
+                SysConfig.getInstance().getAvailableCheckThread(), 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("available-check"),
+                new ThreadPoolExecutor.CallerRunsPolicy());
+        new Thread(this).start();
+    }
 
     @Override
     public void run() {
@@ -48,7 +57,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        isRunning = SysConfig.getInstance().isAvailableEnable();
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -94,7 +103,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        new Thread(this).start();
+        init();
     }
 
     private class ProxyAvailableTester implements Callable<Integer> {
