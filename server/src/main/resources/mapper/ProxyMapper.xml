@@ -635,6 +635,9 @@
         SELECT
         <include refid="Base_Column_List"/>
         from proxy
-        WHERE DATEDIFF(NOW(),createtime) &gt;= ${step} and connection_score &lt; ${threshold};
+        WHERE DATEDIFF(NOW(),createtime) &gt;= ${step} and connection_score &lt;= ${threshold}
+        <if test="page.offset >= 0 and page.pageSize > 0">
+            limit ${page.offset}, ${page.pageSize}
+        </if>
     </select>
 </mapper>

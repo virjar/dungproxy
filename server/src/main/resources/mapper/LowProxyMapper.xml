@@ -244,4 +244,11 @@
             </if>
         </trim>
     </insert>
+
+    <select id="isExists" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from proxy_low_quality
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
 </mapper>

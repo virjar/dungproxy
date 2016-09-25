@@ -11,4 +11,6 @@ public interface ProxyLowQualityRepository {
     int insert(Proxy proxy);
 
     int insertSelective(Proxy proxy);
+
+    Proxy isExists(Long id);
 }

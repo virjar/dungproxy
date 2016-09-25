@@ -41,5 +41,5 @@ public interface ProxyRepository {
 
     List<Integer> getPortList();
 
-    List<Proxy> getLowProxy(@Param("step") int step,@Param("threshold") int threshold);
+    List<Proxy> getLowProxy(@Param("step") int step,@Param("threshold") int threshold,@Param("page") Pageable pageable);
 }
