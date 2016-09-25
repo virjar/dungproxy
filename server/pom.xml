@@ -511,6 +511,12 @@
                 <deploy.type>guobao</deploy.type>
             </properties>
         </profile>
+        <profile>
+            <id>skyee</id>
+            <properties>
+                <deploy.type>skyee</deploy.type>
+            </properties>
+        </profile>
     </profiles>
     <build>
         <finalName>proxyipcenter</finalName>
