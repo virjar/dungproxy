@@ -5,7 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -38,7 +41,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(DomainTestTask.class);
 
     private boolean isRunning = false;
-    private ExecutorService pool = null;
+    private ThreadPoolExecutor pool = null;
 
     private static DomainTestTask instance = null;
     @Resource
@@ -62,9 +65,8 @@ public class DomainTestTask implements Runnable, InitializingBean {
             logger.info("domain check task is not running");
             return;
         }
-        pool = new ThreadPoolExecutor(SysConfig.getInstance().getDomainCheckThread(),
-                SysConfig.getInstance().getDomainCheckThread(), 30000L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("domain-check"),
+        pool = new ThreadPoolExecutor(SysConfig.getInstance().getDomainCheckThread(), Integer.MAX_VALUE, 30000L,
+                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("domain-check"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
         new Thread(this).start();
     }
@@ -121,7 +123,9 @@ public class DomainTestTask implements Runnable, InitializingBean {
         while (isRunning) {
             UrlCheckTaskHolder holder = domainTaskQueue.poll();
             if (holder == null) {
-                genHistoryTestTask();
+                if (pool.getActiveCount() < pool.getCorePoolSize()) {// 在线程池空闲的时候才加入新任务
+                    genHistoryTestTask();
+                }
                 CommonUtil.sleep(5000);
                 continue;
             }
@@ -149,6 +153,11 @@ public class DomainTestTask implements Runnable, InitializingBean {
         String domain;
 
         @Override
+        public String toString() {
+            return "UrlCheckTaskHolder{" + "domain='" + domain + '\'' + ", url='" + url + '\'' + '}';
+        }
+
+        @Override
         public int compareTo(UrlCheckTaskHolder o) {
             return priority - o.priority;
         }
@@ -167,40 +176,46 @@ public class DomainTestTask implements Runnable, InitializingBean {
 
         @Override
         public Object call() throws Exception {
-            DomainIpModel queryDomainIpModel = new DomainIpModel();
-            queryDomainIpModel.setDomain(domain);
-            int total = domainIpService.selectCount(queryDomainIpModel);
-            int pageSize = 100;
-            int totalPage = (total + pageSize - 1) / pageSize;// 计算分页场景下页码总数需要这样算,这叫0舍1入。不舍1入?(考虑四舍五入怎么实现)
-            for (int nowPage = 0; nowPage < totalPage; nowPage++) {
-                List<DomainIpModel> domainIpModels = domainIpService.selectPage(queryDomainIpModel,
-                        new PageRequest(nowPage, pageSize));
-                for (DomainIpModel domainIp : domainIpModels) {
+            try {
+                logger.info("domain checker {} is running", domain);
+                DomainIpModel queryDomainIpModel = new DomainIpModel();
+                queryDomainIpModel.setDomain(domain);
+                int total = domainIpService.selectCount(queryDomainIpModel);
+                int pageSize = 100;
+                int totalPage = (total + pageSize - 1) / pageSize;// 计算分页场景下页码总数需要这样算,这叫0舍1入。不舍1入?(考虑四舍五入怎么实现)
+                for (int nowPage = 0; nowPage < totalPage; nowPage++) {
+                    List<DomainIpModel> domainIpModels = domainIpService.selectPage(queryDomainIpModel,
+                            new PageRequest(nowPage, pageSize));
+                    for (DomainIpModel domainIp : domainIpModels) {
 
-                    if (ProxyUtil.checkUrl(domainIp.getIp(), domainIp.getPort(), domainIp.getTestUrl())) {
-                        if (domainIp.getDomainScore() < 0) {
-                            domainIp.setDomainScore(1L);
+                        if (ProxyUtil.checkUrl(domainIp.getIp(), domainIp.getPort(), domainIp.getTestUrl())) {
+                            if (domainIp.getDomainScore() < 0) {
+                                domainIp.setDomainScore(1L);
+                            } else {
+                                domainIp.setDomainScore(domainIp.getDomainScore() + 1);
+                            }
                         } else {
-                            domainIp.setDomainScore(domainIp.getDomainScore() + 1);
+                            if (domainIp.getDomainScore() > 0) {// 快速降权
+                                domainIp.setDomainScore(domainIp.getDomainScore()
+                                        - (long) Math.log((double) domainIp.getDomainScore() + 3));
+                            } else {
+                                domainIp.setDomainScore(domainIp.getDomainScore() - 1);
+                            }
                         }
-                    } else {
-                        if (domainIp.getDomainScore() > 0) {// 快速降权
-                            domainIp.setDomainScore(domainIp.getDomainScore()
-                                    - (long) Math.log((double) domainIp.getDomainScore() + 3));
-                        } else {
-                            domainIp.setDomainScore(domainIp.getDomainScore() - 1);
-                        }
+                        domainIp.setDomain(null);
+                        domainIp.setIp(null);
+                        domainIp.setPort(null);
+                        domainIp.setSpeed(null);
+                        domainIp.setCreatetime(null);
+                        domainIp.setDomainScoreDate(new Date());
+                        domainIpService.updateByPrimaryKeySelective(domainIp);// 只更新关心的数据,防止并发环境下的各种同步问题,不是数据库同步,而是逻辑层
                     }
-                    domainIp.setDomain(null);
-                    domainIp.setIp(null);
-                    domainIp.setPort(null);
-                    domainIp.setSpeed(null);
-                    domainIp.setCreatetime(null);
-                    domainIp.setDomainScoreDate(new Date());
-                    domainIpService.updateByPrimaryKeySelective(domainIp);// 只更新关心的数据,防止并发环境下的各种同步问题,不是数据库同步,而是逻辑层
                 }
+                return null;
+            } catch (Exception e) {
+                logger.error("error when check domain:{}", domain, e);
+                throw e;
             }
-            return null;
         }
     }
 
