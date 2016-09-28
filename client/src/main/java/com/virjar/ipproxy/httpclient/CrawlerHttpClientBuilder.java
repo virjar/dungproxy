@@ -10,6 +10,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
+import com.virjar.ipproxy.httpclient.conn.ProxyBindRoutPlanner;
 import org.apache.http.*;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.auth.AuthSchemeProvider;
@@ -998,7 +999,7 @@ public class CrawlerHttpClientBuilder {
             } else if (systemProperties) {
                 routePlannerCopy = new SystemDefaultRoutePlanner(schemePortResolverCopy, ProxySelector.getDefault());
             } else {
-                routePlannerCopy = new DefaultRoutePlanner(schemePortResolverCopy);
+                routePlannerCopy = new ProxyBindRoutPlanner(schemePortResolverCopy);
             }
         }
         // Add redirect executor, if not disabled
