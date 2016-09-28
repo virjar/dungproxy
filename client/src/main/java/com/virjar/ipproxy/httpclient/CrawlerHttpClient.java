@@ -227,6 +227,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
     }
 
+    @Deprecated
     public static String getQuatity(String url, String proxyIp, int proxyPort) {
         try {
             return get(url, proxyIp, proxyPort);

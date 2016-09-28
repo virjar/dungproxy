@@ -45,6 +45,9 @@ import org.apache.http.protocol.*;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
 
+import com.virjar.ipproxy.httpclient.execchain.RetryExec;
+import com.virjar.ipproxy.util.HeaderUtil;
+
 /**
  * Created by virjar on 16/9/19.
  */
@@ -803,7 +806,7 @@ public class CrawlerHttpClientBuilder {
             requestExecCopy = new HttpRequestExecutor();
         }
         HttpClientConnectionManager connManagerCopy = this.connManager;
-        if (connManagerCopy == null) {
+        if (connManagerCopy == null) {// 连接池
             LayeredConnectionSocketFactory sslSocketFactoryCopy = this.sslSocketFactory;
             if (sslSocketFactoryCopy == null) {
                 final String[] supportedProtocols = systemProperties ? split(System.getProperty("https.protocols"))
@@ -910,7 +913,7 @@ public class CrawlerHttpClientBuilder {
         execChain = decorateMainExec(execChain);
 
         HttpProcessor httpprocessorCopy = this.httpprocessor;
-        if (httpprocessorCopy == null) {
+        if (httpprocessorCopy == null) {// 拦截器构建,如果没有设置拦截器,则构建默认拦截器
 
             final HttpProcessorBuilder b = HttpProcessorBuilder.create();
             if (requestFirst != null) {
@@ -922,6 +925,10 @@ public class CrawlerHttpClientBuilder {
                 for (final HttpResponseInterceptor i : responseFirst) {
                     b.addFirst(i);
                 }
+            }
+            Collection<? extends Header> defaultHeaders = this.defaultHeaders;
+            if (defaultHeaders == null) {
+                defaultHeaders = HeaderUtil.defaultHeaders;
             }
             b.addAll(new RequestDefaultHeaders(defaultHeaders), new RequestContent(), new RequestTargetHost(),
                     new RequestClientConnControl(), new RequestUserAgent(userAgentCopy),
