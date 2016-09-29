@@ -11,7 +11,7 @@ import org.apache.http.Header;
 /**
  * 探测字符集 Created by virjar on 16/9/20.
  */
-public class CharSetDector {
+public class CharsetDetector {
     /**
      * 通过头部解析
      * 

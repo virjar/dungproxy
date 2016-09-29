@@ -43,7 +43,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
-import com.virjar.ipproxy.util.CharSetDector;
+import com.virjar.ipproxy.util.CharsetDetector;
 
 /**
  * 包装httpclient,应该继承它 Created by virjar on 16/9/19.
@@ -236,6 +236,11 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
     }
 
+    @Deprecated
+    public static String getQuatity(String url) {
+        return getQuatity(url, null, -1);
+    }
+
     /**
      * 这种方式要自动探测字符集,不能使用默认,作为客户端,应对的是各种目标网站,不能使用客户端所在环境的默认字符集的
      * 
@@ -256,9 +261,9 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         CloseableHttpResponse execute = instance.execute(get);
         byte[] bytes = EntityUtils.toByteArray(execute.getEntity());
         Header[] headers = execute.getHeaders("Content-Type");
-        String charset = CharSetDector.detectHeader(headers);
+        String charset = CharsetDetector.detectHeader(headers);
         if (charset == null) {
-            charset = CharSetDector.detectHtmlContent(bytes);
+            charset = CharsetDetector.detectHtmlContent(bytes);
         }
         if (charset == null) {
             charset = Charset.defaultCharset().name();

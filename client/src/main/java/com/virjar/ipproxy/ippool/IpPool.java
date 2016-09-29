@@ -1,10 +1,8 @@
 package com.virjar.ipproxy.ippool;
 
-import org.apache.commons.pool2.PooledObjectFactory;
-import org.apache.commons.pool2.impl.AbandonedConfig;
-import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.virjar.model.AvProxy;
 
 /**
@@ -13,18 +11,28 @@ import com.virjar.model.AvProxy;
  * @author lingtong.fu
  * @version 2016-09-03 01:13
  */
-public class IpPool extends GenericObjectPool<AvProxy> {
+public class IpPool {
 
-    public IpPool(PooledObjectFactory<AvProxy> factory) {
-        super(factory);
+    private Map<String, DomainPool> pool = Maps.newConcurrentMap();
+
+    private IpPool() {
     }
 
-    public IpPool(PooledObjectFactory<AvProxy> factory, GenericObjectPoolConfig config) {
-        super(factory, config);
+    private static IpPool instance = new IpPool();
+
+    public static IpPool getInstance() {
+        return instance;
     }
 
-    public IpPool(PooledObjectFactory<AvProxy> factory, GenericObjectPoolConfig config,
-            AbandonedConfig abandonedConfig) {
-        super(factory, config, abandonedConfig);
+    public AvProxy bind(String host, String url, Object userID) {
+        if (!pool.containsKey(host)) {
+            synchronized (this) {// TODO import 参数何时放到系统
+                if (!pool.containsKey(host)) {
+                    pool.put(host, new DomainPool(host, null));
+                }
+            }
+        }
+        return pool.get(host).bind(url, userID);
     }
+
 }
