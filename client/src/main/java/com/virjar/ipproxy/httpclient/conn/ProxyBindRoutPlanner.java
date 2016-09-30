@@ -10,6 +10,7 @@ import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 
 import com.virjar.ipproxy.ippool.IpPool;
+import com.virjar.ipproxy.ippool.config.ProxyConstant;
 import com.virjar.model.AvProxy;
 
 /**
@@ -37,7 +38,8 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
         if (request instanceof HttpGet) {// TODO 有问题,貌似post也会是这个,但是服务器现在只进行get验证
             accessUrl = HttpUriRequest.class.cast(request).getURI().toString();
         }
-        AvProxy bind = IpPool.getInstance().bind(target.getHostName(), accessUrl, null);
+        AvProxy bind = IpPool.getInstance().bind(target.getHostName(), accessUrl,
+                context.getAttribute(ProxyConstant.USER_KEY));
         if (bind != null) {
             return new HttpHost(bind.getIp(), bind.getPort());
         }

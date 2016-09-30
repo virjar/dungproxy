@@ -26,7 +26,7 @@ public class IpPool {
 
     public AvProxy bind(String host, String url, Object userID) {
         if (!pool.containsKey(host)) {
-            synchronized (this) {// TODO import 参数何时放到系统
+            synchronized (this) {// TODO import 参数何时放到系统,暂时放置默认
                 if (!pool.containsKey(host)) {
                     pool.put(host, new DomainPool(host, null));
                 }

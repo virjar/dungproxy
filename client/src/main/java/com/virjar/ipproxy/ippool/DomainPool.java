@@ -8,8 +8,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.google.common.collect.Lists;
-import com.virjar.ipproxy.ippool.stratege.DefaultImporter;
-import com.virjar.ipproxy.ippool.stratege.Importer;
+import com.virjar.ipproxy.ippool.strategy.DefaultImporter;
+import com.virjar.ipproxy.ippool.strategy.Importer;
 import com.virjar.model.AvProxy;
 
 /**
