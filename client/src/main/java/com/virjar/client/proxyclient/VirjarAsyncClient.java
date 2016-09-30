@@ -75,7 +75,7 @@ public class VirjarAsyncClient {
             getClient().close();
     }
 
-    <T> ListenableFuture<T> privateGet(String url, HttpOption option, AsyncHandler<T> handler) throws IOException {
+    private  <T> ListenableFuture<T> privateGet(String url, HttpOption option, AsyncHandler<T> handler) throws IOException {
         AsyncHttpClient.BoundRequestBuilder builder = getClient().prepareGet(url);
 
         if (option != null) {
@@ -100,7 +100,7 @@ public class VirjarAsyncClient {
         return new GuavaListenableFuture<T>(getClient().executeRequest(request, new AsyncClientHandler<T>(handler)));
     }
 
-    <T> ListenableFuture<T> privatePost(final String url, HttpOption option, AsyncHandler<T> handler) throws IOException {
+    private <T> ListenableFuture<T> privatePost(final String url, HttpOption option, AsyncHandler<T> handler) throws IOException {
         AsyncHttpClient.BoundRequestBuilder builder = getClient().preparePost(url);
         if (option != null) {
             Map<String, String> postFormData = option.getPostFormData();

@@ -30,7 +30,7 @@
 
         <slf4j.version>1.7.12</slf4j.version>
 
-        <com.google.guava.guava.version>18.0</com.google.guava.guava.version>
+        <com.google.guava.guava.version>19.0</com.google.guava.guava.version>
     </properties>
 
     <dependencies>
