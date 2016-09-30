@@ -130,11 +130,14 @@ public class ProxyUtil {
     }
 
     public static boolean checkUrl(ProxyModel proxy, String url) {
+        return checkUrl(proxy.getIp(), proxy.getPort(), url);
+    }
+
+    public static boolean checkUrl(String ip, int port, String url) {
         for (int i = 0; i < 3; i++) {
             try {
                 // 可能有问题,资源不可用,响应也有可能不是空。需要客户端代理失败决策方案出来之后进行优化
-                int status = BrowserHttpClientPool.getInstance().borrow().setProxy(proxy.getIp(), proxy.getPort())
-                        .getStatus(url, null);
+                int status = BrowserHttpClientPool.getInstance().borrow().setProxy(ip, port).getStatus(url, null);
                 return status == 200;
             } catch (IOException e) {
                 // do nothing

@@ -46,10 +46,6 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
 
     @Override
     public void run() {
-        /*
-         * getAreaThread.scheduleAtFixedRate(new Runnable() {
-         * @Override public void run() { for (long i = 1l; i <= 1000l; i++) { setArea(i); } } }, 0, 1, TimeUnit.DAYS);
-         */
         isRuning = false;
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

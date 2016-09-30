@@ -10,6 +10,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
+import com.virjar.ipproxy.httpclient.conn.ProxyBindRoutPlanner;
 import org.apache.http.*;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.auth.AuthSchemeProvider;
@@ -44,7 +45,9 @@ import org.apache.http.impl.execchain.*;
 import org.apache.http.protocol.*;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
-import org.apache.http.util.VersionInfo;
+
+import com.virjar.ipproxy.httpclient.execchain.RetryExec;
+import com.virjar.ipproxy.util.HeaderUtil;
 
 /**
  * Created by virjar on 16/9/19.
@@ -804,7 +807,7 @@ public class CrawlerHttpClientBuilder {
             requestExecCopy = new HttpRequestExecutor();
         }
         HttpClientConnectionManager connManagerCopy = this.connManager;
-        if (connManagerCopy == null) {
+        if (connManagerCopy == null) {// 连接池
             LayeredConnectionSocketFactory sslSocketFactoryCopy = this.sslSocketFactory;
             if (sslSocketFactoryCopy == null) {
                 final String[] supportedProtocols = systemProperties ? split(System.getProperty("https.protocols"))
@@ -899,7 +902,7 @@ public class CrawlerHttpClientBuilder {
                 userAgentCopy = System.getProperty("http.agent");
             }
             if (userAgentCopy == null) {// TODO 把这里换掉,强制设置为一个真实浏览器的UA
-                userAgentCopy = VersionInfo.getUserAgent("Apache-HttpClient", "org.apache.http.client", getClass());
+                userAgentCopy = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36";
             }
         }
 
@@ -911,7 +914,7 @@ public class CrawlerHttpClientBuilder {
         execChain = decorateMainExec(execChain);
 
         HttpProcessor httpprocessorCopy = this.httpprocessor;
-        if (httpprocessorCopy == null) {
+        if (httpprocessorCopy == null) {// 拦截器构建,如果没有设置拦截器,则构建默认拦截器
 
             final HttpProcessorBuilder b = HttpProcessorBuilder.create();
             if (requestFirst != null) {
@@ -923,6 +926,10 @@ public class CrawlerHttpClientBuilder {
                 for (final HttpResponseInterceptor i : responseFirst) {
                     b.addFirst(i);
                 }
+            }
+            Collection<? extends Header> defaultHeaders = this.defaultHeaders;
+            if (defaultHeaders == null) {
+                defaultHeaders = HeaderUtil.defaultHeaders;
             }
             b.addAll(new RequestDefaultHeaders(defaultHeaders), new RequestContent(), new RequestTargetHost(),
                     new RequestClientConnControl(), new RequestUserAgent(userAgentCopy),
@@ -992,7 +999,7 @@ public class CrawlerHttpClientBuilder {
             } else if (systemProperties) {
                 routePlannerCopy = new SystemDefaultRoutePlanner(schemePortResolverCopy, ProxySelector.getDefault());
             } else {
-                routePlannerCopy = new DefaultRoutePlanner(schemePortResolverCopy);
+                routePlannerCopy = new ProxyBindRoutPlanner(schemePortResolverCopy);
             }
         }
         // Add redirect executor, if not disabled

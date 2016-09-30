@@ -1,6 +1,5 @@
 package com.virjar;
 
-
 import com.virjar.ipproxy.ippool.IpPool;
 import com.virjar.ipproxy.ippool.IpPoolConfig;
 import com.virjar.ipproxy.ippool.IpPooledObjectFactory;

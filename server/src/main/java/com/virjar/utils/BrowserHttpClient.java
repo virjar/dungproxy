@@ -55,6 +55,7 @@ public class BrowserHttpClient {
 
     private CloseableHttpClient browserHttpClient = null;
     private RequestConfig requestConfig = null;
+    private RequestConfig defaultRequestConfig = null;
     private BasicCookieStore cookieStore = null;
 
     private Header[] defaultHeaders = buildBaseHeaders().toArray(new Header[] {});
@@ -99,9 +100,9 @@ public class BrowserHttpClient {
         }
         if (StringUtils.isNotBlank(ip)) {
             HttpHost proxy = new HttpHost(ip, port);
-            requestConfig = builder.setProxy(proxy).build();
+            defaultRequestConfig = requestConfig = builder.setProxy(proxy).build();
         } else {
-            requestConfig = builder.build();
+            defaultRequestConfig = requestConfig = builder.build();
         }
         this.browserHttpClient = createHttpsClient();
     }
@@ -116,9 +117,9 @@ public class BrowserHttpClient {
         }
         if (StringUtils.isNotBlank(ip)) {
             HttpHost proxy = new HttpHost(ip, port);
-            requestConfig = builder.setProxy(proxy).build();
+            defaultRequestConfig = requestConfig = builder.setProxy(proxy).build();
         } else {
-            requestConfig = builder.build();
+            defaultRequestConfig = requestConfig = builder.build();
         }
         this.browserHttpClient = createHttpsClient();
     }
@@ -135,9 +136,9 @@ public class BrowserHttpClient {
         }
         if (StringUtils.isNotBlank(ip)) {
             HttpHost proxy = new HttpHost(ip, port);
-            requestConfig = builder.setProxy(proxy).build();
+           defaultRequestConfig= requestConfig = builder.setProxy(proxy).build();
         } else {
-            requestConfig = builder.build();
+           defaultRequestConfig= requestConfig = builder.build();
         }
         if (isRedirect) {
             this.browserHttpClient = createRedirectHttpsClient();
@@ -196,6 +197,7 @@ public class BrowserHttpClient {
         } finally {
             httpGet.releaseConnection();
             if (autoReturn) {
+                requestConfig = defaultRequestConfig;
                 BrowserHttpClientPool.getInstance().returnBack(this);
             }
         }
@@ -217,6 +219,7 @@ public class BrowserHttpClient {
                 httpGet.releaseConnection();
             }
             if (autoReturn) {
+                requestConfig = defaultRequestConfig;
                 BrowserHttpClientPool.getInstance().returnBack(this);
             }
         }

@@ -630,4 +630,14 @@
     <select id="getPortList" resultType="java.lang.Integer">
         select port from (select `port`,count(port) as num from proxyipcenter.proxy   group by port order by num desc ) as t where t.num>1
     </select>
+
+    <select id="getLowProxy" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from proxy
+        WHERE DATEDIFF(NOW(),createtime) &gt;= ${step} and connection_score &lt;= ${threshold}
+        <if test="page.offset >= 0 and page.pageSize > 0">
+            limit ${page.offset}, ${page.pageSize}
+        </if>
+    </select>
 </mapper>
