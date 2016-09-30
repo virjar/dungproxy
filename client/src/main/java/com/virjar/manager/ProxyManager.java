@@ -31,4 +31,8 @@ public class ProxyManager {
     public AvProxy getAvProxy() throws Exception {
         return ipPool.borrowObject();
     }
+
+    public void returnObject(AvProxy avProxy) {
+        ipPool.returnObject(avProxy);
+    }
 }
