@@ -1,13 +1,11 @@
 package com.virjar.ipproxy.ippool;
 
-import java.util.List;
-import java.util.Random;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.virjar.ipproxy.ippool.strategy.DefaultImporter;
 import com.virjar.ipproxy.ippool.strategy.Importer;
 import com.virjar.model.AvProxy;
@@ -31,6 +29,8 @@ public class DomainPool {
 
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
 
+    private Map<Object, AvProxy> bindMap = Maps.newConcurrentMap();
+
     public DomainPool(String domain, Importer importer) {
         this.domain = domain;
         this.importer = importer;
@@ -51,7 +51,14 @@ public class DomainPool {
 
         readWriteLock.readLock().lock();
         try {
-            return hint(userID == null ? random.nextInt() : userID.hashCode());
+            AvProxy hint = hint(userID == null ? random.nextInt() : userID.hashCode());
+            if (userID != null && hint != null) {
+                if (!hint.equals(bindMap.get(userID))) {
+                    // IP 绑定改变事件
+                }
+                bindMap.put(userID, hint);
+            }
+            return hint;
         } finally {
             readWriteLock.readLock().unlock();
         }

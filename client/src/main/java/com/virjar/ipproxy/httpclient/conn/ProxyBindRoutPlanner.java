@@ -12,6 +12,7 @@ import org.apache.http.protocol.HttpContext;
 import com.virjar.ipproxy.ippool.IpPool;
 import com.virjar.ipproxy.ippool.config.ProxyConstant;
 import com.virjar.model.AvProxy;
+import com.virjar.model.UserEnv;
 
 /**
  * 通过这个绑定代理IP,这种方式可以以非侵入的形式和原声httpclient集成,<br/>
@@ -38,9 +39,18 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
         if (request instanceof HttpGet) {// TODO 有问题,貌似post也会是这个,但是服务器现在只进行get验证
             accessUrl = HttpUriRequest.class.cast(request).getURI().toString();
         }
-        AvProxy bind = IpPool.getInstance().bind(target.getHostName(), accessUrl,
-                context.getAttribute(ProxyConstant.USER_KEY));
+        Object user = context.getAttribute(ProxyConstant.USER_KEY);
+        AvProxy bind = IpPool.getInstance().bind(target.getHostName(), accessUrl, user);
         if (bind != null) {
+            if (user != null) {// 记录这个用户绑定的IP
+                UserEnv userEnv = UserEnv.class.cast(context.getAttribute(ProxyConstant.USER_ENV_CONTAINER_KEY));
+                if (userEnv == null) {// 第一次访问,IP分配到用户
+                    userEnv = new UserEnv();
+                }
+                if (!bind.equals(userEnv.getBindProxy())) {
+                    // TODO IP 改变事件
+                }
+            }
             return new HttpHost(bind.getIp(), bind.getPort());
         }
         return super.determineProxy(target, request, context);
