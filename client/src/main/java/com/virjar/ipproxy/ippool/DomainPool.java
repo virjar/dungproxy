@@ -6,8 +6,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.virjar.ipproxy.ippool.strategy.DefaultImporter;
-import com.virjar.ipproxy.ippool.strategy.Importer;
+import com.virjar.ipproxy.ippool.strategy.importer.DefaultImporter;
+import com.virjar.ipproxy.ippool.strategy.importer.Importer;
 import com.virjar.model.AvProxy;
 
 /**

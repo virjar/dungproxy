@@ -1,4 +1,4 @@
-package com.virjar.ipproxy.ippool.strategy;
+package com.virjar.ipproxy.ippool.strategy.importer;
 
 import java.util.List;
 

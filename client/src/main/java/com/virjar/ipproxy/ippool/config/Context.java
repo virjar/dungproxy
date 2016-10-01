@@ -1,8 +1,10 @@
 package com.virjar.ipproxy.ippool.config;
 
+import java.util.Properties;
+
 import org.apache.commons.lang.StringUtils;
 
-import com.virjar.ipproxy.ippool.strategy.Importer;
+import com.virjar.ipproxy.ippool.strategy.importer.Importer;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.ProxyDomainStrategy;
 
 /**
@@ -18,8 +20,40 @@ public class Context {
     private Context() {
     }
 
+    // 唯一持有的对象,存储策略
+    private static Context instance;
+    private static volatile boolean hasInit = false;
+
+    public static Context getInstance() {
+        if (!hasInit) {
+            initEnv(null);
+        }
+        return instance;
+    }
+
+    public static void initEnv(ConfigBuilder builder) {
+        if (hasInit) {
+            return;
+        }
+        if (builder == null) {
+            builder = ConfigBuilder.create();
+        }
+        instance = builder.build();
+        hasInit = true;
+    }
+
     public static class ConfigBuilder {
         private String importer;
+
+        private String proxyDomainStrategy;
+
+        public ConfigBuilder buildWithProperties(Properties properties) {
+            if (properties == null) {
+                return this;
+            }
+            importer = properties.getProperty(ProxyConstant.IMPORTER);
+            return this;
+        }
 
         public static ConfigBuilder create() {
             return new ConfigBuilder();
