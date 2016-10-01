@@ -44,7 +44,7 @@ public class RetryExec implements ClientExecChain {
         for (int execCount = 1;; execCount++) {
             try {
                 return this.requestExecutor.execute(route, request, context, execAware);
-            } catch (final IOException ex) {
+            } catch (final IOException ex) {// 抛出异常考虑重试,没有抛出异常也要考虑重试
                 if (execAware != null && execAware.isAborted()) {
                     this.log.debug("Request has been aborted");
                     throw ex;

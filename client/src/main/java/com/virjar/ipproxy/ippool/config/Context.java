@@ -25,6 +25,14 @@ public class Context {
     private ProxyDomainStrategy needProxyStrategy;
     private static final Logger logger = LoggerFactory.getLogger(Context.class);
 
+    public ProxyDomainStrategy getNeedProxyStrategy() {
+        return needProxyStrategy;
+    }
+
+    public String getImporter() {
+        return importer;
+    }
+
     private Context() {
     }
 
@@ -34,7 +42,11 @@ public class Context {
 
     public static Context getInstance() {
         if (!hasInit) {
-            initEnv(null);
+            synchronized (Context.class) {
+                if (!hasInit) {
+                    initEnv(null);
+                }
+            }
         }
         return instance;
     }

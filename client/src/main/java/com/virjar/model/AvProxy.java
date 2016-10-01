@@ -1,8 +1,6 @@
 package com.virjar.model;
 
-import java.util.Set;
-
-import com.google.common.collect.Sets;
+import com.virjar.ipproxy.ippool.DomainPool;
 
 /**
  * Description: AvProxy
@@ -26,8 +24,11 @@ public class AvProxy {
     // 平均打分
     private long avgScore = 0;
 
-    // 这个IP适用的domain列表
-    private Set<String> domains = Sets.newHashSet();
+    private DomainPool domainPool;
+
+    public void offline() {
+        domainPool.offline(this);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -56,14 +57,6 @@ public class AvProxy {
 
     public void setAvgScore(long avgScore) {
         this.avgScore = avgScore;
-    }
-
-    public Set<String> getDomains() {
-        return domains;
-    }
-
-    public void setDomains(Set<String> domains) {
-        this.domains = domains;
     }
 
     public String getIp() {
@@ -96,5 +89,13 @@ public class AvProxy {
 
     public void setReferCount(int referCount) {
         this.referCount = referCount;
+    }
+
+    public DomainPool getDomainPool() {
+        return domainPool;
+    }
+
+    public void setDomainPool(DomainPool domainPool) {
+        this.domainPool = domainPool;
     }
 }

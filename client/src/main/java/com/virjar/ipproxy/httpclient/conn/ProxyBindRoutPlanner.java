@@ -10,11 +10,14 @@ import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 
 import com.virjar.ipproxy.ippool.IpPool;
+import com.virjar.ipproxy.ippool.config.Context;
 import com.virjar.ipproxy.ippool.config.ProxyConstant;
+import com.virjar.ipproxy.ippool.strategy.proxydomain.ProxyDomainStrategy;
 import com.virjar.model.AvProxy;
 import com.virjar.model.UserEnv;
 
 /**
+ * 如果是和原生httpclient集成,必须将她放置到httpclientBuilder中,如果使用我们默认提供的,则无需设置,他将会自动植入<br/>
  * 通过这个绑定代理IP,这种方式可以以非侵入的形式和原声httpclient集成,<br/>
  * 甚至只要在原声httpclientBuilder里面植入本类,即可实现代理自动接入服务<br/>
  * Created by virjar on 16/9/28.
@@ -35,6 +38,11 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
     @Override
     protected HttpHost determineProxy(HttpHost target, HttpRequest request, HttpContext context) throws HttpException {
+        ProxyDomainStrategy needProxyStrategy = Context.getInstance().getNeedProxyStrategy();
+        if (!needProxyStrategy.needProxy(target.getHostName())) {
+            return null;
+        }
+
         String accessUrl = null;
         if (request instanceof HttpGet) {// TODO 有问题,貌似post也会是这个,但是服务器现在只进行get验证
             accessUrl = HttpUriRequest.class.cast(request).getURI().toString();

@@ -4,6 +4,10 @@ import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.virjar.ipproxy.ippool.strategy.importer.DefaultImporter;
@@ -30,6 +34,8 @@ public class DomainPool {
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
 
     private Map<Object, AvProxy> bindMap = Maps.newConcurrentMap();
+
+    private static final Logger logger = LoggerFactory.getLogger(DomainPool.class);
 
     public DomainPool(String domain, Importer importer) {
         this.domain = domain;
@@ -65,22 +71,19 @@ public class DomainPool {
     }
 
     public void fresh() {
-        new Thread("xixi") {
-            @Override
-            public void run() {
-                List<AvProxy> avProxies = importer.importProxy(domain, testUrls.get(random.nextInt(10)));
 
-                if (readWriteLock.writeLock().tryLock()) {
-                    try {
-                        for (AvProxy avProxy : avProxies) {
-                            consistentBuckets.put(avProxy.hashCode(), avProxy);
-                        }
-                    } finally {
-                        readWriteLock.writeLock().unlock();
-                    }
+        List<AvProxy> avProxies = importer.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())));
+        if (readWriteLock.writeLock().tryLock()) {
+            try {
+                for (AvProxy avProxy : avProxies) {
+                    avProxy.setDomainPool(this);
+                    consistentBuckets.put(avProxy.hashCode(), avProxy);
                 }
+            } finally {
+                readWriteLock.writeLock().unlock();
             }
-        }.start();
+        }
+
     }
 
     /**
@@ -113,5 +116,10 @@ public class DomainPool {
     @Override
     public int hashCode() {
         return (domain + "?/").hashCode();
+    }
+
+    public void offline(AvProxy avProxy) {
+        this.consistentBuckets.remove(avProxy.hashCode());
+        logger.warn("IP offline {}", JSONObject.toJSONString(avProxy));
     }
 }
