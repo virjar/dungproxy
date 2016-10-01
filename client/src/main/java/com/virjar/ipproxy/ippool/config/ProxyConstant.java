@@ -10,7 +10,11 @@ public class ProxyConstant {
 
     // config 文件默认配置key值
     public static final String IMPORTER = "proxyclient.resouce.importer";
+    public static final String DEFAULT_IMPORTER = "com.virjar.ipproxy.ippool.strategy.importer.DefaultImporter";
     public static final String PROXY_DOMIAN_STATEGY = "proxyclient.proxyDomainStrategy";
+    public static final String DEFAULT_DOMAIN_STRATEGY = "WHITE_LIST";
     public static final String BLACK_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.backList";
     public static final String WHITE_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.whiteList";
+
+    public static final String configFileName = "proxyclient.properties";
 }
