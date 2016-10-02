@@ -16,7 +16,7 @@ public class PoolTest {
 
     @Test
     public void test() throws Exception{
-        IpPoolConfig ipPoolConfig = new IpPoolConfig();
+        /*IpPoolConfig ipPoolConfig = new IpPoolConfig();
         IpPooledObjectFactory ipPooledObjectFactory = new IpPooledObjectFactory();
         IpPool ipPool = new IpPool(ipPooledObjectFactory, ipPoolConfig);
 
@@ -38,6 +38,6 @@ public class PoolTest {
         ipPool.returnObject(avProxy5);
 
         ipPooledObjectFactory.makeObject();
-        ipPool.addObject();
+        ipPool.addObject();*/
     }
 }

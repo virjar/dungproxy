@@ -16,7 +16,7 @@ public class ProxyManager {
 
     private IpPool ipPool;
 
-    public ProxyManager() {
+    /*public ProxyManager() {
         LogUtils.info("ProxyManager ------ init");
         initIpPool();
     }
@@ -34,5 +34,5 @@ public class ProxyManager {
 
     public void returnObject(AvProxy avProxy) {
         ipPool.returnObject(avProxy);
-    }
+    }*/
 }
