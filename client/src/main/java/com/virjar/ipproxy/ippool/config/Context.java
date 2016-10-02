@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.virjar.ipproxy.ippool.strategy.offline.Offline;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.BlackListProxyStrategy;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.ProxyDomainStrategy;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.WhiteListProxyStrategy;
@@ -23,6 +24,11 @@ public class Context {
 
     // 代理网站过滤器,通过这个类确认哪些网站需要进行代理
     private ProxyDomainStrategy needProxyStrategy;
+
+    private Offline offliner;
+
+    private int feedBackDuration;
+
     private static final Logger logger = LoggerFactory.getLogger(Context.class);
 
     public ProxyDomainStrategy getNeedProxyStrategy() {
@@ -39,6 +45,10 @@ public class Context {
     // 唯一持有的对象,存储策略
     private static Context instance;
     private static volatile boolean hasInit = false;
+
+    public Offline getOffliner() {
+        return offliner;
+    }
 
     public static Context getInstance() {
         if (!hasInit) {
@@ -81,6 +91,8 @@ public class Context {
         private String proxyDomainStrategy;
         private String proxyDomainStrategyBlackList;
         private String proxyDomainStrategyWhiteList;
+
+        private String offliner;
 
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
@@ -136,6 +148,12 @@ public class Context {
             default:
                 context.needProxyStrategy = ObjectFactory.newInstance(proxyDomainStrategy);
             }
+
+            // offliner
+            if (this.offliner == null) {
+                offliner = "com.virjar.ipproxy.ippool.strategy.offline.DefaultOffliner";
+            }
+            context.offliner = ObjectFactory.newInstance(offliner);
             return context;
         }
     }

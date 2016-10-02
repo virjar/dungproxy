@@ -1,6 +1,9 @@
 package com.virjar.model;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.virjar.ipproxy.ippool.DomainPool;
+import com.virjar.ipproxy.ippool.config.Context;
 
 /**
  * Description: AvProxy
@@ -17,7 +20,9 @@ public class AvProxy {
     private Integer port;
 
     // 引用次数,当引用次数为0的时候,由调度任务清除该
-    private int referCount = 0;
+    private AtomicInteger referCount = new AtomicInteger(0);
+
+    private AtomicInteger failedCount = new AtomicInteger(0);
 
     private boolean isInit = true;
 
@@ -25,6 +30,17 @@ public class AvProxy {
     private long avgScore = 0;
 
     private DomainPool domainPool;
+
+    public void recordFailed() {
+        failedCount.incrementAndGet();
+        if (Context.getInstance().getOffliner().needOffline(failedCount.get(), failedCount.get())) {
+            offline();// 资源下线,下次将不会分配这个IP了
+        }
+    }
+
+    public void recordUsage() {
+        referCount.incrementAndGet();
+    }
 
     public void offline() {
         domainPool.offline(this);
@@ -84,11 +100,7 @@ public class AvProxy {
     }
 
     public int getReferCount() {
-        return referCount;
-    }
-
-    public void setReferCount(int referCount) {
-        this.referCount = referCount;
+        return referCount.get();
     }
 
     public DomainPool getDomainPool() {

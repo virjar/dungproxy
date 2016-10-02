@@ -24,6 +24,8 @@ import java.util.Set;
 
 import javax.net.ssl.SSLException;
 
+import com.virjar.ipproxy.ippool.config.ProxyConstant;
+import com.virjar.model.AvProxy;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.Immutable;
@@ -100,8 +102,9 @@ public class VirjarHttpRequestRetryHandler implements HttpRequestRetryHandler {
      * <li>SSLException</li>
      * </ul>
      */
+    // 这里改成true了,默认是false,观察修改后能否正常工作
     public VirjarHttpRequestRetryHandler() {
-        this(3, false);
+        this(3, true);
     }
 
     /**
@@ -111,6 +114,10 @@ public class VirjarHttpRequestRetryHandler implements HttpRequestRetryHandler {
     public boolean retryRequest(final IOException exception, final int executionCount, final HttpContext context) {
         Args.notNull(exception, "Exception parameter");
         Args.notNull(context, "HTTP context");
+        AvProxy proxy = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
+        if(proxy != null){
+           proxy.recordFailed();
+        }
         if (executionCount > this.retryCount) {
             // Do not retry if over max retry count
             return false;

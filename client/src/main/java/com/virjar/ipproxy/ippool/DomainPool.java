@@ -22,10 +22,10 @@ public class DomainPool {
     // 数据引入器,默认引入我们现在的服务器数据,可以扩展,改为其他数据来源
     private Importer importer;
     // 系统稳定的时候需要保持的资源
-    int coreSize = 10;
+    private int coreSize = 10;
     // 系统可以运行的时候需要保持的资源数目,如果少于这个数据,系统将会延迟等待,直到资源load完成
-    int minSize = 0;
-    List<String> testUrls = Lists.newArrayList();
+    private int minSize = 1;
+    private List<String> testUrls = Lists.newArrayList();
 
     private Random random = new Random(System.currentTimeMillis());
 
@@ -34,6 +34,8 @@ public class DomainPool {
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
 
     private Map<Object, AvProxy> bindMap = Maps.newConcurrentMap();
+
+    private List<AvProxy> removedProxies = Lists.newArrayList();
 
     private static final Logger logger = LoggerFactory.getLogger(DomainPool.class);
 
@@ -119,7 +121,8 @@ public class DomainPool {
     }
 
     public void offline(AvProxy avProxy) {
-        this.consistentBuckets.remove(avProxy.hashCode());
+        consistentBuckets.remove(avProxy.hashCode());
+        removedProxies.add(avProxy);
         logger.warn("IP offline {}", JSONObject.toJSONString(avProxy));
     }
 }

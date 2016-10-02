@@ -7,6 +7,7 @@ public class ProxyConstant {
     public static final String USER_KEY = "VIRJAR_USER_KEY";
     public static final String PROXY_CONFIG_KEY = "VIRJAR_PROXY_CONFIG";
     public static final String USER_ENV_CONTAINER_KEY = "VIARJAR_USER_ENV_CONTANNER_KEY";
+    public static final String USED_PROXY_KEY = "USED_PROXY_KEY";
 
     // config 文件默认配置key值
     public static final String IMPORTER = "proxyclient.resouce.importer";
