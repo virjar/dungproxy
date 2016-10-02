@@ -5,8 +5,4 @@ package com.virjar.ipproxy.ippool.strategy.proxydomain;
  */
 public interface ProxyDomainStrategy {
     public boolean needProxy(String host);
-
-
-
-
 }

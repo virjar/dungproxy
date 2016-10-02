@@ -1,8 +1,9 @@
 package com.virjar.model;
 
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import com.google.common.collect.Sets;
+import com.virjar.ipproxy.ippool.DomainPool;
+import com.virjar.ipproxy.ippool.config.Context;
 
 /**
  * Description: AvProxy
@@ -19,15 +20,31 @@ public class AvProxy {
     private Integer port;
 
     // 引用次数,当引用次数为0的时候,由调度任务清除该
-    private int referCount = 0;
+    private AtomicInteger referCount = new AtomicInteger(0);
+
+    private AtomicInteger failedCount = new AtomicInteger(0);
 
     private boolean isInit = true;
 
     // 平均打分
     private long avgScore = 0;
 
-    // 这个IP适用的domain列表
-    private Set<String> domains = Sets.newHashSet();
+    private DomainPool domainPool;
+
+    public void recordFailed() {
+        failedCount.incrementAndGet();
+        if (Context.getInstance().getOffliner().needOffline(failedCount.get(), failedCount.get())) {
+            offline();// 资源下线,下次将不会分配这个IP了
+        }
+    }
+
+    public void recordUsage() {
+        referCount.incrementAndGet();
+    }
+
+    public void offline() {
+        domainPool.offline(this);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -58,14 +75,6 @@ public class AvProxy {
         this.avgScore = avgScore;
     }
 
-    public Set<String> getDomains() {
-        return domains;
-    }
-
-    public void setDomains(Set<String> domains) {
-        this.domains = domains;
-    }
-
     public String getIp() {
         return ip;
     }
@@ -91,10 +100,14 @@ public class AvProxy {
     }
 
     public int getReferCount() {
-        return referCount;
+        return referCount.get();
     }
 
-    public void setReferCount(int referCount) {
-        this.referCount = referCount;
+    public DomainPool getDomainPool() {
+        return domainPool;
+    }
+
+    public void setDomainPool(DomainPool domainPool) {
+        this.domainPool = domainPool;
     }
 }

@@ -1,20 +1,17 @@
 package com.virjar.common.util;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -39,9 +36,9 @@ public class IpUtil {
             ip = request.getHeader("Proxy-Client-IP");
         } else {
             /*
-			 * 当有多级反向代理时，x-forwarded-for值为多个 如: X-Forwarded-For：192.168.1.110，
-			 * 192.168.1.120， 192.168.1.130 用户真实IP为： 192.168.1.130
-			 */
+             * 当有多级反向代理时，x-forwarded-for值为多个 如: X-Forwarded-For：192.168.1.110， 192.168.1.120， 192.168.1.130 用户真实IP为：
+             * 192.168.1.130
+             */
             final String ipSeparator = ",";
             if (ip.contains(ipSeparator)) {
                 ip = ip.substring(ip.lastIndexOf(ipSeparator), ip.length() - 1);

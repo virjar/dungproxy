@@ -10,7 +10,6 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
-import com.virjar.ipproxy.httpclient.conn.ProxyBindRoutPlanner;
 import org.apache.http.*;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.auth.AuthSchemeProvider;
@@ -40,13 +39,18 @@ import org.apache.http.cookie.CookieSpecProvider;
 import org.apache.http.impl.NoConnectionReuseStrategy;
 import org.apache.http.impl.auth.*;
 import org.apache.http.impl.client.*;
-import org.apache.http.impl.conn.*;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.impl.conn.DefaultSchemePortResolver;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.impl.execchain.*;
 import org.apache.http.protocol.*;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
 
+import com.virjar.ipproxy.httpclient.conn.ProxyBindRoutPlanner;
 import com.virjar.ipproxy.httpclient.execchain.RetryExec;
+import com.virjar.ipproxy.httpclient.processor.ProxyStatistic;
 import com.virjar.ipproxy.util.HeaderUtil;
 
 /**
@@ -973,6 +977,7 @@ public class CrawlerHttpClientBuilder {
                     b.addLast(i);
                 }
             }
+            b.addLast(new ProxyStatistic());
             httpprocessorCopy = b.build();
         }
         execChain = new ProtocolExec(execChain, httpprocessorCopy);
@@ -983,7 +988,7 @@ public class CrawlerHttpClientBuilder {
         if (!automaticRetriesDisabled) {
             HttpRequestRetryHandler retryHandlerCopy = this.retryHandler;
             if (retryHandlerCopy == null) {
-                retryHandlerCopy = DefaultHttpRequestRetryHandler.INSTANCE;
+                retryHandlerCopy = VirjarHttpRequestRetryHandler.INSTANCE;
             }
             execChain = new RetryExec(execChain, retryHandlerCopy);
         }

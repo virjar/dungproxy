@@ -15,7 +15,7 @@ public class ObjectFactory {
     public static <T> T newInstance(String className) {
         Preconditions.checkNotNull(className);
         try {
-            Class<T> aClass = (Class<T>) Class.forName(className);
+            Class<? extends T> aClass = (Class<? extends T>) Class.forName(className);
             return aClass.newInstance();
         } catch (Exception e) {
             logger.error("can not create instance for class :{}", className);
