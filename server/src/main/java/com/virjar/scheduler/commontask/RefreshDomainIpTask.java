@@ -42,8 +42,9 @@ public class RefreshDomainIpTask extends CommonTask {
         for (DomainMetaModel domainMetaModel : domainMetaModels) {
             DomainIpModel query = new DomainIpModel();
             query.setDomain(domainMetaModel.getDomain());
+
             List<DomainIpModel> domainIpModels = domainIpService.selectPage(query, new PageRequest(0, 5));
-            if (domainMetaModels.size() < 1) {
+            if (domainIpModels.size() < 1) {
                 continue;
             }
             DomainTestTask.sendDomainTask(domainIpModels.get(random.nextInt(domainIpModels.size())).getTestUrl());
