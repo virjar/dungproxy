@@ -2,10 +2,7 @@ package com.virjar.scheduler.commontask;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,15 +45,17 @@ public class CommonTaskThreadPool implements InitializingBean, Runnable, Applica
     @Override
     public void run() {
         while (isRunning) {
+            List<Future<Object>> futureList = Lists.newArrayList();
             for (CommonTask task : taskList) {
                 try {
                     logger.info("execute task:{}", task.getClass());
-                    task.execute();
+                    futureList.add(pool.submit(task));
                 } catch (Exception e) {
                     logger.error("error when execute task:{}", task.getClass(), e);
                 }
             }
-            CommonUtil.sleep(1000);
+            CommonUtil.waitAllFutures(futureList);
+            futureList.clear();
         }
     }
 

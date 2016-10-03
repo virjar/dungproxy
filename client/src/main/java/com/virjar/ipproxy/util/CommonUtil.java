@@ -1,5 +1,7 @@
 package com.virjar.ipproxy.util;
 
+import java.util.List;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +36,16 @@ public class CommonUtil {
             Thread.sleep(timestamp);
         } catch (InterruptedException e) {
             logger.error("thread sleep error", e);
+        }
+    }
+
+    public static <T> void waitAllFutures(List<Future<T>> futureList) {
+        for (Future<T> future : futureList) {
+            try {
+                future.get();
+            } catch (Exception e) {
+                logger.error("error when wait future task", e);
+            }
         }
     }
 }

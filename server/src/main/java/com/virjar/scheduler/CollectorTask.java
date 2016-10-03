@@ -5,7 +5,6 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.virjar.utils.NameThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -16,9 +15,11 @@ import com.google.common.collect.Maps;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.crawler.Collector;
 import com.virjar.entity.Proxy;
+import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.service.ProxyService;
+import com.virjar.utils.NameThreadFactory;
 import com.virjar.utils.ResourceFilter;
 import com.virjar.utils.SysConfig;
 
@@ -76,15 +77,7 @@ public class CollectorTask implements Runnable, InitializingBean {
                 for (Collector collector : collectors) {
                     futures.add(pool.submit(new WebsiteCollect(collector)));
                 }
-                long start = System.currentTimeMillis();
-                for (Future<Object> future : futures) {
-                    try {
-                        // 等待十分钟
-                        future.get(totalWaitTime + start - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+                CommonUtil.waitAllFutures(futures);
             } catch (Exception e) {
                 // do nothing
                 logger.error("error when collect proxy", e);
@@ -100,7 +93,7 @@ public class CollectorTask implements Runnable, InitializingBean {
         }
         pool = new ThreadPoolExecutor(SysConfig.getInstance().getIpCrawlerThread(),
                 SysConfig.getInstance().getIpCrawlerThread(), 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(),new NameThreadFactory("collector"),
+                new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("collector"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
         Random random = new Random();
         for (Collector collector : collectors) {

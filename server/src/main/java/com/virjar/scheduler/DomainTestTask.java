@@ -127,13 +127,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
             UrlCheckTaskHolder holder = domainTaskQueue.poll();
             if (holder == null) {
                 if (pool.getActiveCount() < pool.getCorePoolSize()) {// 在线程池空闲的时候才加入新任务
-                    for (Future<Object> future : futureList) {// 等待所有正在执行的任务执行结束再向线程池添加任务
-                        try {
-                            future.get();
-                        } catch (Exception e) {
-                            logger.error("future get error", e);
-                        }
-                    }
+                    CommonUtil.waitAllFutures(futureList);
                     futureList.clear();
                     genHistoryTestTask();
                 }

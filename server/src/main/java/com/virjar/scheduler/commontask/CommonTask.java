@@ -1,5 +1,6 @@
 package com.virjar.scheduler.commontask;
 
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -7,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 一些不需要随时执行的任务,如备份数据,同步地址,刷新域名IP池IP数据等<br/>
  * Created by virjar on 16/10/3.
  */
-public abstract class CommonTask implements Callable {
+public abstract class CommonTask implements Callable<Object> {
     private long duration;
 
     private long lastRunTime;
@@ -16,7 +17,7 @@ public abstract class CommonTask implements Callable {
 
     public CommonTask(long duration) {
         this.duration = duration;
-        this.lastRunTime = System.currentTimeMillis();// - new Random().nextInt(3600000);// 避免启动的时候所有任务同时启动
+        this.lastRunTime = System.currentTimeMillis() - new Random().nextInt(3600000);// 避免启动的时候所有任务同时启动
     }
 
     @Override
