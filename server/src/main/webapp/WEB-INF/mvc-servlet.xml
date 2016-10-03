@@ -32,7 +32,7 @@
     <context:component-scan base-package="com.virjar.**.controller"/>
     <bean class="com.virjar.core.exception.RestApiResponseEntityExceptionHandler"/>
     <bean class="com.virjar.core.exception.BadRequestExceptionHandler"/>
-    <context:annotation-context/>
+    <context:annotation-config/>
     <mvc:annotation-driven content-negotiation-manager="contentNegotiationManager">
         <mvc:argument-resolvers>
             <bean class="org.springframework.data.web.PageableHandlerMethodArgumentResolver"/>

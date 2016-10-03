@@ -59,7 +59,7 @@ public class DistributeService {
         ret = domainIpService.convert(beanMapper.mapAsList(domainTestedProxys, DomainIpModel.class));
         ret = filterUsed(requestForm.getUsedSign(), ret);
         if (ret.size() > requestForm.getNum()) {
-            return ret;
+            return ret.subList(0, requestForm.getNum());
         }
 
         // TODO 第二步,由调度任务跑出domain的元数据,根据元数据查询
@@ -99,9 +99,8 @@ public class DistributeService {
         if (StringUtils.isEmpty(domain)) {
             return Lists.newArrayList();
         }
-        DomainIp domainIp = new DomainIp();
-        domainIp.setDomain(domain);
-        List<DomainIp> domainIps = domainIpRepository.selectPage(domainIp, new PageRequest(0, Integer.MAX_VALUE));
+
+        List<DomainIp> domainIps = domainIpRepository.selectAvailable(domain, new PageRequest(0, Integer.MAX_VALUE));
         if (domainIps.size() == 0) {
             DomainTestTask.sendDomainTask(checkUrl);
         }

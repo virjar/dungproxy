@@ -3,7 +3,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        default-lazy-init="false"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
-    <context:annotation-context/>
+    <context:annotation-config/>
     <context:property-placeholder location="classpath:*.properties"/>
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
         <property name="url" value="${resource.rdbms.mysql.url}"/>

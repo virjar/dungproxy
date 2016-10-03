@@ -25,4 +25,6 @@ public interface DomainIpRepository {
     int selectCount(DomainIp domainip);
 
     List<DomainIp> selectPage(DomainIp domainip, Pageable pageable);
+
+    List<DomainIp> selectAvailable(@Param("domain") String domain, @Param("pageable") Pageable pageable);
 }

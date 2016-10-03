@@ -50,7 +50,7 @@ import org.apache.http.util.TextUtils;
 
 import com.virjar.ipproxy.httpclient.conn.ProxyBindRoutPlanner;
 import com.virjar.ipproxy.httpclient.execchain.RetryExec;
-import com.virjar.ipproxy.httpclient.processor.ProxyStatistic;
+import com.virjar.ipproxy.httpclient.processor.ProxyResponseDetect;
 import com.virjar.ipproxy.util.HeaderUtil;
 
 /**
@@ -977,7 +977,7 @@ public class CrawlerHttpClientBuilder {
                     b.addLast(i);
                 }
             }
-            b.addLast(new ProxyStatistic());
+            b.addLast(new ProxyResponseDetect());
             httpprocessorCopy = b.build();
         }
         execChain = new ProtocolExec(execChain, httpprocessorCopy);

@@ -640,4 +640,14 @@
             limit ${page.offset}, ${page.pageSize}
         </if>
     </select>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from proxy
+        WHERE id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
 </mapper>

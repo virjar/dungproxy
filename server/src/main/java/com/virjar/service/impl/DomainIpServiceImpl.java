@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.DomainIp;
-import com.virjar.entity.Proxy;
 import com.virjar.model.DomainIpModel;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.DomainIpRepository;
@@ -110,13 +109,18 @@ public class DomainIpServiceImpl implements DomainIpService {
 
     @Override
     public List<ProxyModel> convert(List<DomainIpModel> domainIpModels) {
-        List<ProxyModel> ret = Lists.newArrayList();
+        // List<ProxyModel> ret = Lists.newArrayList();
+        // 不能这么做,这样会有大量查询请求,为处理瓶颈
+        List<Long> ids = Lists.newArrayList();
         for (DomainIpModel domainIpModel : domainIpModels) {
-            Proxy proxy = proxyRepository.selectByPrimaryKey(domainIpModel.getProxyId());
-            if (proxy != null) {
-                ret.add(beanMapper.map(proxy, ProxyModel.class));
-            }
+            ids.add(domainIpModel.getProxyId());
         }
-        return ret;
+        return beanMapper.mapAsList(proxyRepository.selectByIds(ids), ProxyModel.class);
+        /*
+         * for (DomainIpModel domainIpModel : domainIpModels) { Proxy proxy =
+         * proxyRepository.selectByPrimaryKey(domainIpModel.getProxyId()); if (proxy != null) {
+         * ret.add(beanMapper.map(proxy, ProxyModel.class)); } }
+         */
+        // return ret;
     }
 }

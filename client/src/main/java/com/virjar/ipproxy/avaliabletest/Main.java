@@ -9,8 +9,8 @@ public class Main {
     public static void main(String[] args) {
         long start = System.currentTimeMillis();
         String quatity = CrawlerHttpClient.getQuatity(
-                "http://b2c.csair.com/B2C40/modules/bookingnew/main/flightSelectDirect.html?t=S",
-                "59.108.201.235",
+                "http://pachong.org/anonymous.html",
+                "1.82.216.135",
                 80);
         System.out.println(quatity);
         System.out.println(System.currentTimeMillis() - start);
