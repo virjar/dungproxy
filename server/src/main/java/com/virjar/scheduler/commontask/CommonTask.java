@@ -1,6 +1,5 @@
 package com.virjar.scheduler.commontask;
 
-import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -17,7 +16,7 @@ public abstract class CommonTask implements Callable<Object> {
 
     public CommonTask(long duration) {
         this.duration = duration;
-        this.lastRunTime = System.currentTimeMillis() - new Random().nextInt(3600000);// 避免启动的时候所有任务同时启动
+        this.lastRunTime = 0;// System.currentTimeMillis() - new Random().nextInt(3600000);// 避免启动的时候所有任务同时启动
     }
 
     @Override

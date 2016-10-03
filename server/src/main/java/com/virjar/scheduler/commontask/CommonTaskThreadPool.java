@@ -56,6 +56,7 @@ public class CommonTaskThreadPool implements InitializingBean, Runnable, Applica
             }
             CommonUtil.waitAllFutures(futureList);
             futureList.clear();
+            CommonUtil.sleep(2000);
         }
     }
 
