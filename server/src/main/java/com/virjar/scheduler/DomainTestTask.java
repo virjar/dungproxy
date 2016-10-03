@@ -5,14 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.virjar.ipproxy.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -20,16 +16,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.Proxy;
+import com.virjar.ipproxy.httpclient.CrawlerHttpClient;
+import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.DomainIpModel;
 import com.virjar.model.DomainMetaModel;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.service.DomainIpService;
 import com.virjar.service.DomainMetaService;
-import com.virjar.utils.*;
+import com.virjar.utils.NameThreadFactory;
+import com.virjar.utils.ProxyUtil;
+import com.virjar.utils.SysConfig;
 
 /**
  * Created by virjar on 16/9/16.<br/>
@@ -78,7 +79,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
         }
         if (!instance.isRunning) {
             try {
-                BrowserHttpClientPool.getInstance().borrow()
+                CrawlerHttpClient
                         .get(String.format(SysConfig.getInstance().get("system.domain.test.forward.url"), url));
                 return true;// TODO
             } catch (IOException e) {
@@ -121,19 +122,28 @@ public class DomainTestTask implements Runnable, InitializingBean {
 
     @Override
     public void run() {
+        List<Future<Object>> futureList = Lists.newArrayList();
         while (isRunning) {
             UrlCheckTaskHolder holder = domainTaskQueue.poll();
             if (holder == null) {
                 if (pool.getActiveCount() < pool.getCorePoolSize()) {// 在线程池空闲的时候才加入新任务
+                    for (Future<Object> future : futureList) {// 等待所有正在执行的任务执行结束再向线程池添加任务
+                        try {
+                            future.get();
+                        } catch (Exception e) {
+                            logger.error("future get error", e);
+                        }
+                    }
+                    futureList.clear();
                     genHistoryTestTask();
                 }
                 CommonUtil.sleep(5000);
                 continue;
             }
             if (holder.url == null) {
-                pool.submit(new HistoryUrlTester(holder.domain));
+                futureList.add(pool.submit(new HistoryUrlTester(holder.domain)));
             } else {
-                pool.submit(new DomainTester(holder.url));
+                futureList.add(pool.submit(new DomainTester(holder.url)));
             }
         }
     }
@@ -167,7 +177,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
     /**
      * 检测曾经检测过的资源,
      */
-    private class HistoryUrlTester implements Callable {
+    private class HistoryUrlTester implements Callable<Object> {
 
         private String domain;
 
@@ -223,7 +233,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
     /**
      * 这个任务一个都可能执行几个小时,慢慢等,有耐心,不着急
      */
-    private class DomainTester implements Callable {
+    private class DomainTester implements Callable<Object> {
 
         String url;
 

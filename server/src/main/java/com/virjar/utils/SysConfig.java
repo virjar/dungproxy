@@ -29,6 +29,7 @@ public class SysConfig {
     private int ipCrawlerThread;
     private int portCheckThread;
     private int domainCheckThread;
+    private int commonTaskThread;
 
     private SysConfig() {
         load();
@@ -72,6 +73,7 @@ public class SysConfig {
             ipCrawlerThread = NumberUtils.toInt(properties.getProperty("system.thread.ipCrawlerThread"), 2);
             portCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.portCheckThread"), 10);
             domainCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.domainCheckThread"), 5);
+            commonTaskThread = NumberUtils.toInt(properties.getProperty("system.thread.commonTaskThread"),2);
 
         } catch (IOException e) {
             throw new IllegalStateException("配置文件加载失败,系统不能启动", e);
@@ -126,6 +128,10 @@ public class SysConfig {
 
     public int getAvailableCheckThread() {
         return availableCheckThread;
+    }
+
+    public int getCommonTaskThread() {
+        return commonTaskThread;
     }
 
     public int getConnectionCheckThread() {

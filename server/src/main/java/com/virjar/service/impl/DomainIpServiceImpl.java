@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.DomainIp;
@@ -136,5 +137,24 @@ public class DomainIpServiceImpl implements DomainIpService {
         } else {
             return beanMapper.map(domainIps.get(0), DomainIpModel.class);
         }
+    }
+
+    @Override
+    public void offline() {
+        int batchSize = 100;
+        while (true) {
+            List<DomainIp> domainIps = domainIpRepo.selectDisable(new PageRequest(0, batchSize));
+            if (domainIps.size() == 0) {
+                return;
+            }
+            List<Long> ids = Lists.transform(domainIps, new Function<DomainIp, Long>() {
+                @Override
+                public Long apply(DomainIp input) {
+                    return input.getId();
+                }
+            });
+            domainIpRepo.deleteBatch(ids);
+        }
+
     }
 }

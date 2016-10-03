@@ -27,4 +27,8 @@ public interface DomainIpRepository {
     List<DomainIp> selectPage(DomainIp domainip, Pageable pageable);
 
     List<DomainIp> selectAvailable(@Param("domain") String domain, @Param("pageable") Pageable pageable);
+
+    List<DomainIp> selectDisable(@Param("pageable") Pageable pageable);
+
+    int deleteBatch(@Param("ids") List<Long> ids);
 }

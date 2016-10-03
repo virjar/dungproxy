@@ -57,9 +57,37 @@
       #{transperent,jdbcType=TINYINT}, #{speed,jdbcType=BIGINT}, #{type,jdbcType=TINYINT}, 
       #{connectionScore,jdbcType=BIGINT}, #{availbelScore,jdbcType=BIGINT}, #{connectionScoreDate,jdbcType=TIMESTAMP},
       #{availbelScoreDate,jdbcType=TIMESTAMP}, #{createtime,jdbcType=TIMESTAMP}, #{supportGfw,jdbcType=BIT},
-      #{gfwSpeed,jdbcType=BIGINT}, #{source,jdbcType=VARCHAR}, #{crawlerKey,jdbcType=VARCHAR}
+      #{gfwSpeed,jdbcType=BIGINT}, #{source,jdbcType=VARCHAR}, #{crawlerKey,jdbcType=VARCHAR},
       #{lostheader,jdbcType=BIT}
       )
+       ON DUPLICATE KEY UPDATE  ip = #{ip,jdbcType=CHAR},
+      proxy_ip = #{proxyIp,jdbcType=CHAR},
+      port = #{port,jdbcType=INTEGER},
+      ip_value = #{ipValue,jdbcType=BIGINT},
+      country = #{country,jdbcType=VARCHAR},
+      area = #{area,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      city = #{city,jdbcType=VARCHAR},
+      isp = #{isp,jdbcType=VARCHAR},
+      country_id = #{countryId,jdbcType=VARCHAR},
+      area_id = #{areaId,jdbcType=VARCHAR},
+      region_id = #{regionId,jdbcType=VARCHAR},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      isp_id = #{ispId,jdbcType=VARCHAR},
+      address_id = #{addressId,jdbcType=BIGINT},
+      transperent = #{transperent,jdbcType=TINYINT},
+      speed = #{speed,jdbcType=BIGINT},
+      type = #{type,jdbcType=TINYINT},
+      connection_score = #{connectionScore,jdbcType=BIGINT},
+      availbel_score = #{availbelScore,jdbcType=BIGINT},
+      connection_score_date = #{connectionScoreDate,jdbcType=TIMESTAMP},
+      availbel_score_date = #{availbelScoreDate,jdbcType=TIMESTAMP},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      support_gfw = #{supportGfw,jdbcType=BIT},
+      gfw_speed = #{gfwSpeed,jdbcType=BIGINT},
+      source = #{source,jdbcType=VARCHAR},
+      crawler_key = #{crawlerKey,jdbcType=VARCHAR},
+      lostheader = #{lostheader,jdbcType=BIT}
   </insert>
 
     <insert id="insertSelective" parameterType="com.virjar.entity.Proxy">

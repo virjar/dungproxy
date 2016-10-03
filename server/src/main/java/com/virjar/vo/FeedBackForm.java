@@ -2,9 +2,10 @@ package com.virjar.vo;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.sun.istack.internal.NotNull;
 import com.virjar.model.AvProxy;
 
 /**

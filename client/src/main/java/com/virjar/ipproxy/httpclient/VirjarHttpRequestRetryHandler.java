@@ -108,6 +108,41 @@ public class VirjarHttpRequestRetryHandler implements HttpRequestRetryHandler {
         this(3, true);
     }
 
+    public boolean needRetry(final IOException exception, final int executionCount, final HttpContext context) {
+        if (executionCount > this.retryCount) {
+            // Do not retry if over max retry count
+
+            return false;
+        }
+        if (this.nonRetriableClasses.contains(exception.getClass())) {
+            return false;
+        } else {
+            for (final Class<? extends IOException> rejectException : this.nonRetriableClasses) {
+                if (rejectException.isInstance(exception)) {
+                    return false;
+                }
+            }
+        }
+        final HttpClientContext clientContext = HttpClientContext.adapt(context);
+        final HttpRequest request = clientContext.getRequest();
+
+        if (requestIsAborted(request)) {
+            return false;
+        }
+
+        if (handleAsIdempotent(request)) {
+            // Retry if the request is considered idempotent
+            return true;
+        }
+
+        if (!clientContext.isRequestSent() || this.requestSentRetryEnabled) {
+            // Retry if the request has not been sent fully or
+            // if it's OK to retry methods that have been sent
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Used {@code retryCount} and {@code requestSentRetryEnabled} to determine if the given method should be retried.
      */
@@ -116,43 +151,16 @@ public class VirjarHttpRequestRetryHandler implements HttpRequestRetryHandler {
         Args.notNull(exception, "Exception parameter");
         Args.notNull(context, "HTTP context");
         boolean ret = false;
-
         AvProxy proxy = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
         if (proxy != null) {
             proxy.recordFailed();
         }
-        if (executionCount > this.retryCount) {
-            // Do not retry if over max retry count
-            ret = false;
-        }
-        if (this.nonRetriableClasses.contains(exception.getClass())) {
-            ret = false;
-        } else {
-            for (final Class<? extends IOException> rejectException : this.nonRetriableClasses) {
-                if (rejectException.isInstance(exception)) {
-                    ret = false;
-                }
+        try {
+            ret = needRetry(exception, executionCount, context);
+        } finally {
+            if (ret && proxy != null) {
+                proxy.recordUsage();
             }
-        }
-        final HttpClientContext clientContext = HttpClientContext.adapt(context);
-        final HttpRequest request = clientContext.getRequest();
-
-        if (requestIsAborted(request)) {
-            ret = false;
-        }
-
-        if (handleAsIdempotent(request)) {
-            // Retry if the request is considered idempotent
-            ret = true;
-        }
-
-        if (!clientContext.isRequestSent() || this.requestSentRetryEnabled) {
-            // Retry if the request has not been sent fully or
-            // if it's OK to retry methods that have been sent
-            ret = true;
-        }
-        if (ret && proxy != null) {
-            proxy.recordUsage();
         }
         return ret;
     }

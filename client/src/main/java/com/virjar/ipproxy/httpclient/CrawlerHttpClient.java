@@ -267,6 +267,10 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         return new String(bytes, charset);
     }
 
+    public static String get(String url) throws IOException {
+        return get(url, null, -1);
+    }
+
     /**
      * 这种方式要自动探测字符集,不能使用默认,作为客户端,应对的是各种目标网站,不能使用客户端所在环境的默认字符集的
      * 

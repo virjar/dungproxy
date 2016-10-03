@@ -43,7 +43,7 @@ public class IpPool {
         if (!pool.containsKey(host)) {
             synchronized (this) {
                 if (!pool.containsKey(host)) {
-                    String importer = Context.getInstance().getImporter();
+                    String importer = Context.getInstance().getResourceFacade();
                     pool.put(host, new DomainPool(host, ObjectFactory.<ResourceFacade> newInstance(importer)));
                 }
             }

@@ -650,4 +650,10 @@
             #{id,jdbcType=BIGINT}
         </foreach>
     </select>
+    <delete id="deleteBatch" >
+        DELETE from proxy where id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>
 </mapper>

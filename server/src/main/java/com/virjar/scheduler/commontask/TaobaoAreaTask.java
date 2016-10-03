@@ -1,16 +1,14 @@
-package com.virjar.scheduler;
+package com.virjar.scheduler.commontask;
 
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +18,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.google.common.util.concurrent.RateLimiter;
 import com.virjar.entity.Proxy;
 import com.virjar.repository.ProxyRepository;
+import com.virjar.utils.SysConfig;
 import com.virjar.utils.net.HttpInvoker;
 import com.virjar.utils.net.HttpResult;
 
@@ -27,70 +26,22 @@ import com.virjar.utils.net.HttpResult;
  * Created by nicholas on 8/14/2016.
  */
 @Component
-public class TaobaoAreaTask implements Runnable, InitializingBean {
+public class TaobaoAreaTask extends CommonTask {
 
     private static final String TAOBAOURL = "http://ip.taobao.com/service/getIpInfo.php?ip=";
 
-    private ScheduledExecutorService getAreaThread = Executors.newScheduledThreadPool(1);
-
     private static final Logger logger = LoggerFactory.getLogger(TaobaoAreaTask.class);
-
+    private static final String DURATION = "common.task.duration.taobaoArea";
     @Resource
     private ProxyRepository proxyRepository;
 
     private static final int batchSize = 1000;
     private Integer maxPage = null;
     private Integer nowPage = 0;
-    private volatile boolean isRuning = false;
     private RateLimiter limiter = RateLimiter.create(8D);
 
-    @Override
-    public void run() {
-        isRuning = false;
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                TaobaoAreaTask.this.isRuning = false;
-            }
-        });
-
-        while (isRuning) {
-            logger.info("begin proxy address collect start");
-            try {
-                List<Proxy> proxyList = find4Update();
-                if (proxyList.size() == 0) {
-                    maxPage = null;
-                    try {
-                        Thread.sleep(8 * 60 * 60 * 1000);
-                    } catch (InterruptedException e) {
-                        // doNothing
-                    }
-                    continue;
-                }
-                for (Proxy proxy : proxyList) {
-                    try {
-                        Proxy area = getArea(proxy.getIp());
-                        area.setId(proxy.getId());
-                        if (StringUtils.isEmpty(area.getCountry()) && StringUtils.isEmpty(area.getArea())
-                                && StringUtils.isEmpty(area.getIsp())) {
-                            logger.warn("地址未知获取失败,response {},proxy:{}", JSONObject.toJSONString(area),
-                                    JSONObject.toJSONString(proxy));
-                            continue;
-                        }
-                        proxyRepository.updateByPrimaryKeySelective(area);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("error when address query", e);
-            }
-        }
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        new Thread(this).start();
+    public TaobaoAreaTask() {
+        super(NumberUtils.toInt(SysConfig.getInstance().get(DURATION), 176400000));
     }
 
     private List<Proxy> find4Update() {
@@ -133,16 +84,33 @@ public class TaobaoAreaTask implements Runnable, InitializingBean {
         }
     }
 
-    public int setArea(long id) {
-        Proxy proxy = proxyRepository.selectByPrimaryKey(id);
-        logger.info(proxy.toString());
-        Proxy temp = getArea(proxy.getIp());
-        temp.setId(id);
-        int i = proxyRepository.updateByPrimaryKeySelective(temp);
-        return i;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(JSONObject.toJSON(new TaobaoAreaTask().getArea("78.85.14.140")));
+    @Override
+    public Object execute() {
+        logger.info("begin proxy address collect start");
+        try {
+            List<Proxy> proxyList = find4Update();
+            if (proxyList.size() == 0) {
+                maxPage = null;
+                return "";
+            }
+            for (Proxy proxy : proxyList) {
+                try {
+                    Proxy area = getArea(proxy.getIp());
+                    area.setId(proxy.getId());
+                    if (StringUtils.isEmpty(area.getCountry()) && StringUtils.isEmpty(area.getArea())
+                            && StringUtils.isEmpty(area.getIsp())) {
+                        logger.warn("地址未知获取失败,response {},proxy:{}", JSONObject.toJSONString(area),
+                                JSONObject.toJSONString(proxy));
+                        continue;
+                    }
+                    proxyRepository.updateByPrimaryKeySelective(area);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            logger.error("error when address query", e);
+        }
+        return "";
     }
 }
