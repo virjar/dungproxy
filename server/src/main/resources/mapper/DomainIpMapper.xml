@@ -229,4 +229,39 @@
             limit ${param2.offset}, ${param2.pageSize}
         </if>
     </select>
+
+    <select id="selectAvailable" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from domainip where domain=#{domain} and domain_score >0
+        <if test="pageable.sort != null">
+            order by
+            <foreach collection="pageable.sort" item="order" separator=",">
+                ${order.property} ${order.direction}
+            </foreach>
+        </if>
+        <if test="pageable.offset >= 0 and pageable.pageSize > 0">
+            limit ${pageable.offset}, ${pageable.pageSize}
+        </if>
+    </select>
+    <select id="selectDisable" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from domainip where domain_score &lt;-10
+        <if test="pageable.sort != null">
+            order by
+            <foreach collection="pageable.sort" item="order" separator=",">
+                ${order.property} ${order.direction}
+            </foreach>
+        </if>
+        <if test="pageable.offset >= 0 and pageable.pageSize > 0">
+            limit ${pageable.offset}, ${pageable.pageSize}
+        </if>
+    </select>
+    <delete id="deleteBatch">
+        delete from domainip where id IN
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>
 </mapper>

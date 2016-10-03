@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
+import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.AvailbelCheckResponse;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
@@ -50,8 +51,6 @@ public class AvailableValidater implements InitializingBean, Runnable {
 
     @Override
     public void run() {
-        long totalWaitTime;
-        totalWaitTime = 100 * 60 * 1000;
         try {// 有效性检查模块延迟启动,因为tomcat环境可能没有启用,验证接口不能启用
             Thread.sleep(5 * 1000L);
         } catch (InterruptedException e) {
@@ -71,11 +70,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 // logger.info("待跟新可用性资源数目:{},资源:{}", needupdate.size(), JSONObject.toJSON(needupdate));
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
-                    try {// 大约8分钟
-                        Thread.sleep(1 << 19);
-                    } catch (InterruptedException e) {
-                        logger.warn("thread sleep failed", e);
-                    }
+                    CommonUtil.sleep(1 << 19);
                     continue;
                 }
                 List<Future<Integer>> futures = Lists.newArrayList();
@@ -83,16 +78,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                     ProxyAvailableTester proxyAvailableTester = new ProxyAvailableTester(proxy);
                     futures.add(pool.submit(proxyAvailableTester));
                 }
-
-                long start = System.currentTimeMillis();
-                for (Future<Integer> future : futures) {
-                    try {
-                        // 等待十分钟
-                        future.get(totalWaitTime + start - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+                CommonUtil.waitAllFutures(futures);
             } catch (Exception e) {
                 // do nothing
                 logger.error("error when check available", e);

@@ -1,12 +1,11 @@
 package com.virjar.service;
 
-import java.util.Date;
 import java.util.List;
 
-import com.virjar.model.ProxyModel;
 import org.springframework.data.domain.Pageable;
 
 import com.virjar.model.DomainIpModel;
+import com.virjar.model.ProxyModel;
 
 public interface DomainIpService {
     int create(DomainIpModel domainIpModel);
@@ -26,4 +25,8 @@ public interface DomainIpService {
     List<DomainIpModel> selectPage(DomainIpModel domainIpModel, Pageable Pageable);
 
     List<ProxyModel> convert(List<DomainIpModel> domainIpModels);
+
+    DomainIpModel get(String domain, String ip, Integer port);
+
+    void offline();
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
+import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.utils.NameThreadFactory;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
@@ -69,15 +70,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                 for (ProxyModel proxy : needupdate) {
                     futures.add(pool.submit(new ProxyTester(proxy)));
                 }
-                long start = System.currentTimeMillis();
-                for (Future<Object> future : futures) {
-                    try {
-                        // 等待十分钟
-                        future.get(totalWaitTime + start - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+                CommonUtil.waitAllFutures(futures);
                 Thread.sleep(9000);// 等待9秒钟,用于系统释放套接字资源
             } catch (Exception e) {
                 logger.error("error when check connection ", e);

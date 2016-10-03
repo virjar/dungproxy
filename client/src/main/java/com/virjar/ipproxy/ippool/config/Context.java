@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ import com.virjar.ipproxy.ippool.strategy.proxydomain.WhiteListProxyStrategy;
  */
 public class Context {
     // IP资源引入器 一般不需要修改
-    private String importer;
+    private String resourceFacade;
 
     // 代理网站过滤器,通过这个类确认哪些网站需要进行代理
     private ProxyDomainStrategy needProxyStrategy;
@@ -35,8 +36,8 @@ public class Context {
         return needProxyStrategy;
     }
 
-    public String getImporter() {
-        return importer;
+    public String getResourceFacade() {
+        return resourceFacade;
     }
 
     private Context() {
@@ -48,6 +49,10 @@ public class Context {
 
     public Offline getOffliner() {
         return offliner;
+    }
+
+    public int getFeedBackDuration() {
+        return feedBackDuration;
     }
 
     public static Context getInstance() {
@@ -67,7 +72,7 @@ public class Context {
         }
         if (builder == null) {
             builder = ConfigBuilder.create();
-            InputStream is = Context.class.getClassLoader().getResourceAsStream("/" + ProxyConstant.configFileName);
+            InputStream is = Context.class.getClassLoader().getResourceAsStream(ProxyConstant.configFileName);
             if (is != null) {
                 Properties properties = new Properties();
                 try {
@@ -86,7 +91,7 @@ public class Context {
     }
 
     public static class ConfigBuilder {
-        private String importer;
+        private String resouceFace;
 
         private String proxyDomainStrategy;
         private String proxyDomainStrategyBlackList;
@@ -94,15 +99,19 @@ public class Context {
 
         private String offliner;
 
+        private String feedBackDuration;
+
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
                 return this;
             }
-            importer = properties.getProperty(ProxyConstant.IMPORTER, ProxyConstant.DEFAULT_IMPORTER);
-            proxyDomainStrategy = properties.getProperty(ProxyConstant.PROXY_DOMIAN_STATEGY,
+            resouceFace = properties.getProperty(ProxyConstant.RESOURCE_FACADE, ProxyConstant.DEFAULT_RESOURCE_FACADE);
+            proxyDomainStrategy = properties.getProperty(ProxyConstant.PROXY_DOMAIN_STRATEGY,
                     ProxyConstant.DEFAULT_DOMAIN_STRATEGY);
             proxyDomainStrategyBlackList = properties.getProperty(ProxyConstant.BLACK_LIST_STRATEGY);
             proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
+
+            feedBackDuration = properties.getProperty(ProxyConstant.FEEDBACK_DURATION);
             return this;
         }
 
@@ -110,15 +119,15 @@ public class Context {
             return new ConfigBuilder();
         }
 
-        public ConfigBuilder setImporter(String importer) {
-            this.importer = importer;
+        public ConfigBuilder setResouceFace(String resouceFace) {
+            this.resouceFace = resouceFace;
             return this;
         }
 
         public Context build() {
             Context context = new Context();
-            // importer
-            context.importer = StringUtils.isEmpty(this.importer) ? ProxyConstant.DEFAULT_IMPORTER : this.importer;
+            // resouceFace
+            context.resourceFacade = StringUtils.isEmpty(this.resouceFace) ? ProxyConstant.DEFAULT_RESOURCE_FACADE : this.resouceFace;
 
             // domainStrategy
             if (StringUtils.isEmpty(proxyDomainStrategy)) {
@@ -154,6 +163,11 @@ public class Context {
                 offliner = "com.virjar.ipproxy.ippool.strategy.offline.DefaultOffliner";
             }
             context.offliner = ObjectFactory.newInstance(offliner);
+
+            if (this.feedBackDuration == null) {
+                feedBackDuration = "120000";
+            }
+            context.feedBackDuration = NumberUtils.toInt(feedBackDuration, 120000);
             return context;
         }
     }

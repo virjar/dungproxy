@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.virjar.ipproxy.ippool.strategy.importer.DefaultImporter;
-import com.virjar.ipproxy.ippool.strategy.importer.Importer;
+import com.virjar.ipproxy.ippool.strategy.resource.DefaultResourceFacade;
+import com.virjar.ipproxy.ippool.strategy.resource.ResourceFacade;
 import com.virjar.model.AvProxy;
 
 /**
@@ -20,7 +20,7 @@ import com.virjar.model.AvProxy;
 public class DomainPool {
     private String domain;
     // 数据引入器,默认引入我们现在的服务器数据,可以扩展,改为其他数据来源
-    private Importer importer;
+    private ResourceFacade resourceFacade;
     // 系统稳定的时候需要保持的资源
     private int coreSize = 10;
     // 系统可以运行的时候需要保持的资源数目,如果少于这个数据,系统将会延迟等待,直到资源load完成
@@ -39,11 +39,11 @@ public class DomainPool {
 
     private static final Logger logger = LoggerFactory.getLogger(DomainPool.class);
 
-    public DomainPool(String domain, Importer importer) {
+    public DomainPool(String domain, ResourceFacade resourceFacade) {
         this.domain = domain;
-        this.importer = importer;
-        if (importer == null) {
-            this.importer = new DefaultImporter();
+        this.resourceFacade = resourceFacade;
+        if (resourceFacade == null) {
+            this.resourceFacade = new DefaultResourceFacade();
         }
     }
 
@@ -58,8 +58,8 @@ public class DomainPool {
         }
 
         readWriteLock.readLock().lock();
-        try {
-            AvProxy hint = hint(userID == null ? random.nextInt() : userID.hashCode());
+        try {//注意hash空间问题,之前是Integer,hash值就是字面值,导致hash空间只存在了正数空间
+            AvProxy hint = hint(userID == null ? String.valueOf(random.nextInt()).hashCode() : userID.hashCode());
             if (userID != null && hint != null) {
                 if (!hint.equals(bindMap.get(userID))) {
                     // IP 绑定改变事件
@@ -72,9 +72,21 @@ public class DomainPool {
         }
     }
 
-    public void fresh() {
+    public boolean needFresh() {
+        return consistentBuckets.size() < coreSize;
+    }
 
-        List<AvProxy> avProxies = importer.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())));
+    public void feedBack() {
+        resourceFacade.feedBack(domain, Lists.newArrayList(consistentBuckets.values()), removedProxies);
+        removedProxies.clear();
+        for (AvProxy avProxy : consistentBuckets.values()) {
+            avProxy.reset();
+        }
+    }
+
+    public void fresh() {
+        List<AvProxy> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
+                coreSize);
         if (readWriteLock.writeLock().tryLock()) {
             try {
                 for (AvProxy avProxy : avProxies) {
@@ -124,5 +136,9 @@ public class DomainPool {
         consistentBuckets.remove(avProxy.hashCode());
         removedProxies.add(avProxy);
         logger.warn("IP offline {}", JSONObject.toJSONString(avProxy));
+    }
+
+    public String getDomain() {
+        return domain;
     }
 }

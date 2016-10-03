@@ -1,5 +1,6 @@
 package com.virjar.distributer;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ import com.google.common.collect.Sets;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.DomainIp;
 import com.virjar.entity.Proxy;
+import com.virjar.ipproxy.util.CommonUtil;
+import com.virjar.model.AvProxy;
 import com.virjar.model.DomainIpModel;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.DomainIpRepository;
@@ -24,7 +27,7 @@ import com.virjar.repository.ProxyRepository;
 import com.virjar.scheduler.DomainTestTask;
 import com.virjar.service.DomainIpService;
 import com.virjar.service.ProxyService;
-import com.virjar.utils.CommonUtil;
+import com.virjar.vo.FeedBackForm;
 
 /**
  * 分发IP资源 Created by virjar on 16/8/27.
@@ -50,6 +53,42 @@ public class DistributeService {
 
     private static final Logger logger = LoggerFactory.getLogger(DistributeService.class);
 
+    public Boolean feedBack(FeedBackForm feedBackForm) {
+        List<AvProxy> avProxys = feedBackForm.getAvProxy();
+        for (AvProxy avProxy : avProxys) {
+            DomainIpModel domainIpModel = domainIpService.get(feedBackForm.getDomain(), avProxy.getIp(),
+                    avProxy.getPort());
+            if (domainIpModel == null) {
+                continue;
+                /*
+                 * domainIpModel = new DomainIpModel(); domainIpModel.setCreatetime(new Date());
+                 * domainIpModel.setIp(avProxy.getIp()); domainIpModel.setPort(avProxy.getPort());
+                 * domainIpModel.setProxyId(0L);//TODO domainIpModel.setTestUrl();
+                 */
+            }
+            domainIpModel.setDomainScore(domainIpModel.getDomainScore()
+                    + ((avProxy.getReferCount() - avProxy.getFailedCount()) * 10 / avProxy.getReferCount()));
+            domainIpModel.setDomainScoreDate(new Date());
+            domainIpService.updateByPrimaryKeySelective(domainIpModel);
+        }
+        for (AvProxy avProxy : feedBackForm.getDisableProxy()) {
+            DomainIpModel domainIpModel = domainIpService.get(feedBackForm.getDomain(), avProxy.getIp(),
+                    avProxy.getPort());
+            if (domainIpModel == null) {
+                continue;
+            }
+            if (domainIpModel.getDomainScore() > -1) {
+                domainIpModel.setDomainScore(-1L);
+            } else {
+                domainIpModel.setDomainScore(
+                        domainIpModel.getDomainScore() - avProxy.getFailedCount() * 10 / avProxy.getReferCount());
+            }
+            domainIpModel.setDomainScoreDate(new Date());
+            domainIpService.updateByPrimaryKeySelective(domainIpModel);
+        }
+        return true;
+    }
+
     public List<ProxyModel> distribute(RequestForm requestForm) {
         trimRequestForm(requestForm);
 
@@ -59,7 +98,7 @@ public class DistributeService {
         ret = domainIpService.convert(beanMapper.mapAsList(domainTestedProxys, DomainIpModel.class));
         ret = filterUsed(requestForm.getUsedSign(), ret);
         if (ret.size() > requestForm.getNum()) {
-            return ret;
+            return ret.subList(0, requestForm.getNum());
         }
 
         // TODO 第二步,由调度任务跑出domain的元数据,根据元数据查询
@@ -97,11 +136,12 @@ public class DistributeService {
         }
         String domain = CommonUtil.extractDomain(checkUrl);
         if (StringUtils.isEmpty(domain)) {
+            domain = requestForm.getDomain();
+        }
+        if (StringUtils.isEmpty(domain)) {
             return Lists.newArrayList();
         }
-        DomainIp domainIp = new DomainIp();
-        domainIp.setDomain(domain);
-        List<DomainIp> domainIps = domainIpRepository.selectPage(domainIp, new PageRequest(0, Integer.MAX_VALUE));
+        List<DomainIp> domainIps = domainIpRepository.selectAvailable(domain, new PageRequest(0, Integer.MAX_VALUE));
         if (domainIps.size() == 0) {
             DomainTestTask.sendDomainTask(checkUrl);
         }

@@ -33,6 +33,8 @@ import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.cookie.CookieSpecProvider;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.execchain.ClientExecChain;
@@ -238,6 +240,34 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     @Deprecated
     public static String getQuatity(String url) {
         return getQuatity(url, null, -1);
+    }
+
+    public static String postQuatity(String url, String body, ContentType contentType) {
+        try {
+            return post(url, body, contentType);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public static String post(String url, String body, ContentType type) throws IOException {
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.setEntity(new StringEntity(body, type));
+        CloseableHttpResponse execute = instance.execute(httpPost);
+        byte[] bytes = EntityUtils.toByteArray(execute.getEntity());
+        Header[] headers = execute.getHeaders("Content-Type");
+        String charset = CharsetDetector.detectHeader(headers);
+        if (charset == null) {
+            charset = CharsetDetector.detectHtmlContent(bytes);
+        }
+        if (charset == null) {
+            charset = Charset.defaultCharset().name();
+        }
+        return new String(bytes, charset);
+    }
+
+    public static String get(String url) throws IOException {
+        return get(url, null, -1);
     }
 
     /**

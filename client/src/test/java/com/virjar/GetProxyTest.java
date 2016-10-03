@@ -1,3 +1,4 @@
+/*
 package com.virjar;
 
 import java.io.IOException;
@@ -16,12 +17,14 @@ import com.virjar.model.AvProxy;
 import com.virjar.utils.JSONUtils;
 import org.junit.Test;
 
+*/
 /**
  * Description: getProxyTest
  *
  * @author lingtong.fu
  * @version 2016-09-09 20:47
- */
+ *//*
+
 public class GetProxyTest {
 
     private static VirjarAsyncClient client = new VirjarAsyncClient();
@@ -57,7 +60,8 @@ public class GetProxyTest {
 
     public static Future<String> getFuture(String url) throws IOException {
         HttpOption httpOption = new HttpOption();
-        httpOption.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        httpOption.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,**//**/
+/*;q=0.8");
         return client.get(url, httpOption, new AsyncCompletionHandler<String>() {
             @Override
             public String onCompleted(Response response) throws Exception {
@@ -73,3 +77,4 @@ public class GetProxyTest {
         return null;
     }
 }
+*/

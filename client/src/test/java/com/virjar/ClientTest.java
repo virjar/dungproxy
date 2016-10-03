@@ -4,7 +4,7 @@ import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import com.virjar.client.proxyclient.VirjarAsyncClient;
 import com.virjar.model.Phone;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.URLEncoder;

@@ -60,7 +60,7 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
             return;
         }
         pool = new ThreadPoolExecutor(SysConfig.getInstance().getPortCheckThread(),
-                SysConfig.getInstance().getPortCheckThread(), 0L, TimeUnit.MILLISECONDS,
+                SysConfig.getInstance().getPortCheckThread() * 3, 1000L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("port-resource-collect"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
         new Thread(this).start();

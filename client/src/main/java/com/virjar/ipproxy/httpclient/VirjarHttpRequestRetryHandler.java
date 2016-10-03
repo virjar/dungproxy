@@ -24,8 +24,6 @@ import java.util.Set;
 
 import javax.net.ssl.SSLException;
 
-import com.virjar.ipproxy.ippool.config.ProxyConstant;
-import com.virjar.model.AvProxy;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.Immutable;
@@ -35,6 +33,9 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
+
+import com.virjar.ipproxy.ippool.config.ProxyConstant;
+import com.virjar.model.AvProxy;
 
 /**
  * 重试策略,发生异常之后需要关注的重试策略,如果是和原生httpclient集成,需要植入到httpclientBuilder<br/>
@@ -107,19 +108,10 @@ public class VirjarHttpRequestRetryHandler implements HttpRequestRetryHandler {
         this(3, true);
     }
 
-    /**
-     * Used {@code retryCount} and {@code requestSentRetryEnabled} to determine if the given method should be retried.
-     */
-    @Override
-    public boolean retryRequest(final IOException exception, final int executionCount, final HttpContext context) {
-        Args.notNull(exception, "Exception parameter");
-        Args.notNull(context, "HTTP context");
-        AvProxy proxy = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
-        if(proxy != null){
-           proxy.recordFailed();
-        }
+    public boolean needRetry(final IOException exception, final int executionCount, final HttpContext context) {
         if (executionCount > this.retryCount) {
             // Do not retry if over max retry count
+
             return false;
         }
         if (this.nonRetriableClasses.contains(exception.getClass())) {
@@ -148,8 +140,29 @@ public class VirjarHttpRequestRetryHandler implements HttpRequestRetryHandler {
             // if it's OK to retry methods that have been sent
             return true;
         }
-        // otherwise do not retry
         return false;
+    }
+
+    /**
+     * Used {@code retryCount} and {@code requestSentRetryEnabled} to determine if the given method should be retried.
+     */
+    @Override
+    public boolean retryRequest(final IOException exception, final int executionCount, final HttpContext context) {
+        Args.notNull(exception, "Exception parameter");
+        Args.notNull(context, "HTTP context");
+        boolean ret = false;
+        AvProxy proxy = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
+        if (proxy != null) {
+            proxy.recordFailed();
+        }
+        try {
+            ret = needRetry(exception, executionCount, context);
+        } finally {
+            if (ret && proxy != null) {
+                proxy.recordUsage();
+            }
+        }
+        return ret;
     }
 
     /**
