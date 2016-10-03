@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,10 @@ public class Context {
 
     public Offline getOffliner() {
         return offliner;
+    }
+
+    public int getFeedBackDuration() {
+        return feedBackDuration;
     }
 
     public static Context getInstance() {
@@ -94,6 +99,8 @@ public class Context {
 
         private String offliner;
 
+        private String feedBackDuration;
+
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
                 return this;
@@ -103,6 +110,8 @@ public class Context {
                     ProxyConstant.DEFAULT_DOMAIN_STRATEGY);
             proxyDomainStrategyBlackList = properties.getProperty(ProxyConstant.BLACK_LIST_STRATEGY);
             proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
+
+            feedBackDuration = properties.getProperty(ProxyConstant.FEEDBACK_DUATION);
             return this;
         }
 
@@ -154,6 +163,11 @@ public class Context {
                 offliner = "com.virjar.ipproxy.ippool.strategy.offline.DefaultOffliner";
             }
             context.offliner = ObjectFactory.newInstance(offliner);
+
+            if (this.feedBackDuration == null) {
+                feedBackDuration = "120000";
+            }
+            context.feedBackDuration = NumberUtils.toInt(feedBackDuration, 120000);
             return context;
         }
     }

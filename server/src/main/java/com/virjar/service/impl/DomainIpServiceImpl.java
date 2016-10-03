@@ -123,4 +123,18 @@ public class DomainIpServiceImpl implements DomainIpService {
          */
         // return ret;
     }
+
+    @Override
+    public DomainIpModel get(String domain, String ip, Integer port) {
+        DomainIp query = new DomainIp();
+        query.setDomain(domain);
+        query.setIp(ip);
+        query.setPort(port);
+        List<DomainIp> domainIps = domainIpRepo.selectPage(query, new PageRequest(0, 1));
+        if (domainIps.size() < 1) {
+            return null;
+        } else {
+            return beanMapper.map(domainIps.get(0), DomainIpModel.class);
+        }
+    }
 }

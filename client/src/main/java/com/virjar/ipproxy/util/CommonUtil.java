@@ -1,4 +1,4 @@
-package com.virjar.utils;
+package com.virjar.ipproxy.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -31,6 +31,12 @@ public class AvProxy {
 
     private DomainPool domainPool;
 
+    // 虽然加锁,但是锁等待概率很小
+    public synchronized void reset() {
+        referCount.set(0);
+        failedCount.set(0);
+    }
+
     public void recordFailed() {
         failedCount.incrementAndGet();
         if (Context.getInstance().getOffliner().needOffline(failedCount.get(), failedCount.get())) {
@@ -101,6 +107,10 @@ public class AvProxy {
 
     public int getReferCount() {
         return referCount.get();
+    }
+
+    public int getFailedCount() {
+        return failedCount.get();
     }
 
     public DomainPool getDomainPool() {

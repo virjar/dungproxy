@@ -15,6 +15,7 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.client.*;
 import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.InputStreamFactory;
 import org.apache.http.client.protocol.*;
@@ -36,6 +37,7 @@ import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.conn.util.PublicSuffixMatcher;
 import org.apache.http.conn.util.PublicSuffixMatcherLoader;
 import org.apache.http.cookie.CookieSpecProvider;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.NoConnectionReuseStrategy;
 import org.apache.http.impl.auth.*;
 import org.apache.http.impl.client.*;
@@ -43,6 +45,10 @@ import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.http.impl.cookie.DefaultCookieSpecProvider;
+import org.apache.http.impl.cookie.IgnoreSpecProvider;
+import org.apache.http.impl.cookie.NetscapeDraftSpecProvider;
+import org.apache.http.impl.cookie.RFC6265CookieSpecProvider;
 import org.apache.http.impl.execchain.*;
 import org.apache.http.protocol.*;
 import org.apache.http.ssl.SSLContexts;
@@ -871,12 +877,12 @@ public class CrawlerHttpClientBuilder {
             if (systemProperties) {
                 final String s = System.getProperty("http.keepAlive", "true");
                 if ("true".equalsIgnoreCase(s)) {
-                    reuseStrategyCopy = DefaultClientConnectionReuseStrategy.INSTANCE;
+                    reuseStrategyCopy = DefaultConnectionReuseStrategy.INSTANCE;
                 } else {
                     reuseStrategyCopy = NoConnectionReuseStrategy.INSTANCE;
                 }
             } else {
-                reuseStrategyCopy = DefaultClientConnectionReuseStrategy.INSTANCE;
+                reuseStrategyCopy = DefaultConnectionReuseStrategy.INSTANCE;
             }
         }
         ConnectionKeepAliveStrategy keepAliveStrategyCopy = this.keepAliveStrategy;
@@ -1037,7 +1043,17 @@ public class CrawlerHttpClientBuilder {
         }
         Lookup<CookieSpecProvider> cookieSpecRegistryCopy = this.cookieSpecRegistry;
         if (cookieSpecRegistryCopy == null) {
-            cookieSpecRegistryCopy = CookieSpecRegistries.createDefault(publicSuffixMatcherCopy);
+            final CookieSpecProvider defaultProvider = new DefaultCookieSpecProvider(publicSuffixMatcherCopy);
+            final CookieSpecProvider laxStandardProvider = new RFC6265CookieSpecProvider(
+                    RFC6265CookieSpecProvider.CompatibilityLevel.RELAXED, publicSuffixMatcherCopy);
+            final CookieSpecProvider strictStandardProvider = new RFC6265CookieSpecProvider(
+                    RFC6265CookieSpecProvider.CompatibilityLevel.STRICT, publicSuffixMatcherCopy);
+            cookieSpecRegistryCopy = RegistryBuilder.<CookieSpecProvider> create()
+                    .register(CookieSpecs.DEFAULT, defaultProvider).register("best-match", defaultProvider)
+                    .register("compatibility", defaultProvider).register(CookieSpecs.STANDARD, laxStandardProvider)
+                    .register(CookieSpecs.STANDARD_STRICT, strictStandardProvider)
+                    .register(CookieSpecs.NETSCAPE, new NetscapeDraftSpecProvider())
+                    .register(CookieSpecs.IGNORE_COOKIES, new IgnoreSpecProvider()).build();
         }
 
         CookieStore defaultCookieStore = this.cookieStore;

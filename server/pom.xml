@@ -486,6 +486,11 @@
             <artifactId>spring-test</artifactId>
             <version>4.3.0.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>com.virjar</groupId>
+            <artifactId>client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>

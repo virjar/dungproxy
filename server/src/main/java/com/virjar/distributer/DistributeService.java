@@ -1,5 +1,6 @@
 package com.virjar.distributer;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ import com.google.common.collect.Sets;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.DomainIp;
 import com.virjar.entity.Proxy;
+import com.virjar.ipproxy.util.CommonUtil;
+import com.virjar.model.AvProxy;
 import com.virjar.model.DomainIpModel;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.DomainIpRepository;
@@ -24,7 +27,7 @@ import com.virjar.repository.ProxyRepository;
 import com.virjar.scheduler.DomainTestTask;
 import com.virjar.service.DomainIpService;
 import com.virjar.service.ProxyService;
-import com.virjar.utils.CommonUtil;
+import com.virjar.vo.FeedBackForm;
 
 /**
  * 分发IP资源 Created by virjar on 16/8/27.
@@ -49,6 +52,42 @@ public class DistributeService {
     private BeanMapper beanMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(DistributeService.class);
+
+    public Boolean feedBack(FeedBackForm feedBackForm) {
+        List<AvProxy> avProxys = feedBackForm.getAvProxy();
+        for (AvProxy avProxy : avProxys) {
+            DomainIpModel domainIpModel = domainIpService.get(feedBackForm.getDomain(), avProxy.getIp(),
+                    avProxy.getPort());
+            if (domainIpModel == null) {
+                continue;
+                /*
+                 * domainIpModel = new DomainIpModel(); domainIpModel.setCreatetime(new Date());
+                 * domainIpModel.setIp(avProxy.getIp()); domainIpModel.setPort(avProxy.getPort());
+                 * domainIpModel.setProxyId(0L);//TODO domainIpModel.setTestUrl();
+                 */
+            }
+            domainIpModel.setDomainScore(domainIpModel.getDomainScore()
+                    + ((avProxy.getReferCount() - avProxy.getFailedCount()) * 10 / avProxy.getReferCount()));
+            domainIpModel.setDomainScoreDate(new Date());
+            domainIpService.updateByPrimaryKeySelective(domainIpModel);
+        }
+        for (AvProxy avProxy : feedBackForm.getDisableProxy()) {
+            DomainIpModel domainIpModel = domainIpService.get(feedBackForm.getDomain(), avProxy.getIp(),
+                    avProxy.getPort());
+            if (domainIpModel == null) {
+                continue;
+            }
+            if (domainIpModel.getDomainScore() > -1) {
+                domainIpModel.setDomainScore(-1L);
+            } else {
+                domainIpModel.setDomainScore(
+                        domainIpModel.getDomainScore() - avProxy.getFailedCount() * 10 / avProxy.getReferCount());
+            }
+            domainIpModel.setDomainScoreDate(new Date());
+            domainIpService.updateByPrimaryKeySelective(domainIpModel);
+        }
+        return true;
+    }
 
     public List<ProxyModel> distribute(RequestForm requestForm) {
         trimRequestForm(requestForm);

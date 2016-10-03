@@ -1,4 +1,13 @@
+/*
 package com.virjar.ipproxy.ippool.schedule;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
 
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.RateLimiter;
@@ -13,19 +22,14 @@ import com.virjar.model.AvProxy;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.utils.JSONUtils;
 
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
+*/
 /**
  * Description: 初始化时加载Proxy 定时收集Proxy
  *
  * @author lingtong.fu
  * @version 2016-09-11 18:16
- */
+ *//*
+
 public class Preheater {
 
     public void init() {
@@ -36,7 +40,8 @@ public class Preheater {
     private void initProxyQueue() {
         LogUtils.info("Preheater ------ initProxyQueue");
         try {
-            List<AvProxy> avProxies = JSONUtils.parseList(getFuture(url).get(60000, TimeUnit.MILLISECONDS), AvProxy.class);
+            List<AvProxy> avProxies = JSONUtils.parseList(getFuture(url).get(60000, TimeUnit.MILLISECONDS),
+                    AvProxy.class);
             ConcurrentLinkedQueue<AvProxy> queue = Queues.newConcurrentLinkedQueue();
             assert avProxies != null;
             for (AvProxy avProxy : avProxies) {
@@ -55,7 +60,7 @@ public class Preheater {
             synchronized (Preheater.class) {
                 av = PROXY_QUEUE.poll();
                 if (av == null) {
-                    //暂时拿一个最高分的Proxy
+                    // 暂时拿一个最高分的Proxy
                     List<Proxy> proxy = proxyRepository.findAvailable();
                     av = beanMapper.map(proxy.get(0), AvProxy.class);
                     if (av != null) {
@@ -69,7 +74,8 @@ public class Preheater {
 
     private static Future<String> getFuture(String url) throws IOException {
         HttpOption httpOption = new HttpOption();
-        httpOption.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        httpOption.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,**///
+/*;q=0.8");
         return client.get(url, httpOption, new AsyncCompletionHandler<String>() {
             @Override
             public String onCompleted(Response response) throws Exception {
@@ -86,7 +92,8 @@ public class Preheater {
         RateLimiter rateLimiter = RateLimiter.create(rateLimit);
         try {
             rateLimiter.acquire();
-            List<AvProxy> avProxies = JSONUtils.parseList(getFuture(url).get(60000, TimeUnit.MILLISECONDS), AvProxy.class);
+            List<AvProxy> avProxies = JSONUtils.parseList(getFuture(url).get(60000, TimeUnit.MILLISECONDS),
+                    AvProxy.class);
             if (avProxies != null) {
                 RET_QUEUE.addAll(avProxies);
                 for (int i = 0; i < updateLimit; i++) {
@@ -127,3 +134,4 @@ public class Preheater {
     private ProxyRepository proxyRepository;
 
 }
+*/

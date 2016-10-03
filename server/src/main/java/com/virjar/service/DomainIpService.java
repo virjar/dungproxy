@@ -26,4 +26,6 @@ public interface DomainIpService {
     List<DomainIpModel> selectPage(DomainIpModel domainIpModel, Pageable Pageable);
 
     List<ProxyModel> convert(List<DomainIpModel> domainIpModels);
+
+    DomainIpModel get(String domain,String ip,Integer port);
 }

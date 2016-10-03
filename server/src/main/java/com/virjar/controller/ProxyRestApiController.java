@@ -30,6 +30,7 @@ import com.virjar.distributer.DistributedSign;
 import com.virjar.distributer.RequestForm;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
+import com.virjar.vo.FeedBackForm;
 import com.virjar.vo.ProxyVO;
 
 @Controller
@@ -113,5 +114,22 @@ public class ProxyRestApiController {
         ret.put("num", distribute.size());
         ret.put("data", beanMapper.mapAsList(distribute, ProxyVO.class));
         return ReturnUtil.retSuccess(ret);
+    }
+
+    /**
+     * 只能是json
+     * 
+     * @param feedBackForm
+     * @return
+     */
+    @RequestMapping("feedBack")
+    public ResponseEntity<ResponseEnvelope<Object>> feedBack(@RequestBody FeedBackForm feedBackForm,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
+            return ReturnUtil.retException(ReturnCode.INPUT_PARAM_ERROR, errorMessage);
+        }
+        distributeService.feedBack(feedBackForm);
+        return ReturnUtil.retSuccess("success");
     }
 }
