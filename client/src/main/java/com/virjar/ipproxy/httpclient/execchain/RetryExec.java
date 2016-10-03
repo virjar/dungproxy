@@ -63,8 +63,8 @@ public class RetryExec implements ClientExecChain {
                                 "Cannot retry request " + "with a non-repeatable request entity", ex);
                     }
                     request.setHeaders(origheaders);
-                    if (this.log.isInfoEnabled()) {
-                        this.log.info("Retrying request to " + route);
+                    if (this.log.isDebugEnabled()) {
+                        this.log.debug("Retrying request to " + route);
                     }
                 } else {
                     if (ex instanceof NoHttpResponseException) {

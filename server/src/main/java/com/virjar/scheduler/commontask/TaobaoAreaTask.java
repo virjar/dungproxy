@@ -17,10 +17,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.google.common.util.concurrent.RateLimiter;
 import com.virjar.entity.Proxy;
+import com.virjar.ipproxy.httpclient.CrawlerHttpClient;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.utils.SysConfig;
-import com.virjar.utils.net.HttpInvoker;
-import com.virjar.utils.net.HttpResult;
 
 /**
  * Created by nicholas on 8/14/2016.
@@ -58,13 +57,14 @@ public class TaobaoAreaTask extends CommonTask {
 
     private Proxy getArea(String ipAddr) {
         if (limiter.tryAcquire(1, 1000, TimeUnit.MILLISECONDS)) {
-            HttpInvoker httpInvoker = new HttpInvoker(TAOBAOURL + ipAddr);
-            HttpResult request;
             Proxy proxy;
             JSONObject jsonObject;
             try {
-                request = httpInvoker.request();
-                jsonObject = JSONObject.parseObject(request.getResponseBody());
+                String response = CrawlerHttpClient.getQuatity(TAOBAOURL + ipAddr);
+                if (StringUtils.isEmpty(response)) {
+                    return null;
+                }
+                jsonObject = JSONObject.parseObject(response);
                 String data = jsonObject.get("data").toString();
                 JSONObject temp = JSONObject.parseObject(data);
                 proxy = JSON.parseObject(data, com.virjar.entity.Proxy.class, Feature.IgnoreNotMatch);
@@ -74,7 +74,7 @@ public class TaobaoAreaTask extends CommonTask {
                 proxy.setCityId(temp.get("city_id").toString());
                 proxy.setIspId(temp.get("isp_id").toString());
             } catch (Exception e) {
-                logger.error("getAreaError" + e);
+                logger.error("getAreaError", e);
                 proxy = new Proxy();
             }
             return proxy;
@@ -96,6 +96,9 @@ public class TaobaoAreaTask extends CommonTask {
             for (Proxy proxy : proxyList) {
                 try {
                     Proxy area = getArea(proxy.getIp());
+                    if (area == null) {
+                        continue;
+                    }
                     area.setId(proxy.getId());
                     if (StringUtils.isEmpty(area.getCountry()) && StringUtils.isEmpty(area.getArea())
                             && StringUtils.isEmpty(area.getIsp())) {

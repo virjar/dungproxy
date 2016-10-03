@@ -45,6 +45,7 @@ public class RefreshDomainIpTask extends CommonTask {
 
             List<DomainIpModel> domainIpModels = domainIpService.selectPage(query, new PageRequest(0, 5));
             if (domainIpModels.size() < 1) {
+                logger.warn("domain:{} has not find domainIps", domainMetaModel.getDomain());
                 continue;
             }
             DomainTestTask.sendDomainTask(domainIpModels.get(random.nextInt(domainIpModels.size())).getTestUrl());
