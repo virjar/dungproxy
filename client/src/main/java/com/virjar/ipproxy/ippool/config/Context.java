@@ -105,13 +105,13 @@ public class Context {
             if (properties == null) {
                 return this;
             }
-            resouceFace = properties.getProperty(ProxyConstant.RESOURCE_FACADE, ProxyConstant.DEFAULT_IMPORTER);
-            proxyDomainStrategy = properties.getProperty(ProxyConstant.PROXY_DOMIAN_STATEGY,
+            resouceFace = properties.getProperty(ProxyConstant.RESOURCE_FACADE, ProxyConstant.DEFAULT_RESOURCE_FACADE);
+            proxyDomainStrategy = properties.getProperty(ProxyConstant.PROXY_DOMAIN_STRATEGY,
                     ProxyConstant.DEFAULT_DOMAIN_STRATEGY);
             proxyDomainStrategyBlackList = properties.getProperty(ProxyConstant.BLACK_LIST_STRATEGY);
             proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
 
-            feedBackDuration = properties.getProperty(ProxyConstant.FEEDBACK_DUATION);
+            feedBackDuration = properties.getProperty(ProxyConstant.FEEDBACK_DURATION);
             return this;
         }
 
@@ -127,7 +127,7 @@ public class Context {
         public Context build() {
             Context context = new Context();
             // resouceFace
-            context.resourceFacade = StringUtils.isEmpty(this.resouceFace) ? ProxyConstant.DEFAULT_IMPORTER : this.resouceFace;
+            context.resourceFacade = StringUtils.isEmpty(this.resouceFace) ? ProxyConstant.DEFAULT_RESOURCE_FACADE : this.resouceFace;
 
             // domainStrategy
             if (StringUtils.isEmpty(proxyDomainStrategy)) {

@@ -58,8 +58,8 @@ public class DomainPool {
         }
 
         readWriteLock.readLock().lock();
-        try {
-            AvProxy hint = hint(userID == null ? random.nextInt() : userID.hashCode());
+        try {//注意hash空间问题,之前是Integer,hash值就是字面值,导致hash空间只存在了正数空间
+            AvProxy hint = hint(userID == null ? String.valueOf(random.nextInt()).hashCode() : userID.hashCode());
             if (userID != null && hint != null) {
                 if (!hint.equals(bindMap.get(userID))) {
                     // IP 绑定改变事件

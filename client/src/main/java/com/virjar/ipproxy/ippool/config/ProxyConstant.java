@@ -11,12 +11,12 @@ public class ProxyConstant {
 
     // config 文件默认配置key值
     public static final String RESOURCE_FACADE = "proxyclient.resouce.resourceFacade";
-    public static final String DEFAULT_IMPORTER = "com.virjar.ipproxy.ippool.strategy.importer.DefaultResourceFacade";
-    public static final String PROXY_DOMIAN_STATEGY = "proxyclient.proxyDomainStrategy";
+    public static final String DEFAULT_RESOURCE_FACADE = "com.virjar.ipproxy.ippool.strategy.resource.DefaultResourceFacade";
+    public static final String PROXY_DOMAIN_STRATEGY = "proxyclient.proxyDomainStrategy";
     public static final String DEFAULT_DOMAIN_STRATEGY = "WHITE_LIST";
     public static final String BLACK_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.backList";
     public static final String WHITE_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.whiteList";
-    public static final String FEEDBACK_DUATION = "proxyclient.feedback.duration";
+    public static final String FEEDBACK_DURATION = "proxyclient.feedback.duration";
 
     public static final String configFileName = "proxyclient.properties";
 }

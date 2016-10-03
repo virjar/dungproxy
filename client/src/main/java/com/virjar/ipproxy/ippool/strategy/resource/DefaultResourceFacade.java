@@ -36,6 +36,7 @@ public class DefaultResourceFacade implements ResourceFacade {
         List<NameValuePair> valuePairList = Lists.newArrayList();
         valuePairList.add(new BasicNameValuePair("usedSign", downloadSign));
         valuePairList.add(new BasicNameValuePair("checkUrl", testUrl));
+        valuePairList.add(new BasicNameValuePair("domain", domain));
         valuePairList.add(new BasicNameValuePair("num", String.valueOf(number)));
         String url = avUrl + URLEncodedUtils.format(valuePairList, "utf-8");
         String response = CrawlerHttpClient.getQuatity(url);
@@ -48,6 +49,7 @@ public class DefaultResourceFacade implements ResourceFacade {
             logger.error("can not get available ip resource from server:{} last response is ", url, response);
             return Lists.newArrayList();
         }
+        jsonObject = jsonObject.getJSONObject("data");
         this.downloadSign = jsonObject.getString("sign");
         JSONArray jsonArray = jsonObject.getJSONArray("data");
         List<AvProxy> ret = Lists.newArrayList();

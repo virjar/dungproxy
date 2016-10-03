@@ -136,9 +136,11 @@ public class DistributeService {
         }
         String domain = CommonUtil.extractDomain(checkUrl);
         if (StringUtils.isEmpty(domain)) {
+            domain = requestForm.getDomain();
+        }
+        if (StringUtils.isEmpty(domain)) {
             return Lists.newArrayList();
         }
-
         List<DomainIp> domainIps = domainIpRepository.selectAvailable(domain, new PageRequest(0, Integer.MAX_VALUE));
         if (domainIps.size() == 0) {
             DomainTestTask.sendDomainTask(checkUrl);

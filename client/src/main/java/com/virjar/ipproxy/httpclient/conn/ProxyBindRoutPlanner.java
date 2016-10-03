@@ -4,6 +4,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.SchemePortResolver;
 import org.apache.http.impl.conn.DefaultRoutePlanner;
@@ -48,7 +49,8 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
         }
 
         String accessUrl = null;
-        if (request instanceof HttpGet) {// TODO 有问题,貌似post也会是这个,但是服务器现在只进行get验证
+        // TODO 有问题,貌似post也会是这个,但是服务器现在只进行get验证,通过这种方式过滤选取了HttpRequestWrapper 和 HttpGet两种对象需要有一种方式过滤Get方法出来
+        if (request instanceof HttpRequestWrapper || request instanceof HttpGet) {
             accessUrl = HttpUriRequest.class.cast(request).getURI().toString();
         }
         Object user = context.getAttribute(ProxyConstant.USER_KEY);
