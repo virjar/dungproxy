@@ -118,10 +118,11 @@ public class Collector {
             return ret;
         }
         lastactivity = System.currentTimeMillis();
+        url = urlGenerator.newURL();
         while (num < batchsize) {
             try {
-                url = urlGenerator.newURL();
                 lastUrl = url;
+                PoolUtil.cleanProxy(httpClientContext);// 每次使用不用的代理IP
                 String response = HttpInvoker.get(url, httpClientContext);
                 if (StringUtils.isEmpty(response)) {
                     PoolUtil.recordFailed(httpClientContext);
@@ -130,7 +131,7 @@ public class Collector {
                     List<String> fetchresult = fetcher.fetch(response);
                     // 异常会自动记录代理IP使用失败,这里的情况是请求成功,但是网页可能不是正确的,当然这个反馈可能不是完全准确的,不过也无所谓,本身IP下线是在失败率达到一定的量的情况
                     if (fetchresult.size() == 0) {
-                        //PoolUtil.recordFailed(httpClientContext);
+                        // PoolUtil.recordFailed(httpClientContext);
                         failedtimes++;
                         if (failedtimes > 3) {
                             return ret;
@@ -158,11 +159,11 @@ public class Collector {
                         urlGenerator.reset();
                     }
                     Thread.sleep(2000);
-                    continue;
+                    url = urlGenerator.newURL();
                 }
-            } catch (Exception e) {
+            } catch (Exception e) {// 发生socket异常不切换url
                 if (!(e instanceof SocketTimeoutException) && !(e instanceof SocketException)) {
-                    logger.error("收集器 " + url + " 错误栈如下：", e);
+                    PoolUtil.recordFailed(httpClientContext);
                 }
                 errorinfo = url + ":" + e;
                 failedTimes++;
