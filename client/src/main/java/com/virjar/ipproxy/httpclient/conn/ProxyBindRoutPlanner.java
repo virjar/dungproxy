@@ -55,10 +55,10 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
         }
         Object user = context.getAttribute(ProxyConstant.USER_KEY);
         AvProxy bind;
-        bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
-        if (bind == null) {
-            bind = IpPool.getInstance().bind(target.getHostName(), accessUrl, user);
-        }
+        // bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
+        // if (bind == null) {
+        bind = IpPool.getInstance().bind(target.getHostName(), accessUrl, user);
+        // }
         if (bind != null) {
             bind.recordUsage();
             if (user != null) {// 记录这个用户绑定的IP

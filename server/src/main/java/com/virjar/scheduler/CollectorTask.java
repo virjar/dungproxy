@@ -17,7 +17,6 @@ import com.virjar.crawler.Collector;
 import com.virjar.entity.Proxy;
 import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.ProxyModel;
-import com.virjar.repository.ProxyRepository;
 import com.virjar.service.ProxyService;
 import com.virjar.utils.NameThreadFactory;
 import com.virjar.utils.ResourceFilter;
@@ -31,9 +30,6 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     @Resource
     private BeanMapper beanMapper;
-
-    @Resource
-    private ProxyRepository proxyRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(CollectorTask.class);
 
