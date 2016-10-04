@@ -19,4 +19,11 @@ public class ProxyConstant {
     public static final String FEEDBACK_DURATION = "proxyclient.feedback.duration";
 
     public static final String configFileName = "proxyclient.properties";
+
+    // socket超时时间
+    public static final int SOCKET_TIMEOUT = 15000;
+    // 连接超时
+    public static final int CONNECT_TIMEOUT = 15000;
+    // 连接池分配连接超时时间,一般用处不大
+    public static final int REQUEST_TIMEOUT = 10000;
 }

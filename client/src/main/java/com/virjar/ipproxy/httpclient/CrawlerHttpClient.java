@@ -307,12 +307,15 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
     public int getStatus(String url, String proxyIp, int proxyPort) throws IOException {
         HttpGet httpGet = new HttpGet(url);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
+                .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true);
         if (StringUtils.isNotEmpty(proxyIp)) {
-            RequestConfig build = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
-                    .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true)
-                    .setProxy(new HttpHost(proxyIp, proxyPort)).build();
-            httpGet.setConfig(build);
+            builder.setProxy(new HttpHost(proxyIp, proxyPort)).build();
         }
+        if (StringUtils.isNotEmpty(proxyIp)) {
+            builder.setProxy(new HttpHost(proxyIp, proxyPort));
+        }
+        httpGet.setConfig(builder.build());
         CloseableHttpResponse execute = execute(httpGet);
         return execute.getStatusLine().getStatusCode();
     }
@@ -328,12 +331,12 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             url = url + URLEncodedUtils.format(params, "utf-8");
         }
         HttpGet httpGet = new HttpGet(url);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
+                .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true);
         if (StringUtils.isNotEmpty(proxyIp)) {
-            RequestConfig build = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
-                    .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true)
-                    .setProxy(new HttpHost(proxyIp, proxyPort)).build();
-            httpGet.setConfig(build);
+            builder.setProxy(new HttpHost(proxyIp, proxyPort)).build();
         }
+        httpGet.setConfig(builder.build());
 
         if (headers != null && headers.length > 0) {
             httpGet.setHeaders(headers);
@@ -393,14 +396,13 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             throws IOException {
 
         HttpPost httpPost = new HttpPost(url);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
+                .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true);
 
         if (StringUtils.isNotEmpty(proxyIp)) {
-            RequestConfig build = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
-                    .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true)
-                    .setProxy(new HttpHost(proxyIp, proxyPort)).build();
-            httpPost.setConfig(build);
+            builder.setProxy(new HttpHost(proxyIp, proxyPort)).build();
         }
-
+        httpPost.setConfig(builder.build());
         if (headers != null && headers.length > 0) {
             httpPost.setHeaders(headers);
         }
