@@ -131,9 +131,7 @@ public class DistributeService {
 
     private List<DomainIp> get4DomainTested(RequestForm requestForm) {
         String checkUrl = requestForm.getCheckUrl();
-        if (StringUtils.isEmpty(checkUrl)) {
-            return Lists.newArrayList();
-        }
+
         String domain = CommonUtil.extractDomain(checkUrl);
         if (StringUtils.isEmpty(domain)) {
             domain = requestForm.getDomain();
@@ -142,7 +140,7 @@ public class DistributeService {
             return Lists.newArrayList();
         }
         List<DomainIp> domainIps = domainIpRepository.selectAvailable(domain, new PageRequest(0, Integer.MAX_VALUE));
-        if (domainIps.size() == 0) {
+        if (domainIps.size() == 0 && !StringUtils.isEmpty(checkUrl)) {
             DomainTestTask.sendDomainTask(checkUrl);
         }
         return domainIps;
