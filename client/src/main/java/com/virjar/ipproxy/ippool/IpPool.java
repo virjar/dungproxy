@@ -1,10 +1,12 @@
 package com.virjar.ipproxy.ippool;
 
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.virjar.ipproxy.ippool.config.Context;
 import com.virjar.ipproxy.ippool.config.ObjectFactory;
@@ -36,6 +38,7 @@ public class IpPool {
 
     private void init() {
         isRunning = true;
+        unSerialize();
         feedBackThread = new FeedBackThread();
         freshResourceThread = new FreshResourceThread();
         feedBackThread.start();
@@ -49,9 +52,26 @@ public class IpPool {
     }
 
     public void destroy() {
+        Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo());
         isRunning = false;
         feedBackThread.interrupt();
         freshResourceThread.interrupt();
+    }
+
+    public void unSerialize() {
+        Map<String, List<AvProxy>> stringListMap = Context.getInstance().getAvProxyDumper().unSerializeProxy();
+        if (stringListMap == null) {
+            return;
+        }
+        String importer = Context.getInstance().getResourceFacade();
+        for (Map.Entry<String, List<AvProxy>> entry : stringListMap.entrySet()) {
+            if (pool.containsKey(entry.getKey())) {
+                pool.get(entry.getKey()).addAvailable(entry.getValue());
+            } else {
+                pool.put(entry.getKey(), new DomainPool(entry.getKey(),
+                        ObjectFactory.<ResourceFacade> newInstance(importer), entry.getValue()));
+            }
+        }
     }
 
     public AvProxy bind(String host, String url, Object userID) {
@@ -69,11 +89,21 @@ public class IpPool {
         return pool.get(host).bind(url, userID);
     }
 
+    public Map<String, List<AvProxy>> getPoolInfo() {
+        return Maps.transformValues(pool, new Function<DomainPool, List<AvProxy>>() {
+            @Override
+            public List<AvProxy> apply(DomainPool domainPool) {
+                return domainPool.availableProxy();
+            }
+        });
+    }
+
     // 向服务器反馈不可用IP
     private class FeedBackThread extends Thread {
         @Override
         public void run() {
             while (isRunning) {
+                Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo());
                 for (DomainPool domainPool : pool.values()) {
                     try {
                         domainPool.feedBack();

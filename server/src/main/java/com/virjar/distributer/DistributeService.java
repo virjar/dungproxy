@@ -66,8 +66,7 @@ public class DistributeService {
                  * domainIpModel.setProxyId(0L);//TODO domainIpModel.setTestUrl();
                  */
             }
-            domainIpModel.setDomainScore(domainIpModel.getDomainScore()
-                    + ((avProxy.getReferCount() - avProxy.getFailedCount()) * 10 / avProxy.getReferCount()));
+            domainIpModel.setDomainScore(domainIpModel.getDomainScore() + 1);
             domainIpModel.setDomainScoreDate(new Date());
             domainIpService.updateByPrimaryKeySelective(domainIpModel);
         }

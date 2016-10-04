@@ -40,11 +40,34 @@ public class DomainPool {
     private static final Logger logger = LoggerFactory.getLogger(DomainPool.class);
 
     public DomainPool(String domain, ResourceFacade resourceFacade) {
+        this(domain, resourceFacade, null);
+    }
+
+    public DomainPool(String domain, ResourceFacade resourceFacade, List<AvProxy> defaultProxy) {
         this.domain = domain;
         this.resourceFacade = resourceFacade;
         if (resourceFacade == null) {
             this.resourceFacade = new DefaultResourceFacade();
         }
+        if (defaultProxy != null) {
+            addAvailable(defaultProxy);
+        }
+    }
+
+    public void addAvailable(List<AvProxy> avProxyList) {
+        readWriteLock.writeLock().lock();
+        try {
+            for (AvProxy avProxy : avProxyList) {
+                avProxy.setDomainPool(this);
+                consistentBuckets.put(avProxy.hashCode(), avProxy);
+            }
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
+    }
+
+    public List<AvProxy> availableProxy() {
+        return Lists.newArrayList(consistentBuckets.values());
     }
 
     public AvProxy bind(String url, Object userID) {
@@ -58,7 +81,7 @@ public class DomainPool {
         }
 
         readWriteLock.readLock().lock();
-        try {//注意hash空间问题,之前是Integer,hash值就是字面值,导致hash空间只存在了正数空间
+        try {// 注意hash空间问题,之前是Integer,hash值就是字面值,导致hash空间只存在了正数空间
             AvProxy hint = hint(userID == null ? String.valueOf(random.nextInt()).hashCode() : userID.hashCode());
             if (userID != null && hint != null) {
                 if (!hint.equals(bindMap.get(userID))) {

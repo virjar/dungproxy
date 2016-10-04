@@ -1,6 +1,7 @@
 package com.virjar.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.virjar.core.rest.ResponseEnvelope;
 import com.virjar.core.utils.ReturnUtil;
 import com.virjar.crawler.Collector;
@@ -37,23 +38,23 @@ public class SystemInfoController {
 
     @RequestMapping(value = "/static", method = RequestMethod.GET)
     @ResponseBody
-    public String avaiable() {
-        JSONArray jsonArray = new JSONArray();
+    public ResponseEntity<ResponseEnvelope<Object>> avaiable() {
         List<Collector> collecters = CollectorTask.getCollectors();
         if (collecters == null) {
             logger.info("server not start to collect proxy resource");
-            return jsonArray.toJSONString();
+            return ReturnUtil.retSuccess(collecters);
         }
+        List<Map<String, Object>> ret = Lists.newArrayList();
         for (Collector collecter : collecters) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("batchSize", collecter.getBatchsize());
-            jsonObject.put("lastUrl", collecter.getLastUrl());
-            jsonObject.put("collectNumber", collecter.getGetnumber());
-            jsonObject.put("hibtate", collecter.getHibrate());
-            jsonObject.put("website", collecter.getWebsite());
-            jsonObject.put("errorinfo", collecter.getErrorinfo());
-            jsonArray.add(jsonObject);
+            Map<String, Object> item = Maps.newHashMap();
+            item.put("batchSize", collecter.getBatchsize());
+            item.put("lastUrl", collecter.getLastUrl());
+            item.put("collectNumber", collecter.getGetnumber());
+            item.put("hibtate", collecter.getHibrate());
+            item.put("website", collecter.getWebsite());
+            item.put("errorinfo", collecter.getErrorinfo());
+            ret.add(item);
         }
-        return jsonArray.toJSONString();
+        return ReturnUtil.retSuccess(ret);
     }
 }

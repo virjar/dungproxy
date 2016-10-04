@@ -46,6 +46,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.virjar.ipproxy.ippool.config.ProxyConstant;
 import com.virjar.ipproxy.util.CharsetDetector;
 
 /**
@@ -307,8 +308,10 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
     public int getStatus(String url, String proxyIp, int proxyPort) throws IOException {
         HttpGet httpGet = new HttpGet(url);
-        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
-                .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
+                .setConnectTimeout(ProxyConstant.CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(ProxyConstant.REQUEST_TIMEOUT).setRedirectsEnabled(true)
+                .setCircularRedirectsAllowed(true);
         if (StringUtils.isNotEmpty(proxyIp)) {
             builder.setProxy(new HttpHost(proxyIp, proxyPort)).build();
         }
@@ -331,8 +334,10 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             url = url + URLEncodedUtils.format(params, "utf-8");
         }
         HttpGet httpGet = new HttpGet(url);
-        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
-                .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
+                .setConnectTimeout(ProxyConstant.CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(ProxyConstant.REQUEST_TIMEOUT).setRedirectsEnabled(true)
+                .setCircularRedirectsAllowed(true);
         if (StringUtils.isNotEmpty(proxyIp)) {
             builder.setProxy(new HttpHost(proxyIp, proxyPort)).build();
         }
@@ -366,7 +371,8 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     }
 
     public String post(String url, String entity) throws IOException {
-        return post(url, new StringEntity(entity, ContentType.TEXT_PLAIN), null, null, null, -1);
+        return post(url, new StringEntity(entity, ContentType.create("text/plain", Charset.defaultCharset())), null,
+                null, null, -1);
     }
 
     public String post(String url, Object entity) throws IOException {
@@ -396,8 +402,10 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             throws IOException {
 
         HttpPost httpPost = new HttpPost(url);
-        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
-                .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
+                .setConnectTimeout(ProxyConstant.CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(ProxyConstant.REQUEST_TIMEOUT).setRedirectsEnabled(true)
+                .setCircularRedirectsAllowed(true);
 
         if (StringUtils.isNotEmpty(proxyIp)) {
             builder.setProxy(new HttpHost(proxyIp, proxyPort)).build();
