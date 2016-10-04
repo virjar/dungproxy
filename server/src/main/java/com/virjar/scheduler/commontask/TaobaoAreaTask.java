@@ -17,7 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.google.common.util.concurrent.RateLimiter;
 import com.virjar.entity.Proxy;
-import com.virjar.ipproxy.httpclient.CrawlerHttpClient;
+import com.virjar.ipproxy.httpclient.HttpInvoker;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.utils.SysConfig;
 
@@ -60,7 +60,7 @@ public class TaobaoAreaTask extends CommonTask {
             Proxy proxy;
             JSONObject jsonObject;
             try {
-                String response = CrawlerHttpClient.getQuatity(TAOBAOURL + ipAddr);
+                String response = HttpInvoker.getQuiet(TAOBAOURL + ipAddr);
                 if (StringUtils.isEmpty(response)) {
                     return null;
                 }

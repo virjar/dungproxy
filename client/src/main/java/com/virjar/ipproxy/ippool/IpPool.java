@@ -2,15 +2,15 @@ package com.virjar.ipproxy.ippool;
 
 import java.util.Map;
 
-import com.virjar.ipproxy.ippool.strategy.resource.ResourceFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.virjar.ipproxy.ippool.config.Context;
 import com.virjar.ipproxy.ippool.config.ObjectFactory;
-import com.virjar.model.AvProxy;
+import com.virjar.ipproxy.ippool.strategy.resource.ResourceFacade;
 import com.virjar.ipproxy.util.CommonUtil;
+import com.virjar.model.AvProxy;
 
 /**
  * Description: IpListPool
@@ -24,19 +24,33 @@ public class IpPool {
 
     private Map<String, DomainPool> pool = Maps.newConcurrentMap();
 
+    private volatile boolean isRunning = false;
+
+    private FeedBackThread feedBackThread;
+    private FreshResourceThread freshResourceThread;
+
     private IpPool() {
         init();
     }
 
     private void init() {
-        new FeedBackThread().start();
-        new FreshResourceThread().start();
+        isRunning = true;
+        feedBackThread = new FeedBackThread();
+        freshResourceThread = new FreshResourceThread();
+        feedBackThread.start();
+        freshResourceThread.start();
     }
 
     private static IpPool instance = new IpPool();
 
     public static IpPool getInstance() {
         return instance;
+    }
+
+    public void destroy() {
+        isRunning = false;
+        feedBackThread.interrupt();
+        freshResourceThread.interrupt();
     }
 
     public AvProxy bind(String host, String url, Object userID) {
@@ -55,7 +69,7 @@ public class IpPool {
     private class FeedBackThread extends Thread {
         @Override
         public void run() {
-            while (true) {
+            while (isRunning) {
                 for (DomainPool domainPool : pool.values()) {
                     try {
                         domainPool.feedBack();
@@ -72,7 +86,7 @@ public class IpPool {
     private class FreshResourceThread extends Thread {
         @Override
         public void run() {
-            while (true) {
+            while (isRunning) {
                 for (DomainPool domainPool : pool.values()) {
                     try {
                         if (domainPool.needFresh()) {

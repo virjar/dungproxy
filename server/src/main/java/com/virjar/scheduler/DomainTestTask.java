@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.Proxy;
-import com.virjar.ipproxy.httpclient.CrawlerHttpClient;
+import com.virjar.ipproxy.httpclient.HttpInvoker;
 import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.DomainIpModel;
 import com.virjar.model.DomainMetaModel;
@@ -79,8 +79,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
         }
         if (!instance.isRunning) {
             try {
-                CrawlerHttpClient
-                        .get(String.format(SysConfig.getInstance().get("system.domain.test.forward.url"), url));
+                HttpInvoker.get(String.format(SysConfig.getInstance().get("system.domain.test.forward.url"), url));
                 return true;// TODO
             } catch (IOException e) {
                 logger.error("error when forward domain test task to sub server");

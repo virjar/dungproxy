@@ -124,7 +124,7 @@ public class CollectorTask implements Runnable, InitializingBean {
             if (aLong != null && System.currentTimeMillis() < aLong) {
                 return this;
             }
-            List<Proxy> draftproxys = collector.newProxy(proxyRepository);
+            List<Proxy> draftproxys = collector.newProxy();
             // logger.info("收集到的新资源:{}", JSON.toJSONString(draftproxys));
             ResourceFilter.filter(draftproxys);
             proxyService.save(beanMapper.mapAsList(draftproxys, ProxyModel.class));

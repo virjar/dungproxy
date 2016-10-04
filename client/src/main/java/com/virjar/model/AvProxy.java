@@ -39,7 +39,7 @@ public class AvProxy {
 
     public void recordFailed() {
         failedCount.incrementAndGet();
-        if (Context.getInstance().getOffliner().needOffline(failedCount.get(), failedCount.get())) {
+        if (Context.getInstance().getOffliner().needOffline(referCount.get(), failedCount.get())) {
             offline();// 资源下线,下次将不会分配这个IP了
         }
     }

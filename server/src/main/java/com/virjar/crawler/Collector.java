@@ -7,10 +7,11 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -18,13 +19,10 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Lists;
 import com.virjar.crawler.extractor.XmlModeFetcher;
 import com.virjar.entity.Proxy;
-import com.virjar.repository.ProxyRepository;
-import com.virjar.utils.net.DefaultHtmlUnitResultWait;
-import com.virjar.utils.net.HttpInvoker;
-import com.virjar.utils.net.HttpResult;
+import com.virjar.ipproxy.httpclient.HttpInvoker;
+import com.virjar.ipproxy.util.PoolUtil;
 
 public class Collector {
 
@@ -44,10 +42,6 @@ public class Collector {
 
     private long hibrate = 20000;
 
-    private boolean javascript = false;
-
-    private DefaultHtmlUnitResultWait resultwait;
-
     private Logger logger = Logger.getLogger(Collector.class);
 
     private long getnumber = 0;
@@ -58,7 +52,7 @@ public class Collector {
 
     private int sucessTimes = 0;
 
-    private boolean useProxy = false;
+    private HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
 
     private String lastUrl = "";
 
@@ -106,14 +100,6 @@ public class Collector {
         this.hibrate = hibrate;
     }
 
-    public boolean isJavascript() {
-        return javascript;
-    }
-
-    public void setJavascript(boolean javascript) {
-        this.javascript = javascript;
-    }
-
     public long getGetnumber() {
         return getnumber;
     }
@@ -122,56 +108,7 @@ public class Collector {
         this.getnumber = getnumber;
     }
 
-    private List<Proxy> avaliableProxy = Lists.newArrayList();
-
-    private Proxy randomChooseOne(List<Proxy> proxies) {
-        Random random = new Random();
-        return proxies.get(random.nextInt(proxies.size()));
-    }
-
-    private volatile boolean isPrehotting = false;
-
-    private class PreHotThread extends Thread {
-        private String testUrl;
-        private List<Proxy> proxies;
-
-        public PreHotThread(List<Proxy> proxies, String testUrl) {
-            this.proxies = proxies;
-            this.testUrl = testUrl;
-        }
-
-        @Override
-        public void run() {
-            if (isPrehotting) {
-                return;
-            }
-            isPrehotting = true;
-            List<Proxy> realProxy = Lists.newArrayList();
-            for (Proxy proxy : proxies) {
-                if (proxy.getTransperent() != 0) {
-                    continue;
-                }
-                HttpInvoker httpInvoker = new HttpInvoker(testUrl);
-                httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
-                for (int i = 0; i < 3; i++) {
-                    try {
-                        HttpResult request = httpInvoker.request();
-                        if ((request.getStatusCode() == 200 && StringUtils.isNoneBlank(request.getResponseBody()))
-                                || request.getStatusCode() == 302) {
-                            realProxy.add(proxy);
-                            break;
-                        }
-                    } catch (IOException e) {
-                        // do Nothing
-                    }
-                }
-            }
-            avaliableProxy = realProxy;
-            isPrehotting = false;
-        }
-    }
-
-    public List<Proxy> newProxy(ProxyRepository proxyRepository) {
+    public List<Proxy> newProxy() {
         int num = 0;
         int failedtimes = 0;
         String url = "";
@@ -183,30 +120,15 @@ public class Collector {
         lastactivity = System.currentTimeMillis();
         while (num < batchsize) {
             try {
-                HttpResult result = null;
                 url = urlGenerator.newURL();
                 lastUrl = url;
-                HttpInvoker httpInvoker = new HttpInvoker(url);
-                if (useProxy) {
-                    Proxy proxy;
-                    if (avaliableProxy.size() == 0) {
-                        List<Proxy> available = proxyRepository.findAvailable();
-                        new PreHotThread(available, url).start();
-                    } else {
-                        proxy = randomChooseOne(avaliableProxy);
-                        httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
-                    }
-
-                }
-                if (!javascript) {
-                    result = httpInvoker.request();
-                } else {
-                    result = httpInvoker.requestFromHtmlUnit(resultwait);
-                }
-                if (result.getStatusCode() == 200) {
-                    List<String> fetchresult = fetcher.fetch(result.responseBody);
+                String response = HttpInvoker.get(url, httpClientContext);
+                if (StringUtils.isNotEmpty(response)) {
+                    List<String> fetchresult = fetcher.fetch(response);
+                    // 异常会自动记录代理IP使用失败,这里的情况是请求成功,但是网页可能不是正确的,当然这个反馈可能不是完全准确的,不过也无所谓,本身IP下线是在失败率达到一定的量的情况
                     if (fetchresult.size() == 0) {
-
+                        PoolUtil.recordFailed(httpClientContext);
+                        failedtimes++;
                     } else {
                         failedtimes = 0;
                         sucessTimes++;
@@ -238,8 +160,9 @@ public class Collector {
                 }
                 errorinfo = url + ":" + e;
                 failedTimes++;
+                failedtimes++;
             }
-            failedtimes++;
+
             if (failedtimes > 3) {
                 return ret;
             }
@@ -287,8 +210,6 @@ public class Collector {
                                 e.printStackTrace();
                             }
                         }
-
-                        collecter.useProxy = "true".equals(next.elementText("useproxy"));
 
                         collecter.fetcher = new XmlModeFetcher(
                                 IOUtils.toString(Collector.class.getResourceAsStream(next.elementText("fetcher"))));

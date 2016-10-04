@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Splitter;
+import com.virjar.ipproxy.httpclient.HttpInvoker;
 import com.virjar.model.AvailbelCheckResponse;
 import com.virjar.model.ProxyModel;
 
@@ -112,8 +113,11 @@ public class ProxyUtil {
     private static AvailbelCheckResponse httpCheck(ProxyModel p) {
         try {
             long start = System.currentTimeMillis();
-            String response = BrowserHttpClientPool.getInstance().borrow().setProxy(p.getIp(), p.getPort()).get(
-                    keysourceurl + "?ip=" + p.getIp() + "&port=" + p.getPort(), new Header[] { Constant.CHECK_HEADER });
+            String response = HttpInvoker.get(keysourceurl + "?ip=" + p.getIp() + "&port=" + p.getPort(),
+                    new Header[] { Constant.CHECK_HEADER }, p.getIp(), p.getPort());
+            if (StringUtils.isEmpty(response)) {
+                return null;
+            }
             AvailbelCheckResponse availbelCheckResponse = JSONUtils.parse(response, AvailbelCheckResponse.class);
             if (availbelCheckResponse != null
                     && AvailbelCheckResponse.staticKey.equals(availbelCheckResponse.getKey())) {
@@ -137,8 +141,7 @@ public class ProxyUtil {
         for (int i = 0; i < 3; i++) {
             try {
                 // 可能有问题,资源不可用,响应也有可能不是空。需要客户端代理失败决策方案出来之后进行优化
-                int status = BrowserHttpClientPool.getInstance().borrow().setProxy(ip, port).getStatus(url, null);
-                return status == 200;
+                return HttpInvoker.getStatus(url, ip, port) == 200;
             } catch (IOException e) {
                 // do nothing
             }
