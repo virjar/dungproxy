@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.virjar.ipproxy.ippool.strategy.serialization.JSONFileAvProxyDumper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -17,6 +16,7 @@ import com.virjar.ipproxy.ippool.strategy.proxydomain.BlackListProxyStrategy;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.ProxyDomainStrategy;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.WhiteListProxyStrategy;
 import com.virjar.ipproxy.ippool.strategy.serialization.AvProxyDumper;
+import com.virjar.ipproxy.ippool.strategy.serialization.JSONFileAvProxyDumper;
 
 /**
  * client配置 Created by virjar on 16/9/30.
@@ -135,6 +135,41 @@ public class Context {
 
         public ConfigBuilder setResouceFace(String resouceFace) {
             this.resouceFace = resouceFace;
+            return this;
+        }
+
+        public ConfigBuilder setAvDumper(String avDumper) {
+            this.avDumper = avDumper;
+            return this;
+        }
+
+        public ConfigBuilder setDefaultAvDumpeFileName(String defaultAvDumpeFileName) {
+            this.defaultAvDumpeFileName = defaultAvDumpeFileName;
+            return this;
+        }
+
+        public ConfigBuilder setFeedBackDuration(String feedBackDuration) {
+            this.feedBackDuration = feedBackDuration;
+            return this;
+        }
+
+        public ConfigBuilder setOffliner(String offliner) {
+            this.offliner = offliner;
+            return this;
+        }
+
+        public ConfigBuilder setProxyDomainStrategy(String proxyDomainStrategy) {
+            this.proxyDomainStrategy = proxyDomainStrategy;
+            return this;
+        }
+
+        public ConfigBuilder setProxyDomainStrategyBlackList(String proxyDomainStrategyBlackList) {
+            this.proxyDomainStrategyBlackList = proxyDomainStrategyBlackList;
+            return this;
+        }
+
+        public ConfigBuilder setProxyDomainStrategyWhiteList(String proxyDomainStrategyWhiteList) {
+            this.proxyDomainStrategyWhiteList = proxyDomainStrategyWhiteList;
             return this;
         }
 

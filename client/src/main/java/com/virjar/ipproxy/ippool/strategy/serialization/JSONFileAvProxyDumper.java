@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.virjar.ipproxy.ippool.config.ProxyConstant;
+import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.AvProxy;
 
 /**
@@ -37,7 +38,8 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
     public void serializeProxy(Map<String, List<AvProxy>> data) {
         BufferedWriter bufferedWriter = null;
         try {
-            bufferedWriter = Files.newWriter(new File(trimFileName()), Charset.defaultCharset());
+            bufferedWriter = Files.newWriter(new File(CommonUtil.ensurePathExist(trimFileName())),
+                    Charset.defaultCharset());
             bufferedWriter.write(JSONObject.toJSONString(data));
         } catch (IOException e) {// 发生异常打印日志,但是不抛异常,因为不会影响正常逻辑
             logger.error("error when serialize proxy data", e);
@@ -56,12 +58,16 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
             JSONObject jsonObject = JSONObject
                     .parseObject(Files.toString(new File(trimFileName()), Charset.defaultCharset()));
             for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                ret.put(entry.getKey(), Lists.transform(JSONArray.class.cast(entry.getValue()).subList(0, JSONArray.class.cast(entry.getValue()).size()), new Function<Object, AvProxy>() {
-                    @Override
-                    public AvProxy apply(Object input) {
-                        return JSONObject.toJavaObject(JSONObject.class.cast(input), AvProxy.class);
-                    }
-                }));
+                ret.put(entry.getKey(),
+                        Lists.transform(
+                                JSONArray.class.cast(entry.getValue()).subList(0,
+                                        JSONArray.class.cast(entry.getValue()).size()),
+                                new Function<Object, AvProxy>() {
+                                    @Override
+                                    public AvProxy apply(Object input) {
+                                        return JSONObject.toJavaObject(JSONObject.class.cast(input), AvProxy.class);
+                                    }
+                                }));
             }
         } catch (FileNotFoundException e) {
             logger.error("error when unSerializeProxy proxy data", e);
@@ -85,10 +91,5 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
         }
         String classPath = JSONFileAvProxyDumper.class.getResource("/").getFile();
         return new File(classPath, dumpFileName).getAbsolutePath();
-    }
-
-    public static void main(String[] args) {
-        JSONFileAvProxyDumper defaultAvProxyDumper = new JSONFileAvProxyDumper("abc/test.txt");
-        System.out.println(defaultAvProxyDumper.trimFileName());
     }
 }

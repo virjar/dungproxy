@@ -28,7 +28,7 @@ import com.virjar.service.DomainMetaService;
 import com.virjar.vo.DomainMetaVO;
 
 @Controller
-@RequestMapping("/proxyip2")
+@RequestMapping("/proxyipcenter")
 public class DomainMetaRestApiController {
     private final Logger logger = LoggerFactory.getLogger(DomainMetaRestApiController.class);
 

@@ -110,17 +110,7 @@ public class DomainPool {
     public void fresh() {
         List<AvProxy> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
                 coreSize);
-        if (readWriteLock.writeLock().tryLock()) {
-            try {
-                for (AvProxy avProxy : avProxies) {
-                    avProxy.setDomainPool(this);
-                    consistentBuckets.put(avProxy.hashCode(), avProxy);
-                }
-            } finally {
-                readWriteLock.writeLock().unlock();
-            }
-        }
-
+        addAvailable(avProxies);
     }
 
     /**

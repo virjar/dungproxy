@@ -139,7 +139,7 @@ public class DistributeService {
             return Lists.newArrayList();
         }
         List<DomainIp> domainIps = domainIpRepository.selectAvailable(domain, new PageRequest(0, Integer.MAX_VALUE));
-        if (domainIps.size() == 0 && !StringUtils.isEmpty(checkUrl)) {
+        if (StringUtils.isNotEmpty(checkUrl)) {
             DomainTestTask.sendDomainTask(checkUrl);
         }
         return domainIps;
