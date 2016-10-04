@@ -123,12 +123,18 @@ public class Collector {
                 url = urlGenerator.newURL();
                 lastUrl = url;
                 String response = HttpInvoker.get(url, httpClientContext);
+                if (StringUtils.isEmpty(response)) {
+                    PoolUtil.recordFailed(httpClientContext);
+                }
                 if (StringUtils.isNotEmpty(response)) {
                     List<String> fetchresult = fetcher.fetch(response);
                     // 异常会自动记录代理IP使用失败,这里的情况是请求成功,但是网页可能不是正确的,当然这个反馈可能不是完全准确的,不过也无所谓,本身IP下线是在失败率达到一定的量的情况
                     if (fetchresult.size() == 0) {
-                        PoolUtil.recordFailed(httpClientContext);
+                        //PoolUtil.recordFailed(httpClientContext);
                         failedtimes++;
+                        if (failedtimes > 3) {
+                            return ret;
+                        }
                     } else {
                         failedtimes = 0;
                         sucessTimes++;
@@ -163,9 +169,6 @@ public class Collector {
                 failedtimes++;
             }
 
-            if (failedtimes > 3) {
-                return ret;
-            }
         }
         getnumber += ret.size();
         if (ret.size() == 0) {

@@ -113,6 +113,9 @@ public class DomainIpServiceImpl implements DomainIpService {
         // List<ProxyModel> ret = Lists.newArrayList();
         // 不能这么做,这样会有大量查询请求,为处理瓶颈
         List<Long> ids = Lists.newArrayList();
+        if (domainIpModels.size() == 0) {
+            return Lists.newArrayList();
+        }
         for (DomainIpModel domainIpModel : domainIpModels) {
             ids.add(domainIpModel.getProxyId());
         }

@@ -73,18 +73,23 @@ public class DomainTestTask implements Runnable, InitializingBean {
         new Thread(this).start();
     }
 
-    public static boolean sendDomainTask(String url) {
+    public static boolean sendDomainTask(final String url) {
         if (instance == null) {
             return false;
         }
         if (!instance.isRunning) {
-            try {
-                HttpInvoker.get(String.format(SysConfig.getInstance().get("system.domain.test.forward.url"), url));
-                return true;// TODO
-            } catch (IOException e) {
-                logger.error("error when forward domain test task to sub server");
-                return false;
-            }
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        HttpInvoker
+                                .get(String.format(SysConfig.getInstance().get("system.domain.test.forward.url"), url));
+                    } catch (IOException e) {
+                        logger.error("error when forward domain test task to sub server");
+                    }
+                }
+            }.start();
+            return true;
         }
         return instance.addUrlTask(url);
     }

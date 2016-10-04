@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.core.rest.ResponseEnvelope;
@@ -106,14 +107,17 @@ public class ProxyRestApiController {
         return ReturnUtil.retSuccess(page);
     }
 
-    @RequestMapping("av")
+    @RequestMapping("/av")
     public ResponseEntity<ResponseEnvelope<Object>> avaliable(RequestForm requestForm) {
+        logger.info("distribute request:{}", JSONObject.toJSONString(requestForm));
         List<ProxyModel> distribute = distributeService.distribute(requestForm);
         Map<String, Object> ret = Maps.newHashMap();
         ret.put("sign", DistributedSign.resign(requestForm.getUsedSign(), distribute));
         ret.put("num", distribute.size());
         ret.put("data", beanMapper.mapAsList(distribute, ProxyVO.class));
-        return ReturnUtil.retSuccess(ret);
+        ResponseEntity<ResponseEnvelope<Object>> responseEnvelopeResponseEntity = ReturnUtil.retSuccess(ret);
+        logger.info("distribute result:{}", JSONObject.toJSONString(responseEnvelopeResponseEntity));
+        return responseEnvelopeResponseEntity;
     }
 
     /**
@@ -122,7 +126,7 @@ public class ProxyRestApiController {
      * @param feedBackForm
      * @return
      */
-    @RequestMapping("feedBack")
+    @RequestMapping("/feedBack")
     public ResponseEntity<ResponseEnvelope<Object>> feedBack(@RequestBody FeedBackForm feedBackForm,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

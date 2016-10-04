@@ -30,7 +30,7 @@ public class DefaultResourceFacade implements ResourceFacade {
     @Override
     public List<AvProxy> importProxy(String domain, String testUrl, Integer number) {
         if (number == null || number < 1) {
-            number = 10;
+            number = 30;
         }
         List<NameValuePair> valuePairList = Lists.newArrayList();
         valuePairList.add(new BasicNameValuePair("usedSign", downloadSign));

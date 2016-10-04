@@ -15,7 +15,7 @@ import com.virjar.entity.Proxy;
 public class ProxyListOrgTest {
     public static void main(String[] args) throws IOException, DocumentException {
         List<Collector> collectors = Collector.buildfromSource("/proxy-list_org.xml");
-        List<Proxy> proxies = collectors.get(0).newProxy(null);
+        List<Proxy> proxies = collectors.get(0).newProxy();
         System.out.println(JSONObject.toJSONString(proxies));
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 public class PachongOrgTest {
     public static void main(String[] args) throws IOException, DocumentException {
         List<Collector> collectors = Collector.buildfromSource("/pachong_org.xml");
-        List<Proxy> proxies = collectors.get(0).newProxy(null);
+        List<Proxy> proxies = collectors.get(0).newProxy();
         System.out.println(JSONObject.toJSONString(proxies));
     }
 }

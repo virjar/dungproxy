@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.virjar.ipproxy.ippool.config.Context;
 import com.virjar.ipproxy.ippool.config.ObjectFactory;
+import com.virjar.ipproxy.ippool.exception.PoolDestroyException;
 import com.virjar.ipproxy.ippool.strategy.resource.ResourceFacade;
 import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.AvProxy;
@@ -54,6 +55,9 @@ public class IpPool {
     }
 
     public AvProxy bind(String host, String url, Object userID) {
+        if (!isRunning) {
+            throw new PoolDestroyException();
+        }
         if (!pool.containsKey(host)) {
             synchronized (this) {
                 if (!pool.containsKey(host)) {

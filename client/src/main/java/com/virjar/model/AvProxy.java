@@ -31,10 +31,13 @@ public class AvProxy {
 
     private DomainPool domainPool;
 
+    private boolean disable = false;
+
     // 虽然加锁,但是锁等待概率很小
     public synchronized void reset() {
         referCount.set(0);
         failedCount.set(0);
+        disable = false;
     }
 
     public void recordFailed() {
@@ -49,6 +52,7 @@ public class AvProxy {
     }
 
     public void offline() {
+        disable = true;
         domainPool.offline(this);
     }
 
@@ -71,6 +75,10 @@ public class AvProxy {
         int result = ip != null ? ip.hashCode() : 0;
         result = 31 * result + (port != null ? port.hashCode() : 0);
         return result;
+    }
+
+    public boolean isDisable() {
+        return disable;
     }
 
     public long getAvgScore() {

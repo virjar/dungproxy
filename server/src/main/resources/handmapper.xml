@@ -6,7 +6,7 @@
         <fetcher>/fetcher/cn-proxy.xml</fetcher>
         <hierate>3h</hierate>
         <batchsize>5</batchsize>
-        <wildcardgenerator>http://cn-proxy.com/</wildcardgenerator>
+        <wildcardgenerator>http://cn-proxy.com/archives/218</wildcardgenerator>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
