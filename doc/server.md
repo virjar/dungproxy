@@ -34,7 +34,7 @@ server端使用java编写,使用maven管理项目,使用mysql作为数据库。�
 其他的应该没有了把,哦对了,项目存在多个profile,也就是resources.local,resources.beta,resources.prod等。他们叫做profile,是maven里面的概念,默认是resources.local生效的。如果想使用其他profile下面的配置,则增加 -Pprofile参数,如运行server ```mvn -Pskyee clean tomcat7:run```
 
 ### server接口事例
-``[http://115.159.40.202:8080/proxyipcenter/av?usedSign=&checkUrl=http%3A%2F%2Ffree-proxy-list.net%2F&domain=free-proxy-list.net&num=10](http://115.159.40.202:8080/proxyipcenter/av?usedSign=&checkUrl=http%3A%2F%2Ffree-proxy-list.net%2F&domain=free-proxy-list.net&num=10)``
+[http://115.159.40.202:8080/proxyipcenter/av?usedSign=&checkUrl=http%3A%2F%2Ffree-proxy-list.net%2F&domain=free-proxy-list.net&num=10](http://115.159.40.202:8080/proxyipcenter/av?usedSign=&checkUrl=http%3A%2F%2Ffree-proxy-list.net%2F&domain=free-proxy-list.net&num=10)
 ````
 {
      "data": {
