@@ -30,4 +30,5 @@ public class ProxyConstant {
     public static final int CONNECT_TIMEOUT = 30000;
     // 连接池分配连接超时时间,一般用处不大
     public static final int REQUEST_TIMEOUT = 30000;
+    public static final int SOCKETSO_TIMEOUT = 15000;
 }

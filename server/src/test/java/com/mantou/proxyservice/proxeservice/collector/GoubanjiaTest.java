@@ -8,6 +8,8 @@ import org.dom4j.DocumentException;
 import com.alibaba.fastjson.JSONObject;
 import com.virjar.crawler.Collector;
 import com.virjar.entity.Proxy;
+import com.virjar.ipproxy.ippool.IpPool;
+import com.virjar.ipproxy.ippool.config.Context;
 
 /**
  * Created by virjar on 16/9/15.
@@ -15,7 +17,13 @@ import com.virjar.entity.Proxy;
 public class GoubanjiaTest {
     public static void main(String[] args) throws IOException, DocumentException {
         List<Collector> collectors = Collector.buildfromSource("/proxy_goubanjia_com.xml");
-        List<Proxy> proxies = collectors.get(0).newProxy();
-        System.out.println(JSONObject.toJSONString(proxies));
+        Collector collector = collectors.get(0);
+
+        for (int i = 0; i < 30; i++) {
+            List<Proxy> proxies = collector.newProxy();
+            Context.getInstance().getAvProxyDumper().serializeProxy(IpPool.getInstance().getPoolInfo());
+            System.out.println(JSONObject.toJSONString(proxies));
+        }
+        IpPool.getInstance().destroy();
     }
 }

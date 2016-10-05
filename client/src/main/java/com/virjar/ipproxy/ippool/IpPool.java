@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.virjar.ipproxy.ippool.config.Context;
 import com.virjar.ipproxy.ippool.config.ObjectFactory;
@@ -92,8 +93,14 @@ public class IpPool {
     public Map<String, List<AvProxy>> getPoolInfo() {
         return Maps.transformValues(pool, new Function<DomainPool, List<AvProxy>>() {
             @Override
-            public List<AvProxy> apply(DomainPool domainPool) {
-                return domainPool.availableProxy();
+            public List<AvProxy> apply(DomainPool domainPool) {// copy 一份新数据出去,数据结构会给外部使用,随意暴露可能会导致数据错误
+                return Lists.transform(domainPool.availableProxy(), new Function<AvProxy, AvProxy>() {
+                    @Override
+                    public AvProxy apply(AvProxy input) {
+                        return input.copy();
+                    }
+                });
+
             }
         });
     }
@@ -103,6 +110,7 @@ public class IpPool {
         @Override
         public void run() {
             while (isRunning) {
+                CommonUtil.sleep(Context.getInstance().getFeedBackDuration());
                 Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo());
                 for (DomainPool domainPool : pool.values()) {
                     try {
@@ -111,7 +119,6 @@ public class IpPool {
                         logger.error("ip feedBack error for domain:{}", domainPool.getDomain(), e);
                     }
                 }
-                CommonUtil.sleep(Context.getInstance().getFeedBackDuration());
             }
         }
     }
@@ -127,10 +134,10 @@ public class IpPool {
                             domainPool.fresh();
                         }
                     } catch (Exception e) {
-                        logger.error("error when fresh ip pool for domain:{}", domainPool.getDomain());
+                        logger.error("error when fresh ip pool for domain:{}", domainPool.getDomain(), e);
                     }
                 }
-                CommonUtil.sleep(2000);
+                CommonUtil.sleep(4000);
             }
         }
     }

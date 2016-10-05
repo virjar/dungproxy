@@ -36,6 +36,19 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
 
     @Override
     public void serializeProxy(Map<String, List<AvProxy>> data) {
+        data = Maps.transformValues(data, new Function<List<AvProxy>, List<AvProxy>>() {
+            @Override
+            public List<AvProxy> apply(List<AvProxy> input) {
+                return Lists.transform(input, new Function<AvProxy, AvProxy>() {
+                    @Override
+                    public AvProxy apply(AvProxy input) {
+                        input.setDomainPool(null);
+                        return input;
+                    }
+                });
+            }
+        });
+
         BufferedWriter bufferedWriter = null;
         try {
             bufferedWriter = Files.newWriter(new File(CommonUtil.ensurePathExist(trimFileName())),
@@ -57,6 +70,10 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
         try {
             JSONObject jsonObject = JSONObject
                     .parseObject(Files.toString(new File(trimFileName()), Charset.defaultCharset()));
+            if (jsonObject == null) {
+                logger.warn("本地代理IP池序列化文件损坏");
+                return ret;
+            }
             for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
                 ret.put(entry.getKey(),
                         Lists.transform(

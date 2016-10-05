@@ -1,15 +1,13 @@
 package com.virjar.crawler;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.log4j.Logger;
@@ -19,9 +17,12 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.virjar.crawler.extractor.XmlModeFetcher;
 import com.virjar.entity.Proxy;
 import com.virjar.ipproxy.httpclient.HttpInvoker;
+import com.virjar.ipproxy.ippool.config.ObjectFactory;
+import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.ipproxy.util.PoolUtil;
 
 public class Collector {
@@ -31,10 +32,6 @@ public class Collector {
     private URLGenerator urlGenerator;
 
     private XmlModeFetcher fetcher;
-
-    private String charset = "utf-8";
-
-    private boolean hasdetectcharset = false;
 
     private String website = "";
 
@@ -68,22 +65,6 @@ public class Collector {
         this.batchsize = batchsize;
     }
 
-    public String getCharset() {
-        return charset;
-    }
-
-    public void setCharset(String charset) {
-        this.charset = charset;
-    }
-
-    public boolean isHasdetectcharset() {
-        return hasdetectcharset;
-    }
-
-    public void setHasdetectcharset(boolean hasdetectcharset) {
-        this.hasdetectcharset = hasdetectcharset;
-    }
-
     public String getWebsite() {
         return website;
     }
@@ -109,71 +90,64 @@ public class Collector {
     }
 
     public List<Proxy> newProxy() {
-        int num = 0;
-        int failedtimes = 0;
-        String url = "";
-        List<Proxy> ret = new ArrayList<Proxy>();
+        int failedTimes = 0;
+        List<Proxy> ret = Lists.newArrayList();
 
         if (System.currentTimeMillis() - lastactivity < hibrate) {
             return ret;
         }
         lastactivity = System.currentTimeMillis();
-        url = urlGenerator.newURL();
-        while (num < batchsize) {
+        lastUrl = urlGenerator.newURL();
+        while (ret.size() < batchsize) {
             try {
-                lastUrl = url;
-                PoolUtil.cleanProxy(httpClientContext);// 每次使用不用的代理IP
-                String response = HttpInvoker.get(url, httpClientContext);
+                String response = HttpInvoker.get(lastUrl, httpClientContext);
                 if (StringUtils.isEmpty(response)) {
                     PoolUtil.recordFailed(httpClientContext);
                 }
                 if (StringUtils.isNotEmpty(response)) {
-                    List<String> fetchresult = fetcher.fetch(response);
+                    List<Proxy> fetchResult = convert(fetcher.fetch(response), lastUrl);
                     // 异常会自动记录代理IP使用失败,这里的情况是请求成功,但是网页可能不是正确的,当然这个反馈可能不是完全准确的,不过也无所谓,本身IP下线是在失败率达到一定的量的情况
-                    if (fetchresult.size() == 0) {
-                        // PoolUtil.recordFailed(httpClientContext);
-                        failedtimes++;
-                        if (failedtimes > 3) {
-                            return ret;
+                    if (fetchResult.size() == 0) {
+                        PoolUtil.recordFailed(httpClientContext);
+                        failedTimes++;
+                        if (failedTimes > 5) {
+                            break;
                         }
                     } else {
-                        failedtimes = 0;
+                        PoolUtil.cleanProxy(httpClientContext);// 每次使用不用的代理IP
+                        failedTimes = 0;
                         sucessTimes++;
+                        ret.addAll(fetchResult);
+                        lastUrl = urlGenerator.newURL();
                     }
-                    for (String str : fetchresult) {
-                        num++;
-                        Proxy parseObject = null;
-                        try {
-                            parseObject = JSONObject.parseObject(str, Proxy.class);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            num--;
-                            continue;
-                        }
-                        parseObject.setAvailbelScore(0L);
-                        parseObject.setConnectionScore(0L);
-                        parseObject.setSource(url);
-                        ret.add(parseObject);
-                    }
-                    if (fetchresult.size() == 0) {
-                        urlGenerator.reset();
-                    }
-                    Thread.sleep(2000);
-                    url = urlGenerator.newURL();
                 }
             } catch (Exception e) {// 发生socket异常不切换url
-                if (!(e instanceof SocketTimeoutException) && !(e instanceof SocketException)) {
-                    PoolUtil.recordFailed(httpClientContext);
-                }
-                errorinfo = url + ":" + e;
+                errorinfo = lastUrl + ":" + e;
                 failedTimes++;
-                failedtimes++;
             }
 
         }
+        this.failedTimes += failedTimes;
         getnumber += ret.size();
-        if (ret.size() == 0) {
-            logger.info("empty resource for :" + url);
+        return ret;
+    }
+
+    public List<Proxy> convert(List<String> fetchResult, String source) {
+        List<Proxy> ret = Lists.newArrayList();
+        for (String str : fetchResult) {
+            try {
+                Proxy parseObject = JSONObject.parseObject(str, Proxy.class);
+                if (!CommonUtil.isIPAddress(parseObject.getIp())) {
+                    continue;
+                }
+                parseObject.setAvailbelScore(0L);
+                parseObject.setConnectionScore(0L);
+                parseObject.setSource(source);
+                ret.add(parseObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
         return ret;
     }
@@ -195,45 +169,33 @@ public class Collector {
                         if (!"true".equals(next.element("enable").getTextTrim())) {
                             continue;
                         }
-                        Collector collecter = new Collector();
-                        collecter.website = next.elementText("website");
+                        Collector collector = new Collector();
+                        collector.website = next.elementText("website");
                         String hierate = next.elementText("hierate");
-                        collecter.hibrate = parseTime(hierate);
+                        collector.hibrate = parseTime(hierate);
 
-                        String usecharset = next.elementText("charset");
-                        if (usecharset != null) {
-                            collecter.charset = usecharset;
-                        }
                         String bachSize = next.elementText("batchsize");
-                        collecter.batchsize = 30;
+                        collector.batchsize = 30;
                         if (bachSize != null) {
-                            try {
-                                collecter.batchsize = Integer.parseInt(bachSize);
-                            } catch (Exception e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
+                            collector.batchsize = NumberUtils.toInt(bachSize, collector.batchsize);
                         }
 
-                        collecter.fetcher = new XmlModeFetcher(
+                        collector.fetcher = new XmlModeFetcher(
                                 IOUtils.toString(Collector.class.getResourceAsStream(next.elementText("fetcher"))));
                         Element classgenerator = next.element("classgenerator");
                         boolean hasagenerator = false;
                         if (classgenerator != null && !"".equals(classgenerator.getTextTrim())) {
-                            Class<? extends URLGenerator> clazz = (Class<? extends URLGenerator>) Collector.class
-                                    .getClassLoader().loadClass(classgenerator.getTextTrim());
-                            Constructor<? extends URLGenerator> constructor = clazz.getConstructor();
-                            collecter.urlGenerator = (URLGenerator) constructor.newInstance();
+                            collector.urlGenerator = ObjectFactory.newInstance(classgenerator.getTextTrim());
                             hasagenerator = true;
                         }
                         Element wildcardgenerator = next.element("wildcardgenerator");
                         if (!hasagenerator && wildcardgenerator != null
                                 && !"".equals(wildcardgenerator.getTextTrim())) {
-                            collecter.urlGenerator = new WildCardURLGenerator(wildcardgenerator.getTextTrim());
+                            collector.urlGenerator = new WildCardURLGenerator(wildcardgenerator.getTextTrim());
                             hasagenerator = true;
                         }
                         if (hasagenerator) {
-                            ret.add(collecter);
+                            ret.add(collector);
                         }
                     } catch (Exception e) {
 

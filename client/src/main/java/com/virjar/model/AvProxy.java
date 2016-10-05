@@ -128,4 +128,17 @@ public class AvProxy {
     public void setDomainPool(DomainPool domainPool) {
         this.domainPool = domainPool;
     }
+
+    public AvProxy copy() {
+        AvProxy newProxy = new AvProxy();
+        newProxy.domainPool = domainPool;
+        newProxy.avgScore = avgScore;
+        newProxy.disable = disable;
+        newProxy.failedCount = failedCount;
+        newProxy.ip = ip;
+        newProxy.isInit = isInit;
+        newProxy.port = port;
+        newProxy.referCount = referCount;
+        return newProxy;
+    }
 }

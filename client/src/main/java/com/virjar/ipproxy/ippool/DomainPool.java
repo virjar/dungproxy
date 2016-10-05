@@ -1,6 +1,7 @@
 package com.virjar.ipproxy.ippool;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -39,6 +40,8 @@ public class DomainPool {
 
     private static final Logger logger = LoggerFactory.getLogger(DomainPool.class);
 
+    private AtomicBoolean isRefreshing = new AtomicBoolean(false);
+
     public DomainPool(String domain, ResourceFacade resourceFacade) {
         this(domain, resourceFacade, null);
     }
@@ -62,7 +65,7 @@ public class DomainPool {
                 consistentBuckets.put(avProxy.hashCode(), avProxy);
             }
         } finally {
-            readWriteLock.readLock().unlock();
+            readWriteLock.writeLock().unlock();
         }
     }
 
@@ -102,15 +105,18 @@ public class DomainPool {
     public void feedBack() {
         resourceFacade.feedBack(domain, Lists.newArrayList(consistentBuckets.values()), removedProxies);
         removedProxies.clear();
-        for (AvProxy avProxy : consistentBuckets.values()) {
+       /* for (AvProxy avProxy : consistentBuckets.values()) {
             avProxy.reset();
-        }
+        }*/
     }
 
     public void fresh() {
-        List<AvProxy> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
-                coreSize);
-        addAvailable(avProxies);
+        if (isRefreshing.compareAndSet(false, true)) {
+            List<AvProxy> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
+                    coreSize);
+            addAvailable(avProxies);
+            isRefreshing.set(false);
+        }
     }
 
     /**

@@ -9,6 +9,9 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.SocketConfig;
+
+import com.virjar.ipproxy.ippool.config.ProxyConstant;
 
 /**
  * 以静态方式封装httpclient,方便的http请求客户端<br/>
@@ -17,7 +20,10 @@ import org.apache.http.client.protocol.HttpClientContext;
 public class HttpInvoker {
     private static CrawlerHttpClient crawlerHttpClient;
     static {// TODO 是否考虑cookie reject
-        crawlerHttpClient = CrawlerHttpClientBuilder.create().build();
+        SocketConfig socketConfig = SocketConfig.custom().setSoKeepAlive(true).setSoLinger(-1).setSoReuseAddress(false)
+                .setSoTimeout(ProxyConstant.SOCKETSO_TIMEOUT).setTcpNoDelay(true).build();
+        crawlerHttpClient = CrawlerHttpClientBuilder.create().setMaxConnTotal(400).setMaxConnPerRoute(50)
+                .setDefaultSocketConfig(socketConfig).build();
     }
 
     public static String get(String url, List<NameValuePair> nameValuePairs, Header[] headers, String proxyIp,
