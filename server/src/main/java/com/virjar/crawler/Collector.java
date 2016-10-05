@@ -105,6 +105,10 @@ public class Collector {
                 String response = HttpInvoker.get(lastUrl, httpClientContext);
                 if (StringUtils.isEmpty(response)) {
                     PoolUtil.recordFailed(httpClientContext);
+                    failedTimes++;
+                    if (failedTimes > 5) {
+                        break;
+                    }
                 }
                 if (StringUtils.isNotEmpty(response)) {
                     List<Proxy> fetchResult = convert(fetcher.fetch(response), lastUrl);
@@ -126,6 +130,9 @@ public class Collector {
             } catch (Exception e) {// 发生socket异常不切换url
                 errorinfo = lastUrl + ":" + e;
                 failedTimes++;
+                if (failedTimes > 5) {
+                    break;
+                }
             }
 
         }
