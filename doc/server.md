@@ -36,7 +36,7 @@ server端使用java编写,使用maven管理项目,使用mysql作为数据库。�
 ### server接口事例
 ``[http://115.159.40.202:8080/proxyipcenter/av?usedSign=&checkUrl=http%3A%2F%2Ffree-proxy-list.net%2F&domain=free-proxy-list.net&num=10](http://115.159.40.202:8080/proxyipcenter/av?usedSign=&checkUrl=http%3A%2F%2Ffree-proxy-list.net%2F&domain=free-proxy-list.net&num=10)``
 ````
-{{
+{
      "data": {
          "data": [
              {
