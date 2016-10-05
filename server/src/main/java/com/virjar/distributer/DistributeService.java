@@ -56,6 +56,9 @@ public class DistributeService {
     public Boolean feedBack(FeedBackForm feedBackForm) {
         List<AvProxy> avProxys = feedBackForm.getAvProxy();
         for (AvProxy avProxy : avProxys) {
+            if (avProxy.getReferCount() == 0) {
+                continue;// 这个时候不计入可用IP
+            }
             DomainIpModel domainIpModel = domainIpService.get(feedBackForm.getDomain(), avProxy.getIp(),
                     avProxy.getPort());
             if (domainIpModel == null) {

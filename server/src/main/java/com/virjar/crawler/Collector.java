@@ -10,11 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
@@ -39,7 +40,7 @@ public class Collector {
 
     private long hibrate = 20000;
 
-    private Logger logger = Logger.getLogger(Collector.class);
+    private Logger logger = LoggerFactory.getLogger(Collector.class);
 
     private long getnumber = 0;
 
@@ -100,6 +101,7 @@ public class Collector {
         lastUrl = urlGenerator.newURL();
         while (ret.size() < batchsize) {
             try {
+                logger.info("request url:{}", lastUrl);
                 String response = HttpInvoker.get(lastUrl, httpClientContext);
                 if (StringUtils.isEmpty(response)) {
                     PoolUtil.recordFailed(httpClientContext);
