@@ -4,3 +4,6 @@ DrungProxy是一个代理IP服务,他包括一个代理IP资源server端和一�
 ## [server相关说明](./doc/server.md )
 
 ## [java client相关说明](./doc/client.md)
+
+qq group 
+> 569543649
