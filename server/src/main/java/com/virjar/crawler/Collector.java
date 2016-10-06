@@ -101,7 +101,7 @@ public class Collector {
         lastUrl = urlGenerator.newURL();
         while (ret.size() < batchsize) {
             try {
-                logger.info("request url:{}", lastUrl);
+                logger.info("request url:{} failedTimes:{}", lastUrl, failedTimes);
                 String response = HttpInvoker.get(lastUrl, httpClientContext);
                 if (StringUtils.isEmpty(response)) {
                     PoolUtil.recordFailed(httpClientContext);
