@@ -117,6 +117,7 @@ public class Collector {
                         PoolUtil.recordFailed(httpClientContext);
                         failedTimes++;
                         if (failedTimes > 5) {
+                            urlGenerator.reset();
                             break;
                         }
                     } else {
