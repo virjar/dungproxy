@@ -97,6 +97,7 @@ public class Collector {
         if (System.currentTimeMillis() - lastactivity < hibrate) {
             return ret;
         }
+        logger.info("begin collector:{}", this.website);
         lastactivity = System.currentTimeMillis();
         lastUrl = urlGenerator.newURL();
         while (ret.size() < batchsize) {
@@ -125,6 +126,7 @@ public class Collector {
                         failedTimes = 0;
                         sucessTimes++;
                         ret.addAll(fetchResult);
+                        CommonUtil.sleep(2000);
                         lastUrl = urlGenerator.newURL();
                     }
                 }
