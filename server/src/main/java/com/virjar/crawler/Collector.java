@@ -54,6 +54,9 @@ public class Collector {
 
     private String lastUrl = "";
 
+    // 如果存在,拿到key代表数据成功获取,而不是通过是否提取到数据来判定是否成功
+    private String sucessKey = null;
+
     public String getErrorinfo() {
         return errorinfo;
     }
@@ -115,11 +118,14 @@ public class Collector {
                     List<Proxy> fetchResult = convert(fetcher.fetch(response), lastUrl);
                     // 异常会自动记录代理IP使用失败,这里的情况是请求成功,但是网页可能不是正确的,当然这个反馈可能不是完全准确的,不过也无所谓,本身IP下线是在失败率达到一定的量的情况
                     if (fetchResult.size() == 0) {
-                        PoolUtil.recordFailed(httpClientContext);
                         failedTimes++;
-                        if (failedTimes > 5) {
-                            urlGenerator.reset();
-                            break;
+                        if (StringUtils.isEmpty(sucessKey) || !StringUtils.contains(response, sucessKey)) {
+                            PoolUtil.recordFailed(httpClientContext);// 这种情况不reset url,属于代理失败
+                        } else {
+                            if (failedTimes > 5) {
+                                urlGenerator.reset();
+                                break;
+                            }
                         }
                     } else {
                         PoolUtil.cleanProxy(httpClientContext);// 每次使用不用的代理IP
@@ -191,6 +197,8 @@ public class Collector {
                         if (bachSize != null) {
                             collector.batchsize = NumberUtils.toInt(bachSize, collector.batchsize);
                         }
+
+                        collector.sucessKey = next.elementText("successKey");
 
                         collector.fetcher = new XmlModeFetcher(
                                 IOUtils.toString(Collector.class.getResourceAsStream(next.elementText("fetcher"))));

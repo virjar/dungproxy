@@ -8,18 +8,9 @@
         <batchsize>5</batchsize>
         <wildcardgenerator>http://cn-proxy.com/archives/218</wildcardgenerator>
         <enable>true</enable>
-        <useproxy>true</useproxy>
+        <successKey>代理服务器</successKey>
     </maper>
-    <maper>
-        <website>http://cn-proxy.com/</website>
-        <fetcher>/fetcher/cn-proxy.xml</fetcher>
-        <hierate>3h</hierate>
-        <batchsize>5</batchsize>
-        <wildcardgenerator>http://cn-proxy.com/archives/218
-        </wildcardgenerator>
-        <enable>true</enable>
-        <useproxy>true</useproxy>
-    </maper>
+
     <maper>
         <!-- 翻墙加按钮点击验证 -->
         <website>http://free-proxy.cz/en/</website>
@@ -28,6 +19,7 @@
         </wildcardgenerator>
         <batchsize>1000</batchsize>
         <hierate>5m</hierate>
+        <successKey>proxy servers in our database</successKey>
         <enable>false</enable>
     </maper>
     <maper>
@@ -38,7 +30,7 @@
         <hierate>3h</hierate>
         <batchsize>5</batchsize>
         <enable>true</enable>
-        <useproxy>true</useproxy>
+        <successKey>Just Checked Proxy List</successKey>
     </maper>
     <maper>
         <!-- 国外网站，估计需要翻墙，这个待后续框架扩展之后使用 -->
@@ -47,7 +39,7 @@
         <classgenerator></classgenerator>
         <wildcardgenerator></wildcardgenerator>
         <enable>true</enable>
-        <useproxy>true</useproxy>
+        <successKey>Proxy type influences the way you can use it</successKey>
     </maper>
     <maper>
         <website>http://ip.baizhongsou.com/</website>
@@ -56,6 +48,7 @@
         <batchsize>5</batchsize>
         <wildcardgenerator>http://ip.baizhongsou.com/</wildcardgenerator>
         <enable>true</enable>
+        <successKey>免费HTTP代理服务器IP</successKey>
     </maper>
     <maper>
         <website>http://ip.izmoney.com/</website>
@@ -64,6 +57,7 @@
         <batchsize>5</batchsize>
         <wildcardgenerator>http://ip.izmoney.com/</wildcardgenerator>
         <enable>true</enable>
+        <successKey>免费代理IP列表</successKey>
     </maper>
 
     <maper>
@@ -90,10 +84,6 @@
         <fetcher>/fetcher/pachong_org.xml</fetcher>
         <classgenerator></classgenerator>
         <hierate>3h</hierate>
-        <!-- javaScript功能暂时存在问题
-        <javasript>true</javasript>
-        <minusflag>document.write</minusflag>
-         -->
         <wildcardgenerator>http://pachong.org/</wildcardgenerator>
         <enable>true</enable>
     </maper>
@@ -104,6 +94,7 @@
         <classgenerator></classgenerator>
         <wildcardgenerator>http://proxy.goubanjia.com/</wildcardgenerator>
         <enable>true</enable>
+        <successKey>你们的代理IP是怎么获取到的</successKey>
     </maper>
     <maper>
         <!-- 国外网站,需要翻墙,同时因为存在特殊代码片段植入,所以暂时不开启-->
@@ -114,8 +105,9 @@
         </wildcardgenerator>
         <batchsize>5</batchsize>
         <hierate>1m</hierate>
+        <successKey>showmyip.php</successKey>
         <enable>true</enable>
-        <useproxy>true</useproxy>
+        
     </maper>
     <maper>
         <!-- 国外网站，目前国内不可访问  可以做,css代码混淆-->
@@ -124,7 +116,7 @@
         <classgenerator></classgenerator>
         <wildcardgenerator></wildcardgenerator>
         <enable>false</enable>
-        <useproxy>true</useproxy>
+        
     </maper>
     <maper>
         <website>http://www.3464.com/data/Proxy/http/</website>
@@ -134,6 +126,7 @@
         <wildcardgenerator>http://www.3464.com/data/Proxy/Http/
         </wildcardgenerator>
         <enable>true</enable>
+        <successKey>禁止浏览任何非法内容</successKey>
     </maper>
     <maper>
         <website>http://www.3464.com/data/Proxy/http/</website>
@@ -143,6 +136,7 @@
         <wildcardgenerator>http://www.3464.com/data/Proxy/Socks5/
         </wildcardgenerator>
         <enable>true</enable>
+        <successKey>禁止浏览任何非法内容</successKey>
     </maper>
     <maper>
         <!-- 过时，弃用 -->
@@ -160,7 +154,7 @@
         <wildcardgenerator>http://www.66ip.cn/#{autoincreament}.html
         </wildcardgenerator>
         <enable>true</enable>
-        <useproxy>true</useproxy>
+        <successKey>66免费代理ip</successKey>
     </maper>
 
     <maper>
@@ -185,6 +179,7 @@
         </classgenerator>
         <batchsize>1100</batchsize>
         <enable>true</enable>
+        <successKey>HTTP代理列表</successKey>
     </maper>
     <maper>
         <website>http://www.kuaidaili.com/</website>
@@ -194,6 +189,7 @@
         <wildcardgenerator>http://www.kuaidaili.com/proxylist/#{autoincreament}/
         </wildcardgenerator>
         <enable>true</enable>
+        <successKey>表中响应速度是中国测速服务器的测试数据</successKey>
     </maper>
     <maper>
         <website>http://www.kuaidaili.com/</website>
@@ -203,6 +199,7 @@
         <wildcardgenerator>http://www.kuaidaili.com/free/inha/#{autoincreament}/
         </wildcardgenerator>
         <enable>true</enable>
+        <successKey>表中响应速度是中国测速服务器的测试数据</successKey>
     </maper>
     <maper>
         <website>http://www.kuaidaili.com/</website>
@@ -212,6 +209,7 @@
         <wildcardgenerator>http://www.kuaidaili.com/free/intr/#{autoincreament}/
         </wildcardgenerator>
         <enable>true</enable>
+        <successKey>表中响应速度是中国测速服务器的测试数据</successKey>
     </maper>
     <maper>
         <website>http://www.kuaidaili.com/</website>
@@ -221,6 +219,7 @@
         <wildcardgenerator>http://www.kuaidaili.com/free/outha/#{autoincreament}/
         </wildcardgenerator>
         <enable>true</enable>
+        <successKey>表中响应速度是中国测速服务器的测试数据</successKey>
     </maper>
     <maper>
         <website>http://www.kuaidaili.com/</website>
@@ -230,6 +229,7 @@
         <wildcardgenerator>http://www.kuaidaili.com/free/outtr/#{autoincreament}/
         </wildcardgenerator>
         <enable>true</enable>
+        <successKey>表中响应速度是中国测速服务器的测试数据</successKey>
     </maper>
     <maper>
         <website>http://www.mrhinkydink.com/proxies.htm</website>
@@ -239,6 +239,7 @@
         <batchsize>500</batchsize>
         <hierate>1h</hierate>
         <enable>true</enable>
+        <successKey>this.style.backgroundColor</successKey>
     </maper>
     <maper>
         <website>http://www.nianshao.me/</website>
@@ -328,7 +329,7 @@
         <batchsize>1000</batchsize>
         <hierate>1h</hierate>
         <enable>true</enable>
-        <useproxy>true</useproxy>
+        <successKey>西刺免费代理IP</successKey>
     </maper>
     <maper>
         <website>http://www.xicidaili.com/</website>
@@ -338,6 +339,7 @@
         <batchsize>1000</batchsize>
         <hierate>1h</hierate>
         <enable>true</enable>
+        <successKey>西刺免费代理IP</successKey>
     </maper>
     <maper>
         <website>http://www.xicidaili.com/</website>
@@ -347,7 +349,7 @@
         <batchsize>1000</batchsize>
         <hierate>1h</hierate>
         <enable>true</enable>
-        <useproxy>true</useproxy>
+        <successKey>西刺免费代理IP</successKey>
     </maper>
     <maper>
         <website>http://www.xicidaili.com/</website>
@@ -357,7 +359,7 @@
         <batchsize>1000</batchsize>
         <hierate>1h</hierate>
         <enable>true</enable>
-        <useproxy>true</useproxy>
+        <successKey>西刺免费代理IP</successKey>
     </maper>
     <maper>
         <website>http://www.xicidaili.com/</website>
@@ -367,7 +369,7 @@
         <batchsize>1000</batchsize>
         <hierate>1h</hierate>
         <enable>true</enable>
-        <useproxy>true</useproxy>
+        <successKey>西刺免费代理IP</successKey>
     </maper>
     <maper>
         <website>http://www.xroxy.com/proxylist.htm</website>
