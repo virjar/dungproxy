@@ -2,9 +2,6 @@ package com.virjar.model;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DomainIpModel {
     private Long id;
 

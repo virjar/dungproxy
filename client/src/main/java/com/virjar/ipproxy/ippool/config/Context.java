@@ -15,6 +15,8 @@ import com.virjar.ipproxy.ippool.strategy.offline.Offline;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.BlackListProxyStrategy;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.ProxyDomainStrategy;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.WhiteListProxyStrategy;
+import com.virjar.ipproxy.ippool.strategy.serialization.AvProxyDumper;
+import com.virjar.ipproxy.ippool.strategy.serialization.JSONFileAvProxyDumper;
 
 /**
  * client配置 Created by virjar on 16/9/30.
@@ -30,6 +32,8 @@ public class Context {
 
     private int feedBackDuration;
 
+    private AvProxyDumper avProxyDumper;
+
     private static final Logger logger = LoggerFactory.getLogger(Context.class);
 
     public ProxyDomainStrategy getNeedProxyStrategy() {
@@ -41,6 +45,10 @@ public class Context {
     }
 
     private Context() {
+    }
+
+    public AvProxyDumper getAvProxyDumper() {
+        return avProxyDumper;
     }
 
     // 唯一持有的对象,存储策略
@@ -101,6 +109,9 @@ public class Context {
 
         private String feedBackDuration;
 
+        private String avDumper;
+        private String defaultAvDumpeFileName;
+
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
                 return this;
@@ -112,6 +123,9 @@ public class Context {
             proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
 
             feedBackDuration = properties.getProperty(ProxyConstant.FEEDBACK_DURATION);
+
+            avDumper = properties.getProperty(ProxyConstant.PROXY_SERIALIZER);
+            defaultAvDumpeFileName = properties.getProperty(ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE);
             return this;
         }
 
@@ -124,10 +138,46 @@ public class Context {
             return this;
         }
 
+        public ConfigBuilder setAvDumper(String avDumper) {
+            this.avDumper = avDumper;
+            return this;
+        }
+
+        public ConfigBuilder setDefaultAvDumpeFileName(String defaultAvDumpeFileName) {
+            this.defaultAvDumpeFileName = defaultAvDumpeFileName;
+            return this;
+        }
+
+        public ConfigBuilder setFeedBackDuration(String feedBackDuration) {
+            this.feedBackDuration = feedBackDuration;
+            return this;
+        }
+
+        public ConfigBuilder setOffliner(String offliner) {
+            this.offliner = offliner;
+            return this;
+        }
+
+        public ConfigBuilder setProxyDomainStrategy(String proxyDomainStrategy) {
+            this.proxyDomainStrategy = proxyDomainStrategy;
+            return this;
+        }
+
+        public ConfigBuilder setProxyDomainStrategyBlackList(String proxyDomainStrategyBlackList) {
+            this.proxyDomainStrategyBlackList = proxyDomainStrategyBlackList;
+            return this;
+        }
+
+        public ConfigBuilder setProxyDomainStrategyWhiteList(String proxyDomainStrategyWhiteList) {
+            this.proxyDomainStrategyWhiteList = proxyDomainStrategyWhiteList;
+            return this;
+        }
+
         public Context build() {
             Context context = new Context();
             // resouceFace
-            context.resourceFacade = StringUtils.isEmpty(this.resouceFace) ? ProxyConstant.DEFAULT_RESOURCE_FACADE : this.resouceFace;
+            context.resourceFacade = StringUtils.isEmpty(this.resouceFace) ? ProxyConstant.DEFAULT_RESOURCE_FACADE
+                    : this.resouceFace;
 
             // domainStrategy
             if (StringUtils.isEmpty(proxyDomainStrategy)) {
@@ -168,7 +218,21 @@ public class Context {
                 feedBackDuration = "120000";
             }
             context.feedBackDuration = NumberUtils.toInt(feedBackDuration, 120000);
+
+            // avDumper
+            if (this.avDumper == null) {
+                this.avDumper = ProxyConstant.DEFAULT_PROXY_SERIALIZER;
+            }
+            if (this.avDumper.equals(ProxyConstant.DEFAULT_PROXY_SERIALIZER)) {
+                if (defaultAvDumpeFileName == null) {
+                    defaultAvDumpeFileName = ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE_VALUE;
+                }
+                context.avProxyDumper = new JSONFileAvProxyDumper(defaultAvDumpeFileName);
+            } else {
+                context.avProxyDumper = ObjectFactory.newInstance(avDumper);
+            }
             return context;
         }
     }
+
 }

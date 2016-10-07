@@ -6,7 +6,7 @@
         <fetcher>/fetcher/cn-proxy.xml</fetcher>
         <hierate>3h</hierate>
         <batchsize>5</batchsize>
-        <wildcardgenerator>http://cn-proxy.com/</wildcardgenerator>
+        <wildcardgenerator>http://cn-proxy.com/archives/218</wildcardgenerator>
         <enable>true</enable>
         <useproxy>true</useproxy>
     </maper>
@@ -112,7 +112,7 @@
         <classgenerator></classgenerator>
         <wildcardgenerator>http://proxy-list.org/english/index.php?p=#{autoincreament}
         </wildcardgenerator>
-        <batchsize>140</batchsize>
+        <batchsize>5</batchsize>
         <hierate>1m</hierate>
         <enable>true</enable>
         <useproxy>true</useproxy>

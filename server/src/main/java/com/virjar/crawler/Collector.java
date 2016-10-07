@@ -1,30 +1,30 @@
 package com.virjar.crawler;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.protocol.BasicHttpContext;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.virjar.crawler.extractor.XmlModeFetcher;
 import com.virjar.entity.Proxy;
-import com.virjar.repository.ProxyRepository;
-import com.virjar.utils.net.DefaultHtmlUnitResultWait;
-import com.virjar.utils.net.HttpInvoker;
-import com.virjar.utils.net.HttpResult;
+import com.virjar.ipproxy.httpclient.HttpInvoker;
+import com.virjar.ipproxy.ippool.config.ObjectFactory;
+import com.virjar.ipproxy.util.CommonUtil;
+import com.virjar.ipproxy.util.PoolUtil;
 
 public class Collector {
 
@@ -34,21 +34,13 @@ public class Collector {
 
     private XmlModeFetcher fetcher;
 
-    private String charset = "utf-8";
-
-    private boolean hasdetectcharset = false;
-
     private String website = "";
 
     private long lastactivity = 0;
 
     private long hibrate = 20000;
 
-    private boolean javascript = false;
-
-    private DefaultHtmlUnitResultWait resultwait;
-
-    private Logger logger = Logger.getLogger(Collector.class);
+    private Logger logger = LoggerFactory.getLogger(Collector.class);
 
     private long getnumber = 0;
 
@@ -58,7 +50,7 @@ public class Collector {
 
     private int sucessTimes = 0;
 
-    private boolean useProxy = false;
+    private HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
 
     private String lastUrl = "";
 
@@ -72,22 +64,6 @@ public class Collector {
 
     public void setBatchsize(int batchsize) {
         this.batchsize = batchsize;
-    }
-
-    public String getCharset() {
-        return charset;
-    }
-
-    public void setCharset(String charset) {
-        this.charset = charset;
-    }
-
-    public boolean isHasdetectcharset() {
-        return hasdetectcharset;
-    }
-
-    public void setHasdetectcharset(boolean hasdetectcharset) {
-        this.hasdetectcharset = hasdetectcharset;
     }
 
     public String getWebsite() {
@@ -106,14 +82,6 @@ public class Collector {
         this.hibrate = hibrate;
     }
 
-    public boolean isJavascript() {
-        return javascript;
-    }
-
-    public void setJavascript(boolean javascript) {
-        this.javascript = javascript;
-    }
-
     public long getGetnumber() {
         return getnumber;
     }
@@ -122,131 +90,76 @@ public class Collector {
         this.getnumber = getnumber;
     }
 
-    private List<Proxy> avaliableProxy = Lists.newArrayList();
-
-    private Proxy randomChooseOne(List<Proxy> proxies) {
-        Random random = new Random();
-        return proxies.get(random.nextInt(proxies.size()));
-    }
-
-    private volatile boolean isPrehotting = false;
-
-    private class PreHotThread extends Thread {
-        private String testUrl;
-        private List<Proxy> proxies;
-
-        public PreHotThread(List<Proxy> proxies, String testUrl) {
-            this.proxies = proxies;
-            this.testUrl = testUrl;
-        }
-
-        @Override
-        public void run() {
-            if (isPrehotting) {
-                return;
-            }
-            isPrehotting = true;
-            List<Proxy> realProxy = Lists.newArrayList();
-            for (Proxy proxy : proxies) {
-                if (proxy.getTransperent() != 0) {
-                    continue;
-                }
-                HttpInvoker httpInvoker = new HttpInvoker(testUrl);
-                httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
-                for (int i = 0; i < 3; i++) {
-                    try {
-                        HttpResult request = httpInvoker.request();
-                        if ((request.getStatusCode() == 200 && StringUtils.isNoneBlank(request.getResponseBody()))
-                                || request.getStatusCode() == 302) {
-                            realProxy.add(proxy);
-                            break;
-                        }
-                    } catch (IOException e) {
-                        // do Nothing
-                    }
-                }
-            }
-            avaliableProxy = realProxy;
-            isPrehotting = false;
-        }
-    }
-
-    public List<Proxy> newProxy(ProxyRepository proxyRepository) {
-        int num = 0;
-        int failedtimes = 0;
-        String url = "";
-        List<Proxy> ret = new ArrayList<Proxy>();
+    public List<Proxy> newProxy() {
+        int failedTimes = 0;
+        List<Proxy> ret = Lists.newArrayList();
 
         if (System.currentTimeMillis() - lastactivity < hibrate) {
             return ret;
         }
+        logger.info("begin collector:{}", this.website);
         lastactivity = System.currentTimeMillis();
-        while (num < batchsize) {
+        lastUrl = urlGenerator.newURL();
+        while (ret.size() < batchsize) {
             try {
-                HttpResult result = null;
-                url = urlGenerator.newURL();
-                lastUrl = url;
-                HttpInvoker httpInvoker = new HttpInvoker(url);
-                if (useProxy) {
-                    Proxy proxy;
-                    if (avaliableProxy.size() == 0) {
-                        List<Proxy> available = proxyRepository.findAvailable();
-                        new PreHotThread(available, url).start();
-                    } else {
-                        proxy = randomChooseOne(avaliableProxy);
-                        httpInvoker.setproxy(proxy.getIp(), proxy.getPort());
+                logger.info("request url:{} failedTimes:{}", lastUrl, failedTimes);
+                String response = HttpInvoker.get(lastUrl, httpClientContext);
+                if (StringUtils.isEmpty(response)) {
+                    PoolUtil.recordFailed(httpClientContext);
+                    failedTimes++;
+                    if (failedTimes > 5) {
+                        break;
                     }
-
                 }
-                if (!javascript) {
-                    result = httpInvoker.request();
-                } else {
-                    result = httpInvoker.requestFromHtmlUnit(resultwait);
-                }
-                if (result.getStatusCode() == 200) {
-                    List<String> fetchresult = fetcher.fetch(result.responseBody);
-                    if (fetchresult.size() == 0) {
-
-                    } else {
-                        failedtimes = 0;
-                        sucessTimes++;
-                    }
-                    for (String str : fetchresult) {
-                        num++;
-                        Proxy parseObject = null;
-                        try {
-                            parseObject = JSONObject.parseObject(str, Proxy.class);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            num--;
-                            continue;
+                if (StringUtils.isNotEmpty(response)) {
+                    List<Proxy> fetchResult = convert(fetcher.fetch(response), lastUrl);
+                    // 异常会自动记录代理IP使用失败,这里的情况是请求成功,但是网页可能不是正确的,当然这个反馈可能不是完全准确的,不过也无所谓,本身IP下线是在失败率达到一定的量的情况
+                    if (fetchResult.size() == 0) {
+                        PoolUtil.recordFailed(httpClientContext);
+                        failedTimes++;
+                        if (failedTimes > 5) {
+                            urlGenerator.reset();
+                            break;
                         }
-                        parseObject.setAvailbelScore(0L);
-                        parseObject.setConnectionScore(0L);
-                        parseObject.setSource(url);
-                        ret.add(parseObject);
+                    } else {
+                        PoolUtil.cleanProxy(httpClientContext);// 每次使用不用的代理IP
+                        failedTimes = 0;
+                        sucessTimes++;
+                        ret.addAll(fetchResult);
+                        CommonUtil.sleep(2000);
+                        lastUrl = urlGenerator.newURL();
                     }
-                    if (fetchresult.size() == 0) {
-                        urlGenerator.reset();
-                    }
-                    Thread.sleep(2000);
+                }
+            } catch (Exception e) {// 发生socket异常不切换url
+                errorinfo = lastUrl + ":" + e;
+                failedTimes++;
+                if (failedTimes > 5) {
+                    break;
+                }
+            }
+
+        }
+        this.failedTimes += failedTimes;
+        getnumber += ret.size();
+        return ret;
+    }
+
+    public List<Proxy> convert(List<String> fetchResult, String source) {
+        List<Proxy> ret = Lists.newArrayList();
+        for (String str : fetchResult) {
+            try {
+                Proxy parseObject = JSONObject.parseObject(str, Proxy.class);
+                if (!CommonUtil.isIPAddress(parseObject.getIp())) {
                     continue;
                 }
+                parseObject.setAvailbelScore(0L);
+                parseObject.setConnectionScore(0L);
+                parseObject.setSource(source);
+                ret.add(parseObject);
             } catch (Exception e) {
-                if (!(e instanceof SocketTimeoutException) && !(e instanceof SocketException)) {
-                    logger.error("收集器 " + url + " 错误栈如下：", e);
-                }
-                errorinfo = url + ":" + e;
-                failedTimes++;
+                e.printStackTrace();
             }
-            failedtimes++;
-            if (failedtimes > 3) {
-                return ret;
-            }
-        }
-        getnumber += ret.size();
-        if (ret.size() == 0) {
-            logger.info("empty resource for :" + url);
+
         }
         return ret;
     }
@@ -268,47 +181,33 @@ public class Collector {
                         if (!"true".equals(next.element("enable").getTextTrim())) {
                             continue;
                         }
-                        Collector collecter = new Collector();
-                        collecter.website = next.elementText("website");
+                        Collector collector = new Collector();
+                        collector.website = next.elementText("website");
                         String hierate = next.elementText("hierate");
-                        collecter.hibrate = parseTime(hierate);
+                        collector.hibrate = parseTime(hierate);
 
-                        String usecharset = next.elementText("charset");
-                        if (usecharset != null) {
-                            collecter.charset = usecharset;
-                        }
                         String bachSize = next.elementText("batchsize");
-                        collecter.batchsize = 30;
+                        collector.batchsize = 30;
                         if (bachSize != null) {
-                            try {
-                                collecter.batchsize = Integer.parseInt(bachSize);
-                            } catch (Exception e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
+                            collector.batchsize = NumberUtils.toInt(bachSize, collector.batchsize);
                         }
 
-                        collecter.useProxy = "true".equals(next.elementText("useproxy"));
-
-                        collecter.fetcher = new XmlModeFetcher(
+                        collector.fetcher = new XmlModeFetcher(
                                 IOUtils.toString(Collector.class.getResourceAsStream(next.elementText("fetcher"))));
                         Element classgenerator = next.element("classgenerator");
                         boolean hasagenerator = false;
                         if (classgenerator != null && !"".equals(classgenerator.getTextTrim())) {
-                            Class<? extends URLGenerator> clazz = (Class<? extends URLGenerator>) Collector.class
-                                    .getClassLoader().loadClass(classgenerator.getTextTrim());
-                            Constructor<? extends URLGenerator> constructor = clazz.getConstructor();
-                            collecter.urlGenerator = (URLGenerator) constructor.newInstance();
+                            collector.urlGenerator = ObjectFactory.newInstance(classgenerator.getTextTrim());
                             hasagenerator = true;
                         }
                         Element wildcardgenerator = next.element("wildcardgenerator");
                         if (!hasagenerator && wildcardgenerator != null
                                 && !"".equals(wildcardgenerator.getTextTrim())) {
-                            collecter.urlGenerator = new WildCardURLGenerator(wildcardgenerator.getTextTrim());
+                            collector.urlGenerator = new WildCardURLGenerator(wildcardgenerator.getTextTrim());
                             hasagenerator = true;
                         }
                         if (hasagenerator) {
-                            ret.add(collecter);
+                            ret.add(collector);
                         }
                     } catch (Exception e) {
 

@@ -56,6 +56,9 @@ public class DistributeService {
     public Boolean feedBack(FeedBackForm feedBackForm) {
         List<AvProxy> avProxys = feedBackForm.getAvProxy();
         for (AvProxy avProxy : avProxys) {
+            if (avProxy.getReferCount() == 0) {
+                continue;// 这个时候不计入可用IP
+            }
             DomainIpModel domainIpModel = domainIpService.get(feedBackForm.getDomain(), avProxy.getIp(),
                     avProxy.getPort());
             if (domainIpModel == null) {
@@ -66,8 +69,7 @@ public class DistributeService {
                  * domainIpModel.setProxyId(0L);//TODO domainIpModel.setTestUrl();
                  */
             }
-            domainIpModel.setDomainScore(domainIpModel.getDomainScore()
-                    + ((avProxy.getReferCount() - avProxy.getFailedCount()) * 10 / avProxy.getReferCount()));
+            domainIpModel.setDomainScore(domainIpModel.getDomainScore() + 1);
             domainIpModel.setDomainScoreDate(new Date());
             domainIpService.updateByPrimaryKeySelective(domainIpModel);
         }
@@ -131,9 +133,7 @@ public class DistributeService {
 
     private List<DomainIp> get4DomainTested(RequestForm requestForm) {
         String checkUrl = requestForm.getCheckUrl();
-        if (StringUtils.isEmpty(checkUrl)) {
-            return Lists.newArrayList();
-        }
+
         String domain = CommonUtil.extractDomain(checkUrl);
         if (StringUtils.isEmpty(domain)) {
             domain = requestForm.getDomain();
@@ -142,7 +142,7 @@ public class DistributeService {
             return Lists.newArrayList();
         }
         List<DomainIp> domainIps = domainIpRepository.selectAvailable(domain, new PageRequest(0, Integer.MAX_VALUE));
-        if (domainIps.size() == 0) {
+        if (StringUtils.isNotEmpty(checkUrl)) {
             DomainTestTask.sendDomainTask(checkUrl);
         }
         return domainIps;

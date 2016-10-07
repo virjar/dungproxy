@@ -20,11 +20,10 @@ import com.mantou.proxyservice.proxeservice.entity.Proxy;
 import com.mantou.proxyservice.proxeservice.repository.OldProxyRepository;
 import com.virjar.entity.DomainIp;
 import com.virjar.entity.DomainMeta;
+import com.virjar.ipproxy.httpclient.HttpInvoker;
 import com.virjar.repository.DomainIpRepository;
 import com.virjar.repository.DomainMetaRepository;
 import com.virjar.utils.ProxyUtil;
-import com.virjar.utils.net.HttpInvoker;
-import com.virjar.utils.net.HttpResult;
 
 /**
  * Created by virjar on 16/8/14.
@@ -128,13 +127,11 @@ public class Migrate {
     private com.virjar.entity.Proxy getArea(String ipAddr) {
         RateLimiter limiter = RateLimiter.create(9.0);
         if (limiter.tryAcquire()) {
-            HttpInvoker httpInvoker = new HttpInvoker(TAOBAOURL + ipAddr);
-            HttpResult request;
             com.virjar.entity.Proxy proxy;
             JSONObject jsonObject;
             try {
-                request = httpInvoker.request();
-                jsonObject = JSONObject.parseObject(request.getResponseBody());
+                String response = HttpInvoker.get(TAOBAOURL + ipAddr);
+                jsonObject = JSONObject.parseObject(response);
                 String data = jsonObject.get("data").toString();
                 JSONObject temp = JSONObject.parseObject(data);
                 proxy = JSON.parseObject(data, com.virjar.entity.Proxy.class, Feature.IgnoreNotMatch);

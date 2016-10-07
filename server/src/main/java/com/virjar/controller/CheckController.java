@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,7 +50,7 @@ public class CheckController {
         return ReturnUtil.retSuccess(b);
     }
 
-    @RequestMapping(value = "/checkIp", method = RequestMethod.GET, produces = MediaType.ALL_VALUE)
+    @RequestMapping(value = "/checkIp", method = RequestMethod.GET) // , produces = MediaType.ALL_VALUE 这个玩意儿有大问题
     public ResponseEntity<ResponseEnvelope<Object>> getDomainqueueById(HttpServletRequest request) {
         byte transparent = checkTransparent(request);
         String remoteAddr = request.getRemoteAddr();

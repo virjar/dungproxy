@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.Proxy;
+import com.virjar.ipproxy.httpclient.HttpInvoker;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.service.ProxyService;
@@ -73,8 +74,7 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
         }
         if (!instance.isRunning) {
             try {
-                BrowserHttpClientPool.getInstance().borrow()
-                        .get(String.format(SysConfig.getInstance().get("system.port.test.forward.url"), ip));
+                HttpInvoker.get(String.format(SysConfig.getInstance().get("system.port.test.forward.url"), ip));
             } catch (IOException e) {
                 logger.info("port check forward error:", e);
                 return false;

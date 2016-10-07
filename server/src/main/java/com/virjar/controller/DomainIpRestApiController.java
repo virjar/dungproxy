@@ -28,7 +28,7 @@ import com.virjar.service.DomainIpService;
 import com.virjar.vo.DomainIpVO;
 
 @Controller
-@RequestMapping("/proxyip2")
+@RequestMapping("/proxyipcenter")
 public class DomainIpRestApiController {
     private final Logger logger = LoggerFactory.getLogger(DomainIpRestApiController.class);
 

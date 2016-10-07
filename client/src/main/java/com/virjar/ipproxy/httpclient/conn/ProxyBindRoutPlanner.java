@@ -56,7 +56,7 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
         Object user = context.getAttribute(ProxyConstant.USER_KEY);
         AvProxy bind;
         bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
-        if (bind == null) {
+        if (bind == null || bind.isDisable()) {
             bind = IpPool.getInstance().bind(target.getHostName(), accessUrl, user);
         }
         if (bind != null) {

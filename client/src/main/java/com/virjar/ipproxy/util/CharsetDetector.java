@@ -31,6 +31,17 @@ public class CharsetDetector {
         return null;
     }
 
+    public static String detectHeader(Header header) {
+        if (header == null) {
+            return null;
+        }
+        String s = parseContentType(header.getValue());
+        if (!StringUtils.isEmpty(s)) {
+            return s;
+        }
+        return null;
+    }
+
     public static String[] substringsBetween(final byte[] str, final byte[] open, final byte[] close) {
         if (str == null || open == null || close == null) {
             return null;

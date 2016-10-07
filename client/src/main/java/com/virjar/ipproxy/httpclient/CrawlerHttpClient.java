@@ -4,26 +4,25 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.Header;
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
+import org.apache.http.*;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.auth.AuthState;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.HttpClientParamConfig;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.config.Lookup;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.ClientConnectionRequest;
@@ -36,8 +35,8 @@ import org.apache.http.cookie.CookieSpecProvider;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.execchain.ClientExecChain;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpParamsNames;
 import org.apache.http.protocol.BasicHttpContext;
@@ -45,24 +44,15 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
+import com.virjar.ipproxy.ippool.config.ProxyConstant;
 import com.virjar.ipproxy.util.CharsetDetector;
 
 /**
  * 包装httpclient,应该继承它 Created by virjar on 16/9/19.
  */
 public class CrawlerHttpClient extends CloseableHttpClient implements Configurable {
-
-    private static final CrawlerHttpClient instance = CrawlerHttpClientBuilder.create().build();
-
-    public static void main(String[] args) {
-        HttpClient httpClient = HttpClientBuilder.create().build();
-        HttpGet httpGet = new HttpGet("www.baidu.com");
-        try {
-            httpClient.execute(httpGet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     private final Log log = LogFactory.getLog(getClass());
 
@@ -131,7 +121,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
     @Override
     protected CloseableHttpResponse doExecute(final HttpHost target, final HttpRequest request,
-            final HttpContext context) throws IOException, ClientProtocolException {
+            final HttpContext context) throws IOException {
         Args.notNull(request, "HTTP request");
         HttpExecutionAware execAware = null;
         if (request instanceof HttpExecutionAware) {
@@ -229,74 +219,232 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
     }
 
-    public static String getQuatity(String url, String proxyIp, int proxyPort) {
+    public String get(String url, Map<String, String> params, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort) throws IOException {
+        return get(url, convert(params), charset, headers, proxyIp, proxyPort);
+    }
+
+    public String get(String url, Charset charset, Header[] headers, String proxyIp, int proxyPort) throws IOException {
+        return get(url, (List<NameValuePair>) null, charset, headers, proxyIp, proxyPort);
+    }
+
+    public String get(String url, List<NameValuePair> nameValuePairs, Header[] headers, String proxyIp, int proxyPort)
+            throws IOException {
+        return get(url, nameValuePairs, null, headers, proxyIp, proxyPort);
+    }
+
+    public String get(String url, List<NameValuePair> params, Charset charset, String proxyIp, int proxyPort)
+            throws IOException {
+        return get(url, params, charset, null, proxyIp, proxyPort);
+    }
+
+    public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers) throws IOException {
+        return get(url, params, charset, headers, null, -1);
+    }
+
+    public String get(String url, Header[] headers, String proxyIp, int proxyPort) throws IOException {
+        return get(url, (List<NameValuePair>) null, null, headers, proxyIp, proxyPort);
+    }
+
+    public String get(String url, Charset charset, String proxyIp, int proxyPort) throws IOException {
+        return get(url, (List<NameValuePair>) null, charset, null, proxyIp, proxyPort);
+    }
+
+    public String get(String url, Charset charset, Header[] headers) throws IOException {
+        return get(url, (List<NameValuePair>) null, charset, headers, null, -1);
+    }
+
+    public String get(String url, List<NameValuePair> params, String proxyIp, int proxyPort) throws IOException {
+        return get(url, params, null, null, proxyIp, proxyPort);
+    }
+
+    public String get(String url, List<NameValuePair> params, Header[] headers) throws IOException {
+        return get(url, params, null, headers, null, -1);
+    }
+
+    public String get(String url, List<NameValuePair> params, Charset charset) throws IOException {
+        return get(url, params, charset, null, null, -1);
+    }
+
+    public String get(String url, List<NameValuePair> params) throws IOException {
+        return get(url, params, null, null, null, -1);
+    }
+
+    public String get(String url, Charset charset) throws IOException {
+        return get(url, (List<NameValuePair>) null, charset, null, null, -1);
+    }
+
+    public String get(String url, Header[] headers) throws IOException {
+        return get(url, (List<NameValuePair>) null, null, headers, null, -1);
+    }
+
+    public String get(String url, String proxyIp, int proxyPort) throws IOException {
+        return get(url, (List<NameValuePair>) null, null, null, proxyIp, proxyPort);
+    }
+
+    public String get(String url) throws IOException {
+        return get(url, (List<NameValuePair>) null, null, null, null, -1);
+    }
+
+    public String get(String url, HttpClientContext httpClientContext) throws IOException {
+        return get(url, null, null, null, null, -1, httpClientContext);
+    }
+
+    public String getQuiet(String url) {
         try {
-            return get(url, proxyIp, proxyPort);
+            return get(url);
         } catch (IOException e) {
             return null;
         }
     }
 
-    @Deprecated
-    public static String getQuatity(String url) {
-        return getQuatity(url, null, -1);
-    }
-
-    public static String postQuatity(String url, String body, ContentType contentType) {
+    public String getQuiet(String url, HttpClientContext httpClientContext) {
         try {
-            return post(url, body, contentType);
+            return get(url, httpClientContext);
         } catch (IOException e) {
             return null;
         }
     }
 
-    public static String post(String url, String body, ContentType type) throws IOException {
-        HttpPost httpPost = new HttpPost(url);
-        httpPost.setEntity(new StringEntity(body, type));
-        CloseableHttpResponse execute = instance.execute(httpPost);
-        byte[] bytes = EntityUtils.toByteArray(execute.getEntity());
-        Header[] headers = execute.getHeaders("Content-Type");
-        String charset = CharsetDetector.detectHeader(headers);
-        if (charset == null) {
-            charset = CharsetDetector.detectHtmlContent(bytes);
-        }
-        if (charset == null) {
-            charset = Charset.defaultCharset().name();
-        }
-        return new String(bytes, charset);
-    }
-
-    public static String get(String url) throws IOException {
-        return get(url, null, -1);
-    }
-
-    /**
-     * 这种方式要自动探测字符集,不能使用默认,作为客户端,应对的是各种目标网站,不能使用客户端所在环境的默认字符集的
-     * 
-     * @param url
-     * @param proxyIp
-     * @param proxyPort
-     * @return
-     * @throws IOException
-     */
-    public static String get(String url, String proxyIp, int proxyPort) throws IOException {
-        HttpGet get = new HttpGet(url);
+    public int getStatus(String url, String proxyIp, int proxyPort) throws IOException {
+        HttpGet httpGet = new HttpGet(url);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
+                .setConnectTimeout(ProxyConstant.CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(ProxyConstant.REQUEST_TIMEOUT).setRedirectsEnabled(true)
+                .setCircularRedirectsAllowed(true);
         if (StringUtils.isNotEmpty(proxyIp)) {
-            RequestConfig build = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(15000)
-                    .setConnectionRequestTimeout(20000).setRedirectsEnabled(true).setCircularRedirectsAllowed(true)
-                    .setProxy(new HttpHost(proxyIp, proxyPort)).build();
-            get.setConfig(build);
+            builder.setProxy(new HttpHost(proxyIp, proxyPort));
         }
-        CloseableHttpResponse execute = instance.execute(get);
-        byte[] bytes = EntityUtils.toByteArray(execute.getEntity());
-        Header[] headers = execute.getHeaders("Content-Type");
-        String charset = CharsetDetector.detectHeader(headers);
+        httpGet.setConfig(builder.build());
+        CloseableHttpResponse execute = execute(httpGet);
+        return execute.getStatusLine().getStatusCode();
+    }
+
+    public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort) throws IOException {
+        return get(url, params, charset, headers, proxyIp, proxyPort, null);
+    }
+
+    public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort, HttpClientContext httpClientContext) throws IOException {
+        if (params != null && params.size() > 0) {
+            url = url + URLEncodedUtils.format(params, "utf-8");
+        }
+        HttpGet httpGet = new HttpGet(url);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
+                .setConnectTimeout(ProxyConstant.CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(ProxyConstant.REQUEST_TIMEOUT).setRedirectsEnabled(true)
+                .setCircularRedirectsAllowed(true);
+        if (StringUtils.isNotEmpty(proxyIp)) {
+            builder.setProxy(new HttpHost(proxyIp, proxyPort));
+        }
+        httpGet.setConfig(builder.build());
+
+        if (headers != null && headers.length > 0) {
+            httpGet.setHeaders(headers);
+        }
+        return decodeHttpResponse(execute(httpGet, httpClientContext), charset);
+    }
+
+    public String post(String url, String entity, Charset charset, Header[] headers, String proxyIp, int proxyPort)
+            throws IOException {
+        return post(url, new StringEntity(entity, ContentType.TEXT_PLAIN), charset, headers, proxyIp, proxyPort);
+    }
+
+    public String post(String url, Object entity, Charset charset, Header[] headers, String proxyIp, int proxyPort)
+            throws IOException {
+        return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), charset,
+                headers, proxyIp, proxyPort);
+    }
+
+    public String post(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort) throws IOException {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), charset, headers, proxyIp,
+                proxyPort);
+    }
+
+    public String post(String url, Map<String, String> params) throws IOException {
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, null, null, -1);
+    }
+
+    public String post(String url, String entity) throws IOException {
+        return post(url, new StringEntity(entity, ContentType.create("text/plain", Charset.defaultCharset())), null,
+                null, null, -1);
+    }
+
+    public String post(String url, Object entity) throws IOException {
+        return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), null, null,
+                null, -1);
+    }
+
+    public String post(String url, List<NameValuePair> params) throws IOException {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, null, null, -1);
+    }
+
+    public String post(String url, Map<String, String> params, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort) throws IOException {
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), charset, headers, proxyIp,
+                proxyPort);
+    }
+
+    public String postQuiet(String url, Object object) {
+        try {
+            return post(url, object);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public String post(String url, HttpEntity entity, Charset charset, Header[] headers, String proxyIp, int proxyPort)
+            throws IOException {
+
+        HttpPost httpPost = new HttpPost(url);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
+                .setConnectTimeout(ProxyConstant.CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(ProxyConstant.REQUEST_TIMEOUT).setRedirectsEnabled(true)
+                .setCircularRedirectsAllowed(true);
+
+        if (StringUtils.isNotEmpty(proxyIp)) {
+            builder.setProxy(new HttpHost(proxyIp, proxyPort));
+        }
+        httpPost.setConfig(builder.build());
+        if (headers != null && headers.length > 0) {
+            httpPost.setHeaders(headers);
+        }
+        httpPost.setEntity(entity);
+        return decodeHttpResponse(execute(httpPost), charset);
+    }
+
+    private String decodeHttpResponse(CloseableHttpResponse response, Charset charset) throws IOException {
+        byte[] bytes = EntityUtils.toByteArray(response.getEntity());
         if (charset == null) {
-            charset = CharsetDetector.detectHtmlContent(bytes);
+            Header contentType = response.getFirstHeader("Content-Type");
+            if (contentType != null) {
+                String charsetStr = CharsetDetector.detectHeader(contentType);
+                if (charsetStr != null) {
+                    charset = Charset.forName(charsetStr);
+                }
+            }
         }
         if (charset == null) {
-            charset = Charset.defaultCharset().name();
+            String charsetStr = CharsetDetector.detectHtmlContent(bytes);
+            if (charsetStr != null) {
+                charset = Charset.forName(charsetStr);
+            }
+        }
+        if (charset == null) {
+            charset = Charset.defaultCharset();
         }
         return new String(bytes, charset);
+    }
+
+    private List<NameValuePair> convert(Map<String, String> params) {
+        List<NameValuePair> nameValuePairs = Lists.newArrayList();
+        if (params != null && params.size() > 0) {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+            }
+        }
+        return nameValuePairs;
     }
 }

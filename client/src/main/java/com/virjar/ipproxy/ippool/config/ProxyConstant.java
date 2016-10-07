@@ -19,4 +19,16 @@ public class ProxyConstant {
     public static final String FEEDBACK_DURATION = "proxyclient.feedback.duration";
 
     public static final String configFileName = "proxyclient.properties";
+    public static final String PROXY_SERIALIZER = "proxyclient.serialize.serializer";
+    public static final String DEFAULT_PROXY_SERIALIZER = "com.virjar.ipproxy.ippool.strategy.serialization.JSONFileAvProxyDumper";
+    public static final String DEFAULT_PROXY_SERALIZER_FILE = "prxyclient.DefaultAvProxyDumper.dumpFileName";
+    public static final String DEFAULT_PROXY_SERALIZER_FILE_VALUE = "availableProxy.json";
+
+    // socket超时时间
+    public static final int SOCKET_TIMEOUT = 30000;
+    // 连接超时
+    public static final int CONNECT_TIMEOUT = 30000;
+    // 连接池分配连接超时时间,一般用处不大
+    public static final int REQUEST_TIMEOUT = 30000;
+    public static final int SOCKETSO_TIMEOUT = 15000;
 }
