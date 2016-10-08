@@ -1,5 +1,7 @@
 package com.virjar.model;
 
+import java.util.Date;
+
 public class DomainMetaModel {
     private Long id;
 
@@ -14,6 +16,7 @@ public class DomainMetaModel {
     private Boolean hasHttps;
 
     private String supportIsp;
+    private Date lastAccessTime;
 
     public Long getId() {
         return id;
@@ -69,5 +72,13 @@ public class DomainMetaModel {
 
     public void setSupportIsp(String supportIsp) {
         this.supportIsp = supportIsp;
+    }
+
+    public Date getLastAccessTime() {
+        return lastAccessTime;
+    }
+
+    public void setLastAccessTime(Date lastAccessTime) {
+        this.lastAccessTime = lastAccessTime;
     }
 }

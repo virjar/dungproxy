@@ -31,4 +31,6 @@ public interface DomainIpRepository {
     List<DomainIp> selectDisable(@Param("pageable") Pageable pageable);
 
     int deleteBatch(@Param("ids") List<Long> ids);
+
+    int deleteByDomain(@Param("domian") String domain);
 }

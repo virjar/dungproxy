@@ -1,9 +1,11 @@
 package com.virjar.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.joda.time.DateTime;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -69,14 +71,21 @@ public class DomainMetaServiceImpl implements DomainMetaService {
     @Transactional(readOnly = true)
     @Override
     public List<DomainMetaModel> selectPage(DomainMetaModel domainMetaModel, Pageable pageable) {
-        if(domainMetaModel == null){
+        if (domainMetaModel == null) {
             domainMetaModel = new DomainMetaModel();
         }
-        if(pageable == null){
-            pageable = new PageRequest(0,Integer.MAX_VALUE);
+        if (pageable == null) {
+            pageable = new PageRequest(0, Integer.MAX_VALUE);
         }
         List<DomainMeta> domainMetaList = domainMetaRepo.selectPage(beanMapper.map(domainMetaModel, DomainMeta.class),
                 pageable);
         return beanMapper.mapAsList(domainMetaList, DomainMetaModel.class);
+    }
+
+    @Override
+    public List<DomainMetaModel> selectBefore(int days, Pageable pageable) {
+        Date beforeDate = DateTime.now().plusDays(days).toDate();
+        List<DomainMeta> domainMetas = domainMetaRepo.selectBefore(beforeDate, pageable);
+        return beanMapper.mapAsList(domainMetas, DomainMetaModel.class);
     }
 }

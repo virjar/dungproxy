@@ -1,5 +1,6 @@
 package com.virjar.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -25,4 +26,6 @@ public interface DomainMetaRepository {
     int selectCount(DomainMeta domainmeta);
 
     List<DomainMeta> selectPage(DomainMeta domainmeta, Pageable pageable);
+
+    List<DomainMeta> selectBefore(@Param("date") Date date, @Param("page") Pageable pageable);
 }

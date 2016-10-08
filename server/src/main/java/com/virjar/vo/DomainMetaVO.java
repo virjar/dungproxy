@@ -1,5 +1,5 @@
 package com.virjar.vo;
-
+import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -17,6 +17,7 @@ public class DomainMetaVO {
     private Boolean hasHttps;
 
     private String supportIsp;
+    private Date lastAccessTime;
 
     public Long getId() {
         return id;
@@ -72,5 +73,13 @@ public class DomainMetaVO {
 
     public void setSupportIsp(String supportIsp) {
         this.supportIsp = supportIsp;
+    }
+
+    public Date getLastAccessTime() {
+        return lastAccessTime;
+    }
+
+    public void setLastAccessTime(Date lastAccessTime) {
+        this.lastAccessTime = lastAccessTime;
     }
 }

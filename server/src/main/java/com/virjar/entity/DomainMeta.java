@@ -1,8 +1,7 @@
 package com.virjar.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Date;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DomainMeta {
     private Long id;
 
@@ -17,6 +16,8 @@ public class DomainMeta {
     private Boolean hasHttps;
 
     private String supportIsp;
+
+    private Date lastAccessTime;
 
     public Long getId() {
         return id;
@@ -72,5 +73,13 @@ public class DomainMeta {
 
     public void setSupportIsp(String supportIsp) {
         this.supportIsp = supportIsp;
+    }
+
+    public Date getLastAccessTime() {
+        return lastAccessTime;
+    }
+
+    public void setLastAccessTime(Date lastAccessTime) {
+        this.lastAccessTime = lastAccessTime;
     }
 }
