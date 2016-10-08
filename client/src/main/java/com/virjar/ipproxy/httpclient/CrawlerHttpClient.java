@@ -328,7 +328,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
             int proxyPort, HttpClientContext httpClientContext) throws IOException {
         if (params != null && params.size() > 0) {
-            url = url + URLEncodedUtils.format(params, "utf-8");
+            url = url + "?" + URLEncodedUtils.format(params, "utf-8");
         }
         HttpGet httpGet = new HttpGet(url);
         RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)

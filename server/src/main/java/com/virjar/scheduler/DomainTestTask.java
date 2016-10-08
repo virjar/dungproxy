@@ -9,6 +9,8 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -78,12 +80,14 @@ public class DomainTestTask implements Runnable, InitializingBean {
             return false;
         }
         if (!instance.isRunning) {
+            logger.info("域名校验组件没有开启,将会把这个任务转发到其他服务器进行处理");
             new Thread() {
                 @Override
                 public void run() {
                     try {
-                        HttpInvoker
-                                .get(String.format(SysConfig.getInstance().get("system.domain.test.forward.url"), url));
+                        String s = HttpInvoker.get(SysConfig.getInstance().get("system.domain.test.forward.url"),
+                                Lists.<NameValuePair> newArrayList(new BasicNameValuePair("url", url)));
+                        logger.info("domain test forward response is {}", s);
                     } catch (IOException e) {
                         logger.error("error when forward domain test task to sub server");
                     }
@@ -277,33 +281,5 @@ public class DomainTestTask implements Runnable, InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         init();
-    }
-
-    public static void main(String[] args) {
-        DomainTestTask domainTestTask = new DomainTestTask();
-        /*
-         * System.out.println(CommonUtil.extractDomain("http://www.scumall.com"));
-         * System.out.println(CommonUtil.extractDomain("www.baidu.com"));
-         * System.out.println(CommonUtil.extractDomain("http://git.oschina.net/virjar/proxyipcenter/commits/master"));
-         */
-        domainTestTask.addUrlTask("http://www.scumall.com");
-        domainTestTask.addUrlTask("http://git.oschina.net/virjar/proxyipcenter/");
-        domainTestTask.addUrlTask("http://www.cnblogs.com/linjiqin/p/3214725.html");
-        domainTestTask.addUrlTask("http://blog.sina.com.cn/s/blog_7768d2210101ajj6.html");
-        domainTestTask.addUrlTask("http://china.ynet.com/3.1/1609/17/11742693.html");
-        domainTestTask.addUrlTask(
-                "https://www.aliyun.com/product/ddos/?utm_medium=images&utm_source=criteo&utm_campaign=lf&utm_content=se_276183");
-        domainTestTask.addUrlTask("http://cn.ynet.com/3.1/1609/17/11742182.html");
-        domainTestTask.addUrlTask("http://news.163.com/photoview/00AP0001/2198365.html#p=C14T5IU900AP0001");
-        domainTestTask.addUrlTask("http://www.bobo.com/660000?f=163.picRec");
-        domainTestTask.addUrlTask("http://china.ynet.com/3.1/1609/16/11739239.html");
-        domainTestTask.addUrlTask("http://war.163.com/16/0915/08/C109SQQC000181KT.html");
-        domainTestTask.addUrlTask("http://bbs.tiexue.net/post2_11429708_1.html");
-        domainTestTask.addUrlTask("http://fun.youth.cn/yl24xs/201609/t20160916_8662334_1.htm");
-        domainTestTask.addUrlTask("http://www.chinadaily.com.cn/interface/yidian/1138561/2016-09-17/cd_26809500.html");
-        domainTestTask.addUrlTask("http://china.ynet.com/3.1/1609/16/11741080.html");
-        domainTestTask.addUrlTask("http://china.ynet.com/3.1/1609/16/11741050.html");
-        domainTestTask.addUrlTask("http://news.wmxa.cn/n/201609/373635_2.html");
-
     }
 }
