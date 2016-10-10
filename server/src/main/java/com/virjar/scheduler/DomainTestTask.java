@@ -73,6 +73,28 @@ public class DomainTestTask implements Runnable, InitializingBean {
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("domain-check"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
         new Thread(this).start();
+        new OnlyUrlTestTask().start();
+        new OnlyUrlTestTask().start();
+    }
+
+    private class OnlyUrlTestTask extends Thread {
+        @Override
+        public void run() {
+            while (isRunning) {
+                UrlCheckTaskHolder poll = domainTaskQueue.poll();
+                if (poll == null) {
+                    CommonUtil.sleep(3000);
+                    continue;
+                }
+
+                if (poll.url == null) {
+                    domainTaskQueue.offer(poll);
+                    CommonUtil.sleep(1000);
+                    continue;
+                }
+                new DomainTester(poll.url).call();
+            }
+        }
     }
 
     public static boolean sendDomainTask(final String url) {
