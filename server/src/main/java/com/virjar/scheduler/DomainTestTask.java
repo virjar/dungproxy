@@ -78,6 +78,10 @@ public class DomainTestTask implements Runnable, InitializingBean {
     }
 
     private class OnlyUrlTestTask extends Thread {
+        public OnlyUrlTestTask() {
+            super("OnlyUrlTestTask");
+        }
+
         @Override
         public void run() {
             while (isRunning) {
@@ -88,10 +92,12 @@ public class DomainTestTask implements Runnable, InitializingBean {
                 }
 
                 if (poll.url == null) {
+                    logger.info("get a domain task:{}", poll.domain);
                     domainTaskQueue.offer(poll);
                     CommonUtil.sleep(1000);
                     continue;
                 }
+                logger.info("get a url test task:{}", poll.url);
                 new DomainTester(poll.url).call();
             }
         }
