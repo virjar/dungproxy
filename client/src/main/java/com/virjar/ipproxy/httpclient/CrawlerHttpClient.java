@@ -316,8 +316,12 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             builder.setProxy(new HttpHost(proxyIp, proxyPort));
         }
         httpGet.setConfig(builder.build());
-        CloseableHttpResponse execute = execute(httpGet);
-        return execute.getStatusLine().getStatusCode();
+        try {
+            CloseableHttpResponse execute = execute(httpGet);
+            return execute.getStatusLine().getStatusCode();
+        } finally {
+            httpGet.releaseConnection();
+        }
     }
 
     public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
@@ -413,6 +417,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
         httpPost.setEntity(entity);
         return decodeHttpResponse(execute(httpPost), charset);
+
     }
 
     private String decodeHttpResponse(CloseableHttpResponse response, Charset charset) throws IOException {

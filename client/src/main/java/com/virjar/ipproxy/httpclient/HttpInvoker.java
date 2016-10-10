@@ -22,7 +22,7 @@ public class HttpInvoker {
     static {// TODO 是否考虑cookie reject
         SocketConfig socketConfig = SocketConfig.custom().setSoKeepAlive(true).setSoLinger(-1).setSoReuseAddress(false)
                 .setSoTimeout(ProxyConstant.SOCKETSO_TIMEOUT).setTcpNoDelay(true).build();
-        crawlerHttpClient = CrawlerHttpClientBuilder.create().setMaxConnTotal(400).setMaxConnPerRoute(50)
+        crawlerHttpClient = CrawlerHttpClientBuilder.create().setMaxConnTotal(1000).setMaxConnPerRoute(50)
                 .setDefaultSocketConfig(socketConfig).build();
     }
 
