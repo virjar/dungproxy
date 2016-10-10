@@ -1,137 +1,108 @@
-/*
+
 package com.virjar.ipproxy.ippool.schedule;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.Set;
 
-import javax.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Queues;
-import com.google.common.util.concurrent.RateLimiter;
-import com.ning.http.client.AsyncCompletionHandler;
-import com.ning.http.client.Response;
-import com.virjar.client.http.HttpOption;
-import com.virjar.client.proxyclient.VirjarAsyncClient;
-import com.virjar.common.util.LogUtils;
-import com.virjar.core.beanmapper.BeanMapper;
-import com.virjar.entity.Proxy;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.virjar.ipproxy.httpclient.HttpInvoker;
+import com.virjar.ipproxy.ippool.DomainPool;
+import com.virjar.ipproxy.ippool.config.Context;
+import com.virjar.ipproxy.ippool.config.ObjectFactory;
+import com.virjar.ipproxy.ippool.strategy.resource.ResourceFacade;
+import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.AvProxy;
-import com.virjar.repository.ProxyRepository;
-import com.virjar.utils.JSONUtils;
 
-*/
 /**
- * Description: 初始化时加载Proxy 定时收集Proxy
- *
+ * Description: 初始化时加载Proxy 定时收集Proxy<br/>
+ * 一个工具类,离线跑代理IP数据,构建契合本地环境的代理IP数据
+ * 
  * @author lingtong.fu
  * @version 2016-09-11 18:16
- *//*
+ */
 
 public class Preheater {
 
-    public void init() {
-        LogUtils.info("Preheater ------ init");
-        initProxyQueue();
-    }
+    private static final Logger logger = LoggerFactory.getLogger(Preheater.class);
 
-    private void initProxyQueue() {
-        LogUtils.info("Preheater ------ initProxyQueue");
-        try {
-            List<AvProxy> avProxies = JSONUtils.parseList(getFuture(url).get(60000, TimeUnit.MILLISECONDS),
-                    AvProxy.class);
-            ConcurrentLinkedQueue<AvProxy> queue = Queues.newConcurrentLinkedQueue();
-            assert avProxies != null;
-            for (AvProxy avProxy : avProxies) {
-                queue.add(avProxy);
-            }
-            PROXY_QUEUE = queue;
-        } catch (Exception e) {
-            e.printStackTrace();
+    private static Map<String, DomainPool> unSerialize() {
+        Map<String, DomainPool> pool = Maps.newConcurrentMap();
+        Map<String, List<AvProxy>> stringListMap = Context.getInstance().getAvProxyDumper().unSerializeProxy();
+        if (stringListMap == null) {
+            return pool;
         }
-    }
-
-    public AvProxy getAvProxy() {
-        LogUtils.info("Preheater ------ getAvProxy");
-        AvProxy av = PROXY_QUEUE.poll();
-        if (av == null) {
-            synchronized (Preheater.class) {
-                av = PROXY_QUEUE.poll();
-                if (av == null) {
-                    // 暂时拿一个最高分的Proxy
-                    List<Proxy> proxy = proxyRepository.findAvailable();
-                    av = beanMapper.map(proxy.get(0), AvProxy.class);
-                    if (av != null) {
-                        PROXY_QUEUE.add(av);
-                    }
-                }
+        String importer = Context.getInstance().getResourceFacade();
+        for (Map.Entry<String, List<AvProxy>> entry : stringListMap.entrySet()) {
+            if (pool.containsKey(entry.getKey())) {
+                pool.get(entry.getKey()).addAvailable(entry.getValue());
+            } else {
+                pool.put(entry.getKey(), new DomainPool(entry.getKey(),
+                        ObjectFactory.<ResourceFacade> newInstance(importer), entry.getValue()));
             }
         }
-        return av;
+        return pool;
     }
 
-    private static Future<String> getFuture(String url) throws IOException {
-        HttpOption httpOption = new HttpOption();
-        httpOption.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,**///
-/*;q=0.8");
-        return client.get(url, httpOption, new AsyncCompletionHandler<String>() {
+    private static Map<String, List<AvProxy>> getPoolInfo(Map<String, DomainPool> pool) {
+        return Maps.transformValues(pool, new Function<DomainPool, List<AvProxy>>() {
             @Override
-            public String onCompleted(Response response) throws Exception {
-                if (response.getStatusCode() == 200) {
-                    return response.getResponseBody();
-                }
-                return null;
+            public List<AvProxy> apply(DomainPool domainPool) {// copy 一份新数据出去,数据结构会给外部使用,随意暴露可能会导致数据错误
+                return Lists.transform(domainPool.availableProxy(), new Function<AvProxy, AvProxy>() {
+                    @Override
+                    public AvProxy apply(AvProxy input) {
+                        return input.copy();
+                    }
+                });
+
             }
         });
     }
 
-    public void updateProxy() {
-        LogUtils.info("Preheater ------ updateProxy");
-        RateLimiter rateLimiter = RateLimiter.create(rateLimit);
-        try {
-            rateLimiter.acquire();
-            List<AvProxy> avProxies = JSONUtils.parseList(getFuture(url).get(60000, TimeUnit.MILLISECONDS),
-                    AvProxy.class);
-            if (avProxies != null) {
-                RET_QUEUE.addAll(avProxies);
-                for (int i = 0; i < updateLimit; i++) {
-                    AvProxy ret = RET_QUEUE.poll();
-                    if (ret == null) {
-                        break;
-                    } else {
-                        // TODO 本地可用Proxy验证
-                        PROXY_QUEUE.add(ret);
-                    }
-                }
-
-                LogUtils.info("此次更新共获取 [{}] 个代理", RET_QUEUE.size());
-            } else {
-                LogUtils.error("此次更新失败 请检查av接口");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static void preheat(int expectedNumber, String url) {
+        Map<String, DomainPool> stringDomainPoolMap = unSerialize();
+        String domain = CommonUtil.extractDomain(url);
+        DomainPool domainPool = stringDomainPoolMap.get(domain);
+        if (domainPool == null) {
+            String resourceFacade = Context.getInstance().getResourceFacade();
+            domainPool = new DomainPool(domain, ObjectFactory.<ResourceFacade> newInstance(resourceFacade));
         }
+
+        Set<AvProxy> proxySet = Sets.newHashSet();
+        List<AvProxy> avProxies = domainPool.availableProxy();
+        List<AvProxy> proxiesCopy = avProxies;
+        while (proxySet.size() < expectedNumber) {
+            for (AvProxy avProxy : avProxies) {
+                try {
+                    for (int i = 0; i < 3; i++) {
+                        if (HttpInvoker.getStatus(url, avProxy.getIp(), avProxy.getPort()) == 200) {
+                            proxySet.add(avProxy);
+                            logger.info("valid proxy pass:{}", JSONObject.toJSONString(avProxy));
+                            break;
+                        }
+                    }
+                } catch (IOException e) {
+                    // do nothing
+                }
+            }
+            avProxies = domainPool.getResourceFacade().importProxy(domain, url, 20);
+        }
+
+        // 下线代理池重不可用IP
+        for (AvProxy avProxy : proxiesCopy) {
+            if (!proxySet.contains(avProxy)) {
+                avProxy.offline();
+            }
+        }
+        domainPool.addAvailable(proxySet);
+        Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
     }
-
-    private final int rateLimit = 1000;
-
-    private final int updateLimit = 100;
-
-    private static final String url = "http://115.159.40.202:8080/proxyipcenter/av";
-
-    private static volatile ConcurrentLinkedQueue<AvProxy> PROXY_QUEUE = Queues.newConcurrentLinkedQueue();
-
-    private static volatile ConcurrentLinkedQueue<AvProxy> RET_QUEUE = Queues.newConcurrentLinkedQueue();
-
-    private static VirjarAsyncClient client = new VirjarAsyncClient();
-
-    @Resource
-    private BeanMapper beanMapper;
-
-    @Resource
-    private ProxyRepository proxyRepository;
-
 }
-*/
