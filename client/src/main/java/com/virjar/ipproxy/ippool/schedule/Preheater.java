@@ -81,17 +81,18 @@ public class Preheater {
         List<AvProxy> proxiesCopy = avProxies;
         while (proxySet.size() < expectedNumber) {
             for (AvProxy avProxy : avProxies) {
-                try {
-                    for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 3; i++) {
+                    try {
                         if (HttpInvoker.getStatus(url, avProxy.getIp(), avProxy.getPort()) == 200) {
                             proxySet.add(avProxy);
                             logger.info("valid proxy pass:{}", JSONObject.toJSONString(avProxy));
                             break;
                         }
+                    } catch (IOException e) {
+                        // do nothing
                     }
-                } catch (IOException e) {
-                    // do nothing
                 }
+
             }
             avProxies = domainPool.getResourceFacade().importProxy(domain, url, 20);
         }
