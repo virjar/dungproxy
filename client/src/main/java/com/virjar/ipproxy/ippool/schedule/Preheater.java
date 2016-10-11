@@ -72,6 +72,7 @@ public class Preheater {
         if (domainPool == null) {
             String resourceFacade = Context.getInstance().getResourceFacade();
             domainPool = new DomainPool(domain, ObjectFactory.<ResourceFacade> newInstance(resourceFacade));
+            stringDomainPoolMap.put(domain, domainPool);
         }
 
         Set<AvProxy> proxySet = Sets.newHashSet();
