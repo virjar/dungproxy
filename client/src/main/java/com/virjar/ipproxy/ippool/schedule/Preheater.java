@@ -1,7 +1,6 @@
 
 package com.virjar.ipproxy.ippool.schedule;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,7 +13,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.virjar.ipproxy.httpclient.HttpInvoker;
 import com.virjar.ipproxy.ippool.DomainPool;
 import com.virjar.ipproxy.ippool.config.Context;
 import com.virjar.ipproxy.ippool.config.ObjectFactory;
@@ -81,18 +79,10 @@ public class Preheater {
         List<AvProxy> proxiesCopy = avProxies;
         while (proxySet.size() < expectedNumber) {
             for (AvProxy avProxy : avProxies) {
-                for (int i = 0; i < 3; i++) {
-                    try {
-                        if (HttpInvoker.getStatus(url, avProxy.getIp(), avProxy.getPort()) == 200) {
-                            proxySet.add(avProxy);
-                            logger.info("valid proxy pass:{}", JSONObject.toJSONString(avProxy));
-                            break;
-                        }
-                    } catch (IOException e) {
-                        // do nothing
-                    }
+                if (IpAvValidator.available(avProxy, url)) {
+                    proxySet.add(avProxy);
+                    logger.info("preHeater available test passed for proxy:{}", JSONObject.toJSONString(avProxies));
                 }
-
             }
             avProxies = domainPool.getResourceFacade().importProxy(domain, url, 20);
         }
@@ -103,6 +93,7 @@ public class Preheater {
                 avProxy.offline();
             }
         }
+        // 序列化出去
         domainPool.addAvailable(proxySet);
         Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
     }
