@@ -94,6 +94,7 @@
         <classgenerator></classgenerator>
         <wildcardgenerator>http://proxy.goubanjia.com/</wildcardgenerator>
         <enable>true</enable>
+        <hierate>3h</hierate>
         <successKey>你们的代理IP是怎么获取到的</successKey>
     </maper>
     <maper>
