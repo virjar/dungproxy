@@ -67,18 +67,26 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
         new Thread(this).start();
     }
 
-    public static boolean sendIp(String ip) {
+    public static boolean sendIp(final String ip) {
         if (instance == null) {
             logger.warn("port check component not start,ip add failed");
             return false;
         }
         if (!instance.isRunning) {
-            try {
-                HttpInvoker.get(String.format(SysConfig.getInstance().get("system.port.test.forward.url"), ip));
-            } catch (IOException e) {
-                logger.info("port check forward error:", e);
-                return false;
-            }
+            logger.info("本机没有启动端口扩展检查组件,将会把它转发到其他服务");
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        String s = HttpInvoker
+                                .get(String.format(SysConfig.getInstance().get("system.port.test.forward.url"), ip));
+                        logger.info("port test forward response is:{}", s);
+                    } catch (IOException e) {
+                        logger.info("port check forward error:", e);
+                    }
+                }
+            }.start();
+
             return true;
         }
         return !StringUtils.isEmpty(ip) && instance.addIp(ip);

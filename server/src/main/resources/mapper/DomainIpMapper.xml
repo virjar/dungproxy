@@ -264,4 +264,8 @@
             #{id,jdbcType=BIGINT}
         </foreach>
     </delete>
+
+    <delete id="deleteByDomain">
+        DELETE FROM domainip where domain = #{domain,jdbcType=VARCHAR}
+    </delete>
 </mapper>

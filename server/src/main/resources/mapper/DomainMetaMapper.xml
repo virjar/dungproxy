@@ -1,178 +1,209 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.virjar.repository.DomainMetaRepository" >
-  <resultMap id="BaseResultMap" type="com.virjar.entity.DomainMeta" >
-    <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="domain" property="domain" jdbcType="VARCHAR" />
-    <result column="is_foreign" property="isForeign" jdbcType="BIT" />
-    <result column="is_domestic" property="isDomestic" jdbcType="BIT" />
-    <result column="is_allow_lost_header" property="isAllowLostHeader" jdbcType="BIT" />
-    <result column="has_https" property="hasHttps" jdbcType="BIT" />
-    <result column="support_isp" property="supportIsp" jdbcType="VARCHAR" />
-  </resultMap>
-  <sql id="Base_Column_List" >
-    id, domain, is_foreign, is_domestic, is_allow_lost_header, has_https, support_isp
+<mapper namespace="com.virjar.repository.DomainMetaRepository">
+    <resultMap id="BaseResultMap" type="com.virjar.entity.DomainMeta">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="domain" property="domain" jdbcType="VARCHAR"/>
+        <result column="is_foreign" property="isForeign" jdbcType="BIT"/>
+        <result column="is_domestic" property="isDomestic" jdbcType="BIT"/>
+        <result column="is_allow_lost_header" property="isAllowLostHeader" jdbcType="BIT"/>
+        <result column="has_https" property="hasHttps" jdbcType="BIT"/>
+        <result column="support_isp" property="supportIsp" jdbcType="VARCHAR"/>
+        <result column="last_access_time" property="lastAccessTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, domain, is_foreign, is_domestic, is_allow_lost_header, has_https, support_isp,last_access_time
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    select 
-    <include refid="Base_Column_List" />
-    from domainmeta
-    where id = #{id,jdbcType=BIGINT}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from domainmeta
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from domainmeta
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.virjar.entity.DomainMeta" >
+    <insert id="insert" parameterType="com.virjar.entity.DomainMeta">
     insert into domainmeta (id, domain, is_foreign, 
       is_domestic, is_allow_lost_header, has_https, 
-      support_isp)
+      support_isp,last_access_time)
     values (#{id,jdbcType=BIGINT}, #{domain,jdbcType=VARCHAR}, #{isForeign,jdbcType=BIT}, 
       #{isDomestic,jdbcType=BIT}, #{isAllowLostHeader,jdbcType=BIT}, #{hasHttps,jdbcType=BIT}, 
-      #{supportIsp,jdbcType=VARCHAR})
+      #{supportIsp,jdbcType=VARCHAR},#{lastAccessTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.virjar.entity.DomainMeta" >
-    insert into domainmeta
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
-      <if test="domain != null" >
-        domain,
-      </if>
-      <if test="isForeign != null" >
-        is_foreign,
-      </if>
-      <if test="isDomestic != null" >
-        is_domestic,
-      </if>
-      <if test="isAllowLostHeader != null" >
-        is_allow_lost_header,
-      </if>
-      <if test="hasHttps != null" >
-        has_https,
-      </if>
-      <if test="supportIsp != null" >
-        support_isp,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=BIGINT},
-      </if>
-      <if test="domain != null" >
-        #{domain,jdbcType=VARCHAR},
-      </if>
-      <if test="isForeign != null" >
-        #{isForeign,jdbcType=BIT},
-      </if>
-      <if test="isDomestic != null" >
-        #{isDomestic,jdbcType=BIT},
-      </if>
-      <if test="isAllowLostHeader != null" >
-        #{isAllowLostHeader,jdbcType=BIT},
-      </if>
-      <if test="hasHttps != null" >
-        #{hasHttps,jdbcType=BIT},
-      </if>
-      <if test="supportIsp != null" >
-        #{supportIsp,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.virjar.entity.DomainMeta" >
-    update domainmeta
-    <set >
-      <if test="domain != null" >
-        domain = #{domain,jdbcType=VARCHAR},
-      </if>
-      <if test="isForeign != null" >
-        is_foreign = #{isForeign,jdbcType=BIT},
-      </if>
-      <if test="isDomestic != null" >
-        is_domestic = #{isDomestic,jdbcType=BIT},
-      </if>
-      <if test="isAllowLostHeader != null" >
-        is_allow_lost_header = #{isAllowLostHeader,jdbcType=BIT},
-      </if>
-      <if test="hasHttps != null" >
-        has_https = #{hasHttps,jdbcType=BIT},
-      </if>
-      <if test="supportIsp != null" >
-        support_isp = #{supportIsp,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.virjar.entity.DomainMeta" >
+    <insert id="insertSelective" parameterType="com.virjar.entity.DomainMeta">
+        insert into domainmeta
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="domain != null">
+                domain,
+            </if>
+            <if test="isForeign != null">
+                is_foreign,
+            </if>
+            <if test="isDomestic != null">
+                is_domestic,
+            </if>
+            <if test="isAllowLostHeader != null">
+                is_allow_lost_header,
+            </if>
+            <if test="hasHttps != null">
+                has_https,
+            </if>
+            <if test="supportIsp != null">
+                support_isp,
+            </if>
+            <if test="lastAccessTime != null">
+                last_access_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="domain != null">
+                #{domain,jdbcType=VARCHAR},
+            </if>
+            <if test="isForeign != null">
+                #{isForeign,jdbcType=BIT},
+            </if>
+            <if test="isDomestic != null">
+                #{isDomestic,jdbcType=BIT},
+            </if>
+            <if test="isAllowLostHeader != null">
+                #{isAllowLostHeader,jdbcType=BIT},
+            </if>
+            <if test="hasHttps != null">
+                #{hasHttps,jdbcType=BIT},
+            </if>
+            <if test="supportIsp != null">
+                #{supportIsp,jdbcType=VARCHAR},
+            </if>
+            <if test="lastAccessTime != null">
+                #{lastAccessTime,jdbcType=TIMESTAMP}
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.virjar.entity.DomainMeta">
+        update domainmeta
+        <set>
+            <if test="domain != null">
+                domain = #{domain,jdbcType=VARCHAR},
+            </if>
+            <if test="isForeign != null">
+                is_foreign = #{isForeign,jdbcType=BIT},
+            </if>
+            <if test="isDomestic != null">
+                is_domestic = #{isDomestic,jdbcType=BIT},
+            </if>
+            <if test="isAllowLostHeader != null">
+                is_allow_lost_header = #{isAllowLostHeader,jdbcType=BIT},
+            </if>
+            <if test="hasHttps != null">
+                has_https = #{hasHttps,jdbcType=BIT},
+            </if>
+            <if test="supportIsp != null">
+                support_isp = #{supportIsp,jdbcType=VARCHAR},
+            </if>
+            <if test="lastAccessTime != null">
+                #{lastAccessTime,jdbcType=TIMESTAMP}
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.virjar.entity.DomainMeta">
     update domainmeta
     set domain = #{domain,jdbcType=VARCHAR},
       is_foreign = #{isForeign,jdbcType=BIT},
       is_domestic = #{isDomestic,jdbcType=BIT},
       is_allow_lost_header = #{isAllowLostHeader,jdbcType=BIT},
       has_https = #{hasHttps,jdbcType=BIT},
-      support_isp = #{supportIsp,jdbcType=VARCHAR}
+      support_isp = #{supportIsp,jdbcType=VARCHAR},
+      last_access_time =  #{lastAccessTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.entity.DomainMeta" >
-    select count(*) from domainmeta
-    <where >
-      <if test="id != null" >
-        and id = #{id,jdbcType=BIGINT}
-      </if>
-      <if test="domain != null" >
-        and domain = #{domain,jdbcType=VARCHAR}
-      </if>
-      <if test="isForeign != null" >
-        and is_foreign = #{isForeign,jdbcType=BIT}
-      </if>
-      <if test="isDomestic != null" >
-        and is_domestic = #{isDomestic,jdbcType=BIT}
-      </if>
-      <if test="isAllowLostHeader != null" >
-        and is_allow_lost_header = #{isAllowLostHeader,jdbcType=BIT}
-      </if>
-      <if test="hasHttps != null" >
-        and has_https = #{hasHttps,jdbcType=BIT}
-      </if>
-      <if test="supportIsp != null" >
-        and support_isp = #{supportIsp,jdbcType=VARCHAR}
-      </if>
-    </where>
-  </select>
-  <select id="selectPage" resultMap="BaseResultMap" >
-    select 
-    <include refid="Base_Column_List" />
-    from domainmeta where 1 = 1 
-    <if test="param1.id != null" >
-      and id = #{param1.id,jdbcType=BIGINT}
-    </if>
-    <if test="param1.domain != null" >
-      and domain = #{param1.domain,jdbcType=VARCHAR}
-    </if>
-    <if test="param1.isForeign != null" >
-      and is_foreign = #{param1.isForeign,jdbcType=BIT}
-    </if>
-    <if test="param1.isDomestic != null" >
-      and is_domestic = #{param1.isDomestic,jdbcType=BIT}
-    </if>
-    <if test="param1.isAllowLostHeader != null" >
-      and is_allow_lost_header = #{param1.isAllowLostHeader,jdbcType=BIT}
-    </if>
-    <if test="param1.hasHttps != null" >
-      and has_https = #{param1.hasHttps,jdbcType=BIT}
-    </if>
-    <if test="param1.supportIsp != null" >
-      and support_isp = #{param1.supportIsp,jdbcType=VARCHAR}
-    </if>
-    <if test="param2.sort != null" >
-      order by 
-      <foreach collection="param2.sort" item="order" separator="," >
-        ${order.property} ${order.direction}
-      </foreach>
-    </if>
-    <if test="param2.offset >= 0 and param2.pageSize > 0" >
-      limit ${param2.offset}, ${param2.pageSize}
-    </if>
-  </select>
+    <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.entity.DomainMeta">
+        select count(*) from domainmeta
+        <where>
+            <if test="id != null">
+                and id = #{id,jdbcType=BIGINT}
+            </if>
+            <if test="domain != null">
+                and domain = #{domain,jdbcType=VARCHAR}
+            </if>
+            <if test="isForeign != null">
+                and is_foreign = #{isForeign,jdbcType=BIT}
+            </if>
+            <if test="isDomestic != null">
+                and is_domestic = #{isDomestic,jdbcType=BIT}
+            </if>
+            <if test="isAllowLostHeader != null">
+                and is_allow_lost_header = #{isAllowLostHeader,jdbcType=BIT}
+            </if>
+            <if test="hasHttps != null">
+                and has_https = #{hasHttps,jdbcType=BIT}
+            </if>
+            <if test="supportIsp != null">
+                and support_isp = #{supportIsp,jdbcType=VARCHAR}
+            </if>
+            <if test="lastAccessTime != null">
+                and last_access_time = #{lastAccessTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+    </select>
+    <select id="selectPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from domainmeta where 1 = 1
+        <if test="param1.id != null">
+            and id = #{param1.id,jdbcType=BIGINT}
+        </if>
+        <if test="param1.domain != null">
+            and domain = #{param1.domain,jdbcType=VARCHAR}
+        </if>
+        <if test="param1.isForeign != null">
+            and is_foreign = #{param1.isForeign,jdbcType=BIT}
+        </if>
+        <if test="param1.isDomestic != null">
+            and is_domestic = #{param1.isDomestic,jdbcType=BIT}
+        </if>
+        <if test="param1.isAllowLostHeader != null">
+            and is_allow_lost_header = #{param1.isAllowLostHeader,jdbcType=BIT}
+        </if>
+        <if test="param1.hasHttps != null">
+            and has_https = #{param1.hasHttps,jdbcType=BIT}
+        </if>
+        <if test="param1.supportIsp != null">
+            and support_isp = #{param1.supportIsp,jdbcType=VARCHAR}
+        </if>
+        <if test="param1.lastAccessTime != null">
+            and last_access_time = #{param1.lastAccessTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="param2.sort != null">
+            order by
+            <foreach collection="param2.sort" item="order" separator=",">
+                ${order.property} ${order.direction}
+            </foreach>
+        </if>
+        <if test="param2.offset >= 0 and param2.pageSize > 0">
+            limit ${param2.offset}, ${param2.pageSize}
+        </if>
+    </select>
+    <select id="selectBefore">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM from domainmeta WHERE  last_access_time &lt; #{date,jdbcType=TIMESTAMP} or last_access_time is NULL
+        <if test="page.sort != null">
+            order by
+            <foreach collection="page.sort" item="order" separator=",">
+                ${order.property} ${order.direction}
+            </foreach>
+        </if>
+        <if test="page.offset >= 0 and page.pageSize > 0">
+            limit ${page.offset}, ${page.pageSize}
+        </if>
+    </select>
 </mapper>

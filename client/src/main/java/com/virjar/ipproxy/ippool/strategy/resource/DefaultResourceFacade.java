@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,7 @@ public class DefaultResourceFacade implements ResourceFacade {
     private Logger logger = LoggerFactory.getLogger(DefaultResourceFacade.class);
     private String downloadSign = null;
 
-    private static final String avUrl = "http://115.159.40.202:8080/proxyipcenter/av?";
+    private static final String avUrl = "http://115.159.40.202:8080/proxyipcenter/av";
     private static final String feedBackUrl = "http://115.159.40.202:8080/proxyipcenter/feedBack";
 
     @Override
@@ -37,15 +36,16 @@ public class DefaultResourceFacade implements ResourceFacade {
         valuePairList.add(new BasicNameValuePair("checkUrl", testUrl));
         valuePairList.add(new BasicNameValuePair("domain", domain));
         valuePairList.add(new BasicNameValuePair("num", String.valueOf(number)));
-        String url = avUrl + URLEncodedUtils.format(valuePairList, "utf-8");
-        String response = HttpInvoker.getQuiet(url);
+        String response = HttpInvoker.postQuiet(avUrl, valuePairList);
         if (StringUtils.isBlank(response)) {
-            logger.error("can not get available ip resource from server:{}", url);
+            logger.error("can not get available ip resource from server: request body is {}",
+                    JSONObject.toJSONString(valuePairList));
             return Lists.newArrayList();
         }
         JSONObject jsonObject = JSONObject.parseObject(response);
         if (!jsonObject.getBoolean("status")) {
-            logger.error("can not get available ip resource from server:{} last response is ", url, response);
+            logger.error("can not get available ip resource from server:request  body is  last response is ",
+                    JSONObject.toJSONString(valuePairList), response);
             return Lists.newArrayList();
         }
         jsonObject = jsonObject.getJSONObject("data");

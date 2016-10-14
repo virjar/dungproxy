@@ -57,7 +57,7 @@ public class DomainPool {
         }
     }
 
-    public void addAvailable(List<AvProxy> avProxyList) {
+    public void addAvailable(Collection<AvProxy> avProxyList) {
         readWriteLock.writeLock().lock();
         try {
             for (AvProxy avProxy : avProxyList) {
@@ -105,9 +105,9 @@ public class DomainPool {
     public void feedBack() {
         resourceFacade.feedBack(domain, Lists.newArrayList(consistentBuckets.values()), removedProxies);
         removedProxies.clear();
-       /* for (AvProxy avProxy : consistentBuckets.values()) {
-            avProxy.reset();
-        }*/
+        /*
+         * for (AvProxy avProxy : consistentBuckets.values()) { avProxy.reset(); }
+         */
     }
 
     public void fresh() {
@@ -159,5 +159,9 @@ public class DomainPool {
 
     public String getDomain() {
         return domain;
+    }
+
+    public ResourceFacade getResourceFacade() {
+        return resourceFacade;
     }
 }

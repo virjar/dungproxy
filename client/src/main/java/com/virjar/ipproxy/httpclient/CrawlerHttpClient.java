@@ -316,8 +316,12 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             builder.setProxy(new HttpHost(proxyIp, proxyPort));
         }
         httpGet.setConfig(builder.build());
-        CloseableHttpResponse execute = execute(httpGet);
-        return execute.getStatusLine().getStatusCode();
+        try {
+            CloseableHttpResponse execute = execute(httpGet);
+            return execute.getStatusLine().getStatusCode();
+        } finally {
+            httpGet.releaseConnection();
+        }
     }
 
     public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
@@ -328,7 +332,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
             int proxyPort, HttpClientContext httpClientContext) throws IOException {
         if (params != null && params.size() > 0) {
-            url = url + URLEncodedUtils.format(params, "utf-8");
+            url = url + "?" + URLEncodedUtils.format(params, "utf-8");
         }
         HttpGet httpGet = new HttpGet(url);
         RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
@@ -413,6 +417,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
         httpPost.setEntity(entity);
         return decodeHttpResponse(execute(httpPost), charset);
+
     }
 
     private String decodeHttpResponse(CloseableHttpResponse response, Charset charset) throws IOException {

@@ -40,7 +40,7 @@ public class PoolUtil {
         }
     }
 
-    public static void cleanProxy(HttpClientContext httpClientContext){
+    public static void cleanProxy(HttpClientContext httpClientContext) {
         httpClientContext.removeAttribute(ProxyConstant.USED_PROXY_KEY);
     }
 
@@ -54,5 +54,9 @@ public class PoolUtil {
      */
     public static void bindUserKey(HttpClientContext httpClientContext, Object userId) {
         httpClientContext.setAttribute(ProxyConstant.USER_KEY, userId);
+    }
+
+    public static AvProxy getBindProxy(HttpClientContext httpClientContext) {
+        return httpClientContext.getAttribute(ProxyConstant.USED_PROXY_KEY, AvProxy.class);
     }
 }

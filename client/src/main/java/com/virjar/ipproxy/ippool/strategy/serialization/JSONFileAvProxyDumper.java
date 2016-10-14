@@ -2,7 +2,6 @@ package com.virjar.ipproxy.ippool.strategy.serialization;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -86,10 +85,8 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
                                     }
                                 }));
             }
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             logger.error("error when unSerializeProxy proxy data", e);
-        } catch (IOException e) {
-            logger.error("");
         }
         return ret;
     }

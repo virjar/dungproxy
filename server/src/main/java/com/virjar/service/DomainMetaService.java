@@ -22,4 +22,6 @@ public interface DomainMetaService {
     int selectCount(DomainMetaModel domainMetaModel);
 
     List<DomainMetaModel> selectPage(DomainMetaModel domainMetaModel, Pageable Pageable);
+
+    List<DomainMetaModel> selectBefore(int days,Pageable pageable);
 }
