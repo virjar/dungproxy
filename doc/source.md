@@ -1,5 +1,5 @@
-http://www.ip3366.net/
-http://www.ip002.com/free.html
+   http://www.ip3366.net/
+   http://www.ip002.com/free.html
    http://www.66ip.cn
    http://www.xicidaili.com
    http://www.kuaidaili.com
@@ -40,3 +40,14 @@ http://www.ip002.com/free.html
    http://www.xroxy.com/proxylist.htm
    http://www.mrhinkydink.com/proxies.htm
    http://free-proxy.cz/en/
+   http://www.iphai.com/
+   http://www.swei360.com/
+   http://ip.baizhongsou.com/
+   http://www.httpsdaili.com/
+   http://ip.zdaye.com/
+   http://list.didsoft.com/
+   http://ninjaproxies.com/
+   https://kingproxies.com/
+   http://nntime.com/
+   http://www.cybersyndrome.net/pla.html
+   
