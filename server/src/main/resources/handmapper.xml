@@ -69,15 +69,15 @@
         <wildcardgenerator>http://ip.qiaodm.com/</wildcardgenerator>
         <enable>false</enable>
     </maper>
-    <maper>
-        <!-- 国外网站，需要翻墙,数据为json格式 -->
-        <!-- https://nordvpn.com/wp-admin/admin-ajax.php?searchParameters[0][name]=proxy-country&searchParameters[0][value]=&searchParameters[1][name]=proxy-ports&searchParameters[1][value]=&offset=50&limit=25&action=getProxies -->
+    <!--<maper>
+        &lt;!&ndash; 国外网站，需要翻墙,数据为json格式 &ndash;&gt;
+        &lt;!&ndash; https://nordvpn.com/wp-admin/admin-ajax.php?searchParameters[0][name]=proxy-country&searchParameters[0][value]=&searchParameters[1][name]=proxy-ports&searchParameters[1][value]=&offset=50&limit=25&action=getProxies &ndash;&gt;
         <website>https://nordvpn.com/free-proxy-list/</website>
         <fetcher></fetcher>
         <classgenerator></classgenerator>
         <wildcardgenerator>http://pachong.org/</wildcardgenerator>
         <enable>false</enable>
-    </maper>
+    </maper>-->
     <maper>
         <!-- 需要JavaScript支持 这个不提取端口号,直接使用端口探测机制-->
         <website>http://pachong.org/anonymous.html</website>

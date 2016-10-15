@@ -40,14 +40,19 @@ import com.virjar.utils.SysConfig;
  */
 @Component
 public class DomainTestTask implements Runnable, InitializingBean {
+
     private PriorityQueue<UrlCheckTaskHolder> domainTaskQueue = new PriorityQueue<>();
 
     private static final Logger logger = LoggerFactory.getLogger(DomainTestTask.class);
 
     private boolean isRunning = false;
+
     private ThreadPoolExecutor pool = null;
 
     private static DomainTestTask instance = null;
+
+    private Set<String> runningDomains = Sets.newConcurrentHashSet();
+
     @Resource
     private ProxyRepository proxyRepository;
 
@@ -60,7 +65,6 @@ public class DomainTestTask implements Runnable, InitializingBean {
     @Resource
     private BeanMapper beanMapper;
 
-    private Set<String> runningDomains = Sets.newConcurrentHashSet();
 
     private void init() {
         instance = this;
@@ -114,7 +118,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
                 public void run() {
                     try {
                         String s = HttpInvoker.get(SysConfig.getInstance().get("system.domain.test.forward.url"),
-                                Lists.<NameValuePair> newArrayList(new BasicNameValuePair("url", url)));
+                                Lists.<NameValuePair>newArrayList(new BasicNameValuePair("url", url)));
                         logger.info("domain test forward response is {}", s);
                     } catch (IOException e) {
                         logger.error("error when forward domain test task to sub server");
