@@ -29,5 +29,7 @@ public interface ProxyService {
 
     void save(List<ProxyModel> draftproxys);
 
-    ProxyModel selectByIpPort(String ip,int port);
+    ProxyModel selectByIpPort(String ip, int port);
+
+    public List<ProxyModel> allAvailable();
 }

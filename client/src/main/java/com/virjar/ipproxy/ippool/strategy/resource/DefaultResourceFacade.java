@@ -79,7 +79,6 @@ public class DefaultResourceFacade implements ResourceFacade {
                     response);
             return Lists.newArrayList();
         }
-        jsonObject = jsonObject.getJSONObject("data");
         return convert(jsonObject.getJSONArray("data"));
     }
 

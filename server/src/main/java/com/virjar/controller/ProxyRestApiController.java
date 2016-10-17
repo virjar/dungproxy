@@ -136,4 +136,9 @@ public class ProxyRestApiController {
         distributeService.feedBack(feedBackForm);
         return ReturnUtil.retSuccess("success");
     }
+
+    @RequestMapping("/allAv")
+    public ResponseEntity<ResponseEnvelope<Object>> allAvailable() {
+        return ReturnUtil.retSuccess(proxyService.allAvailable());
+    }
 }
