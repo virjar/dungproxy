@@ -25,6 +25,7 @@ public class DefaultResourceFacade implements ResourceFacade {
 
     private static final String avUrl = "http://115.159.40.202:8080/proxyipcenter/av";
     private static final String feedBackUrl = "http://115.159.40.202:8080/proxyipcenter/feedBack";
+    private static final String allAvUrl = "http://115.159.40.202:8080/proxyipcenter/allAv";
 
     @Override
     public List<AvProxy> importProxy(String domain, String testUrl, Integer number) {
@@ -50,16 +51,7 @@ public class DefaultResourceFacade implements ResourceFacade {
         }
         jsonObject = jsonObject.getJSONObject("data");
         this.downloadSign = jsonObject.getString("sign");
-        JSONArray jsonArray = jsonObject.getJSONArray("data");
-        List<AvProxy> ret = Lists.newArrayList();
-        for (Object obj : jsonArray) {
-            JSONObject proxy = JSONObject.class.cast(obj);
-            AvProxy avProxy = new AvProxy();
-            avProxy.setIp(proxy.getString("ip"));
-            avProxy.setPort(proxy.getInteger("port"));
-            ret.add(avProxy);
-        }
-        return ret;
+        return convert(jsonObject.getJSONArray("data"));
     }
 
     @Override
@@ -72,5 +64,34 @@ public class DefaultResourceFacade implements ResourceFacade {
         feedBackForm.setAvProxy(avProxies);
         feedBackForm.setDisableProxy(disableProxies);
         HttpInvoker.postQuiet(feedBackUrl, feedBackForm);
+    }
+
+    @Override
+    public List<AvProxy> allAvailable() {
+        String response = HttpInvoker.getQuiet(allAvUrl);
+        if (StringUtils.isBlank(response)) {
+            logger.error("can not get available ip resource from server: ");
+            return Lists.newArrayList();
+        }
+        JSONObject jsonObject = JSONObject.parseObject(response);
+        if (!jsonObject.getBoolean("status")) {
+            logger.error("can not get available ip resource from server:request  body is  last response is {} ",
+                    response);
+            return Lists.newArrayList();
+        }
+        jsonObject = jsonObject.getJSONObject("data");
+        return convert(jsonObject.getJSONArray("data"));
+    }
+
+    private List<AvProxy> convert(JSONArray jsonArray) {
+        List<AvProxy> ret = Lists.newArrayList();
+        for (Object obj : jsonArray) {
+            JSONObject proxy = JSONObject.class.cast(obj);
+            AvProxy avProxy = new AvProxy();
+            avProxy.setIp(proxy.getString("ip"));
+            avProxy.setPort(proxy.getInteger("port"));
+            ret.add(avProxy);
+        }
+        return ret;
     }
 }

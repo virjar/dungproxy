@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.virjar.ipproxy.ippool.schedule.PreHeater;
 import com.virjar.ipproxy.ippool.strategy.offline.Offline;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.BlackListProxyStrategy;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.ProxyDomainStrategy;
@@ -43,6 +44,8 @@ public class Context {
     public String getResourceFacade() {
         return resourceFacade;
     }
+
+    private PreHeater preHeater = new PreHeater();
 
     private Context() {
     }
@@ -235,4 +238,7 @@ public class Context {
         }
     }
 
+    public PreHeater getPreHeater() {
+        return preHeater;
+    }
 }

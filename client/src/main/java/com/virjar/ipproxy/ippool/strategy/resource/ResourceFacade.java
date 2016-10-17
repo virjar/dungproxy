@@ -13,4 +13,7 @@ public interface ResourceFacade {
     List<AvProxy> importProxy(String domain, String testUrl, Integer number);
 
     void feedBack(String domain, List<AvProxy> avProxies, List<AvProxy> disableProxies);
+
+    //for preHeater
+    List<AvProxy> allAvailable();
 }

@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.virjar.ipproxy.ippool.config.Context;
+import com.virjar.ipproxy.ippool.schedule.PreHeater;
 import com.virjar.ipproxy.ippool.strategy.resource.DefaultResourceFacade;
 import com.virjar.ipproxy.ippool.strategy.resource.ResourceFacade;
 import com.virjar.model.AvProxy;
@@ -115,6 +117,10 @@ public class DomainPool {
             List<AvProxy> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
                     coreSize);
             addAvailable(avProxies);
+            PreHeater preHeater = Context.getInstance().getPreHeater();
+            for (AvProxy avProxy : avProxies) {
+                preHeater.check4Url(avProxy, testUrls.get(random.nextInt(testUrls.size())), this);
+            }
             isRefreshing.set(false);
         }
     }
