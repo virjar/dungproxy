@@ -31,11 +31,23 @@ public class SysConfig {
     private int domainCheckThread;
     private int commonTaskThread;
 
+    /**
+     * proxyService相关配置
+     */
+    private int httpClientCodecMaxInitialLineLength;
+    private int httpClientCodecMaxHeaderSize;
+    private int httpClientCodecMaxChunkSize;
+    private int maxAggregateSize;
+    private int clientReadTimeoutSeconds;
+    private int clientWriteTimeoutSeconds;
+    private int clientAllTimeoutSeconds;
+
     private SysConfig() {
         load();
     }
 
     private static SysConfig instance;
+
     static {
         instance = new SysConfig();
     }
@@ -73,7 +85,18 @@ public class SysConfig {
             ipCrawlerThread = NumberUtils.toInt(properties.getProperty("system.thread.ipCrawlerThread"), 2);
             portCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.portCheckThread"), 10);
             domainCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.domainCheckThread"), 5);
-            commonTaskThread = NumberUtils.toInt(properties.getProperty("system.thread.commonTaskThread"),2);
+            commonTaskThread = NumberUtils.toInt(properties.getProperty("system.thread.commonTaskThread"), 2);
+
+            /**
+             * proxyService相关配置
+             */
+            httpClientCodecMaxInitialLineLength = NumberUtils.toInt(properties.getProperty("client.codec.max.initial.line.length"), 4096);
+            httpClientCodecMaxHeaderSize = NumberUtils.toInt(properties.getProperty("client.codec.max.header.size"), 4096);
+            httpClientCodecMaxChunkSize = NumberUtils.toInt(properties.getProperty("client.codec.max.chunk.size"), 4096);
+            maxAggregateSize = NumberUtils.toInt(properties.getProperty("client.max.aggregate.size"), 4096);
+            clientReadTimeoutSeconds = NumberUtils.toInt(properties.getProperty("client.read.timeout.seconds"), 4096);
+            clientWriteTimeoutSeconds = NumberUtils.toInt(properties.getProperty("client.write.timeout.seconds"), 4096);
+            clientAllTimeoutSeconds = NumberUtils.toInt(properties.getProperty("client.all.timeout.seconds"), 4096);
 
         } catch (IOException e) {
             throw new IllegalStateException("配置文件加载失败,系统不能启动", e);
@@ -162,4 +185,31 @@ public class SysConfig {
         return domainCheckThread;
     }
 
+    public int getHttpClientCodecMaxInitialLineLength() {
+        return httpClientCodecMaxInitialLineLength;
+    }
+
+    public int getHttpClientCodecMaxHeaderSize() {
+        return httpClientCodecMaxHeaderSize;
+    }
+
+    public int getHttpClientCodecMaxChunkSize() {
+        return httpClientCodecMaxChunkSize;
+    }
+
+    public int getMaxAggregateSize() {
+        return maxAggregateSize;
+    }
+
+    public int getClientReadTimeoutSeconds() {
+        return clientReadTimeoutSeconds;
+    }
+
+    public int getClientWriteTimeoutSeconds() {
+        return clientWriteTimeoutSeconds;
+    }
+
+    public int getClientAllTimeoutSeconds() {
+        return clientAllTimeoutSeconds;
+    }
 }
