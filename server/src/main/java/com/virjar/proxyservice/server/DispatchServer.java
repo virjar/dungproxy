@@ -18,8 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.Executors;
-
+import com.virjar.proxyservice.common.util.Executors;
 import static com.virjar.proxyservice.common.util.Executors.bossGroup;
 import static com.virjar.proxyservice.common.util.Executors.workerGroup;
 
@@ -70,7 +69,7 @@ public class DispatchServer extends Thread {
             return;
         }
 
-        // TODO 初始化domain和proxy数据
+        // TODO 加载 domain和proxy数据
 
         try {
             HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
@@ -94,7 +93,7 @@ public class DispatchServer extends Thread {
                                     SysConfig.getInstance().getClientReadTimeoutSeconds(),
                                     SysConfig.getInstance().getClientWriteTimeoutSeconds(),
                                     SysConfig.getInstance().getClientAllTimeoutSeconds(),
-                                    new DispatchHandler(serverHost, proxyClient, validator))
+                                    new DispatchHandler(serverHost))
                     );
 
             ch = (NioServerSocketChannel) b.bind(serverPort).addListener(new ChannelFutureListener() {
@@ -125,7 +124,7 @@ public class DispatchServer extends Thread {
                 ch.close().awaitUninterruptibly();
             }
             Executors.shutdownAll();
-            proxyClient.close();
+            //TODO proxyClient close
             LOGGER.info("成功关闭Netty服务器, 端口 {}", serverPort);
         } catch (Exception e) {
             LOGGER.warn("关闭Netty服务器时出错, 端口 {}", serverPort, e);

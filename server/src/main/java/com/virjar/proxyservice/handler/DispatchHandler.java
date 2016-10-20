@@ -35,7 +35,11 @@ public class DispatchHandler extends ClientProcessHandler {
 
     private String serverHost;
     // 暂用 apache tunnel proxyClient.
-    private ProxyClient proxyClient;
+    public static final ProxyClient proxyClient = new ProxyClient();
+
+    public DispatchHandler(String serverHost) {
+        this.serverHost = serverHost;
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {

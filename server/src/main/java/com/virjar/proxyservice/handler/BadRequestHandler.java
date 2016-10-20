@@ -14,6 +14,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
  */
 @ChannelHandler.Sharable
 public class BadRequestHandler extends EndpointHandler {
+
     public static final BadRequestHandler instance = new BadRequestHandler();
 
     private BadRequestHandler() {

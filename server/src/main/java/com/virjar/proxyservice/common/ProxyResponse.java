@@ -30,4 +30,11 @@ public class ProxyResponse extends DefaultFullHttpResponse {
         headers().set(HttpHeaders.Names.CONNECTION, "close");
     }
 
+    public static ProxyResponse proxyError(long proxyId, String message, String traceId) {
+        ProxyResponse resp = new ProxyResponse(new HttpResponseStatus(417, message));
+        resp.headers().set("Proxy-Router", proxyId);
+        resp.headers().set("Proxy-Error-Trace", traceId);
+        return resp;
+    }
+
 }
