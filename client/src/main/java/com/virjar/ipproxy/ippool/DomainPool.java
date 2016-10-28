@@ -12,7 +12,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.virjar.ipproxy.ippool.config.Context;
-import com.virjar.ipproxy.ippool.schedule.PreHeater;
 import com.virjar.ipproxy.ippool.strategy.resource.DefaultResourceFacade;
 import com.virjar.ipproxy.ippool.strategy.resource.ResourceFacade;
 import com.virjar.model.AvProxy;

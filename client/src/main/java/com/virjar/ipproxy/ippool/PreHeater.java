@@ -1,5 +1,5 @@
 
-package com.virjar.ipproxy.ippool.schedule;
+package com.virjar.ipproxy.ippool;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +11,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.virjar.ipproxy.ippool.schedule.IpAvValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.virjar.ipproxy.ippool.DomainPool;
 import com.virjar.ipproxy.ippool.config.Context;
 import com.virjar.ipproxy.ippool.config.ObjectFactory;
 import com.virjar.ipproxy.ippool.strategy.resource.ResourceFacade;

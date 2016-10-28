@@ -3,7 +3,6 @@ package com.virjar.ipproxy.ippool;
 import java.util.List;
 import java.util.Map;
 
-import com.virjar.ipproxy.ippool.schedule.PreHeater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
