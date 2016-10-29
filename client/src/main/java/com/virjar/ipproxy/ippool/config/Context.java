@@ -2,22 +2,26 @@ package com.virjar.ipproxy.ippool.config;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
 import com.virjar.ipproxy.ippool.PreHeater;
+import com.virjar.ipproxy.ippool.schedule.IpAvValidator;
 import com.virjar.ipproxy.ippool.strategy.offline.Offline;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.BlackListProxyStrategy;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.ProxyDomainStrategy;
 import com.virjar.ipproxy.ippool.strategy.proxydomain.WhiteListProxyStrategy;
 import com.virjar.ipproxy.ippool.strategy.serialization.AvProxyDumper;
 import com.virjar.ipproxy.ippool.strategy.serialization.JSONFileAvProxyDumper;
+import com.virjar.model.DefaultProxy;
 
 /**
  * client配置 Created by virjar on 16/9/30.
@@ -47,6 +51,8 @@ public class Context {
 
     private PreHeater preHeater = new PreHeater();
 
+    private DefaultProxy defaultProxy;
+
     private Context() {
     }
 
@@ -64,6 +70,10 @@ public class Context {
 
     public int getFeedBackDuration() {
         return feedBackDuration;
+    }
+
+    public DefaultProxy getDefaultProxy() {
+        return defaultProxy;
     }
 
     public static Context getInstance() {
@@ -114,6 +124,7 @@ public class Context {
 
         private String avDumper;
         private String defaultAvDumpeFileName;
+        private String defaultProxy;
 
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
@@ -163,6 +174,17 @@ public class Context {
 
         public ConfigBuilder setProxyDomainStrategy(String proxyDomainStrategy) {
             this.proxyDomainStrategy = proxyDomainStrategy;
+            return this;
+        }
+
+        /**
+         * 设置默认的代理,如果当前代理池还拿不到代理,则尝试使用默认,默认代理应该为一个转发服务器
+         * 
+         * @param defaultProxy ip:port
+         * @return configBuilder
+         */
+        public ConfigBuilder setDefaultProxy(String defaultProxy) {
+            this.defaultProxy = defaultProxy;
             return this;
         }
 
@@ -234,7 +256,30 @@ public class Context {
             } else {
                 context.avProxyDumper = ObjectFactory.newInstance(avDumper);
             }
+
+            // default proxy
+            resolveDefaultProxy(this.defaultProxy, context);
             return context;
+        }
+
+        void resolveDefaultProxy(String proxyString, Context context) {
+            if (StringUtils.isEmpty(proxyString)) {
+                return;
+            }
+            try {
+                List<String> strings = Splitter.on(":").omitEmptyStrings().trimResults().splitToList(proxyString);
+                DefaultProxy defaultProxy = new DefaultProxy();
+                int port = NumberUtils.toInt(strings.get(1));
+                if (!IpAvValidator.validateProxyConnect(new HttpHost(strings.get(0), port))) {
+                    logger.warn("不能链接到默认代理服务器,默认代理资源加载失败");
+                    return;
+                }
+                defaultProxy.setIp(strings.get(0));
+                defaultProxy.setPort(port);
+                context.defaultProxy = defaultProxy;
+            } catch (Exception e) {
+                logger.warn("默认代理加载失败,不能识别的格式:{}", proxyString);
+            }
         }
     }
 

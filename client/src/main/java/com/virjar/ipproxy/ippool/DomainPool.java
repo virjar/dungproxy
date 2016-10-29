@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.virjar.model.DefaultProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,11 +82,15 @@ public class DomainPool {
             testUrls.set(random.nextInt(10), url);
         }
         if (consistentBuckets.size() < minSize) {
-            fresh();
+            refreshInNewThread();//在新线程刷新
         }
 
         readWriteLock.readLock().lock();
-        try {// 注意hash空间问题,之前是Integer,hash值就是字面值,导致hash空间只存在了正数空间
+        try {
+            if(consistentBuckets.size() ==0){
+                return Context.getInstance().getDefaultProxy();
+            }
+            // 注意hash空间问题,之前是Integer,hash值就是字面值,导致hash空间只存在了正数空间
             AvProxy hint = hint(userID == null ? String.valueOf(random.nextInt()).hashCode() : userID.hashCode());
             if (userID != null && hint != null) {
                 if (!hint.equals(bindMap.get(userID))) {
@@ -97,6 +102,18 @@ public class DomainPool {
         } finally {
             readWriteLock.readLock().unlock();
         }
+    }
+
+    private void refreshInNewThread(){
+        if(isRefreshing.get()){
+            return;
+        }
+        new  Thread(){
+            @Override
+            public void run() {
+                fresh();
+            }
+        }.start();
     }
 
     public boolean needFresh() {

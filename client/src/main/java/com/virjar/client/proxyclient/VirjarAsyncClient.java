@@ -202,7 +202,7 @@ public class VirjarAsyncClient {
 
     //返回值见Futures.successfulAsList的注释
     public <T> ListenableFuture<List<T>> get(final Map<String, AsyncHandler<T>> urlAndHandlers) {
-        ListenableFuture[] futures = new ListenableFuture[urlAndHandlers.size()];
+        ListenableFuture<T>[] futures = new ListenableFuture[urlAndHandlers.size()];
         int index = 0;
         for (Map.Entry<String, AsyncHandler<T>> asyncHandlerEntry : urlAndHandlers.entrySet()) {
             String url = asyncHandlerEntry.getKey();

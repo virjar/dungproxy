@@ -10,6 +10,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 
 import com.virjar.ipproxy.ippool.config.ProxyConstant;
 
@@ -23,7 +24,7 @@ public class HttpInvoker {
         SocketConfig socketConfig = SocketConfig.custom().setSoKeepAlive(true).setSoLinger(-1).setSoReuseAddress(false)
                 .setSoTimeout(ProxyConstant.SOCKETSO_TIMEOUT).setTcpNoDelay(true).build();
         crawlerHttpClient = CrawlerHttpClientBuilder.create().setMaxConnTotal(1000).setMaxConnPerRoute(50)
-                .setDefaultSocketConfig(socketConfig).build();
+                .setDefaultSocketConfig(socketConfig).setRedirectStrategy(new LaxRedirectStrategy()).build();
     }
 
     public static String get(String url, List<NameValuePair> nameValuePairs, Header[] headers, String proxyIp,
