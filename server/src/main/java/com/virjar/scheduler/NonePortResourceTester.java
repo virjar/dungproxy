@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.Proxy;
-import com.virjar.ipproxy.httpclient.HttpInvoker;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.service.ProxyService;

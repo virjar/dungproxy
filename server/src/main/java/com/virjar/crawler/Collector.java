@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
+import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
+import com.virjar.dungproxy.client.util.CommonUtil;
+import com.virjar.dungproxy.client.util.PoolUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -21,10 +25,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.virjar.crawler.extractor.XmlModeFetcher;
 import com.virjar.entity.Proxy;
-import com.virjar.ipproxy.httpclient.HttpInvoker;
-import com.virjar.ipproxy.ippool.config.ObjectFactory;
-import com.virjar.ipproxy.util.CommonUtil;
-import com.virjar.ipproxy.util.PoolUtil;
 
 public class Collector {
 

@@ -9,6 +9,8 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
+import com.virjar.dungproxy.client.util.CommonUtil;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
@@ -22,8 +24,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.Proxy;
-import com.virjar.ipproxy.httpclient.HttpInvoker;
-import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.DomainIpModel;
 import com.virjar.model.DomainMetaModel;
 import com.virjar.model.ProxyModel;

@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -18,7 +19,6 @@ import com.alibaba.fastjson.parser.Feature;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.RateLimiter;
 import com.virjar.entity.Proxy;
-import com.virjar.ipproxy.httpclient.HttpInvoker;
 import com.virjar.repository.ProxyRepository;
 import com.virjar.utils.SysConfig;
 

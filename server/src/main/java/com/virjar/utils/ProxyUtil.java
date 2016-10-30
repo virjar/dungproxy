@@ -6,6 +6,7 @@ import java.net.*;
 import java.util.Enumeration;
 import java.util.List;
 
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -16,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Splitter;
-import com.virjar.ipproxy.httpclient.HttpInvoker;
 import com.virjar.model.AvailbelCheckResponse;
 import com.virjar.model.ProxyModel;
 

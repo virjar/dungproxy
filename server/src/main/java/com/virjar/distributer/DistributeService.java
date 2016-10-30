@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.virjar.dungproxy.client.util.CommonUtil;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,7 +19,6 @@ import com.google.common.collect.Sets;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.DomainIp;
 import com.virjar.entity.Proxy;
-import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.model.DomainIpModel;
 import com.virjar.model.ProxyModel;

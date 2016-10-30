@@ -1,6 +1,6 @@
 package com.virjar.proxyservice.server;
 
-import com.virjar.ipproxy.httpclient.HttpInvoker;
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import com.virjar.proxyservice.common.util.NetworkUtil;
 import com.virjar.proxyservice.handler.DispatchHandler;
 import com.virjar.proxyservice.handler.DispatchHandlerInitializer;

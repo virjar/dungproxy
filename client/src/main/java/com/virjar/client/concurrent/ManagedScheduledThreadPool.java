@@ -12,7 +12,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +42,7 @@ public class ManagedScheduledThreadPool extends ScheduledThreadPoolExecutor impl
     }
 
     public void beforeExecute(Thread t, Runnable r) {
-        local.set(DateTime.now().getMillis());
+        local.set(System.currentTimeMillis());
         super.beforeExecute(t, r);
 
         try {
@@ -58,7 +57,7 @@ public class ManagedScheduledThreadPool extends ScheduledThreadPoolExecutor impl
         try {
             long e = local.get();
             local.remove();
-            this.finishTime.addAndGet(DateTime.now().getMillis() - e);
+            this.finishTime.addAndGet(System.currentTimeMillis() - e);
         } catch (Throwable var11) {
             var11.printStackTrace();
         }

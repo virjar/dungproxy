@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
+import com.virjar.dungproxy.client.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -16,7 +17,6 @@ import com.google.common.collect.Maps;
 import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.crawler.Collector;
 import com.virjar.entity.Proxy;
-import com.virjar.ipproxy.util.CommonUtil;
 import com.virjar.model.ProxyModel;
 import com.virjar.service.ProxyService;
 import com.virjar.utils.NameThreadFactory;

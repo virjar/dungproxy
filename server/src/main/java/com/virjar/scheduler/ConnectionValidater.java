@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.virjar.ipproxy.util.CommonUtil;
+import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.utils.NameThreadFactory;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
