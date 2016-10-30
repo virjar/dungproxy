@@ -81,12 +81,12 @@ public class DomainPool {
             testUrls.set(random.nextInt(10), url);
         }
         if (consistentBuckets.size() < minSize) {
-            refreshInNewThread();//在新线程刷新
+            refreshInNewThread();// 在新线程刷新
         }
 
         readWriteLock.readLock().lock();
         try {
-            if(consistentBuckets.size() ==0){
+            if (consistentBuckets.size() == 0) {
                 return Context.getInstance().getDefaultProxy();
             }
             // 注意hash空间问题,之前是Integer,hash值就是字面值,导致hash空间只存在了正数空间
@@ -103,11 +103,11 @@ public class DomainPool {
         }
     }
 
-    private void refreshInNewThread(){
-        if(isRefreshing.get()){
+    private void refreshInNewThread() {
+        if (isRefreshing.get()) {
             return;
         }
-        new  Thread(){
+        new Thread() {
             @Override
             public void run() {
                 fresh();
@@ -131,11 +131,15 @@ public class DomainPool {
         if (isRefreshing.compareAndSet(false, true)) {
             List<AvProxy> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
                     coreSize);
-            addAvailable(avProxies);
+            // addAvailable(avProxies);
+            List<AvProxy> passedProxy = Lists.newArrayList();
             PreHeater preHeater = Context.getInstance().getPreHeater();
             for (AvProxy avProxy : avProxies) {
-                preHeater.check4Url(avProxy, testUrls.get(random.nextInt(testUrls.size())), this);
+                if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
+                    passedProxy.add(avProxy);
+                }
             }
+            addAvailable(passedProxy);
             isRefreshing.set(false);
         }
     }

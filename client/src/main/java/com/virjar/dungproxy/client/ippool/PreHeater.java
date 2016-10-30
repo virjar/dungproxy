@@ -11,7 +11,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.virjar.dungproxy.client.util.IpAvValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +22,9 @@ import com.google.common.collect.Sets;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.ippool.strategy.resource.ResourceFacade;
-import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.util.CommonUtil;
+import com.virjar.dungproxy.client.util.IpAvValidator;
 
 /**
  * Description: 初始化时加载Proxy 定时收集Proxy<br/>
@@ -38,13 +38,26 @@ public class PreHeater {
 
     private static final Logger logger = LoggerFactory.getLogger(PreHeater.class);
     private Set<String> taskUrls = Sets.newConcurrentHashSet();
-    private int threadNumber = 10;
+    private int threadNumber = 40;//TODO 配置这个参数
     private ExecutorService pool;
     private AtomicBoolean hasInit = new AtomicBoolean(false);
     private Map<String, DomainPool> stringDomainPoolMap;
     private long totalTask;
     private AtomicLong processedTask = new AtomicLong(0);
     private AtomicBoolean isRunning = new AtomicBoolean(false);
+
+    /**
+     * 提供一个主函数,用于在jar包调用preHeater模块,为数据真正可用做准备
+     */
+    public static void main(String[] args) {
+        List<String> preHeaterTaskList = Context.getInstance().getPreHeaterTaskList();
+        PreHeater preHeater = new PreHeater();
+        for (String url : preHeaterTaskList) {
+            preHeater.addTask(url);
+        }
+        preHeater.doPreHeat();
+        preHeater.distroy();
+    }
 
     private void init() {
         if (hasInit.compareAndSet(false, true)) {
@@ -72,10 +85,10 @@ public class PreHeater {
         if (!hasInit.get()) {
             init();
         }
-        List<AvProxy> candidateProxies = stringDomainPoolMap.values().iterator().next().getResourceFacade()
-                .allAvailable();
+        ResourceFacade resourceFacade = ObjectFactory.newInstance(Context.getInstance().getResourceFacade());
+        List<AvProxy> candidateProxies = resourceFacade.allAvailable();
         totalTask = candidateProxies.size() * (long) taskUrls.size();
-        List<Future<Object>> futureList = Lists.newArrayList();
+        List<Future<Boolean>> futureList = Lists.newArrayList();
         for (AvProxy avProxy : candidateProxies) {
             for (String url : taskUrls) {
                 futureList.add(pool.submit(new UrlCheckTask(avProxy, url)));
@@ -92,14 +105,23 @@ public class PreHeater {
      * @param url 测试URL
      * @param domainPool 成功后放入的
      */
-    public void check4Url(AvProxy avProxy, String url, DomainPool domainPool) {
+    public void check4UrlAsync(AvProxy avProxy, String url, DomainPool domainPool) {
         if (!hasInit.get()) {
             init();
         }
         pool.submit(new UrlCheckTask(domainPool, avProxy, url));
+
     }
 
-    private class UrlCheckTask implements Callable<Object> {
+    public boolean check4UrlSync(AvProxy avProxy, String url, DomainPool domainPool) {
+        try {
+            return new UrlCheckTask(domainPool, avProxy, url).call();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private class UrlCheckTask implements Callable<Boolean> {
         String url;
         AvProxy proxy;
         DomainPool domainPool;
@@ -117,7 +139,7 @@ public class PreHeater {
         }
 
         @Override
-        public Object call() throws Exception {
+        public Boolean call() throws Exception {
             String domain = CommonUtil.extractDomain(url);
             if (domainPool == null) {
                 domainPool = stringDomainPoolMap.get(domain);
@@ -136,10 +158,12 @@ public class PreHeater {
                 domainPool.addAvailable(Lists.newArrayList(proxy));
                 logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(proxy),
                         url);
+                return true;
             } else {
                 proxy.offline();
+                return false;
+
             }
-            return this;
         }
     }
 

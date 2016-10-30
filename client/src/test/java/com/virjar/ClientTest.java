@@ -1,3 +1,4 @@
+/*
 package com.virjar;
 
 import com.ning.http.client.AsyncCompletionHandler;
@@ -15,12 +16,14 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+*/
 /**
  * Description: ClientTest
  *
  * @author lingtong.fu
  * @version 2016-09-04 23:58
- */
+ *//*
+
 public class ClientTest {
 
     public static void main(String[] args) {
@@ -85,3 +88,4 @@ public class ClientTest {
         return phone;
     }
 }
+*/

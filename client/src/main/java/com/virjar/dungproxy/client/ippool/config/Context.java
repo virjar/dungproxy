@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.PreHeater;
-import com.virjar.dungproxy.client.util.IpAvValidator;
 import com.virjar.dungproxy.client.ippool.strategy.offline.Offline;
 import com.virjar.dungproxy.client.ippool.strategy.proxydomain.BlackListProxyStrategy;
 import com.virjar.dungproxy.client.ippool.strategy.proxydomain.ProxyDomainStrategy;
@@ -22,6 +22,7 @@ import com.virjar.dungproxy.client.ippool.strategy.proxydomain.WhiteListProxyStr
 import com.virjar.dungproxy.client.ippool.strategy.serialization.AvProxyDumper;
 import com.virjar.dungproxy.client.ippool.strategy.serialization.JSONFileAvProxyDumper;
 import com.virjar.dungproxy.client.model.DefaultProxy;
+import com.virjar.dungproxy.client.util.IpAvValidator;
 
 /**
  * client配置 Created by virjar on 16/9/30.
@@ -53,6 +54,8 @@ public class Context {
 
     private DefaultProxy defaultProxy;
 
+    private List<String> preHeaterTaskList;
+
     private Context() {
     }
 
@@ -74,6 +77,10 @@ public class Context {
 
     public DefaultProxy getDefaultProxy() {
         return defaultProxy;
+    }
+
+    public List<String> getPreHeaterTaskList() {
+        return preHeaterTaskList;
     }
 
     public static Context getInstance() {
@@ -125,6 +132,7 @@ public class Context {
         private String avDumper;
         private String defaultAvDumpeFileName;
         private String defaultProxy;
+        private String preHeaterTaskList;
 
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
@@ -140,6 +148,8 @@ public class Context {
 
             avDumper = properties.getProperty(ProxyConstant.PROXY_SERIALIZER);
             defaultAvDumpeFileName = properties.getProperty(ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE);
+            defaultProxy = properties.getProperty(ProxyConstant.DEFAULT_PROXY);
+            preHeaterTaskList = properties.getProperty(ProxyConstant.PREHEATER_TASK_LIST);
             return this;
         }
 
@@ -235,7 +245,7 @@ public class Context {
 
             // offliner
             if (this.offliner == null) {
-                offliner = "com.virjar.ipproxy.ippool.strategy.offline.DefaultOffliner";
+                offliner = "com.virjar.dungproxy.client.ippool.strategy.offline.DefaultOffliner";
             }
             context.offliner = ObjectFactory.newInstance(offliner);
 
@@ -259,6 +269,13 @@ public class Context {
 
             // default proxy
             resolveDefaultProxy(this.defaultProxy, context);
+
+            if (StringUtils.isNoneEmpty(this.preHeaterTaskList)) {
+                context.preHeaterTaskList = Splitter.on(",").omitEmptyStrings().trimResults()
+                        .splitToList(preHeaterTaskList);
+            } else {
+                context.preHeaterTaskList = Lists.newArrayList();
+            }
             return context;
         }
 

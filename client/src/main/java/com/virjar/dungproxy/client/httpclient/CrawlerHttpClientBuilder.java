@@ -1100,8 +1100,6 @@ public class CrawlerHttpClientBuilder {
 
             });
         }
-
-        // TODO 这里替换为我们的
         return new CrawlerHttpClient(execChain, connManagerCopy, routePlannerCopy, cookieSpecRegistryCopy,
                 authSchemeRegistryCopy, defaultCookieStore, defaultCredentialsProvider,
                 defaultRequestConfig != null ? defaultRequestConfig : RequestConfig.DEFAULT, closeablesCopy);
