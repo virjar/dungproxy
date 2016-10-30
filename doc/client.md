@@ -135,7 +135,6 @@ bogon:product virjar$ java -jar client-0.0.1-SNAPSHOT.jar
 2016/10/31-01:37:45 WARN  [pool-1-thread-25] c.v.d.c.i.DomainPool:182>>IP offline {"avgScore":0,"disable":true,"domainPool":{"domain":"pachong.org","resourceFacade":{}},"failedCount":0,"init":true,"ip":"218.205.76.131","port":8080,"referCount":0}
 2016/10/31-01:37:45 WARN  [pool-1-thread-13] c.v.d.c.i.DomainPool:182>>IP offline {"avgScore":0,"disable":true,"domainPool":{"domain":"pachong.org","resourceFacade":{}},"failedCount":0,"init":true,"ip":"111.1.23.162","port":80,"referCount":0}
 2016/10/31-01:37:45 WARN  [pool-1-thread-27] c.v.d.c.i.DomainPool:182>>IP offline {"avgScore":0,"disable":true,"domainPool":{"domain":"proxy.goubanjia.com","resourceFacade":{}},"failedCount":0,"init":true,"ip":"218.205.76.131","port":8080,"referCount":0}
-...
 ```
 
 ### 使用统一代理服务
