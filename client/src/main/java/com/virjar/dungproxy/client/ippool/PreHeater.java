@@ -1,6 +1,7 @@
 
 package com.virjar.dungproxy.client.ippool;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +39,7 @@ public class PreHeater {
 
     private static final Logger logger = LoggerFactory.getLogger(PreHeater.class);
     private Set<String> taskUrls = Sets.newConcurrentHashSet();
-    private int threadNumber = 40;//TODO 配置这个参数
+    private int threadNumber = 40;// TODO 配置这个参数
     private ExecutorService pool;
     private AtomicBoolean hasInit = new AtomicBoolean(false);
     private Map<String, DomainPool> stringDomainPoolMap;
@@ -85,10 +86,23 @@ public class PreHeater {
         if (!hasInit.get()) {
             init();
         }
+        Map<String, String> urlMap = transformDomainUrlMap(taskUrls);
+        List<Future<Boolean>> futureList = Lists.newArrayList();
         ResourceFacade resourceFacade = ObjectFactory.newInstance(Context.getInstance().getResourceFacade());
         List<AvProxy> candidateProxies = resourceFacade.allAvailable();
         totalTask = candidateProxies.size() * (long) taskUrls.size();
-        List<Future<Boolean>> futureList = Lists.newArrayList();
+        // 加载历史数据
+        for (Map.Entry<String, DomainPool> entry : stringDomainPoolMap.entrySet()) {
+            if (!urlMap.containsKey(entry.getKey())) {
+                continue;
+            }
+            for (AvProxy avProxy : entry.getValue().availableProxy()) {
+                futureList.add(pool.submit(new UrlCheckTask(avProxy, urlMap.get(entry.getKey()))));
+                totalTask++;
+            }
+        }
+
+        // 加载服务器新导入的资源
         for (AvProxy avProxy : candidateProxies) {
             for (String url : taskUrls) {
                 futureList.add(pool.submit(new UrlCheckTask(avProxy, url)));
@@ -96,6 +110,14 @@ public class PreHeater {
         }
         CommonUtil.waitAllFutures(futureList);
         Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
+    }
+
+    private Map<String, String> transformDomainUrlMap(Collection<String> testUrls) {
+        Map<String, String> ret = Maps.newHashMap();
+        for (String url : testUrls) {
+            ret.put(CommonUtil.extractDomain(url), url);
+        }
+        return ret;
     }
 
     /**

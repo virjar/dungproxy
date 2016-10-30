@@ -128,6 +128,9 @@ public class DomainPool {
     }
 
     public void fresh() {
+        if (testUrls.size() == 0) {
+            return;// 数据还没有进来,不refresh
+        }
         if (isRefreshing.compareAndSet(false, true)) {
             List<AvProxy> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
                     coreSize);
