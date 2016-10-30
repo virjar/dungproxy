@@ -56,11 +56,12 @@ public class TaobaoAreaTask extends CommonTask {
     }
 
     private Proxy getArea(String ipAddr) {
-        if (limiter.tryAcquire(1, 1000, TimeUnit.MILLISECONDS)) {
+        if (limiter.tryAcquire(8, 1000, TimeUnit.SECONDS)) {
             Proxy proxy;
             JSONObject jsonObject;
+            String response = null;
             try {
-                String response = HttpInvoker.getQuiet(TAOBAOURL + ipAddr);
+                response = HttpInvoker.getQuiet(TAOBAOURL + ipAddr);
                 if (StringUtils.isEmpty(response)) {
                     return null;
                 }
@@ -74,7 +75,8 @@ public class TaobaoAreaTask extends CommonTask {
                 proxy.setCityId(temp.get("city_id").toString());
                 proxy.setIspId(temp.get("isp_id").toString());
             } catch (Exception e) {
-                logger.error("getAreaError", e);
+                logger.error("getAreaError:{}", response, e);
+
                 proxy = new Proxy();
             }
             return proxy;
