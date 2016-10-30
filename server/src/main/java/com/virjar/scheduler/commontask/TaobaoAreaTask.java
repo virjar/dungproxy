@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.RateLimiter;
 import com.virjar.entity.Proxy;
 import com.virjar.ipproxy.httpclient.HttpInvoker;
@@ -44,12 +45,18 @@ public class TaobaoAreaTask extends CommonTask {
     }
 
     private List<Proxy> find4Update() {
-        if (maxPage == null || nowPage > maxPage) {
+        if (maxPage == null) {
             // first run or reset page
             int totalRecord = proxyRepository.selectCount(new Proxy());
             nowPage = 0;
             maxPage = totalRecord / batchSize + 1;
+        } else if (nowPage > maxPage) {// 这样的话,忽略本次查询,为了防止淘宝接口不稳定导致我们的调度任务卡死
+            int totalRecord = proxyRepository.selectCount(new Proxy());
+            nowPage = 0;
+            maxPage = totalRecord / batchSize + 1;
+            return Lists.newArrayList();
         }
+
         List<Proxy> areaUpdate = proxyRepository.find4AreaUpdate(new PageRequest(nowPage, batchSize));
         nowPage++;
         return areaUpdate;
@@ -62,6 +69,7 @@ public class TaobaoAreaTask extends CommonTask {
             String response = null;
             try {
                 response = HttpInvoker.getQuiet(TAOBAOURL + ipAddr);
+                logger.info("request url:{}", TAOBAOURL + ipAddr);
                 if (StringUtils.isEmpty(response)) {
                     return null;
                 }
@@ -86,32 +94,36 @@ public class TaobaoAreaTask extends CommonTask {
         }
     }
 
+    public void doSyncAddress(List<Proxy> proxyList) {
+        for (Proxy proxy : proxyList) {
+            try {
+                Proxy area = getArea(proxy.getIp());
+                if (area == null) {
+                    continue;
+                }
+                area.setId(proxy.getId());
+                if (StringUtils.isEmpty(area.getCountry()) && StringUtils.isEmpty(area.getArea())
+                        && StringUtils.isEmpty(area.getIsp())) {
+                    logger.warn("地址未知获取失败,response {},proxy:{}", JSONObject.toJSONString(area),
+                            JSONObject.toJSONString(proxy));
+                    continue;
+                }
+                proxyRepository.updateByPrimaryKeySelective(area);
+            } catch (Exception e) {
+                logger.error("同步地址信息失败 ", e);
+            }
+        }
+    }
+
     @Override
     public Object execute() {
         logger.info("begin proxy address collect start");
+
         try {
             List<Proxy> proxyList = find4Update();
-            if (proxyList.size() == 0) {
-                maxPage = null;
-                return "";
-            }
-            for (Proxy proxy : proxyList) {
-                try {
-                    Proxy area = getArea(proxy.getIp());
-                    if (area == null) {
-                        continue;
-                    }
-                    area.setId(proxy.getId());
-                    if (StringUtils.isEmpty(area.getCountry()) && StringUtils.isEmpty(area.getArea())
-                            && StringUtils.isEmpty(area.getIsp())) {
-                        logger.warn("地址未知获取失败,response {},proxy:{}", JSONObject.toJSONString(area),
-                                JSONObject.toJSONString(proxy));
-                        continue;
-                    }
-                    proxyRepository.updateByPrimaryKeySelective(area);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            while (proxyList.size() > 0) {
+                doSyncAddress(proxyList);
+                proxyList = find4Update();
             }
         } catch (Exception e) {
             logger.error("error when address query", e);
