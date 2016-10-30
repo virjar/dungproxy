@@ -19,7 +19,7 @@ import com.virjar.core.beanmapper.BeanMapper;
 import com.virjar.entity.DomainIp;
 import com.virjar.entity.Proxy;
 import com.virjar.ipproxy.util.CommonUtil;
-import com.virjar.model.AvProxy;
+import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.model.DomainIpModel;
 import com.virjar.model.ProxyModel;
 import com.virjar.repository.DomainIpRepository;
