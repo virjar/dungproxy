@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ import com.virjar.service.DomainIpService;
 
 @Service
 public class DomainIpServiceImpl implements DomainIpService {
+    private static final Logger logger = LoggerFactory.getLogger(DomainIpServiceImpl.class);
     @Resource
     private BeanMapper beanMapper;
 
@@ -150,6 +154,7 @@ public class DomainIpServiceImpl implements DomainIpService {
             if (domainIps.size() == 0) {
                 return;
             }
+            logger.info("待下线域名IP资源:{}", JSONObject.toJSONString(domainIps));
             List<Long> ids = Lists.transform(domainIps, new Function<DomainIp, Long>() {
                 @Override
                 public Long apply(DomainIp input) {

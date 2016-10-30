@@ -21,14 +21,14 @@ public abstract class CommonTask implements Callable<Object> {
 
     @Override
     public Object call() throws Exception {
-        if (!isRunning.compareAndSet(false, true)) {
-            return "isRunning";
-        }
         if (System.currentTimeMillis() - duration < lastRunTime) {
             return "时候未到";
         }
-        lastRunTime = System.currentTimeMillis();
+        if (!isRunning.compareAndSet(false, true)) {
+            return "isRunning";
+        }
         try {
+            lastRunTime = System.currentTimeMillis();
             return execute();
         } finally {
             isRunning.set(false);
