@@ -104,6 +104,10 @@ public class Collector {
         lastactivity = System.currentTimeMillis();
         lastUrl = urlGenerator.newURL();
         while (ret.size() < batchsize) {
+            if(failedTimes > 20){//不论如何,连续一定次数失败,重置url生成器
+                urlGenerator.reset();
+                break;
+            }
             try {
                 logger.info("request url:{} failedTimes:{}", lastUrl, failedTimes);
                 String response = HttpInvoker.get(lastUrl, httpClientContext);
