@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.virjar.model.Proxy;
+import com.virjar.dungproxy.client.model.Proxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
