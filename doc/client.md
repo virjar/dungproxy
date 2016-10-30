@@ -119,7 +119,7 @@ public class WebColletorTest extends DungProxyAutoParserCrawler {
 离线预热的方式是:
 1. 配置需要检查的URLList ``proxyclient.preHeater.testList=http://www.66ip.cn/3.html``多个的话,逗号分割。
 2. 启动preHeater主函数``com.virjar.dungproxy.client.ippool.PreHeater.main``
-3. 另一种启动方式:client/product里面存在一个client的发布版本,执行jar文件即可``java -jar client-0.0.1-SNAPSHOT.jar``
+3. 另一种启动方式:client/product里面存在一个client的发布版本,执行jar文件即可``java -jar client-0.0.1-SNAPSHOT.jar``,这是一个普通的java命令,他会自动读取lib目录,将其作为lib资源
 ```
 bogon:proxyclient virjar$ cd ~/git/proxyipcenter/
 bogon:proxyipcenter virjar$ ls
@@ -135,6 +135,7 @@ bogon:product virjar$ java -jar client-0.0.1-SNAPSHOT.jar
 2016/10/31-01:37:45 WARN  [pool-1-thread-25] c.v.d.c.i.DomainPool:182>>IP offline {"avgScore":0,"disable":true,"domainPool":{"domain":"pachong.org","resourceFacade":{}},"failedCount":0,"init":true,"ip":"218.205.76.131","port":8080,"referCount":0}
 2016/10/31-01:37:45 WARN  [pool-1-thread-13] c.v.d.c.i.DomainPool:182>>IP offline {"avgScore":0,"disable":true,"domainPool":{"domain":"pachong.org","resourceFacade":{}},"failedCount":0,"init":true,"ip":"111.1.23.162","port":80,"referCount":0}
 2016/10/31-01:37:45 WARN  [pool-1-thread-27] c.v.d.c.i.DomainPool:182>>IP offline {"avgScore":0,"disable":true,"domainPool":{"domain":"proxy.goubanjia.com","resourceFacade":{}},"failedCount":0,"init":true,"ip":"218.205.76.131","port":8080,"referCount":0}
+...
 ```
 
 ### 使用统一代理服务
