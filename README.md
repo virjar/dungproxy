@@ -4,6 +4,15 @@ DrungProxy是一个代理IP服务,他包括一个代理IP资源server端和一�
 ## [server相关说明](./doc/server.md )
 
 ## [java client相关说明](./doc/client.md)
+- client配置
+- IpPool IP池的核心
+- 和HttpClient集成
+- HttpClient封装
+- webMagic集成
+- 和webCollector的集成
+- preHeater 资源预热
+- 统一代理服务(和server端配合)
+- 其他支持
 
 qq group 
 > 569543649
