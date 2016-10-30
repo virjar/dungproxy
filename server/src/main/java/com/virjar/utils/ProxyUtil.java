@@ -125,7 +125,7 @@ public class ProxyUtil {
                 availbelCheckResponse.setType(ProxyType.HTTP.getType());
                 return availbelCheckResponse;
             } else if (StringUtils.isNotBlank(response) && SysConfig.getInstance().recordFaildResponse()) {
-                logger.info("check error response is {}", response);
+                logger.info("checker error response is {}", response);
             }
         } catch (Exception e) {
             // doNothing

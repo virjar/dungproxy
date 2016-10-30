@@ -43,7 +43,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
         }
         pool = new ThreadPoolExecutor(SysConfig.getInstance().getConnectionCheckThread(),
                 SysConfig.getInstance().getConnectionCheckThread(), 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("connection-check"),
+                new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("connection-checker"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
         new Thread(this).start();
     }
@@ -60,7 +60,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
 
         while (isRunning) {
             try {
-                // logger.info("begin connection check");
+                // logger.info("begin connection checker");
                 List<ProxyModel> needupdate = proxyService.find4connectionupdate();
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
@@ -73,7 +73,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                 CommonUtil.waitAllFutures(futures);
                 Thread.sleep(9000);// 等待9秒钟,用于系统释放套接字资源
             } catch (Exception e) {
-                logger.error("error when check connection ", e);
+                logger.error("error when checker connection ", e);
             }
         }
     }

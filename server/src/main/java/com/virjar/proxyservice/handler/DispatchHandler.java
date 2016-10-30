@@ -3,7 +3,8 @@ package com.virjar.proxyservice.handler;
 import com.google.common.base.Charsets;
 import com.virjar.proxyservice.common.ProxyResponse;
 import com.virjar.proxyservice.common.util.NetworkUtil;
-import com.virjar.proxyservice.handler.check.ConnectMethodValidator;
+import com.virjar.proxyservice.handler.checker.ConnectMethodValidator;
+import com.virjar.proxyservice.handler.checker.RequestValidator;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -59,6 +60,7 @@ public class DispatchHandler extends ClientProcessHandler {
                 } else {
                     NetworkUtil.removeHandler(pipeline, HttpResponseEncoder.class);
                     NetworkUtil.addHandlerIfAbsent(pipeline, ConnectMethodValidator.instance);
+                    NetworkUtil.addHandlerIfAbsent(pipeline, RequestValidator.instance);
                 }
             } else {
                 ByteBuf bb = (ByteBuf) msg;

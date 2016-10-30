@@ -73,7 +73,7 @@ var
 	// Make sure we trim BOM and NBSP (here's looking at you, Safari 5.0 and IE)
 	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
 
-	// A simple way to check for HTML strings
+	// A simple way to checker for HTML strings
 	// Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
 	// Strict HTML recognition (#11290: must start with <)
 	rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
@@ -133,7 +133,7 @@ jQuery.fn = jQuery.prototype = {
 		// Handle HTML strings
 		if ( typeof selector === "string" ) {
 			if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
-				// Assume that strings that start and end with <> are HTML and skip the regex check
+				// Assume that strings that start and end with <> are HTML and skip the regex checker
 				match = [ null, selector, null ];
 
 			} else {
@@ -472,7 +472,7 @@ jQuery.extend({
 		var key;
 
 		// Must be an Object.
-		// Because of IE, we also have to check the presence of the constructor property.
+		// Because of IE, we also have to checker the presence of the constructor property.
 		// Make sure that DOM nodes and window objects don't pass through, as well
 		if ( !obj || jQuery.type(obj) !== "object" || obj.nodeType || jQuery.isWindow( obj ) ) {
 			return false;
@@ -816,7 +816,7 @@ jQuery.extend({
 			fn = tmp;
 		}
 
-		// Quick check to determine if target is callable, in the spec
+		// Quick checker to determine if target is callable, in the spec
 		// this throws a TypeError, but we will just return undefined.
 		if ( !jQuery.isFunction( fn ) ) {
 			return undefined;
@@ -944,7 +944,7 @@ jQuery.ready.promise = function( obj ) {
 			window.attachEvent( "onload", completed );
 
 			// If IE and not a frame
-			// continually check to see if the document is ready
+			// continually checker to see if the document is ready
 			var top = false;
 
 			try {
@@ -1752,7 +1752,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
 				0;
 
-		// If the nodes are siblings, we can do a quick check
+		// If the nodes are siblings, we can do a quick checker
 		} else if ( aup === bup ) {
 			return siblingCheck( a, b );
 		}
@@ -1773,7 +1773,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		}
 
 		return i ?
-			// Do a sibling check if the nodes have a common ancestor
+			// Do a sibling checker if the nodes have a common ancestor
 			siblingCheck( ap[i], bp[i] ) :
 
 			// Otherwise nodes in our document sort first
@@ -2137,7 +2137,7 @@ Expr = Sizzle.selectors = {
 							}
 						}
 
-						// Incorporate the offset, then check against cycle size
+						// Incorporate the offset, then checker against cycle size
 						diff -= last;
 						return diff === first || ( diff % first === 0 && diff / first >= 0 );
 					}
@@ -2814,7 +2814,7 @@ compile = Sizzle.compile = function( selector, group /* Internal Use Only */ ) {
 		cached = compilerCache[ selector + " " ];
 
 	if ( !cached ) {
-		// Generate a function of recursive functions that can be used to check each element
+		// Generate a function of recursive functions that can be used to checker each element
 		if ( !group ) {
 			group = tokenize( selector );
 		}
@@ -3016,7 +3016,7 @@ function createOptions( options ) {
 jQuery.Callbacks = function( options ) {
 
 	// Convert options from String-formatted to Object-formatted if needed
-	// (we check in cache first)
+	// (we checker in cache first)
 	options = typeof options === "string" ?
 		( optionsCache[ options ] || createOptions( options ) ) :
 		jQuery.extend( {}, options );
@@ -3420,7 +3420,7 @@ jQuery.support = (function( support ) {
 	input.setAttribute( "type", "radio" );
 	support.radioValue = input.value === "t";
 
-	// #11217 - WebKit loses check when the name is after the checked attribute
+	// #11217 - WebKit loses checker when the name is after the checked attribute
 	input.setAttribute( "checked", "t" );
 	input.setAttribute( "name", "t" );
 
@@ -4179,7 +4179,7 @@ jQuery.fn.extend({
 					classNames = value.match( core_rnotwhite ) || [];
 
 				while ( (className = classNames[ i++ ]) ) {
-					// check each className given, space separated list
+					// checker each className given, space separated list
 					if ( self.hasClass( className ) ) {
 						self.removeClass( className );
 					} else {
@@ -5023,7 +5023,7 @@ jQuery.event = {
 				jQuery.acceptData( elem ) ) {
 
 				// Call a native DOM method on the target with the same name name as the event.
-				// Can't use an .isFunction() check here because IE6/7 fails that test.
+				// Can't use an .isFunction() checker here because IE6/7 fails that test.
 				// Don't do default actions on window, that's where global variables be (#6170)
 				if ( ontype && elem[ type ] && !jQuery.isWindow( elem ) ) {
 
@@ -5128,7 +5128,7 @@ jQuery.event = {
 			for ( ; cur != this; cur = cur.parentNode || this ) {
 				/* jshint eqeqeq: true */
 
-				// Don't check non-elements (#13208)
+				// Don't checker non-elements (#13208)
 				// Don't process clicks on disabled elements (#6911, #8165, #11382, #11764)
 				if ( cur.nodeType === 1 && (cur.disabled !== true || event.type !== "click") ) {
 					matches = [];
@@ -5478,7 +5478,7 @@ if ( !jQuery.support.submitBubbles ) {
 
 			// Lazy-add a submit handler when a descendant form may potentially be submitted
 			jQuery.event.add( this, "click._submit keypress._submit", function( e ) {
-				// Node name check avoids a VML-related crash in IE (#9807)
+				// Node name checker avoids a VML-related crash in IE (#9807)
 				var elem = e.target,
 					form = jQuery.nodeName( elem, "input" ) || jQuery.nodeName( elem, "button" ) ? elem.form : undefined;
 				if ( form && !jQuery._data( form, "submitBubbles" ) ) {
@@ -5521,9 +5521,9 @@ if ( !jQuery.support.changeBubbles ) {
 		setup: function() {
 
 			if ( rformElems.test( this.nodeName ) ) {
-				// IE doesn't fire change on a check/radio until blur; trigger it on click
+				// IE doesn't fire change on a checker/radio until blur; trigger it on click
 				// after a propertychange. Eat the blur-change in special.change.handle.
-				// This still fires onchange a second time for check/radio after blur.
+				// This still fires onchange a second time for checker/radio after blur.
 				if ( this.type === "checkbox" || this.type === "radio" ) {
 					jQuery.event.add( this, "propertychange._change", function( event ) {
 						if ( event.originalEvent.propertyName === "checked" ) {
@@ -5763,7 +5763,7 @@ jQuery.fn.extend({
 		return !!winnow(
 			this,
 
-			// If this is a positional/relative selector, check membership in the returned set
+			// If this is a positional/relative selector, checker membership in the returned set
 			// so $("p:first").is("p:last") won't return true for a doc with two "p".
 			typeof selector === "string" && rneedsContext.test( selector ) ?
 				jQuery( selector ) :
@@ -6822,7 +6822,7 @@ function vendorPropName( style, name ) {
 		return name;
 	}
 
-	// check for vendor prefixed names
+	// checker for vendor prefixed names
 	var capName = name.charAt(0).toUpperCase() + name.slice(1),
 		origName = name,
 		i = cssPrefixes.length;
@@ -7228,7 +7228,7 @@ function getWidthOrHeight( elem, name, extra ) {
 		styles = getStyles( elem ),
 		isBorderBox = jQuery.support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
 
-	// some non-html elements return undefined for offsetWidth, so check for null/undefined
+	// some non-html elements return undefined for offsetWidth, so checker for null/undefined
 	// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
 	// MathML - https://bugzilla.mozilla.org/show_bug.cgi?id=491668
 	if ( val <= 0 || val == null ) {
@@ -7243,7 +7243,7 @@ function getWidthOrHeight( elem, name, extra ) {
 			return val;
 		}
 
-		// we need the check for style in case a browser which returns unreliable values
+		// we need the checker for style in case a browser which returns unreliable values
 		// for getComputedStyle silently falls back to the reliable elem.style
 		valueIsBorderBox = isBorderBox && ( jQuery.support.boxSizingReliable || val === elem.style[ name ] );
 
@@ -7394,7 +7394,7 @@ jQuery(function() {
 
 	// Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
 	// getComputedStyle returns percent when specified for top/left/bottom/right
-	// rather than make the css module depend on the offset module, we just check for it here
+	// rather than make the css module depend on the offset module, we just checker for it here
 	if ( !jQuery.support.pixelPosition && jQuery.fn.position ) {
 		jQuery.each( [ "top", "left" ], function( i, prop ) {
 			jQuery.cssHooks[ prop ] = {
@@ -10110,7 +10110,7 @@ function forEach(obj, iterator, context) {
   if (obj) {
     if (isFunction(obj)) {
       for (key in obj) {
-        // Need to check if hasOwnProperty exists,
+        // Need to checker if hasOwnProperty exists,
         // as on IE8 the result of querySelectorAll is an object without a hasOwnProperty function
         if (key != 'prototype' && key != 'length' && key != 'name' && (!obj.hasOwnProperty || obj.hasOwnProperty(key))) {
           iterator.call(context, obj[key], key);
@@ -10278,7 +10278,7 @@ function valueFn(value) {return function() {return value;};}
  * @description
  * Determines if a reference is undefined.
  *
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is undefined.
  */
 function isUndefined(value){return typeof value === 'undefined';}
@@ -10293,7 +10293,7 @@ function isUndefined(value){return typeof value === 'undefined';}
  * @description
  * Determines if a reference is defined.
  *
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is defined.
  */
 function isDefined(value){return typeof value !== 'undefined';}
@@ -10309,7 +10309,7 @@ function isDefined(value){return typeof value !== 'undefined';}
  * Determines if a reference is an `Object`. Unlike `typeof` in JavaScript, `null`s are not
  * considered to be objects. Note that JavaScript arrays are objects.
  *
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is an `Object` but not `null`.
  */
 function isObject(value){return value != null && typeof value === 'object';}
@@ -10324,7 +10324,7 @@ function isObject(value){return value != null && typeof value === 'object';}
  * @description
  * Determines if a reference is a `String`.
  *
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is a `String`.
  */
 function isString(value){return typeof value === 'string';}
@@ -10339,7 +10339,7 @@ function isString(value){return typeof value === 'string';}
  * @description
  * Determines if a reference is a `Number`.
  *
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is a `Number`.
  */
 function isNumber(value){return typeof value === 'number';}
@@ -10354,7 +10354,7 @@ function isNumber(value){return typeof value === 'number';}
  * @description
  * Determines if a value is a date.
  *
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is a `Date`.
  */
 function isDate(value) {
@@ -10371,7 +10371,7 @@ function isDate(value) {
  * @description
  * Determines if a reference is an `Array`.
  *
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is an `Array`.
  */
 var isArray = (function() {
@@ -10392,7 +10392,7 @@ var isArray = (function() {
  * @description
  * Determines if a reference is a `Function`.
  *
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is a `Function`.
  */
 function isFunction(value){return typeof value === 'function';}
@@ -10402,7 +10402,7 @@ function isFunction(value){return typeof value === 'function';}
  * Determines if a value is a regular expression object.
  *
  * @private
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is a `RegExp`.
  */
 function isRegExp(value) {
@@ -10414,7 +10414,7 @@ function isRegExp(value) {
  * Checks if `obj` is a window object.
  *
  * @private
- * @param {*} obj Object to check
+ * @param {*} obj Object to checker
  * @returns {boolean} True if `obj` is a window obj.
  */
 function isWindow(obj) {
@@ -10466,7 +10466,7 @@ var trim = (function() {
  * @description
  * Determines if a reference is a DOM element (or wrapped jQuery element).
  *
- * @param {*} value Reference to check.
+ * @param {*} value Reference to checker.
  * @returns {boolean} True if `value` is a DOM element (or wrapped jQuery element).
  */
 function isElement(node) {
@@ -10937,7 +10937,7 @@ function startingTag(element) {
  * Tries to decode the URI component without throwing an exception.
  *
  * @private
- * @param str value potential URI component to check.
+ * @param str value potential URI component to checker.
  * @returns {boolean} True if `value` can be decoded
  * with the decodeURIComponent function.
  */
@@ -12450,7 +12450,7 @@ var JQLitePrototype = JQLite.prototype = {
       fn();
     }
 
-    // check if document already is loaded
+    // checker if document already is loaded
     if (document.readyState === 'complete'){
       setTimeout(trigger);
     } else {
@@ -12497,7 +12497,7 @@ var ALIASED_ATTR = {
 };
 
 function getBooleanAttrName(element, name) {
-  // check dom last since we will most likely fail on name
+  // checker dom last since we will most likely fail on name
   var booleanAttr = BOOLEAN_ATTR[name.toLowerCase()];
 
   // booleanAttr is here twice to minimize DOM access
@@ -16238,7 +16238,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
         if (directiveValue = directive.scope) {
 
-          // skip the check for directives with async templates, we'll check the derived sync
+          // skip the checker for directives with async templates, we'll checker the derived sync
           // directive when the template arrives
           if (!directive.templateUrl) {
             if (isObject(directiveValue)) {
@@ -18347,7 +18347,7 @@ function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDoc
       xhr.onreadystatechange = function() {
         // onreadystatechange might get called multiple times with readyState === 4 on mobile webkit caused by
         // xhrs that are resolved while the app is in the background (see #5426).
-        // since calling completeRequest sets the `xhr` variable to null, we just check if it's not null before
+        // since calling completeRequest sets the `xhr` variable to null, we just checker if it's not null before
         // continuing
         //
         // we can't set xhr.onreadystatechange to undefined or delete it because that breaks IE8 (method=PATCH) and
@@ -20059,7 +20059,7 @@ function ensureSafeMemberName(name, fullExpression) {
 }
 
 function ensureSafeObject(obj, fullExpression) {
-  // nifty check if obj is Function that is fast and works across iframes and other contexts
+  // nifty checker if obj is Function that is fast and works across iframes and other contexts
   if (obj) {
     if (obj.constructor === obj) {
       throw $parseMinErr('isecfn',
@@ -20299,7 +20299,7 @@ Lexer.prototype = {
       this.index++;
     }
 
-    //check if this is not a method invocation and if it is back out to last dot
+    //checker if this is not a method invocation and if it is back out to last dot
     if (lastDot) {
       peekIndex = this.index;
       while (peekIndex < this.text.length) {
@@ -20729,7 +20729,7 @@ Parser.prototype = {
     }, {
       assign: function(self, value, locals) {
         var key = indexFn(self, locals);
-        // prevent overwriting of Function.constructor which would break ensureSafeObject check
+        // prevent overwriting of Function.constructor which would break ensureSafeObject checker
         var safe = ensureSafeObject(obj(self, locals), parser.text);
         return safe[key] = value;
       }
@@ -20960,7 +20960,7 @@ function getterFn(path, options, fullExp) {
               's='+ (index
                       // we simply dereference 's' on any .dot notation
                       ? 's'
-                      // but if we are first then we check locals first, and if so read it first
+                      // but if we are first then we checker locals first, and if so read it first
                       : '((k&&k.hasOwnProperty("' + key + '"))?k:s)') + '["' + key + '"]' + ';\n';
     });
     code += 'return s;';
@@ -22150,10 +22150,10 @@ function $RootScopeProvider(){
        */
       $watchCollection: function(obj, listener) {
         var self = this;
-        // the current value, updated on each dirty-check run
+        // the current value, updated on each dirty-checker run
         var newValue;
-        // a shallow copy of the newValue from the last dirty-check run,
-        // updated to match newValue during dirty-check run
+        // a shallow copy of the newValue from the last dirty-checker run,
+        // updated to match newValue during dirty-checker run
         var oldValue;
         // a shallow copy of the newValue from when the last change happened
         var veryOldValue;
@@ -22834,7 +22834,7 @@ function $RootScopeProvider(){
           // Insanity Warning: scope depth-first traversal
           // yes, this code is a bit crazy, but it works and we have tests to prove it!
           // this piece should be kept in sync with the traversal in $digest
-          // (though it differs due to having the extra check for $$listenerCount)
+          // (though it differs due to having the extra checker for $$listenerCount)
           if (!(next = ((current.$$listenerCount[name] && current.$$childHead) ||
               (current !== target && current.$$nextSibling)))) {
             while(current !== target && !(next = current.$$nextSibling)) {
@@ -25304,7 +25304,7 @@ function limitToFilter(){
     }
 
     if (isString(input)) {
-      //NaN check on limit
+      //NaN checker on limit
       if (limit) {
         return limit >= 0 ? input.slice(0, limit) : input.slice(limit, input.length);
       } else {
@@ -28003,7 +28003,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * default. The `checkboxInputType` directive does this because in its case a value of `false`
    * implies empty.
    *
-   * @param {*} value Reference to check.
+   * @param {*} value Reference to checker.
    * @returns {boolean} True if `value` is empty.
    */
   this.$isEmpty = function(value) {
@@ -30970,7 +30970,7 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
 
         if (!isNaN(value)) {
           //if explicit number rule such as 1, 2, 3... is defined, just use it. Otherwise,
-          //check it against pluralization rules in $locale service
+          //checker it against pluralization rules in $locale service
           if (!(value in whens)) value = $locale.pluralCat(value - offset);
            return whensExpFns[value](scope);
         } else {
@@ -34345,7 +34345,7 @@ angular.scenario.dsl('binding', function() {
 /**
  * Usage:
  *    input(name).enter(value) enters value in input with specified name
- *    input(name).check() checks checkbox
+ *    input(name).checker() checks checkbox
  *    input(name).select(value) selects the radio button with specified name/value
  *    input(name).val() returns the value of the input.
  */

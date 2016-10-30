@@ -1,4 +1,4 @@
-package com.virjar.proxyservice.handler.check;
+package com.virjar.proxyservice.handler.checker;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;

@@ -1275,7 +1275,7 @@ if (!jQuery) { throw new Error("Bootstrap requires jQuery") }
     var marginTop = parseInt($tip.css('margin-top'), 10)
     var marginLeft = parseInt($tip.css('margin-left'), 10)
 
-    // we must check for NaN for ie 8/9
+    // we must checker for NaN for ie 8/9
     if (isNaN(marginTop))  marginTop  = 0
     if (isNaN(marginLeft)) marginLeft = 0
 
@@ -1286,7 +1286,7 @@ if (!jQuery) { throw new Error("Bootstrap requires jQuery") }
       .offset(offset)
       .addClass('in')
 
-    // check to see if placing tip in new offset caused the tip to resize itself
+    // checker to see if placing tip in new offset caused the tip to resize itself
     var actualWidth  = $tip[0].offsetWidth
     var actualHeight = $tip[0].offsetHeight
 

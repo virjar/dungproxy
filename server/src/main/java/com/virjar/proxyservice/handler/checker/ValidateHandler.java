@@ -1,4 +1,4 @@
-package com.virjar.proxyservice.handler.check;
+package com.virjar.proxyservice.handler.checker;
 
 import com.virjar.proxyservice.common.util.NetworkUtil;
 import com.virjar.proxyservice.handler.ClientProcessHandler;

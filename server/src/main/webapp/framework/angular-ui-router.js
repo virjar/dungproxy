@@ -900,7 +900,7 @@ function $UrlMatcherFactory() {
    * @description
    * Returns true if the specified object is a UrlMatcher, or false otherwise.
    *
-   * @param {Object} object  The object to perform the type check against.
+   * @param {Object} object  The object to perform the type checker against.
    * @returns {Boolean}  Returns `true` if the object has the following functions: `exec`, `format`, and `concat`.
    */
   this.isMatcher = function (o) {
@@ -1148,7 +1148,7 @@ function $UrlRouterProvider(  $urlMatcherFactory) {
         for (i=0; i<n; i++) {
           if (check(rules[i])) return;
         }
-        // always check otherwise last to allow dynamic updates to the set of rules
+        // always checker otherwise last to allow dynamic updates to the set of rules
         if (otherwise) check(otherwise);
       }
 
@@ -2166,7 +2166,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
      * // everything else would return false
      * </pre>
      *
-     * @param {string|object} stateName The state name or state object you'd like to check.
+     * @param {string|object} stateName The state name or state object you'd like to checker.
      * @param {object=} params A param object, e.g. `{sectionId: section.id}`, that you'd like 
      * to test against the current active state.
      * @returns {boolean} Returns true if it is the state.

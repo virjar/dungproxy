@@ -6,13 +6,17 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCounted;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Map;
 
 /**
  * Description: NetworkUtil
@@ -88,5 +92,30 @@ public class NetworkUtil {
         if (pipeline.get(handler.getClass()) == null) {
             pipeline.addLast(handler);
         }
+    }
+
+    public static String requestToCurl(HttpRequest request) {
+        String uri = request.getUri();
+        HttpHeaders headers = request.headers();
+        StringBuilder sb = new StringBuilder("");
+        sb.append("curl -v '");
+        sb.append(uri);
+        sb.append("' ");
+        for (Map.Entry header : headers.entries()) {
+            sb.append("-H '");
+            sb.append(header.getKey());
+            sb.append(":");
+            sb.append(header.getValue());
+            sb.append("' ");
+        }
+        return sb.toString();
+    }
+
+    public static <T> void setAttr(Channel channel, AttributeKey<T> key, T t) {
+        channel.attr(key).set(t);
+    }
+
+    public static String getIp(Channel ch) {
+        return ((InetSocketAddress) ch.remoteAddress()).getAddress().getHostAddress();
     }
 }

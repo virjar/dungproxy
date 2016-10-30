@@ -1,9 +1,11 @@
 package com.virjar.proxyservice.server;
 
 import com.virjar.dungproxy.client.httpclient.HttpInvoker;
+import com.virjar.entity.Proxy;
 import com.virjar.proxyservice.common.util.NetworkUtil;
 import com.virjar.proxyservice.handler.DispatchHandler;
 import com.virjar.proxyservice.handler.DispatchHandlerInitializer;
+import com.virjar.repository.ProxyRepository;
 import com.virjar.utils.SysConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -11,6 +13,7 @@ import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.protocol.BasicHttpContext;
@@ -19,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import com.virjar.proxyservice.common.util.Executors;
+
+import javax.annotation.Resource;
+
 import static com.virjar.proxyservice.common.util.Executors.bossGroup;
 import static com.virjar.proxyservice.common.util.Executors.workerGroup;
 
@@ -30,6 +36,9 @@ import static com.virjar.proxyservice.common.util.Executors.workerGroup;
  */
 public class DispatchServer extends Thread {
 
+    @Resource
+    private ProxyRepository proxyRepo;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DispatchServer.class);
 
     private NioServerSocketChannel ch;
@@ -40,9 +49,10 @@ public class DispatchServer extends Thread {
 
     private String serverHost;
 
-    private int writeBufferHighWaterMark;
-
-    private int writeBufferLowWaterMark;
+    public DispatchServer(int serverPort, String serverHost) {
+        this.serverPort = serverPort;
+        this.serverHost = serverHost;
+    }
 
     @Override
     public void run() {
@@ -70,6 +80,7 @@ public class DispatchServer extends Thread {
         }
 
         // TODO 加载 domain和proxy数据
+        List<Proxy> proxyList = proxyRepo.findAvailable();
 
         try {
             HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
@@ -80,8 +91,7 @@ public class DispatchServer extends Thread {
             b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
             b.childOption(ChannelOption.RCVBUF_ALLOCATOR, AdaptiveRecvByteBufAllocator.DEFAULT);
             b.childOption(ChannelOption.TCP_NODELAY, true);
-            b.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, writeBufferHighWaterMark);
-            b.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, writeBufferLowWaterMark);
+            b.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT);
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(
