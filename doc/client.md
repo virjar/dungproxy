@@ -116,10 +116,12 @@ public class WebColletorTest extends DungProxyAutoParserCrawler {
 所有IP在真正上线前都必须通过预热器,预热器的作用是在代理IP真正服务之前,检查是否真正可以使用。预热分为在线预热和离线预热两种。
 - 在线预热是指IP资源在运行时不足,有资源导入器自动导入了IP,这个时候预热器检查他是否有效,然后决定是否真正的加入资源池。他是一个异步动作,预热逻辑在单独线程完成,这个时候同步的IP获取逻辑如果找不到合适的IP,则会加载默认IP,也即统一代理服务
 - 离线预热则是在爬虫任务启动前,执行preHeat逻辑,他会反序列化当前存在的资源,同事全量刷服务器可用IP数据。完成后会将数据序列化出去,真正运行业务逻辑的时候,将会使用这个成果。建议走离线preHeat
+
 离线预热的方式是:
 1. 配置需要检查的URLList ``proxyclient.preHeater.testList=http://www.66ip.cn/3.html``多个的话,逗号分割。
 2. 启动preHeater主函数``com.virjar.dungproxy.client.ippool.PreHeater.main``
 3. 另一种启动方式:client/product里面存在一个client的发布版本,执行jar文件即可``java -jar client-0.0.1-SNAPSHOT.jar``,这是一个普通的java命令,他会自动读取lib目录,将其作为lib资源
+
 ```
 bogon:proxyclient virjar$ cd ~/git/proxyipcenter/
 bogon:proxyipcenter virjar$ ls
