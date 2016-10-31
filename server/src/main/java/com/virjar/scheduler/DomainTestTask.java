@@ -70,11 +70,11 @@ public class DomainTestTask implements Runnable, InitializingBean {
         instance = this;
         isRunning = SysConfig.getInstance().getDomainCheckThread() > 0;
         if (!isRunning) {
-            logger.info("domain checker task is not running");
+            logger.info("domain check task is not running");
             return;
         }
         pool = new ThreadPoolExecutor(SysConfig.getInstance().getDomainCheckThread(), Integer.MAX_VALUE, 30000L,
-                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("domain-checker"),
+                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("domain-check"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
         new Thread(this).start();
         new OnlyUrlTestTask().start();
@@ -258,7 +258,7 @@ public class DomainTestTask implements Runnable, InitializingBean {
                 }
                 return null;
             } catch (Exception e) {
-                logger.error("error when checker domain:{}", domain, e);
+                logger.error("error when check domain:{}", domain, e);
                 throw e;
             }
         }
@@ -285,9 +285,9 @@ public class DomainTestTask implements Runnable, InitializingBean {
                 }
 
                 List<Proxy> available = proxyRepository.findAvailable();// 系统可用IP,根据权值排序
-                logger.info("domain checker total:{} url:{}", available.size(), url);
+                logger.info("domain check total:{} url:{}", available.size(), url);
                 for (Proxy proxy : available) {
-                    logger.info("url:{} domain checker :{}", url, JSONObject.toJSONString(proxy));
+                    logger.info("url:{} domain check :{}", url, JSONObject.toJSONString(proxy));
                     if (ProxyUtil.checkUrl(beanMapper.map(proxy, ProxyModel.class), url)) {
                         DomainIpModel domainIpModel = new DomainIpModel();
                         domainIpModel.setIp(proxy.getIp());
@@ -299,10 +299,10 @@ public class DomainTestTask implements Runnable, InitializingBean {
                         domainIpService.create(domainIpModel);
                     }
                 }
-                logger.info("checker end");
+                logger.info("check end");
                 return null;
             } catch (Throwable e) {
-                logger.info("domain checker error", e);
+                logger.info("domain check error", e);
             } finally {// 结束后清除锁,允许任务再次触发
                 runningDomains.remove(CommonUtil.extractDomain(url));
             }

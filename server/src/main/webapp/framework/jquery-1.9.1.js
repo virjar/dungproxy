@@ -71,7 +71,7 @@ var
 	// Make sure we trim BOM and NBSP (here's looking at you, Safari 5.0 and IE)
 	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
 
-	// A simple way to checker for HTML strings
+	// A simple way to check for HTML strings
 	// Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
 	// Strict HTML recognition (#11290: must start with <)
 	rquickExpr = /^(?:(<[\w\W]+>)[^>]*|#([\w-]*))$/,
@@ -131,7 +131,7 @@ jQuery.fn = jQuery.prototype = {
 		// Handle HTML strings
 		if ( typeof selector === "string" ) {
 			if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
-				// Assume that strings that start and end with <> are HTML and skip the regex checker
+				// Assume that strings that start and end with <> are HTML and skip the regex check
 				match = [ null, selector, null ];
 
 			} else {
@@ -468,7 +468,7 @@ jQuery.extend({
 
 	isPlainObject: function( obj ) {
 		// Must be an Object.
-		// Because of IE, we also have to checker the presence of the constructor property.
+		// Because of IE, we also have to check the presence of the constructor property.
 		// Make sure that DOM nodes and window objects don't pass through, as well
 		if ( !obj || jQuery.type(obj) !== "object" || obj.nodeType || jQuery.isWindow( obj ) ) {
 			return false;
@@ -806,7 +806,7 @@ jQuery.extend({
 			fn = tmp;
 		}
 
-		// Quick checker to determine if target is callable, in the spec
+		// Quick check to determine if target is callable, in the spec
 		// this throws a TypeError, but we will just return undefined.
 		if ( !jQuery.isFunction( fn ) ) {
 			return undefined;
@@ -911,7 +911,7 @@ jQuery.ready.promise = function( obj ) {
 			window.attachEvent( "onload", completed );
 
 			// If IE and not a frame
-			// continually checker to see if the document is ready
+			// continually check to see if the document is ready
 			var top = false;
 
 			try {
@@ -1004,7 +1004,7 @@ function createOptions( options ) {
 jQuery.Callbacks = function( options ) {
 
 	// Convert options from String-formatted to Object-formatted if needed
-	// (we checker in cache first)
+	// (we check in cache first)
 	options = typeof options === "string" ?
 		( optionsCache[ options ] || createOptions( options ) ) :
 		jQuery.extend( {}, options );
@@ -1413,7 +1413,7 @@ jQuery.support = (function() {
 	input.setAttribute( "type", "radio" );
 	support.radioValue = input.value === "t";
 
-	// #11217 - WebKit loses checker when the name is after the checked attribute
+	// #11217 - WebKit loses check when the name is after the checked attribute
 	input.setAttribute( "checked", "t" );
 	input.setAttribute( "name", "t" );
 
@@ -2165,7 +2165,7 @@ jQuery.fn.extend({
 					classNames = value.match( core_rnotwhite ) || [];
 
 				while ( (className = classNames[ i++ ]) ) {
-					// checker each className given, space separated list
+					// check each className given, space separated list
 					state = isBool ? state : !self.hasClass( className );
 					self[ state ? "addClass" : "removeClass" ]( className );
 				}
@@ -3001,7 +3001,7 @@ jQuery.event = {
 				!(type === "click" && jQuery.nodeName( elem, "a" )) && jQuery.acceptData( elem ) ) {
 
 				// Call a native DOM method on the target with the same name name as the event.
-				// Can't use an .isFunction() checker here because IE6/7 fails that test.
+				// Can't use an .isFunction() check here because IE6/7 fails that test.
 				// Don't do default actions on window, that's where global variables be (#6170)
 				if ( ontype && elem[ type ] && !jQuery.isWindow( elem ) ) {
 
@@ -3104,7 +3104,7 @@ jQuery.event = {
 
 			for ( ; cur != this; cur = cur.parentNode || this ) {
 
-				// Don't checker non-elements (#13208)
+				// Don't check non-elements (#13208)
 				// Don't process clicks on disabled elements (#6911, #8165, #11382, #11764)
 				if ( cur.nodeType === 1 && (cur.disabled !== true || event.type !== "click") ) {
 					matches = [];
@@ -3448,7 +3448,7 @@ if ( !jQuery.support.submitBubbles ) {
 
 			// Lazy-add a submit handler when a descendant form may potentially be submitted
 			jQuery.event.add( this, "click._submit keypress._submit", function( e ) {
-				// Node name checker avoids a VML-related crash in IE (#9807)
+				// Node name check avoids a VML-related crash in IE (#9807)
 				var elem = e.target,
 					form = jQuery.nodeName( elem, "input" ) || jQuery.nodeName( elem, "button" ) ? elem.form : undefined;
 				if ( form && !jQuery._data( form, "submitBubbles" ) ) {
@@ -3491,9 +3491,9 @@ if ( !jQuery.support.changeBubbles ) {
 		setup: function() {
 
 			if ( rformElems.test( this.nodeName ) ) {
-				// IE doesn't fire change on a checker/radio until blur; trigger it on click
+				// IE doesn't fire change on a check/radio until blur; trigger it on click
 				// after a propertychange. Eat the blur-change in special.change.handle.
-				// This still fires onchange a second time for checker/radio after blur.
+				// This still fires onchange a second time for check/radio after blur.
 				if ( this.type === "checkbox" || this.type === "radio" ) {
 					jQuery.event.add( this, "propertychange._change", function( event ) {
 						if ( event.originalEvent.propertyName === "checked" ) {
@@ -4317,7 +4317,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 				bup ? 1 :
 				0;
 
-		// If the nodes are siblings, we can do a quick checker
+		// If the nodes are siblings, we can do a quick check
 		} else if ( aup === bup ) {
 			return siblingCheck( a, b );
 		}
@@ -4338,7 +4338,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		}
 
 		return i ?
-			// Do a sibling checker if the nodes have a common ancestor
+			// Do a sibling check if the nodes have a common ancestor
 			siblingCheck( ap[i], bp[i] ) :
 
 			// Otherwise nodes in our document sort first
@@ -4369,7 +4369,7 @@ Sizzle.matchesSelector = function( elem, expr ) {
 	// Make sure that attribute selectors are quoted
 	expr = expr.replace( rattributeQuotes, "='$1']" );
 
-	// rbuggyQSA always contains :focus, so no need for an existence checker
+	// rbuggyQSA always contains :focus, so no need for an existence check
 	if ( support.matchesSelector && !documentIsXML && (!rbuggyMatches || !rbuggyMatches.test(expr)) && !rbuggyQSA.test(expr) ) {
 		try {
 			var ret = matches.call( elem, expr );
@@ -4759,7 +4759,7 @@ Expr = Sizzle.selectors = {
 							}
 						}
 
-						// Incorporate the offset, then checker against cycle size
+						// Incorporate the offset, then check against cycle size
 						diff -= last;
 						return diff === first || ( diff % first === 0 && diff / first >= 0 );
 					}
@@ -5426,7 +5426,7 @@ compile = Sizzle.compile = function( selector, group /* Internal Use Only */ ) {
 		cached = compilerCache[ selector + " " ];
 
 	if ( !cached ) {
-		// Generate a function of recursive functions that can be used to checker each element
+		// Generate a function of recursive functions that can be used to check each element
 		if ( !group ) {
 			group = tokenize( selector );
 		}
@@ -5607,7 +5607,7 @@ jQuery.fn.extend({
 	is: function( selector ) {
 		return !!selector && (
 			typeof selector === "string" ?
-				// If this is a positional/relative selector, checker membership in the returned set
+				// If this is a positional/relative selector, check membership in the returned set
 				// so $("p:first").is("p:last") won't return true for a doc with two "p".
 				rneedsContext.test( selector ) ?
 					jQuery( selector, this.context ).index( this[0] ) >= 0 :
@@ -5788,7 +5788,7 @@ jQuery.extend({
 function winnow( elements, qualifier, keep ) {
 
 	// Can't pass null or undefined to indexOf in Firefox 4
-	// Set to 0 to skip string checker
+	// Set to 0 to skip string check
 	qualifier = qualifier || 0;
 
 	if ( jQuery.isFunction( qualifier ) ) {
@@ -6644,7 +6644,7 @@ function vendorPropName( style, name ) {
 		return name;
 	}
 
-	// checker for vendor prefixed names
+	// check for vendor prefixed names
 	var capName = name.charAt(0).toUpperCase() + name.slice(1),
 		origName = name,
 		i = cssPrefixes.length;
@@ -7068,7 +7068,7 @@ function getWidthOrHeight( elem, name, extra ) {
 		styles = getStyles( elem ),
 		isBorderBox = jQuery.support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
 
-	// some non-html elements return undefined for offsetWidth, so checker for null/undefined
+	// some non-html elements return undefined for offsetWidth, so check for null/undefined
 	// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
 	// MathML - https://bugzilla.mozilla.org/show_bug.cgi?id=491668
 	if ( val <= 0 || val == null ) {
@@ -7083,7 +7083,7 @@ function getWidthOrHeight( elem, name, extra ) {
 			return val;
 		}
 
-		// we need the checker for style in case a browser which returns unreliable values
+		// we need the check for style in case a browser which returns unreliable values
 		// for getComputedStyle silently falls back to the reliable elem.style
 		valueIsBorderBox = isBorderBox && ( jQuery.support.boxSizingReliable || val === elem.style[ name ] );
 
@@ -7234,7 +7234,7 @@ jQuery(function() {
 
 	// Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
 	// getComputedStyle returns percent when specified for top/left/bottom/right
-	// rather than make the css module depend on the offset module, we just checker for it here
+	// rather than make the css module depend on the offset module, we just check for it here
 	if ( !jQuery.support.pixelPosition && jQuery.fn.position ) {
 		jQuery.each( [ "top", "left" ], function( i, prop ) {
 			jQuery.cssHooks[ prop ] = {

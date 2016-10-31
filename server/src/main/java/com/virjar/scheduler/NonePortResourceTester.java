@@ -69,7 +69,7 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
 
     public static boolean sendIp(final String ip) {
         if (instance == null) {
-            logger.warn("port checker component not start,ip add failed");
+            logger.warn("port check component not start,ip add failed");
             return false;
         }
         if (!instance.isRunning) {
@@ -82,7 +82,7 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
                                 .get(String.format(SysConfig.getInstance().get("system.port.test.forward.url"), ip));
                         logger.info("port test forward response is:{}", s);
                     } catch (IOException e) {
-                        logger.info("port checker forward error:", e);
+                        logger.info("port check forward error:", e);
                     }
                 }
             }.start();

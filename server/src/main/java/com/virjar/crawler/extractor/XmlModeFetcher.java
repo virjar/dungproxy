@@ -27,8 +27,8 @@ import com.alibaba.fastjson.JSONObject;
  * group：用在test中，表示test的分组，默认group为0，在相同group中，如果有一个提取成功，那么后续提取方案将会被忽略。
  * scope：值存储空间，或者作用域。为一个树形结构关系，默认每一个匹配单元的scope由父节点的name定义，提取成功后的数据将会存放在scope中，fetch节点（文档根节点）的默认name为page，
  * 也及在默认情况下提取单元可以强行将scope设置为page，那么对于数据将会存放在全局中，供其它模块调用 fetch:默认为false，如果为true，将会收集本作用域的值，并在fetch方法的返回值的存入
- * checker:如果设置check熟悉为true，那么本条记录仅仅是作为上下文判断的一个标记，提取的值不会存入。check主要设计为和test，value配合，三则配合可以实现存入xml自定义的值。
- * 如：html中对于性别的定义是男、女。我想将最终结果中录入的性别设置为美女，帅哥。那么可以使用如下代码 <test group="3543654"> <property name="genderCheck" checker="true"
+ * check:如果设置check熟悉为true，那么本条记录仅仅是作为上下文判断的一个标记，提取的值不会存入。check主要设计为和test，value配合，三则配合可以实现存入xml自定义的值。
+ * 如：html中对于性别的定义是男、女。我想将最终结果中录入的性别设置为美女，帅哥。那么可以使用如下代码 <test group="3543654"> <property name="genderCheck" check="true"
  * xpath="xxx" regex=".*(男).*"/> <property name="gender" value="帅哥"/> </test> 这样，如果按照html中抽取出了男这个词，将会在最终结果集中写入”帅哥“
  * value:用户自定义value，如果用户指定了value，那么解析模块将不会执行，直接采纳value值 备注：由于类似网页的布局可能存在局部差异，所以一个特定的模板可能不能完整的提取所有数据，为提高数据完整性，可以通过以下方法
  * 1.test元素，test要给group，如果group提取失败，那么将会忽略本次提取，数据将会由后续group定义。可以为数据设置多个test group

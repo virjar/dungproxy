@@ -318,7 +318,7 @@ function forEach(obj, iterator, context) {
   if (obj) {
     if (isFunction(obj)) {
       for (key in obj) {
-        // Need to checker if hasOwnProperty exists,
+        // Need to check if hasOwnProperty exists,
         // as on IE8 the result of querySelectorAll is an object without a hasOwnProperty function
         if (key != 'prototype' && key != 'length' && key != 'name' && (!obj.hasOwnProperty || obj.hasOwnProperty(key))) {
           iterator.call(context, obj[key], key);
@@ -486,7 +486,7 @@ function valueFn(value) {return function() {return value;};}
  * @description
  * Determines if a reference is undefined.
  *
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is undefined.
  */
 function isUndefined(value){return typeof value === 'undefined';}
@@ -501,7 +501,7 @@ function isUndefined(value){return typeof value === 'undefined';}
  * @description
  * Determines if a reference is defined.
  *
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is defined.
  */
 function isDefined(value){return typeof value !== 'undefined';}
@@ -517,7 +517,7 @@ function isDefined(value){return typeof value !== 'undefined';}
  * Determines if a reference is an `Object`. Unlike `typeof` in JavaScript, `null`s are not
  * considered to be objects. Note that JavaScript arrays are objects.
  *
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is an `Object` but not `null`.
  */
 function isObject(value){return value != null && typeof value === 'object';}
@@ -532,7 +532,7 @@ function isObject(value){return value != null && typeof value === 'object';}
  * @description
  * Determines if a reference is a `String`.
  *
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `String`.
  */
 function isString(value){return typeof value === 'string';}
@@ -547,7 +547,7 @@ function isString(value){return typeof value === 'string';}
  * @description
  * Determines if a reference is a `Number`.
  *
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Number`.
  */
 function isNumber(value){return typeof value === 'number';}
@@ -562,7 +562,7 @@ function isNumber(value){return typeof value === 'number';}
  * @description
  * Determines if a value is a date.
  *
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Date`.
  */
 function isDate(value) {
@@ -579,7 +579,7 @@ function isDate(value) {
  * @description
  * Determines if a reference is an `Array`.
  *
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is an `Array`.
  */
 var isArray = (function() {
@@ -600,7 +600,7 @@ var isArray = (function() {
  * @description
  * Determines if a reference is a `Function`.
  *
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `Function`.
  */
 function isFunction(value){return typeof value === 'function';}
@@ -610,7 +610,7 @@ function isFunction(value){return typeof value === 'function';}
  * Determines if a value is a regular expression object.
  *
  * @private
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `RegExp`.
  */
 function isRegExp(value) {
@@ -622,7 +622,7 @@ function isRegExp(value) {
  * Checks if `obj` is a window object.
  *
  * @private
- * @param {*} obj Object to checker
+ * @param {*} obj Object to check
  * @returns {boolean} True if `obj` is a window obj.
  */
 function isWindow(obj) {
@@ -674,7 +674,7 @@ var trim = (function() {
  * @description
  * Determines if a reference is a DOM element (or wrapped jQuery element).
  *
- * @param {*} value Reference to checker.
+ * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a DOM element (or wrapped jQuery element).
  */
 function isElement(node) {
@@ -1145,7 +1145,7 @@ function startingTag(element) {
  * Tries to decode the URI component without throwing an exception.
  *
  * @private
- * @param str value potential URI component to checker.
+ * @param str value potential URI component to check.
  * @returns {boolean} True if `value` can be decoded
  * with the decodeURIComponent function.
  */
@@ -2658,7 +2658,7 @@ var JQLitePrototype = JQLite.prototype = {
       fn();
     }
 
-    // checker if document already is loaded
+    // check if document already is loaded
     if (document.readyState === 'complete'){
       setTimeout(trigger);
     } else {
@@ -2705,7 +2705,7 @@ var ALIASED_ATTR = {
 };
 
 function getBooleanAttrName(element, name) {
-  // checker dom last since we will most likely fail on name
+  // check dom last since we will most likely fail on name
   var booleanAttr = BOOLEAN_ATTR[name.toLowerCase()];
 
   // booleanAttr is here twice to minimize DOM access
@@ -6446,7 +6446,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
         if (directiveValue = directive.scope) {
 
-          // skip the checker for directives with async templates, we'll checker the derived sync
+          // skip the check for directives with async templates, we'll check the derived sync
           // directive when the template arrives
           if (!directive.templateUrl) {
             if (isObject(directiveValue)) {
@@ -8555,7 +8555,7 @@ function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDoc
       xhr.onreadystatechange = function() {
         // onreadystatechange might get called multiple times with readyState === 4 on mobile webkit caused by
         // xhrs that are resolved while the app is in the background (see #5426).
-        // since calling completeRequest sets the `xhr` variable to null, we just checker if it's not null before
+        // since calling completeRequest sets the `xhr` variable to null, we just check if it's not null before
         // continuing
         //
         // we can't set xhr.onreadystatechange to undefined or delete it because that breaks IE8 (method=PATCH) and
@@ -10267,7 +10267,7 @@ function ensureSafeMemberName(name, fullExpression) {
 }
 
 function ensureSafeObject(obj, fullExpression) {
-  // nifty checker if obj is Function that is fast and works across iframes and other contexts
+  // nifty check if obj is Function that is fast and works across iframes and other contexts
   if (obj) {
     if (obj.constructor === obj) {
       throw $parseMinErr('isecfn',
@@ -10507,7 +10507,7 @@ Lexer.prototype = {
       this.index++;
     }
 
-    //checker if this is not a method invocation and if it is back out to last dot
+    //check if this is not a method invocation and if it is back out to last dot
     if (lastDot) {
       peekIndex = this.index;
       while (peekIndex < this.text.length) {
@@ -10937,7 +10937,7 @@ Parser.prototype = {
     }, {
       assign: function(self, value, locals) {
         var key = indexFn(self, locals);
-        // prevent overwriting of Function.constructor which would break ensureSafeObject checker
+        // prevent overwriting of Function.constructor which would break ensureSafeObject check
         var safe = ensureSafeObject(obj(self, locals), parser.text);
         return safe[key] = value;
       }
@@ -11168,7 +11168,7 @@ function getterFn(path, options, fullExp) {
               's='+ (index
                       // we simply dereference 's' on any .dot notation
                       ? 's'
-                      // but if we are first then we checker locals first, and if so read it first
+                      // but if we are first then we check locals first, and if so read it first
                       : '((k&&k.hasOwnProperty("' + key + '"))?k:s)') + '["' + key + '"]' + ';\n';
     });
     code += 'return s;';
@@ -12358,10 +12358,10 @@ function $RootScopeProvider(){
        */
       $watchCollection: function(obj, listener) {
         var self = this;
-        // the current value, updated on each dirty-checker run
+        // the current value, updated on each dirty-check run
         var newValue;
-        // a shallow copy of the newValue from the last dirty-checker run,
-        // updated to match newValue during dirty-checker run
+        // a shallow copy of the newValue from the last dirty-check run,
+        // updated to match newValue during dirty-check run
         var oldValue;
         // a shallow copy of the newValue from when the last change happened
         var veryOldValue;
@@ -13042,7 +13042,7 @@ function $RootScopeProvider(){
           // Insanity Warning: scope depth-first traversal
           // yes, this code is a bit crazy, but it works and we have tests to prove it!
           // this piece should be kept in sync with the traversal in $digest
-          // (though it differs due to having the extra checker for $$listenerCount)
+          // (though it differs due to having the extra check for $$listenerCount)
           if (!(next = ((current.$$listenerCount[name] && current.$$childHead) ||
               (current !== target && current.$$nextSibling)))) {
             while(current !== target && !(next = current.$$nextSibling)) {
@@ -15512,7 +15512,7 @@ function limitToFilter(){
     }
 
     if (isString(input)) {
-      //NaN checker on limit
+      //NaN check on limit
       if (limit) {
         return limit >= 0 ? input.slice(0, limit) : input.slice(limit, input.length);
       } else {
@@ -18211,7 +18211,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * default. The `checkboxInputType` directive does this because in its case a value of `false`
    * implies empty.
    *
-   * @param {*} value Reference to checker.
+   * @param {*} value Reference to check.
    * @returns {boolean} True if `value` is empty.
    */
   this.$isEmpty = function(value) {
@@ -21178,7 +21178,7 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
 
         if (!isNaN(value)) {
           //if explicit number rule such as 1, 2, 3... is defined, just use it. Otherwise,
-          //checker it against pluralization rules in $locale service
+          //check it against pluralization rules in $locale service
           if (!(value in whens)) value = $locale.pluralCat(value - offset);
            return whensExpFns[value](scope);
         } else {

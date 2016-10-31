@@ -44,7 +44,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
         }
         pool = new ThreadPoolExecutor(SysConfig.getInstance().getAvailableCheckThread(),
                 SysConfig.getInstance().getAvailableCheckThread(), 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("available-checker"),
+                new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("available-check"),
                 new ThreadPoolExecutor.CallerRunsPolicy());
         new Thread(this).start();
     }
@@ -81,7 +81,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 CommonUtil.waitAllFutures(futures);
             } catch (Exception e) {
                 // do nothing
-                logger.error("error when checker available", e);
+                logger.error("error when check available", e);
             }
         }
 
@@ -146,7 +146,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
                 proxyService.updateByPrimaryKeySelective(updateProxy);
                 return 0;
             } catch (Exception e) {
-                logger.error("error when checker available {}", JSONObject.toJSONString(proxy), e);
+                logger.error("error when check available {}", JSONObject.toJSONString(proxy), e);
             } finally {
                 /*
                  * try { Thread.sleep(1000);//等待系统释放连接资源 } catch (InterruptedException e) { e.printStackTrace(); }

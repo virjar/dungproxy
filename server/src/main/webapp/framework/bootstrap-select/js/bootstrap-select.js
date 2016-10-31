@@ -284,7 +284,7 @@
         (typeof optgroup !== 'undefined' ? 'data-optgroup="' + optgroup + '"' : '') +
         ' data-normalized-text="' + normText + '"' +
         '>' + text +
-        '<span class="' + that.options.iconBase + ' ' + that.options.tickIcon + ' checker-mark"></span>' +
+        '<span class="' + that.options.iconBase + ' ' + that.options.tickIcon + ' check-mark"></span>' +
         '</a>';
       };
 

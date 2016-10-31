@@ -393,7 +393,7 @@ ngTouch.directive('ngClick', ['$parse', '$timeout', '$rootElement',
     var clickHandler = $parse(attr.ngClick),
         tapping = false,
         tapElement,  // Used to blur the element after a tap.
-        startTime,   // Used to checker if the tap was held too long.
+        startTime,   // Used to check if the tap was held too long.
         touchStartX,
         touchStartY;
 

@@ -292,7 +292,7 @@ angular.module('ngGrid.services').factory('$domUtilityService',['$utilityService
             grid.elementDims.rootMaxW = domUtilityService.getRealWidth(grid.$root);
         }
         grid.elementDims.rootMaxH = grid.$root.height();
-        //checker to see if anything has changed
+        //check to see if anything has changed
         grid.refreshDomSizes();
         $scope.adjustScrollTop(scrollTop, true); //ensure that the user stays scrolled where they were
     };
@@ -388,7 +388,7 @@ angular.module('ngGrid.services').factory('$sortService', ['$parse', function($p
     // @item - the cell data
     sortService.guessSortFn = function(item) {
         var itemType = typeof(item);
-        //checker for numbers and booleans
+        //check for numbers and booleans
         switch (itemType) {
             case "number":
                 return sortService.sortNumber;
@@ -398,7 +398,7 @@ angular.module('ngGrid.services').factory('$sortService', ['$parse', function($p
                 // if number string return number string sort fn. else return the str
                 return item.match(/^[-+]?[£$¤]?[\d,.]+%?$/) ? sortService.sortNumberStr : sortService.sortAlpha;
             default:
-                //checker if the item is a valid Date
+                //check if the item is a valid Date
                 if (Object.prototype.toString.call(item) === '[object Date]') {
                     return sortService.sortDate;
                 }
@@ -549,7 +549,7 @@ angular.module('ngGrid.services').factory('$sortService', ['$parse', function($p
                 sortService.colSortFnCache[col.field] = sortFn;
             } else {
                 // we assign the alpha sort because anything that is null/undefined will never get passed to
-                // the actual sorting function. It will get caught in our null checker and returned to be sorted
+                // the actual sorting function. It will get caught in our null check and returned to be sorted
                 // down to the bottom
                 sortFn = sortService.sortAlpha;
             }
@@ -1482,7 +1482,7 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
         //Show the dropzone for drag and drop grouping
         showGroupPanel: false,
         
-        //Row selection checker boxes appear as the first column.
+        //Row selection check boxes appear as the first column.
         showSelectionCheckbox: false,
         
         /*Define a sortInfo object to specify a default sorting state. 
@@ -1755,7 +1755,7 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
 
              // has bug for resize event causing NaN for all column width after another http.get
              // if (isNaN(t) && !$scope.hasUserChangedGridColumnWidths) {
-             // checker if it is a number
+             // check if it is a number
             if (isNaN(t)) {
                 t = colDef.width;
                 // figure out if the width is defined or if we need to calculate it
@@ -1786,7 +1786,7 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
             }
         });
         
-        // Now we checker if we saved any percentage columns for calculating last
+        // Now we check if we saved any percentage columns for calculating last
         if (percentArray.length > 0) {
             //If they specificy for maintain column ratios to be false in grid config, then it will remain false. If not specifiied or true, will be true.
             self.config.maintainColumnRatios = self.config.maintainColumnRatios !== false; 
@@ -1825,7 +1825,7 @@ var ngGrid = function ($scope, options, sortService, domUtilityService, $filter,
             });
         }
 
-        // checker if we saved any asterisk columns for calculating later
+        // check if we saved any asterisk columns for calculating later
         if (asterisksArray.length > 0) {
             //If they specificy for maintain column ratios to be false in grid config, then it will remain false. If not specifiied or true, will be true.
             self.config.maintainColumnRatios = self.config.maintainColumnRatios !== false; 
@@ -2291,7 +2291,7 @@ ngRow.prototype.toggleSelected = function (event) {
 		return true;
 	}
 	var element = event.target || event;
-	//checker and make sure its not the bubbling up of our checked 'click' event 
+	//check and make sure its not the bubbling up of our checked 'click' event 
 	if (element.type === "checkbox" && element.parentElement.className !== "ngSelectionCell ng-scope") {
 		return true;
 	}
@@ -2367,7 +2367,7 @@ var ngRowFactory = function (grid, $scope, domUtilityService, $templateCache, $u
     };
 
     self.buildAggregateRow = function(aggEntity, rowIndex) {
-        var agg = self.aggCache[aggEntity.aggIndex]; // first checker to see if we've already built it 
+        var agg = self.aggCache[aggEntity.aggIndex]; // first check to see if we've already built it 
         if (!agg) {
             // build the row
             agg = new ngAggregate(aggEntity, self, self.rowConfig.rowHeight, grid.config.groupsCollapsedByDefault);
@@ -2382,7 +2382,7 @@ var ngRowFactory = function (grid, $scope, domUtilityService, $templateCache, $u
         self.renderedChange();
     };
     self.filteredRowsChanged = function() {
-        // checker for latebound autogenerated columns
+        // check for latebound autogenerated columns
         if (grid.lateBoundColumns && grid.filteredRows.length > 0) {
             grid.config.columnDefs = undefined;
             grid.buildColumns();
