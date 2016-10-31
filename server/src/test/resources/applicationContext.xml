@@ -59,7 +59,7 @@
         <property name="mapperLocations" value="classpath*:oldmapper/*Mapper.xml"/>
     </bean>
 
-    <bean id="beanMapper" class="com.virjar.core.beanmapper.OrikaBeanMapper">
+    <bean id="beanMapper" class="com.virjar.dungproxy.server.core.beanmapper.OrikaBeanMapper">
         <property name="basePackage" value="com.virjar.model.**"/>
     </bean>
 </beans>

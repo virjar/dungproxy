@@ -6,8 +6,8 @@ import java.util.List;
 import org.dom4j.DocumentException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.virjar.crawler.Collector;
-import com.virjar.entity.Proxy;
+import com.virjar.dungproxy.server.crawler.Collector;
+import com.virjar.dungproxy.server.entity.Proxy;
 
 /**
  * Created by virjar on 16/9/15.

@@ -3,12 +3,12 @@ package com.mantou.proxyservice.proxeservice.collector;
 import java.io.IOException;
 import java.util.List;
 
+import com.virjar.dungproxy.client.ippool.IpPool;
+import com.virjar.dungproxy.client.ippool.config.Context;
 import org.dom4j.DocumentException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.virjar.crawler.Collector;
-import com.virjar.ipproxy.ippool.IpPool;
-import com.virjar.ipproxy.ippool.config.Context;
+import com.virjar.dungproxy.server.crawler.Collector;
 
 /**
  * Created by virjar on 16/9/15.

@@ -2,8 +2,8 @@
 <fetch verson="1.0">
     <property name="res" xpath="//div[@class='table']/ul" fetch="true">
         <property name="ip" xpath="/li[1]/script"
-                  classfetcher="com.virjar.crawler.extractor.classfetcher.ProxyListOrgIpFetcher"/>
+                  classfetcher="com.virjar.dungproxy.server.crawler.extractor.classfetcher.ProxyListOrgIpFetcher"/>
         <property name="port" xpath="/li[1]/script"
-                  classfetcher="com.virjar.crawler.extractor.classfetcher.ProxyListOrgIpFetcher"/>
+                  classfetcher="com.virjar.dungproxy.server.crawler.extractor.classfetcher.ProxyListOrgIpFetcher"/>
     </property>
 </fetch>

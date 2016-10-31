@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.virjar.repository.DomainMetaRepository">
-    <resultMap id="BaseResultMap" type="com.virjar.entity.DomainMeta">
+<mapper namespace="com.virjar.dungproxy.server.repository.DomainMetaRepository">
+    <resultMap id="BaseResultMap" type="com.virjar.dungproxy.server.entity.DomainMeta">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="domain" property="domain" jdbcType="VARCHAR"/>
         <result column="is_foreign" property="isForeign" jdbcType="BIT"/>
@@ -24,7 +24,7 @@
     delete from domainmeta
     where id = #{id,jdbcType=BIGINT}
   </delete>
-    <insert id="insert" parameterType="com.virjar.entity.DomainMeta">
+    <insert id="insert" parameterType="com.virjar.dungproxy.server.entity.DomainMeta">
     insert into domainmeta (id, domain, is_foreign, 
       is_domestic, is_allow_lost_header, has_https, 
       support_isp,last_access_time)
@@ -32,7 +32,7 @@
       #{isDomestic,jdbcType=BIT}, #{isAllowLostHeader,jdbcType=BIT}, #{hasHttps,jdbcType=BIT}, 
       #{supportIsp,jdbcType=VARCHAR},#{lastAccessTime,jdbcType=TIMESTAMP})
   </insert>
-    <insert id="insertSelective" parameterType="com.virjar.entity.DomainMeta">
+    <insert id="insertSelective" parameterType="com.virjar.dungproxy.server.entity.DomainMeta">
         insert into domainmeta
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -87,7 +87,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="com.virjar.entity.DomainMeta">
+    <update id="updateByPrimaryKeySelective" parameterType="com.virjar.dungproxy.server.entity.DomainMeta">
         update domainmeta
         <set>
             <if test="domain != null">
@@ -114,7 +114,7 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.virjar.entity.DomainMeta">
+    <update id="updateByPrimaryKey" parameterType="com.virjar.dungproxy.server.entity.DomainMeta">
     update domainmeta
     set domain = #{domain,jdbcType=VARCHAR},
       is_foreign = #{isForeign,jdbcType=BIT},
@@ -125,7 +125,7 @@
       last_access_time =  #{lastAccessTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
-    <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.entity.DomainMeta">
+    <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.dungproxy.server.entity.DomainMeta">
         select count(*) from domainmeta
         <where>
             <if test="id != null">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.virjar.repository.DomainIpRepository">
-    <resultMap id="BaseResultMap" type="com.virjar.entity.DomainIp">
+<mapper namespace="com.virjar.dungproxy.server.repository.DomainIpRepository">
+    <resultMap id="BaseResultMap" type="com.virjar.dungproxy.server.entity.DomainIp">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="domain" property="domain" jdbcType="VARCHAR"/>
         <result column="proxy_id" property="proxyId" jdbcType="BIGINT"/>
@@ -26,7 +26,7 @@
     delete from domainip
     where id = #{id,jdbcType=BIGINT}
   </delete>
-    <insert id="insert" parameterType="com.virjar.entity.DomainIp">
+    <insert id="insert" parameterType="com.virjar.dungproxy.server.entity.DomainIp">
     insert into domainip (id, domain, proxy_id, 
       ip, port, domain_score, 
       domain_score_date, createtime, speed,test_url
@@ -37,7 +37,7 @@
       #{testUrl,jdbcType=VARCHAR}
       )
   </insert>
-    <insert id="insertSelective" parameterType="com.virjar.entity.DomainIp">
+    <insert id="insertSelective" parameterType="com.virjar.dungproxy.server.entity.DomainIp">
         insert into domainip
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -104,7 +104,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="com.virjar.entity.DomainIp">
+    <update id="updateByPrimaryKeySelective" parameterType="com.virjar.dungproxy.server.entity.DomainIp">
         update domainip
         <set>
             <if test="domain != null">
@@ -137,7 +137,7 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.virjar.entity.DomainIp">
+    <update id="updateByPrimaryKey" parameterType="com.virjar.dungproxy.server.entity.DomainIp">
     update domainip
     set domain = #{domain,jdbcType=VARCHAR},
       proxy_id = #{proxyId,jdbcType=BIGINT},
@@ -150,7 +150,7 @@
       test_url = #{testUrl,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
-    <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.entity.DomainIp">
+    <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.dungproxy.server.entity.DomainIp">
         select count(*) from domainip
         <where>
             <if test="id != null">

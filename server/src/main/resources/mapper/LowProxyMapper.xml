@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.virjar.repository.ProxyLowQualityRepository">
-    <resultMap id="BaseResultMap" type="com.virjar.entity.Proxy">
+<mapper namespace="com.virjar.dungproxy.server.repository.ProxyLowQualityRepository">
+    <resultMap id="BaseResultMap" type="com.virjar.dungproxy.server.entity.Proxy">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="ip" property="ip" jdbcType="CHAR"/>
         <result column="proxy_ip" property="proxyIp" jdbcType="CHAR"/>
@@ -38,7 +38,7 @@
     availbel_score, connection_score_date, availbel_score_date, createtime, support_gfw, 
     gfw_speed, source, crawler_key, lostheader
   </sql>
-    <insert id="insert" parameterType="com.virjar.entity.Proxy">
+    <insert id="insert" parameterType="com.virjar.dungproxy.server.entity.Proxy">
     insert into proxy_low_quality (id, ip, proxy_ip, port,
       ip_value, country, area, 
       region, city, isp, 
@@ -90,7 +90,7 @@
       lostheader = #{lostheader,jdbcType=BIT}
   </insert>
 
-    <insert id="insertSelective" parameterType="com.virjar.entity.Proxy">
+    <insert id="insertSelective" parameterType="com.virjar.dungproxy.server.entity.Proxy">
         insert into proxy_low_quality
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">

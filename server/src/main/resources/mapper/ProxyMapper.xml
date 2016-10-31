@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.virjar.repository.ProxyRepository">
-    <resultMap id="BaseResultMap" type="com.virjar.entity.Proxy">
+<mapper namespace="com.virjar.dungproxy.server.repository.ProxyRepository">
+    <resultMap id="BaseResultMap" type="com.virjar.dungproxy.server.entity.Proxy">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="ip" property="ip" jdbcType="CHAR"/>
         <result column="proxy_ip" property="proxyIp" jdbcType="CHAR"/>
@@ -48,7 +48,7 @@
     delete from proxy
     where id = #{id,jdbcType=BIGINT}
   </delete>
-    <insert id="insert" parameterType="com.virjar.entity.Proxy">
+    <insert id="insert" parameterType="com.virjar.dungproxy.server.entity.Proxy">
     insert into proxy (id, ip, proxy_ip, port, 
       ip_value, country, area, 
       region, city, isp, 
@@ -71,7 +71,7 @@
       #{lostheader,jdbcType=BIT}
       )
   </insert>
-    <insert id="insertSelective" parameterType="com.virjar.entity.Proxy">
+    <insert id="insertSelective" parameterType="com.virjar.dungproxy.server.entity.Proxy">
         insert into proxy
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -253,7 +253,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="com.virjar.entity.Proxy">
+    <update id="updateByPrimaryKeySelective" parameterType="com.virjar.dungproxy.server.entity.Proxy">
         update proxy
         <set>
             <if test="ip != null">
@@ -343,7 +343,7 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.virjar.entity.Proxy">
+    <update id="updateByPrimaryKey" parameterType="com.virjar.dungproxy.server.entity.Proxy">
     update proxy
     set ip = #{ip,jdbcType=CHAR},
       proxy_ip = #{proxyIp,jdbcType=CHAR},
@@ -375,7 +375,7 @@
       lostheader = #{lostheader,jdbcType=BIT}
     where id = #{id,jdbcType=BIGINT}
   </update>
-    <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.entity.Proxy">
+    <select id="selectCount" resultType="java.lang.Integer" parameterType="com.virjar.dungproxy.server.entity.Proxy">
         select count(*) from proxy
         <where>
             <if test="id != null">

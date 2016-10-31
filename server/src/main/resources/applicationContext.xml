@@ -3,7 +3,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        default-lazy-init="false"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
-    <context:component-scan base-package="com.virjar.scheduler,com.virjar.**.service"/>
+    <context:component-scan base-package="com.virjar.dungproxy.server.scheduler,com.virjar.dungproxy.server.service"/>
     <context:annotation-config/>
     <context:property-placeholder location="classpath:*.properties"/>
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
@@ -33,8 +33,8 @@
         <property name="mapperLocations" value="classpath*:mapper/*Mapper.xml"/>
         <property name="configLocation" value="classpath:mybatis-config.xml"/>
     </bean>
-    <bean id="beanMapper" class="com.virjar.core.beanmapper.OrikaBeanMapper">
-        <property name="basePackage" value="com.virjar.model.**"/>
+    <bean id="beanMapper" class="com.virjar.dungproxy.server.core.beanmapper.OrikaBeanMapper">
+        <property name="basePackage" value="com.virjar.dungproxy.server.model.**"/>
     </bean>
-    <bean class="com.virjar.distributer.DistributeService"/>
+    <bean class="com.virjar.dungproxy.server.distributer.DistributeService"/>
 </beans>

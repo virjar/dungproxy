@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.domain.PageRequest;
 
@@ -18,12 +19,11 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.RateLimiter;
 import com.mantou.proxyservice.proxeservice.entity.Proxy;
 import com.mantou.proxyservice.proxeservice.repository.OldProxyRepository;
-import com.virjar.entity.DomainIp;
-import com.virjar.entity.DomainMeta;
-import com.virjar.ipproxy.httpclient.HttpInvoker;
-import com.virjar.repository.DomainIpRepository;
-import com.virjar.repository.DomainMetaRepository;
-import com.virjar.utils.ProxyUtil;
+import com.virjar.dungproxy.server.entity.DomainIp;
+import com.virjar.dungproxy.server.entity.DomainMeta;
+import com.virjar.dungproxy.server.repository.DomainIpRepository;
+import com.virjar.dungproxy.server.repository.DomainMetaRepository;
+import com.virjar.dungproxy.server.utils.ProxyUtil;
 
 /**
  * Created by virjar on 16/8/14.
@@ -60,8 +60,8 @@ public class Migrate {
     public static void testArea() {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
                 "classpath:applicationContext.xml");
-        com.virjar.repository.ProxyRepository newProxyRepo = applicationContext
-                .getBean(com.virjar.repository.ProxyRepository.class);
+        com.virjar.dungproxy.server.repository.ProxyRepository newProxyRepo = applicationContext
+                .getBean(com.virjar.dungproxy.server.repository.ProxyRepository.class);
 
         for (long i = 1L; i <= 1000l; i++) {
             try {
@@ -77,8 +77,8 @@ public class Migrate {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
                 "classpath:applicationContext.xml");
         OldProxyRepository oldProxyRep = applicationContext.getBean(OldProxyRepository.class);
-        com.virjar.repository.ProxyRepository newProxyRepo = applicationContext
-                .getBean(com.virjar.repository.ProxyRepository.class);
+        com.virjar.dungproxy.server.repository.ProxyRepository newProxyRepo = applicationContext
+                .getBean(com.virjar.dungproxy.server.repository.ProxyRepository.class);
         int total = oldProxyRep.selectCount(new Proxy());
         int batch = 10000;
         int n = total / batch + 1;
@@ -104,16 +104,16 @@ public class Migrate {
     private static class insertTask implements Callable<Object> {
 
         private Proxy proxy;
-        com.virjar.repository.ProxyRepository newProxyRepo;
+        com.virjar.dungproxy.server.repository.ProxyRepository newProxyRepo;
 
-        public insertTask(Proxy proxy, com.virjar.repository.ProxyRepository newProxyRepo) {
+        public insertTask(Proxy proxy, com.virjar.dungproxy.server.repository.ProxyRepository newProxyRepo) {
             this.proxy = proxy;
             this.newProxyRepo = newProxyRepo;
         }
 
         @Override
         public Object call() throws Exception {
-            com.virjar.entity.Proxy newProxy = new com.virjar.entity.Proxy();
+            com.virjar.dungproxy.server.entity.Proxy newProxy = new com.virjar.dungproxy.server.entity.Proxy();
             newProxy.setIp(proxy.getIp());
             newProxy.setPort(proxy.getPort());
             newProxy.setIpValue(ProxyUtil.toIPValue(proxy.getIp()));
@@ -124,34 +124,34 @@ public class Migrate {
         }
     }
 
-    private com.virjar.entity.Proxy getArea(String ipAddr) {
+    private com.virjar.dungproxy.server.entity.Proxy getArea(String ipAddr) {
         RateLimiter limiter = RateLimiter.create(9.0);
         if (limiter.tryAcquire()) {
-            com.virjar.entity.Proxy proxy;
+            com.virjar.dungproxy.server.entity.Proxy proxy;
             JSONObject jsonObject;
             try {
                 String response = HttpInvoker.get(TAOBAOURL + ipAddr);
                 jsonObject = JSONObject.parseObject(response);
                 String data = jsonObject.get("data").toString();
                 JSONObject temp = JSONObject.parseObject(data);
-                proxy = JSON.parseObject(data, com.virjar.entity.Proxy.class, Feature.IgnoreNotMatch);
+                proxy = JSON.parseObject(data, com.virjar.dungproxy.server.entity.Proxy.class, Feature.IgnoreNotMatch);
                 proxy.setCountryId(temp.get("country_id").toString());
                 proxy.setAreaId(temp.get("area_id").toString());
                 proxy.setRegionId(temp.get("region_id").toString());
                 proxy.setCityId(temp.get("city_id").toString());
                 proxy.setIspId(temp.get("isp_id").toString());
             } catch (Exception e) {
-                proxy = new com.virjar.entity.Proxy();
+                proxy = new com.virjar.dungproxy.server.entity.Proxy();
             }
             return proxy;
         } else {
-            return new com.virjar.entity.Proxy();
+            return new com.virjar.dungproxy.server.entity.Proxy();
         }
     }
 
-    public int setArea(com.virjar.repository.ProxyRepository newProxyRepo, long id) {
-        com.virjar.entity.Proxy proxy = newProxyRepo.selectByPrimaryKey(id);
-        com.virjar.entity.Proxy temp = getArea(proxy.getIp());
+    public int setArea(com.virjar.dungproxy.server.repository.ProxyRepository newProxyRepo, long id) {
+        com.virjar.dungproxy.server.entity.Proxy proxy = newProxyRepo.selectByPrimaryKey(id);
+        com.virjar.dungproxy.server.entity.Proxy temp = getArea(proxy.getIp());
         temp.setId(proxy.getId());
         int i = newProxyRepo.updateByPrimaryKeySelective(temp);
         return i;
