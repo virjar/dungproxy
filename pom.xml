@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <url>http://maven.apache.org</url>
     <groupId>com.virjar</groupId>
-    <artifactId>proxyipcenter</artifactId>
+    <artifactId>dungproxy</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
     <modules>
