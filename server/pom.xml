@@ -5,7 +5,7 @@
     <url>http://maven.apache.org</url>
     <parent>
         <groupId>com.virjar</groupId>
-        <artifactId>proxyipcenter</artifactId>
+        <artifactId>dungproxy</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>proxyipcenter-sever</artifactId>
