@@ -85,6 +85,7 @@ prxyclient.DefaultAvProxyDumper.dumpFileName=/tmp/proxyclient/availableProxy.jso
 预热器启动方式有两种
 1. 通过代码
 ![image](pic/pre_heat_code.png)
+
 ```
 import com.virjar.dungproxy.client.ippool.PreHeater;
 
@@ -97,6 +98,7 @@ public class Main {
     }
 }
 ```
+
 2. 通过java命令
 在product目录中,执行 ``java -jar client-0.0.1-SNAPSHOT.jar ``
 ![image](pic/pre_heat_jar.png)
