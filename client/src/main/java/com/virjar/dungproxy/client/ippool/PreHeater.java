@@ -51,6 +51,10 @@ public class PreHeater {
      * 提供一个主函数,用于在jar包调用preHeater模块,为数据真正可用做准备
      */
     public static void main(String[] args) {
+        start();
+    }
+
+    public static void start() {
         List<String> preHeaterTaskList = Context.getInstance().getPreHeaterTaskList();
         PreHeater preHeater = new PreHeater();
         for (String url : preHeaterTaskList) {
