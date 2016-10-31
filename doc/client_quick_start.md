@@ -31,7 +31,7 @@ README.md		ddl_version1.1.sql	pom.xml			repeater
 client			doc			proxyipcenter-dotnet	server
 bogon:proxyipcenter virjar$ 
 ```
-2. install 到本地maven库 ``mvn install -Dmaven.test.skip=true`
+2. install 到本地maven库 ``mvn install -Dmaven.test.skip=true``
 
 ```
 bogon:proxyipcenter virjar$ mvn install -Dmaven.test.skip=true
