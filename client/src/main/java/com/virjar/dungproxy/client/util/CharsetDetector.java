@@ -119,15 +119,22 @@ public class CharsetDetector {
      * @return
      */
     public static String detectHtmlContent(final byte[] content) {
-        String[] metas = substringsBetween(content, "<meta".getBytes(), "/>".getBytes());
+        String[] metas = substringsBetween(content, "<meta".getBytes(), ">".getBytes());// #4
         if (metas == null) {
             return null;
         }
         for (String meta : metas) {
-            if (meta.contains("Content-Type")) {
+            if (meta.toLowerCase().contains("Content-Type".toLowerCase())) {
                 String contentType = parseContentType(StringUtils.substringBetween(meta, "content=\"", "\""));
                 if (contentType != null) {
                     return contentType;
+                }
+            } else if (meta.contains("charset=\"")) {// html5 <meta charset="UTF-8" />
+                int i = meta.indexOf("charset=\"");//需要继续优化
+                String substring = meta.substring(i + 9);
+                int end = substring.indexOf("\"");
+                if (end > 0) {
+                    return substring.substring(0, end);
                 }
             }
         }

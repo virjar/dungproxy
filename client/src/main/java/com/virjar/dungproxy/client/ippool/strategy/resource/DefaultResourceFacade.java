@@ -37,7 +37,7 @@ public class DefaultResourceFacade implements ResourceFacade {
         valuePairList.add(new BasicNameValuePair("checkUrl", testUrl));
         valuePairList.add(new BasicNameValuePair("domain", domain));
         valuePairList.add(new BasicNameValuePair("num", String.valueOf(number)));
-        String response = HttpInvoker.postQuiet(avUrl, valuePairList);
+        String response = HttpInvoker.post(avUrl, valuePairList);
         if (StringUtils.isBlank(response)) {
             logger.error("can not get available ip resource from server: request body is {}",
                     JSONObject.toJSONString(valuePairList));
@@ -63,12 +63,12 @@ public class DefaultResourceFacade implements ResourceFacade {
         feedBackForm.setDomain(domain);
         feedBackForm.setAvProxy(avProxies);
         feedBackForm.setDisableProxy(disableProxies);
-        HttpInvoker.postQuiet(feedBackUrl, feedBackForm);
+        HttpInvoker.postJSON(feedBackUrl, feedBackForm);
     }
 
     @Override
     public List<AvProxy> allAvailable() {
-        String response = HttpInvoker.getQuiet(allAvUrl);
+        String response = HttpInvoker.get(allAvUrl);
         if (StringUtils.isBlank(response)) {
             logger.error("can not get available ip resource from server: ");
             return Lists.newArrayList();

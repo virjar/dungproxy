@@ -220,93 +220,75 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     }
 
     public String get(String url, Map<String, String> params, Charset charset, Header[] headers, String proxyIp,
-            int proxyPort) throws IOException {
+            int proxyPort) {
         return get(url, convert(params), charset, headers, proxyIp, proxyPort);
     }
 
-    public String get(String url, Charset charset, Header[] headers, String proxyIp, int proxyPort) throws IOException {
+    public String get(String url, Charset charset, Header[] headers, String proxyIp, int proxyPort) {
         return get(url, (List<NameValuePair>) null, charset, headers, proxyIp, proxyPort);
     }
 
-    public String get(String url, List<NameValuePair> nameValuePairs, Header[] headers, String proxyIp, int proxyPort)
-            throws IOException {
+    public String get(String url, List<NameValuePair> nameValuePairs, Header[] headers, String proxyIp, int proxyPort) {
         return get(url, nameValuePairs, null, headers, proxyIp, proxyPort);
     }
 
-    public String get(String url, List<NameValuePair> params, Charset charset, String proxyIp, int proxyPort)
-            throws IOException {
+    public String get(String url, List<NameValuePair> params, Charset charset, String proxyIp, int proxyPort) {
         return get(url, params, charset, null, proxyIp, proxyPort);
     }
 
-    public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers) throws IOException {
+    public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers) {
         return get(url, params, charset, headers, null, -1);
     }
 
-    public String get(String url, Header[] headers, String proxyIp, int proxyPort) throws IOException {
+    public String get(String url, Header[] headers, String proxyIp, int proxyPort) {
         return get(url, (List<NameValuePair>) null, null, headers, proxyIp, proxyPort);
     }
 
-    public String get(String url, Charset charset, String proxyIp, int proxyPort) throws IOException {
+    public String get(String url, Charset charset, String proxyIp, int proxyPort) {
         return get(url, (List<NameValuePair>) null, charset, null, proxyIp, proxyPort);
     }
 
-    public String get(String url, Charset charset, Header[] headers) throws IOException {
+    public String get(String url, Charset charset, Header[] headers) {
         return get(url, (List<NameValuePair>) null, charset, headers, null, -1);
     }
 
-    public String get(String url, List<NameValuePair> params, String proxyIp, int proxyPort) throws IOException {
+    public String get(String url, List<NameValuePair> params, String proxyIp, int proxyPort) {
         return get(url, params, null, null, proxyIp, proxyPort);
     }
 
-    public String get(String url, List<NameValuePair> params, Header[] headers) throws IOException {
+    public String get(String url, List<NameValuePair> params, Header[] headers) {
         return get(url, params, null, headers, null, -1);
     }
 
-    public String get(String url, List<NameValuePair> params, Charset charset) throws IOException {
+    public String get(String url, List<NameValuePair> params, Charset charset) {
         return get(url, params, charset, null, null, -1);
     }
 
-    public String get(String url, List<NameValuePair> params) throws IOException {
+    public String get(String url, List<NameValuePair> params) {
         return get(url, params, null, null, null, -1);
     }
 
-    public String get(String url, Charset charset) throws IOException {
+    public String get(String url, Charset charset) {
         return get(url, (List<NameValuePair>) null, charset, null, null, -1);
     }
 
-    public String get(String url, Header[] headers) throws IOException {
+    public String get(String url, Header[] headers) {
         return get(url, (List<NameValuePair>) null, null, headers, null, -1);
     }
 
-    public String get(String url, String proxyIp, int proxyPort) throws IOException {
+    public String get(String url, String proxyIp, int proxyPort) {
         return get(url, (List<NameValuePair>) null, null, null, proxyIp, proxyPort);
     }
 
-    public String get(String url) throws IOException {
+    public String get(String url){
         return get(url, (List<NameValuePair>) null, null, null, null, -1);
     }
 
-    public String get(String url, HttpClientContext httpClientContext) throws IOException {
+    public String get(String url, HttpClientContext httpClientContext) {
         return get(url, null, null, null, null, -1, httpClientContext);
     }
 
-    public String getQuiet(String url) {
-        try {
-            return get(url);
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    public String getQuiet(String url, HttpClientContext httpClientContext) {
-        try {
-            return get(url, httpClientContext);
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    public int getStatus(String url, String proxyIp, int proxyPort) throws IOException {
+    public int getStatus(String url, String proxyIp, int proxyPort) {
         HttpGet httpGet = new HttpGet(url);
         RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
                 .setConnectTimeout(ProxyConstant.CONNECT_TIMEOUT)
@@ -319,18 +301,20 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         try {
             CloseableHttpResponse execute = execute(httpGet);
             return execute.getStatusLine().getStatusCode();
+        } catch (IOException e) {
+            return -1;
         } finally {
             httpGet.releaseConnection();
         }
     }
 
     public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
-            int proxyPort) throws IOException {
+            int proxyPort) {
         return get(url, params, charset, headers, proxyIp, proxyPort, null);
     }
 
     public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
-            int proxyPort, HttpClientContext httpClientContext) throws IOException {
+            int proxyPort, HttpClientContext httpClientContext) {
         if (params != null && params.size() > 0) {
             url = url + "?" + URLEncodedUtils.format(params, "utf-8");
         }
@@ -347,60 +331,73 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         if (headers != null && headers.length > 0) {
             httpGet.setHeaders(headers);
         }
-        return decodeHttpResponse(execute(httpGet, httpClientContext), charset);
-    }
-
-    public String post(String url, String entity, Charset charset, Header[] headers, String proxyIp, int proxyPort)
-            throws IOException {
-        return post(url, new StringEntity(entity, ContentType.TEXT_PLAIN), charset, headers, proxyIp, proxyPort);
-    }
-
-    public String post(String url, Object entity, Charset charset, Header[] headers, String proxyIp, int proxyPort)
-            throws IOException {
-        return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), charset,
-                headers, proxyIp, proxyPort);
-    }
-
-    public String post(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
-            int proxyPort) throws IOException {
-        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), charset, headers, proxyIp,
-                proxyPort);
-    }
-
-    public String post(String url, Map<String, String> params) throws IOException {
-        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, null, null, -1);
-    }
-
-    public String post(String url, String entity) throws IOException {
-        return post(url, new StringEntity(entity, ContentType.create("text/plain", Charset.defaultCharset())), null,
-                null, null, -1);
-    }
-
-    public String post(String url, Object entity) throws IOException {
-        return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), null, null,
-                null, -1);
-    }
-
-    public String post(String url, List<NameValuePair> params) throws IOException {
-        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, null, null, -1);
-    }
-
-    public String post(String url, Map<String, String> params, Charset charset, Header[] headers, String proxyIp,
-            int proxyPort) throws IOException {
-        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), charset, headers, proxyIp,
-                proxyPort);
-    }
-
-    public String postQuiet(String url, Object object) {
         try {
-            return post(url, object);
+            return decodeHttpResponse(execute(httpGet, httpClientContext), charset);
         } catch (IOException e) {
             return null;
         }
     }
 
-    public String post(String url, HttpEntity entity, Charset charset, Header[] headers, String proxyIp, int proxyPort)
-            throws IOException {
+    public String post(String url, String entity, Charset charset, Header[] headers, String proxyIp, int proxyPort) {
+        return post(url, new StringEntity(entity, ContentType.TEXT_PLAIN), charset, headers, proxyIp, proxyPort);
+    }
+
+    public String postJSON(String url, Object entity, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort) {
+        return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), charset,
+                headers, proxyIp, proxyPort);
+    }
+
+    public String post(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort) {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), charset, headers, proxyIp,
+                proxyPort);
+    }
+
+    public String post(String url, List<NameValuePair> params, Header[] headers) {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, headers, null, -1);
+    }
+
+    public String post(String url, Map<String, String> params, Header[] headers) {
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, headers, null, -1);
+    }
+
+    public String post(String url, String entity, Header[] headers) {
+        return post(url, new StringEntity(entity, ContentType.create("text/plain", Charset.defaultCharset())), null,
+                headers, null, -1);
+    }
+
+    public String postJSON(String url, Object entity, Header[] headers) {
+        return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), null, headers,
+                null, -1);
+    }
+
+    public String post(String url, Map<String, String> params) {
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, null, null, -1);
+    }
+
+    public String post(String url, String entity) {
+        return post(url, new StringEntity(entity, ContentType.create("text/plain", Charset.defaultCharset())), null,
+                null, null, -1);
+    }
+
+    public String postJSON(String url, Object entity) {
+        return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), null, null,
+                null, -1);
+    }
+
+    public String post(String url, List<NameValuePair> params) {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, null, null, -1);
+    }
+
+    public String post(String url, Map<String, String> params, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort) {
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), charset, headers, proxyIp,
+                proxyPort);
+    }
+
+    public String post(String url, HttpEntity entity, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort) {
 
         HttpPost httpPost = new HttpPost(url);
         RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
@@ -416,7 +413,11 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             httpPost.setHeaders(headers);
         }
         httpPost.setEntity(entity);
-        return decodeHttpResponse(execute(httpPost), charset);
+        try {
+            return decodeHttpResponse(execute(httpPost), charset);
+        } catch (IOException e) {
+            return null;
+        }
 
     }
 

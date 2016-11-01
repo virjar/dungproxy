@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Enumeration;
 
-import com.virjar.dungproxy.client.httpclient.HttpInvoker;
-import com.virjar.dungproxy.client.model.AvProxy;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
+import com.virjar.dungproxy.client.model.AvProxy;
 
 /**
  * Description: 本地可用Proxy验证
@@ -47,19 +48,15 @@ public class IpAvValidator {
         }
 
     }
+
     public static boolean available(AvProxy avProxy, String testUrl) {
         for (int i = 0; i < 3; i++) {
-            try {
-                if (HttpInvoker.getStatus(testUrl, avProxy.getIp(), avProxy.getPort()) == 200) {
-                    return true;
-                }
-            } catch (IOException e) {
-                // do nothing
+            if (HttpInvoker.getStatus(testUrl, avProxy.getIp(), avProxy.getPort()) == 200) {
+                return true;
             }
         }
         return false;
     }
-
 
     private static Socket newLocalSocket() {
         for (int i = 0; i < 3; i++) {
