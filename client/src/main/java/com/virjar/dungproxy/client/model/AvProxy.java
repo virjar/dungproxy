@@ -29,6 +29,9 @@ public class AvProxy {
     // 平均打分
     private long avgScore = 0;
 
+    //最后被引用的时间
+    private long lastUsedTime = 0;
+
     private DomainPool domainPool;
 
     private boolean disable = false;
@@ -48,6 +51,7 @@ public class AvProxy {
     }
 
     public void recordUsage() {
+        lastUsedTime = System.currentTimeMillis();
         referCount.incrementAndGet();
     }
 

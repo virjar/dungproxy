@@ -280,7 +280,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         return get(url, (List<NameValuePair>) null, null, null, proxyIp, proxyPort);
     }
 
-    public String get(String url){
+    public String get(String url) {
         return get(url, (List<NameValuePair>) null, null, null, null, -1);
     }
 
@@ -304,7 +304,8 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         } catch (IOException e) {
             return -1;
         } finally {
-            httpGet.releaseConnection();
+            httpGet.abort();
+            // httpGet.releaseConnection(); //看起来有链接没有关闭的问题发生,尝试替换这个试一试
         }
     }
 
