@@ -1,12 +1,10 @@
 package com.virjar.dungproxy.server.scheduler;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
@@ -16,6 +14,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import com.virjar.dungproxy.server.core.beanmapper.BeanMapper;
 import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.model.ProxyModel;
@@ -77,9 +76,9 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
             new Thread() {
                 @Override
                 public void run() {
-                        String s = HttpInvoker
-                                .get(String.format(SysConfig.getInstance().get("system.port.test.forward.url"), ip));
-                        logger.info("port test forward response is:{}", s);
+                    String s = HttpInvoker
+                            .get(String.format(SysConfig.getInstance().get("system.port.test.forward.url"), ip));
+                    logger.info("port test forward response is:{}", s);
                 }
             }.start();
 
