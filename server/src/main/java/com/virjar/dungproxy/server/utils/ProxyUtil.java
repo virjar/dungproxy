@@ -6,7 +6,6 @@ import java.net.*;
 import java.util.Enumeration;
 import java.util.List;
 
-import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Splitter;
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import com.virjar.dungproxy.server.model.AvailbelCheckResponse;
 import com.virjar.dungproxy.server.model.ProxyModel;
 
@@ -139,12 +139,8 @@ public class ProxyUtil {
 
     public static boolean checkUrl(String ip, int port, String url) {
         for (int i = 0; i < 3; i++) {
-            try {
-                // 可能有问题,资源不可用,响应也有可能不是空。需要客户端代理失败决策方案出来之后进行优化
-                return HttpInvoker.getStatus(url, ip, port) == 200;
-            } catch (IOException e) {
-                // do nothing
-            }
+            // 可能有问题,资源不可用,响应也有可能不是空。需要客户端代理失败决策方案出来之后进行优化
+            return HttpInvoker.getStatus(url, ip, port) == 200;
         }
         return false;
     }

@@ -1,5 +1,4 @@
 package com.virjar.dungproxy.server.proxyservice.server;
-
 import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
@@ -84,7 +83,7 @@ public class DispatchServer extends Thread {
 
         try {
             HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
-            String quatity = HttpInvoker.getQuiet("http://www.66ip.cn/3.html", httpClientContext);
+            String quatity = HttpInvoker.get("http://www.66ip.cn/3.html", httpClientContext);
 
             ServerBootstrap b = new ServerBootstrap();
             b.option(ChannelOption.SO_REUSEADDR, true);

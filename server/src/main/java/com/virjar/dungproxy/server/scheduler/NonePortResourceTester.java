@@ -77,13 +77,9 @@ public class NonePortResourceTester implements Runnable, InitializingBean {
             new Thread() {
                 @Override
                 public void run() {
-                    try {
                         String s = HttpInvoker
                                 .get(String.format(SysConfig.getInstance().get("system.port.test.forward.url"), ip));
                         logger.info("port test forward response is:{}", s);
-                    } catch (IOException e) {
-                        logger.info("port check forward error:", e);
-                    }
                 }
             }.start();
 

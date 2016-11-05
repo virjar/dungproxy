@@ -68,7 +68,7 @@ public class TaobaoAreaTask extends CommonTask {
             JSONObject jsonObject;
             String response = null;
             try {
-                response = HttpInvoker.getQuiet(TAOBAOURL + ipAddr);
+                response = HttpInvoker.get(TAOBAOURL + ipAddr);
                 logger.info("request url:{}", TAOBAOURL + ipAddr);
                 if (StringUtils.isEmpty(response)) {
                     return null;

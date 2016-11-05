@@ -1,6 +1,5 @@
 package com.virjar.dungproxy.server.scheduler;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -9,8 +8,6 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.virjar.dungproxy.client.httpclient.HttpInvoker;
-import com.virjar.dungproxy.client.util.CommonUtil;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
@@ -22,6 +19,8 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
+import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.server.core.beanmapper.BeanMapper;
 import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.model.DomainIpModel;
@@ -64,7 +63,6 @@ public class DomainTestTask implements Runnable, InitializingBean {
 
     @Resource
     private BeanMapper beanMapper;
-
 
     private void init() {
         instance = this;
@@ -116,13 +114,9 @@ public class DomainTestTask implements Runnable, InitializingBean {
             new Thread() {
                 @Override
                 public void run() {
-                    try {
-                        String s = HttpInvoker.get(SysConfig.getInstance().get("system.domain.test.forward.url"),
-                                Lists.<NameValuePair>newArrayList(new BasicNameValuePair("url", url)));
-                        logger.info("domain test forward response is {}", s);
-                    } catch (IOException e) {
-                        logger.error("error when forward domain test task to sub server");
-                    }
+                    String s = HttpInvoker.get(SysConfig.getInstance().get("system.domain.test.forward.url"),
+                            Lists.<NameValuePair> newArrayList(new BasicNameValuePair("url", url)));
+                    logger.info("domain test forward response is {}", s);
                 }
             }.start();
             return true;

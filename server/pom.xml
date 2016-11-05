@@ -488,7 +488,7 @@
         </dependency>
         <dependency>
             <groupId>com.virjar</groupId>
-            <artifactId>client</artifactId>
+            <artifactId>dungproxy-client</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
