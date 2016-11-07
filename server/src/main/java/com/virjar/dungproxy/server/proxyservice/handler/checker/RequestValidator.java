@@ -1,5 +1,6 @@
 package com.virjar.dungproxy.server.proxyservice.handler.checker;
 
+import com.google.common.base.Strings;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.ClientProcessHandler;
 import com.virjar.dungproxy.server.proxyservice.handler.DrungProxyHandler;
@@ -13,8 +14,10 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.REQUEST_TIMEOUT;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.CUSTOM_USER_AGENT_KEY;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.PROXY_HEADER_SET;
+import static com.virjar.dungproxy.server.proxyservice.common.Constants.REQ_TTL_KEY;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.USE_HTTPS_KEY;
 import static io.netty.util.AttributeKey.valueOf;
 
@@ -33,10 +36,7 @@ public class RequestValidator extends ClientProcessHandler {
 
     private static final int MAX_REQUEST_TIMEOUT = 10 * DEFAULT_REQUEST_TIMEOUT;
 
-
-
     public static final RequestValidator instance = new RequestValidator();
-
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -52,10 +52,14 @@ public class RequestValidator extends ClientProcessHandler {
             checkHttpMethod(request);
             checkExpected100Continue(request);
             setHttpVersion(request);
+
+            // 用户是否自定义userAgent
             checkUserAgent(request, ctx);
-            clearQProxyHeaders(request);
-            //TODO 代理请求处理
-            NetworkUtil.resetHandler(ctx.pipeline(), new DrungProxyHandler());
+            clearProxyHeaders(request);
+            // 自定义超时时间
+            handleTimeout(ctx, request);
+            // 代理请求处理
+            NetworkUtil.resetHandler(ctx.pipeline(), new DrungProxyHandler(ctx.channel(), NetworkUtil.getIp(ctx.channel())));
 
             super.channelRead(ctx, msg);
         } catch (Exception e) {
@@ -99,9 +103,24 @@ public class RequestValidator extends ClientProcessHandler {
         }
     }
 
-    private void clearQProxyHeaders(HttpRequest request) {
+    private void clearProxyHeaders(HttpRequest request) {
         for (String header : PROXY_HEADER_SET) {
             request.headers().remove(header);
         }
+    }
+    private void handleTimeout(ChannelHandlerContext ctx, HttpRequest request) {
+        String str = request.headers().get(REQ_TTL_KEY);
+        int timeout = DEFAULT_REQUEST_TIMEOUT;
+        if (!Strings.isNullOrEmpty(str)) {
+            try {
+                timeout = Integer.valueOf(str);
+                if (timeout < 0 || timeout > MAX_REQUEST_TIMEOUT) {
+                    timeout = DEFAULT_REQUEST_TIMEOUT;
+                }
+            } catch (NumberFormatException e) {
+                timeout = DEFAULT_REQUEST_TIMEOUT;
+            }
+        }
+        NetworkUtil.setAttr(ctx.channel(), REQUEST_TIMEOUT, timeout);
     }
 }

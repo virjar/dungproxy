@@ -17,7 +17,6 @@ import org.apache.http.impl.client.ProxyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.netty.handler.codec.http.HttpHeaders.getHost;
 import static io.netty.util.AttributeKey.valueOf;
 
 /**
@@ -31,8 +30,6 @@ import static io.netty.util.AttributeKey.valueOf;
 public class DispatchHandler extends ClientProcessHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DispatchHandler.class);
-
-    private static final String PROXY_RETURN_URI = "/proxy/return";
 
     private String serverHost;
     // 暂用 apache tunnel proxyClient.
@@ -52,12 +49,11 @@ public class DispatchHandler extends ClientProcessHandler {
             ChannelPipeline pipeline = ctx.pipeline();
             if (msg instanceof FullHttpRequest) {
                 FullHttpRequest request = (FullHttpRequest) msg;
-                if (request.getDecoderResult().isFailure()) {
-                    LOGGER.info("[{}] Bad Request [{}] Cause [{}]", ctx.channel(), request.getUri(), request.getDecoderResult().cause().getMessage());
+                if (request.decoderResult().isFailure()) {
+                    LOGGER.info("[{}] Bad Request [{}] Cause [{}]", ctx.channel(), request.uri(), request.decoderResult().cause().getMessage());
                     NetworkUtil.resetHandler(pipeline, BadRequestHandler.instance);
-                } else if (isProxyReturn(request)) {
-                    NetworkUtil.resetHandler(pipeline, ProxyReturnHandler.getInstance());
                 } else {
+                    //
                     NetworkUtil.removeHandler(pipeline, HttpResponseEncoder.class);
                     NetworkUtil.addHandlerIfAbsent(pipeline, ConnectMethodValidator.instance);
                     NetworkUtil.addHandlerIfAbsent(pipeline, RequestValidator.instance);
@@ -72,7 +68,7 @@ public class DispatchHandler extends ClientProcessHandler {
             String log;
             if (msg instanceof FullHttpRequest) {
                 FullHttpRequest request = (FullHttpRequest) msg;
-                log = String.format("Channel 发生异常 [%s] [%s] MTD [%s] URL [%s] Headers [%s]", ctx.channel(), request.getProtocolVersion().toString(), request.getMethod(), request.getUri(), request.headers().entries());
+                log = String.format("Channel 发生异常 [%s] [%s] MTD [%s] URL [%s] Headers [%s]", ctx.channel(), request.protocolVersion().toString(), request.method(), request.uri(), request.headers().entries());
             } else {
                 log = String.format("Channel 发生异常 [%s]", ctx.channel());
             }
@@ -80,10 +76,5 @@ public class DispatchHandler extends ClientProcessHandler {
             LOGGER.error(log, e);
             NetworkUtil.writeAndFlushAndClose(ctx.channel(), ProxyResponse.proxyError(0, e.getClass().getName(), Long.toHexString(ctx.channel().hashCode())));
         }
-    }
-
-    private boolean isProxyReturn(FullHttpRequest request) {
-        String host = getHost(request);
-        return host != null && host.startsWith(serverHost) && request.getUri().contains(PROXY_RETURN_URI);
     }
 }

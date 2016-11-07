@@ -18,6 +18,14 @@ public class Constants {
     public static final String X_FORWARDED_FOR = "X-Forwarded-For";
     public static final String X_REAL_IP = "X-Real-IP";
 
+    public static final String PROXY_ROUTER_KEY = "Proxy-Router";
+    public static final String REQ_TTL_KEY = "qttl";
+
+    /**
+     * Exception Message *
+     */
+    public static final String CONNECTION_RESET_MSG = "Connection reset by peer";
+
     public static final Set<String> PROXY_HEADER_SET = Sets.newHashSet();
 
     static {
@@ -25,5 +33,7 @@ public class Constants {
         PROXY_HEADER_SET.add(USE_HTTPS_KEY);
         PROXY_HEADER_SET.add(X_FORWARDED_FOR);
         PROXY_HEADER_SET.add(X_REAL_IP);
+        PROXY_HEADER_SET.add(PROXY_ROUTER_KEY);
+        PROXY_HEADER_SET.add(REQ_TTL_KEY);
     }
 }

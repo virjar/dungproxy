@@ -34,7 +34,7 @@ public class ConnectMethodValidator extends ValidateHandler<HttpMethod> {
 
     @Override
     public void onValidateFail(ChannelHandlerContext ctx, int ret, HttpMethod param, FullHttpRequest request) {
-        LOGGER.info("[{}] [URL] [{}] 发送 CONNECT 请求", ctx.channel(), request.getUri());
+        LOGGER.info("[{}] [URL] [{}] 发送 CONNECT 请求", ctx.channel(), request.uri());
         writeAndFlushAndClose(ctx.channel(), RAW_HTTPS_DENIED_RESPONSE);
     }
 
@@ -45,6 +45,6 @@ public class ConnectMethodValidator extends ValidateHandler<HttpMethod> {
 
     @Override
     public HttpMethod getValidateParam(ChannelHandlerContext ctx, HttpRequest request) {
-        return request.getMethod();
+        return request.method();
     }
 }

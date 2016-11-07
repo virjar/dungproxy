@@ -27,7 +27,7 @@ public class ProxyReturnHandler extends EndpointHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        final String uri = ((HttpRequest) msg).getUri();
+        final String uri = ((HttpRequest) msg).uri();
         NetworkUtil.releaseMsgCompletely(msg);
         Channel cc = ctx.channel();
         Map<String, List<String>> paramMap = getRequestParam(uri);

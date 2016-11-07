@@ -1,4 +1,5 @@
 package com.virjar.dungproxy.server.proxyservice.server;
+
 import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
 import com.virjar.dungproxy.server.proxyservice.common.util.Executors;
 
 import javax.annotation.Resource;
@@ -42,7 +44,6 @@ public class DispatchServer extends Thread {
 
     private NioServerSocketChannel ch;
 
-    private List<Integer> portList;
 
     private int serverPort;
 
@@ -57,24 +58,15 @@ public class DispatchServer extends Thread {
     public void run() {
 
         // 端口检测
-        if (portList != null) {
-            for (Integer port : portList) {
-                if (NetworkUtil.isPortAvailable(port)) {
-                    serverPort = port;
-                    break;
-                }
-            }
-        } else {
-            for (int port = 8081; port <= 9090; port++) {
-                if (NetworkUtil.isPortAvailable(port)) {
-                    serverPort = port;
-                    break;
-                }
+        for (int port = 8081; port <= 9090; port++) {
+            if (NetworkUtil.isPortAvailable(port)) {
+                serverPort = port;
+                break;
             }
         }
 
         if (serverPort == 0) {
-            LOGGER.error("无法找到可用端口, 端口号为 {}", portList);
+            LOGGER.error("无法找到可用端口");
             return;
         }
 
@@ -82,9 +74,11 @@ public class DispatchServer extends Thread {
         List<Proxy> proxyList = proxyRepo.findAvailable();
 
         try {
+            // TEST
             HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
             String quatity = HttpInvoker.get("http://www.66ip.cn/3.html", httpClientContext);
 
+            //启动Netty Server 提供统一代理服务转发请求
             ServerBootstrap b = new ServerBootstrap();
             b.option(ChannelOption.SO_REUSEADDR, true);
             b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);

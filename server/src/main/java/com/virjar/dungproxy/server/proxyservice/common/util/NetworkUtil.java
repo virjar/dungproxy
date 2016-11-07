@@ -1,6 +1,6 @@
 package com.virjar.dungproxy.server.proxyservice.common.util;
 
-import com.virjar.dungproxy.server.proxyservice.common.ProxyResponse;
+import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
@@ -9,13 +9,13 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCounted;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,6 +82,15 @@ public class NetworkUtil {
         }
     }
 
+    public static void releaseMsg(Object msg) {
+        if (msg != null && msg instanceof ReferenceCounted) {
+            ReferenceCounted rc = (ReferenceCounted) msg;
+            if (rc.refCnt() > 0) {
+                rc.release();
+            }
+        }
+    }
+
     public static void removeHandler(ChannelPipeline p, Class<? extends ChannelHandler> clazz) {
         if (p.get(clazz) != null) {
             p.remove(clazz);
@@ -95,7 +104,7 @@ public class NetworkUtil {
     }
 
     public static String requestToCurl(HttpRequest request) {
-        String uri = request.getUri();
+        String uri = request.uri();
         HttpHeaders headers = request.headers();
         StringBuilder sb = new StringBuilder("");
         sb.append("curl -v '");
@@ -117,5 +126,45 @@ public class NetworkUtil {
 
     public static String getIp(Channel ch) {
         return ((InetSocketAddress) ch.remoteAddress()).getAddress().getHostAddress();
+    }
+
+    public static boolean isSchemaHttps(String url) {
+        return url.length() >= 5 && url.substring(0, 5).toLowerCase().equals("https");
+    }
+
+    public static boolean isCodeValid(int code) {
+        return code > 0 && code < 400;
+    }
+
+    public static int getPortFromHostHeader(String host) {
+        int splitPos = host.indexOf(":");
+        if (splitPos < 0) return -1;
+        int port;
+        try {
+            port = Integer.valueOf(host.substring(splitPos + 1));
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+        return port;
+    }
+
+    public static void removeAllFromPipelineExcept(ChannelPipeline pipeline, List<Class> clazzList) {
+        List<String> namesToRemove = Lists.newArrayList();
+        for (Map.Entry<String, ChannelHandler> handlerEntry : pipeline) {
+            Class clazz = handlerEntry.getValue().getClass();
+            if (clazzList.contains(clazz)) continue;
+            namesToRemove.add(handlerEntry.getKey());
+        }
+        for (String toRemove : namesToRemove) {
+            pipeline.remove(toRemove);
+        }
+    }
+
+    public static <T> T getAttr(Channel channel, AttributeKey<T> key) {
+        T t = channel.attr(key).get();
+        if (t == null) {
+            throw new NullPointerException(key + " 不存在");
+        }
+        return t;
     }
 }
