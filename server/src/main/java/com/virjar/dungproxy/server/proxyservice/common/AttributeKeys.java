@@ -13,4 +13,6 @@ import static io.netty.util.AttributeKey.valueOf;
 public class AttributeKeys {
 
     public static final AttributeKey<Integer> REQUEST_TIMEOUT = valueOf("requestTimeout");
+
+    public static final AttributeKey<String> DOMAIN = valueOf("domain");
 }

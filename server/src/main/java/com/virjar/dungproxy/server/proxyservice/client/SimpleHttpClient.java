@@ -1,5 +1,6 @@
 package com.virjar.dungproxy.server.proxyservice.client;
 
+import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.proxyservice.client.listener.DefaultRequestExecutor;
 import com.virjar.dungproxy.server.proxyservice.client.listener.RequestExecutorProxy;
@@ -39,7 +40,7 @@ public class SimpleHttpClient implements Closeable {
     public RequestBuilder prepare(
             FullHttpRequest request,
             ResponseListener listener,
-            ProxyModel proxyServer
+            Proxy proxyServer
     ) {
         return new RequestBuilder(request, listener, proxyServer, connectionsPool);
     }
@@ -52,7 +53,7 @@ public class SimpleHttpClient implements Closeable {
 
     public class RequestBuilder {
         private FullHttpRequest request;
-        private ProxyModel proxyServer;
+        private Proxy proxyServer;
         private ResponseListener listener;
         private EventLoopGroup executor = defaultExecutor;
         private int readTimeoutMs = defaultReadTimeoutMs;
@@ -64,7 +65,7 @@ public class SimpleHttpClient implements Closeable {
         private boolean customAuth = false;
         private boolean retry;
 
-        public RequestBuilder(FullHttpRequest request, ResponseListener listener, ProxyModel proxyServer, SimpleConnectionsPool connectionsPool) {
+        public RequestBuilder(FullHttpRequest request, ResponseListener listener, Proxy proxyServer, SimpleConnectionsPool connectionsPool) {
             this.request = request;
             this.listener = listener;
             this.proxyServer = proxyServer;

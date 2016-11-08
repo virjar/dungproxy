@@ -1,16 +1,20 @@
 package com.virjar.dungproxy.server.proxyservice.handler.checker;
 
 import com.google.common.base.Strings;
+import com.virjar.dungproxy.client.util.CommonUtil;
+import com.virjar.dungproxy.server.proxyservice.common.AttributeKeys;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.ClientProcessHandler;
 import com.virjar.dungproxy.server.proxyservice.handler.DrungProxyHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +23,7 @@ import static com.virjar.dungproxy.server.proxyservice.common.Constants.CUSTOM_U
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.PROXY_HEADER_SET;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.REQ_TTL_KEY;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.USE_HTTPS_KEY;
+import static io.netty.handler.codec.http.HttpHeaders.getHost;
 import static io.netty.util.AttributeKey.valueOf;
 
 /**
@@ -58,6 +63,7 @@ public class RequestValidator extends ClientProcessHandler {
             clearProxyHeaders(request);
             // 用户是否自定义超时时间
             handleTimeout(ctx, request);
+            setHostFromRquest(ctx, request);
             // 代理请求处理
             NetworkUtil.resetHandler(ctx.pipeline(), new DrungProxyHandler(ctx.channel(), NetworkUtil.getIp(ctx.channel())));
 
@@ -66,6 +72,12 @@ public class RequestValidator extends ClientProcessHandler {
             NetworkUtil.releaseMsgCompletely(msg);
             throw e;
         }
+    }
+
+    private void setHostFromRquest(ChannelHandlerContext ctx, HttpRequest request) {
+        //String host = HttpHeaderNames.HOST.toString();
+        String host = CommonUtil.extractDomain(getHost(request));
+        NetworkUtil.setAttr(ctx.channel(), AttributeKeys.DOMAIN, host);
     }
 
     private void setIfHttps(HttpRequest request) {
@@ -108,6 +120,7 @@ public class RequestValidator extends ClientProcessHandler {
             request.headers().remove(header);
         }
     }
+
     private void handleTimeout(ChannelHandlerContext ctx, HttpRequest request) {
         String str = request.headers().get(REQ_TTL_KEY);
         int timeout = DEFAULT_REQUEST_TIMEOUT;

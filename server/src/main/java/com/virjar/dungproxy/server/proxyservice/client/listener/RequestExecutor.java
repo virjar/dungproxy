@@ -1,6 +1,6 @@
 package com.virjar.dungproxy.server.proxyservice.client.listener;
 
-import com.virjar.dungproxy.server.model.ProxyModel;
+import com.virjar.dungproxy.server.entity.Proxy;
 import io.netty.handler.codec.http.FullHttpRequest;
 
 
@@ -21,7 +21,7 @@ public interface RequestExecutor {
 
     void finishRequest();
 
-    ProxyModel getProxyServer();
+    Proxy getProxyServer();
 
     void sendRequest(FullHttpRequest httpRequest, boolean https);
 }

@@ -3,6 +3,7 @@ package com.virjar.dungproxy.server.proxyservice.client.listener;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.proxyservice.client.decoder.HttpHeaderDecoder;
 import com.virjar.dungproxy.server.proxyservice.client.exception.ServerChannelInactiveException;
@@ -88,7 +89,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
     private EventLoopGroup workerGroup;
     private FullHttpRequest request;
     private SslContext sslContext;
-    private ProxyModel proxyServer;
+    private Proxy proxyServer;
     private String relativePathForHttps = null;
     private TimeoutsHolder timeoutsHolder;
     private volatile AtomicBoolean requesting = new AtomicBoolean(false);
@@ -105,7 +106,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
             FullHttpRequest request,
             ResponseListener listener,
             SslContext sslContext,
-            ProxyModel proxyServer,
+            Proxy proxyServer,
             SimpleConnectionsPool connectionsPool,
             boolean customAuth,
             boolean retry) {
@@ -195,7 +196,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
     }
 
     @Override
-    public ProxyModel getProxyServer() {
+    public Proxy getProxyServer() {
         return proxyServer;
     }
 

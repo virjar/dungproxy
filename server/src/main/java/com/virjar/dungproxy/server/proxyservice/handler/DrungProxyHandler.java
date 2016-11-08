@@ -5,6 +5,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.sun.istack.internal.Nullable;
+import com.virjar.dungproxy.server.entity.DomainIp;
+import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.proxyservice.client.SimpleHttpClient;
 import com.virjar.dungproxy.server.proxyservice.client.exception.ServerChannelInactiveException;
@@ -15,6 +17,8 @@ import com.virjar.dungproxy.server.proxyservice.client.listener.RequestExecutor;
 import com.virjar.dungproxy.server.proxyservice.client.listener.RequestExecutorProxy;
 import com.virjar.dungproxy.server.proxyservice.common.ProxyResponse;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
+import com.virjar.dungproxy.server.repository.DomainIpRepository;
+import com.virjar.dungproxy.server.repository.ProxyRepository;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -28,7 +32,13 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.querydsl.QPageRequest;
 
+import javax.annotation.Resource;
+import java.util.List;
+
+import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.DOMAIN;
 import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.REQUEST_TIMEOUT;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.CONNECTION_RESET_MSG;
 import static com.virjar.dungproxy.server.proxyservice.common.ProxyResponse.TOO_MANY_CONNECTION_RESPONSE;
@@ -46,7 +56,13 @@ public class DrungProxyHandler extends EndpointHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DrungProxyHandler.class);
 
-    public static final AttributeKey<Boolean> CUSTOM_USER_AGENT = valueOf("cusUserAgent");
+    @Resource
+    private DomainIpRepository domainIpRepository;
+
+    @Resource
+    private ProxyRepository proxyRepository;
+
+    private static final AttributeKey<Boolean> CUSTOM_USER_AGENT = valueOf("cusUserAgent");
 
     private Channel clientChannel;
     private String clientIp;
@@ -56,8 +72,9 @@ public class DrungProxyHandler extends EndpointHandler {
     private String channelHex;
     private AbstractResponseListener listener;
     private RequestExecutorProxy requestExecutor;
-    private ProxyModel proxy;
+    private Proxy proxy;
     private SimpleHttpClient proxyClient;
+    private String domain;
 
 
     /**
@@ -89,12 +106,20 @@ public class DrungProxyHandler extends EndpointHandler {
         this.clientIp = clientIp;
         this.channelHex = Integer.toHexString(this.clientChannel.hashCode());
         this.requestTimeout = NetworkUtil.getAttr(clientChannel, REQUEST_TIMEOUT);
+        this.domain = NetworkUtil.getAttr(clientChannel, DOMAIN);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         Preconditions.checkArgument(msg instanceof FullHttpRequest);
         Boolean customUserAgent = ctx.channel().attr(CUSTOM_USER_AGENT).get();
+
+        // 获取Proxy
+        QPageRequest qPageRequest = new QPageRequest(0,1);
+        List<DomainIp> domainIpList = domainIpRepository.selectAvailable(domain, qPageRequest);
+        Long proxyId = domainIpList.get(0).getProxyId();
+        proxy = proxyRepository.selectByPrimaryKey(proxyId);
+
         request = (FullHttpRequest) msg;
         protocol = NetworkUtil.isSchemaHttps(request.uri()) ? 1 : 0;
 
@@ -156,7 +181,7 @@ public class DrungProxyHandler extends EndpointHandler {
             public State doOnConnectCompleted(Result result) {
                 this.connectCompletedTime = System.currentTimeMillis();
                 Object attr = result.getAttr();
-                this.useCachedConn = attr == null ? false : (Boolean) attr;
+                this.useCachedConn = (attr == null) ? false : (Boolean) attr;
                 if (result.isSuccess()) {
                     return State.CONTINUE;
                 } else {
@@ -344,7 +369,7 @@ public class DrungProxyHandler extends EndpointHandler {
             }
         };
 
-        ListenableFuture<ProxyModel> future;
+        ListenableFuture<Proxy> future;
         if (proxy != null) {
             future = Futures.immediateFuture(proxy);
         } else {
@@ -352,11 +377,11 @@ public class DrungProxyHandler extends EndpointHandler {
             future = null;
         }
 
-        Futures.addCallback(future, new FutureCallback<ProxyModel>() {
+        Futures.addCallback(future, new FutureCallback<Proxy>() {
 
 
             @Override
-            public void onSuccess(@Nullable final ProxyModel result) {
+            public void onSuccess(@Nullable final Proxy result) {
                 if (!ctx.channel().isActive()) return;
                 if (result == null) {
                     writeFailedResponse("Redis Proxy Null");
