@@ -56,7 +56,7 @@ public class RequestValidator extends ClientProcessHandler {
             // 用户是否自定义userAgent
             checkUserAgent(request, ctx);
             clearProxyHeaders(request);
-            // 自定义超时时间
+            // 用户是否自定义超时时间
             handleTimeout(ctx, request);
             // 代理请求处理
             NetworkUtil.resetHandler(ctx.pipeline(), new DrungProxyHandler(ctx.channel(), NetworkUtil.getIp(ctx.channel())));
