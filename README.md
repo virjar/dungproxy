@@ -35,6 +35,6 @@ qq group
 114.215.144.211
 
 ## 贡献者
-- 邓维佳 virjar@virajr.com
+- 邓维佳 virjar@virjar.com
 - 符灵通 
 - 韦轩 805366180@qq.com
