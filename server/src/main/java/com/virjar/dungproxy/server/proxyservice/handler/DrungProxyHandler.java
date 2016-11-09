@@ -4,10 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.sun.istack.internal.Nullable;
 import com.virjar.dungproxy.server.entity.DomainIp;
 import com.virjar.dungproxy.server.entity.Proxy;
-import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.proxyservice.client.SimpleHttpClient;
 import com.virjar.dungproxy.server.proxyservice.client.exception.ServerChannelInactiveException;
 import com.virjar.dungproxy.server.proxyservice.client.exception.ServerChannelNotWritableException;
@@ -32,7 +30,6 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.querydsl.QPageRequest;
 
 import javax.annotation.Resource;
@@ -381,7 +378,7 @@ public class DrungProxyHandler extends EndpointHandler {
 
 
             @Override
-            public void onSuccess(@Nullable final Proxy result) {
+            public void onSuccess(final Proxy result) {
                 if (!ctx.channel().isActive()) return;
                 if (result == null) {
                     writeFailedResponse("Redis Proxy Null");
@@ -411,7 +408,7 @@ public class DrungProxyHandler extends EndpointHandler {
             }
 
             @Override
-            public void onFailure(@Nullable Throwable t) {
+            public void onFailure(Throwable t) {
                 String message = "";
                 if (t != null) message = t.getMessage();
                 log.error("[PROCESS] [{] 发生异常 MSG {}", message);
