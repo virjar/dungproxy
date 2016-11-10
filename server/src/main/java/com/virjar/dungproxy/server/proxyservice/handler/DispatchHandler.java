@@ -1,7 +1,6 @@
 package com.virjar.dungproxy.server.proxyservice.handler;
 
 import com.google.common.base.Charsets;
-import com.virjar.dungproxy.server.proxyservice.client.SimpleHttpClient;
 import com.virjar.dungproxy.server.proxyservice.common.ProxyResponse;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.checker.ConnectMethodValidator;
@@ -14,8 +13,6 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.netty.util.AttributeKey.valueOf;
 
 /**
  * Description: DispatchHandler

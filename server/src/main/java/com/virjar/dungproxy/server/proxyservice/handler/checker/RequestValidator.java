@@ -8,13 +8,11 @@ import com.virjar.dungproxy.server.proxyservice.handler.ClientProcessHandler;
 import com.virjar.dungproxy.server.proxyservice.handler.DrungProxyHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
-import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +61,7 @@ public class RequestValidator extends ClientProcessHandler {
             clearProxyHeaders(request);
             // 用户是否自定义超时时间
             handleTimeout(ctx, request);
-            setHostFromRquest(ctx, request);
+            setHostFromRequest(ctx, request);
             // 代理请求处理
             NetworkUtil.resetHandler(ctx.pipeline(), new DrungProxyHandler(ctx.channel(), NetworkUtil.getIp(ctx.channel())));
 
@@ -74,7 +72,7 @@ public class RequestValidator extends ClientProcessHandler {
         }
     }
 
-    private void setHostFromRquest(ChannelHandlerContext ctx, HttpRequest request) {
+    private void setHostFromRequest(ChannelHandlerContext ctx, HttpRequest request) {
         //String host = HttpHeaderNames.HOST.toString();
         String host = CommonUtil.extractDomain(getHost(request));
         NetworkUtil.setAttr(ctx.channel(), AttributeKeys.DOMAIN, host);

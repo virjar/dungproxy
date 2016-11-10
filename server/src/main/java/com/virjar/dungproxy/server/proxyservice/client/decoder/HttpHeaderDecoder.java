@@ -1,7 +1,6 @@
 package com.virjar.dungproxy.server.proxyservice.client.decoder;
 
 import com.virjar.dungproxy.server.entity.Proxy;
-import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.proxyservice.client.exception.ServerChannelInactiveException;
 import com.virjar.dungproxy.server.proxyservice.client.listener.ResponseListener;
 import com.virjar.dungproxy.server.proxyservice.common.Constants;
@@ -90,8 +89,7 @@ public class HttpHeaderDecoder extends ReplayingDecoder<HttpHeaderDecoder.State>
             int maxInitialLineLength,
             int maxHeaderSize,
             ResponseListener listener,
-            boolean retry, Proxy proxy
-    ) {
+            boolean retry, Proxy proxy) {
 
         super(State.SKIP_CONTROL_CHARS);
         this.retry = retry;

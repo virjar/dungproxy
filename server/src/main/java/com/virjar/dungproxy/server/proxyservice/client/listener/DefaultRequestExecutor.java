@@ -141,7 +141,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
 
     @Override
     public void cancel(boolean keepServerChannel) {
-        log.debug("Cancel request [{}]", request.getUri());
+        log.debug("Cancel request [{}]", request.uri());
         if (timeoutsHolder != null) {
             timeoutsHolder.cancel();
         }
@@ -344,10 +344,12 @@ public class DefaultRequestExecutor implements RequestExecutor {
 
     private boolean tryToUseCachedConnection(String proxyHost, int proxyPort) {
         if (connectionsPool == null)  {
+            log.info("ConnectionsPool is absent !");
             return false;
         }
         Optional<String> poolKey = buildPoolKey(proxyHost, proxyPort);
         if (!poolKey.isPresent()) {
+            log.info("在连接池中不存在: {} KEY.", poolKey.get());
             return false;
         }
         Channel cachedChannel = connectionsPool.poll(poolKey.get());
@@ -374,7 +376,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
             this.relativePathForHttps = relativePath;
         }
 
-        resetHandlers(cachedChannel, isHttps);
+        resetHandlers(cachedChannel);
         setServerChannel((NioSocketChannel) cachedChannel);
         createTimeoutTask();
         ResponseListener.Result result = new ResponseListener.Result(true, null);
@@ -384,7 +386,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
         return true;
     }
 
-    private void resetHandlers(Channel channel, boolean useSsl) {
+    private void resetHandlers(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
         addHandlersForHttpRequests(pipeline);
         ExceptionCaughtHandler exceptionCaughtHandler = pipeline.get(ExceptionCaughtHandler.class);
@@ -453,7 +455,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
         int port;
         URI uri;
         try {
-            uri = new URI(request.getUri());
+            uri = new URI(request.uri());
         } catch (URISyntaxException e) {
             log.error("uri format error", e);
             listener.onThrowable("Send https request", new IllegalStateException("Uri format error"));

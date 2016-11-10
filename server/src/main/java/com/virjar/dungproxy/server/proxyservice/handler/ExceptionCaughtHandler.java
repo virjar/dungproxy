@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ExceptionCaughtHandler extends ChannelInboundHandlerAdapter {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ExceptionCaughtHandler.class);
+    private static Logger log = LoggerFactory.getLogger(ExceptionCaughtHandler.class);
 
     private AtomicBoolean ignoreException = new AtomicBoolean(true);
 
@@ -25,10 +25,9 @@ public class ExceptionCaughtHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-            throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (ignoreException.get()) {
-            LOGGER.debug("Ignore exception.", cause);
+            log.debug("Ignore exception.", cause);
             return;
         }
         super.exceptionCaught(ctx, cause);

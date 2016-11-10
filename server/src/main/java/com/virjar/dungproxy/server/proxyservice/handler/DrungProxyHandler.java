@@ -1,6 +1,7 @@
 package com.virjar.dungproxy.server.proxyservice.handler;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -96,6 +97,11 @@ public class DrungProxyHandler extends EndpointHandler {
     private long traffic;
     private boolean hasWriteback = false;
 
+    /**
+     * 请求结果
+     */
+    private String content;
+
 
     public DrungProxyHandler(Channel clientChannel, String clientIp) {
 
@@ -112,15 +118,15 @@ public class DrungProxyHandler extends EndpointHandler {
         Boolean customUserAgent = ctx.channel().attr(CUSTOM_USER_AGENT).get();
 
         // 获取Proxy
-        QPageRequest qPageRequest = new QPageRequest(0,1);
+        QPageRequest qPageRequest = new QPageRequest(0, 1);
         List<DomainIp> domainIpList = domainIpRepository.selectAvailable(domain, qPageRequest);
         Long proxyId = domainIpList.get(0).getProxyId();
         proxy = proxyRepository.selectByPrimaryKey(proxyId);
 
         request = (FullHttpRequest) msg;
         protocol = NetworkUtil.isSchemaHttps(request.uri()) ? 1 : 0;
-
         perRequestStart = totalRequestStart = System.currentTimeMillis();
+
         sendRequest(ctx, request.headers().contains(HttpHeaderNames.AUTHORIZATION), customUserAgent != null && customUserAgent, true);
     }
 
@@ -366,55 +372,30 @@ public class DrungProxyHandler extends EndpointHandler {
             }
         };
 
-        ListenableFuture<Proxy> future;
-        if (proxy != null) {
-            future = Futures.immediateFuture(proxy);
-        } else {
-            // TODO 重新加载代理!
-            future = null;
+        log.info("[START] [] 请求开始");
+        if (request.refCnt() <= 0) {
+            writeFailedResponse("Request Released");
+            return;
         }
+        SimpleHttpClient httpClient = proxyClient;
+        if (!customUserAgent) {
+            request.headers().set(HttpHeaderNames.USER_AGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
+        }
+        SimpleHttpClient.RequestBuilder builder = httpClient.prepare(request, listener, proxy);
 
-        Futures.addCallback(future, new FutureCallback<Proxy>() {
-
-
-            @Override
-            public void onSuccess(final Proxy result) {
-                if (!ctx.channel().isActive()) return;
-                if (result == null) {
-                    writeFailedResponse("Redis Proxy Null");
-                    return;
-                }
-                log.info("[START] [] 请求开始");
-                if (request.refCnt() <= 0) {
-                    writeFailedResponse("Request Released");
-                    return;
-                }
-                proxy = result;
-                SimpleHttpClient httpClient = proxyClient;
-                if (!customUserAgent) {
-                    request.headers().set(HttpHeaderNames.USER_AGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
-                }
-                SimpleHttpClient.RequestBuilder builder = httpClient.prepare(request, listener, proxy);
-
-                int minus = (int) (System.currentTimeMillis() - totalRequestStart);
-                if (minus < 0) minus = 0;
-                int timeout = requestTimeout - minus;
-                if (timeout < 0) timeout = requestTimeout;
-                builder.setRequestTimeoutMs(timeout);
-                builder.setExecutor(clientChannel.eventLoop());
-                builder.setCustomAuth(customAuth);
-                builder.setRetry(retry);
-                requestExecutor = builder.execute();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                String message = "";
-                if (t != null) message = t.getMessage();
-                log.error("[PROCESS] [{] 发生异常 MSG {}", message);
-                sendRequest(ctx, customAuth, customUserAgent, retry);
-            }
-        }, ctx.channel().eventLoop());
+        int minus = (int) (System.currentTimeMillis() - totalRequestStart);
+        if (minus < 0) {
+            minus = 0;
+        }
+        int timeout = requestTimeout - minus;
+        if (timeout < 0) {
+            timeout = requestTimeout;
+        }
+        builder.setRequestTimeoutMs(timeout);
+        builder.setExecutor(clientChannel.eventLoop());
+        builder.setCustomAuth(customAuth);
+        builder.setRetry(retry);
+        requestExecutor = builder.execute();
     }
 
     private static boolean needRetry(int respCode, HttpHeaders headers) {

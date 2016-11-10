@@ -40,8 +40,7 @@ public class SimpleHttpClient implements Closeable {
     public RequestBuilder prepare(
             FullHttpRequest request,
             ResponseListener listener,
-            Proxy proxyServer
-    ) {
+            Proxy proxyServer) {
         return new RequestBuilder(request, listener, proxyServer, connectionsPool);
     }
 
