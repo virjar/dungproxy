@@ -174,7 +174,7 @@ public class SysConfig {
     }
 
     public boolean recordFaildResponse() {
-        return StringUtils.equalsIgnoreCase("true", properties.getProperty("system.record_fail_response=false"));
+        return StringUtils.equalsIgnoreCase("true", properties.getProperty("system.record_fail_response"));
     }
 
     public int getPortCheckThread() {
