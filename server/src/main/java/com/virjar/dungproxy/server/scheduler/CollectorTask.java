@@ -66,6 +66,7 @@ public class CollectorTask implements Runnable, InitializingBean {
                     futures.add(pool.submit(new WebsiteCollect(collector)));
                 }
                 CommonUtil.waitAllFutures(futures);
+                CommonUtil.sleep(20000);
             } catch (Exception e) {
                 // do nothing
                 logger.error("error when collect proxy", e);
