@@ -8,8 +8,6 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.virjar.dungproxy.client.util.CommonUtil;
-import com.virjar.dungproxy.server.utils.NameThreadFactory;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +16,10 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.service.ProxyService;
+import com.virjar.dungproxy.server.utils.NameThreadFactory;
 import com.virjar.dungproxy.server.utils.ProxyUtil;
 import com.virjar.dungproxy.server.utils.SysConfig;
 
@@ -99,6 +99,9 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                         proxy.setConnectionScore(1L);
                     } else {
                         proxy.setConnectionScore(proxy.getConnectionScore() + 1);
+                        if (proxy.getConnectionScore() > SysConfig.getInstance().getConnectionMaxScore()) {
+                            proxy.setConnectionScore(SysConfig.getInstance().getConnectionMaxScore());
+                        }
                     }
                 } else {
                     if (proxy.getConnectionScore() > 0) {
@@ -108,6 +111,9 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                         logger.warn("连接打分由可用转变为不可用 prescore:{}  ip为:{}", preScore, JSONObject.toJSONString(proxy));
                     } else {
                         proxy.setConnectionScore(proxy.getConnectionScore() - 1);
+                        if (proxy.getConnectionScore() < SysConfig.getInstance().getConnectionMinScore()) {
+                            proxy.setConnectionScore(SysConfig.getInstance().getConnectionMinScore());
+                        }
                     }
                 }
                 ProxyModel updateProxy = new ProxyModel();

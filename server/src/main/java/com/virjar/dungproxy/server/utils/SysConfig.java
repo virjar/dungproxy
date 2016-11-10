@@ -16,15 +16,18 @@ public class SysConfig {
     private String avaliableValidateBatchRatio;
     private int avaliableSlotNumber;
     private int avaliableSlotFactory;
+    private long avaliableMaxScore;
+    private long avaliableMinScore;
 
     private int connectionValidateBatchSize;
     private String connectionValidateBatchRatio;
     private int connectionSlotNumber;
     private int connectionSlotFactory;
+    private long connectionMaxScore;
+    private long connectionMinScore;
 
     private int availableCheckThread;
     private int connectionCheckThread;
-    private int addreddSyncThread;
     private int gfwSupportCheckThread;
     private int ipCrawlerThread;
     private int portCheckThread;
@@ -70,17 +73,20 @@ public class SysConfig {
             avaliableValidateBatchRatio = properties.getProperty("avaliable.validateBatchRatio", "1:1");
             avaliableSlotFactory = NumberUtils.toInt(properties.getProperty("avaliable.slotFactory"));
             avaliableSlotNumber = NumberUtils.toInt(properties.getProperty("avaliable.slotNumber"));
+            avaliableMaxScore = NumberUtils.toLong(properties.getProperty("avaliable.maxScore"), 500);
+            avaliableMinScore = NumberUtils.toLong(properties.getProperty("avaliable.minScore"), -500);
 
             connectionValidateBatchSize = NumberUtils.toInt(properties.getProperty("connection.validateBatchSize"),
                     768);
             connectionValidateBatchRatio = properties.getProperty("connection.validateBatchRatio", "1:1");
             connectionSlotFactory = NumberUtils.toInt(properties.getProperty("connection.slotFactory"));
             connectionSlotNumber = NumberUtils.toInt(properties.getProperty("connection.slotNumber"));
+            connectionMaxScore = NumberUtils.toLong(properties.getProperty("connection.maxScore"), 1000);
+            connectionMinScore = NumberUtils.toLong(properties.getProperty("connection.minScore"), -1000);
 
             availableCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.availableCheckThread"), 2);
             connectionCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.connectionCheckThread"),
                     20);
-            addreddSyncThread = NumberUtils.toInt(properties.getProperty("system.thread.addreddSyncThread"), 5);
             gfwSupportCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.gfwSupportCheckThread"), 5);
             ipCrawlerThread = NumberUtils.toInt(properties.getProperty("system.thread.ipCrawlerThread"), 2);
             portCheckThread = NumberUtils.toInt(properties.getProperty("system.thread.portCheckThread"), 10);
@@ -90,9 +96,12 @@ public class SysConfig {
             /**
              * proxyService相关配置
              */
-            httpClientCodecMaxInitialLineLength = NumberUtils.toInt(properties.getProperty("client.codec.max.initial.line.length"), 4096);
-            httpClientCodecMaxHeaderSize = NumberUtils.toInt(properties.getProperty("client.codec.max.header.size"), 4096);
-            httpClientCodecMaxChunkSize = NumberUtils.toInt(properties.getProperty("client.codec.max.chunk.size"), 4096);
+            httpClientCodecMaxInitialLineLength = NumberUtils
+                    .toInt(properties.getProperty("client.codec.max.initial.line.length"), 4096);
+            httpClientCodecMaxHeaderSize = NumberUtils.toInt(properties.getProperty("client.codec.max.header.size"),
+                    4096);
+            httpClientCodecMaxChunkSize = NumberUtils.toInt(properties.getProperty("client.codec.max.chunk.size"),
+                    4096);
             maxAggregateSize = NumberUtils.toInt(properties.getProperty("client.max.aggregate.size"), 4096);
             clientReadTimeoutSeconds = NumberUtils.toInt(properties.getProperty("client.read.timeout.seconds"), 4096);
             clientWriteTimeoutSeconds = NumberUtils.toInt(properties.getProperty("client.write.timeout.seconds"), 4096);
@@ -143,10 +152,6 @@ public class SysConfig {
 
     public String getKeyverifyurl() {
         return keyverifyurl;
-    }
-
-    public int getAddreddSyncThread() {
-        return addreddSyncThread;
     }
 
     public int getAvailableCheckThread() {
@@ -211,5 +216,21 @@ public class SysConfig {
 
     public int getClientAllTimeoutSeconds() {
         return clientAllTimeoutSeconds;
+    }
+
+    public long getAvaliableMaxScore() {
+        return avaliableMaxScore;
+    }
+
+    public long getAvaliableMinScore() {
+        return avaliableMinScore;
+    }
+
+    public long getConnectionMaxScore() {
+        return connectionMaxScore;
+    }
+
+    public long getConnectionMinScore() {
+        return connectionMinScore;
     }
 }

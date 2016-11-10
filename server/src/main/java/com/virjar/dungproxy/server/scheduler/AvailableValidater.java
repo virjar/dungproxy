@@ -6,7 +6,6 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.virjar.dungproxy.client.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.server.core.beanmapper.BeanMapper;
 import com.virjar.dungproxy.server.model.AvailbelCheckResponse;
 import com.virjar.dungproxy.server.model.ProxyModel;
@@ -112,11 +112,17 @@ public class AvailableValidater implements InitializingBean, Runnable {
                         proxy.setAvailbelScore(1L);
                     } else {
                         proxy.setAvailbelScore(proxy.getAvailbelScore() + 1);
+                        if (proxy.getAvailbelScore() > SysConfig.getInstance().getAvaliableMaxScore()) {
+                            proxy.setAvailbelScore(SysConfig.getInstance().getAvaliableMaxScore());
+                        }
                     }
                     proxy.setConnectionScore(proxy.getConnectionScore() + 2);// 可用性验证本身包含连接性验证
                 } else {
                     if (availbelScore <= 0) {// 等于0的时候,也会出现在这里,
                         proxy.setAvailbelScore(proxy.getAvailbelScore() - 1);
+                        if (proxy.getAvailbelScore() < SysConfig.getInstance().getAvaliableMinScore()) {
+                            proxy.setAvailbelScore(SysConfig.getInstance().getAvaliableMinScore());
+                        }
                     } else {
                         // 通过这里保证灵敏性,对于高质量资源,如果探测到不可用,那么将会快速降权。降权因子根据当前打分决定(分值其实也是权重,分值越高排序越考前),
                         // 降权分值复合对数函数,保证站得越高,摔的越快,但是又不能是和当前分值成线性关系。所以找了一个对数函数来降权。
