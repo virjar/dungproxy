@@ -140,7 +140,11 @@ public class ProxyUtil {
     public static boolean checkUrl(String ip, int port, String url) {
         for (int i = 0; i < 3; i++) {
             // 可能有问题,资源不可用,响应也有可能不是空。需要客户端代理失败决策方案出来之后进行优化
-            return HttpInvoker.getStatus(url, ip, port) == 200;
+            int status = HttpInvoker.getStatus(url, ip, port);
+            if (status == -1) {
+                continue;
+            }
+            return status == 200;
         }
         return false;
     }
