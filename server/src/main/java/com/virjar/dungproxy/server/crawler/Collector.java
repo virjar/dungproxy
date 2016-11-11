@@ -104,7 +104,7 @@ public class Collector {
         lastactivity = System.currentTimeMillis();
         lastUrl = urlGenerator.newURL();
         while (ret.size() < batchsize) {
-            if(failedTimes > 20){//不论如何,连续一定次数失败,重置url生成器
+            if(this.failedTimes > 20){//不论如何,连续一定次数失败,重置url生成器
                 urlGenerator.reset();
                 break;
             }
@@ -134,6 +134,7 @@ public class Collector {
                     } else {
                         PoolUtil.cleanProxy(httpClientContext);// 每次使用不用的代理IP
                         failedTimes = 0;
+                        this.failedTimes =0;
                         sucessTimes++;
                         ret.addAll(fetchResult);
                         CommonUtil.sleep(2000);

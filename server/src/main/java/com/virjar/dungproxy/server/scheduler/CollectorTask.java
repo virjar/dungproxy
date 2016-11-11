@@ -6,7 +6,6 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
-import com.virjar.dungproxy.client.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.server.core.beanmapper.BeanMapper;
 import com.virjar.dungproxy.server.crawler.Collector;
 import com.virjar.dungproxy.server.entity.Proxy;
@@ -66,6 +66,7 @@ public class CollectorTask implements Runnable, InitializingBean {
                     futures.add(pool.submit(new WebsiteCollect(collector)));
                 }
                 CommonUtil.waitAllFutures(futures);
+                CommonUtil.sleep(20000);
             } catch (Exception e) {
                 // do nothing
                 logger.error("error when collect proxy", e);
@@ -105,6 +106,7 @@ public class CollectorTask implements Runnable, InitializingBean {
         @Override
         public Object call() throws Exception {
             List<Proxy> draftproxys = collector.newProxy();
+            logger.info("收集器:{} 收集的资源数目:{}", collector.getLastUrl(), draftproxys.size());
             // logger.info("收集到的新资源:{}", JSON.toJSONString(draftproxys));
             ResourceFilter.filter(draftproxys);
             proxyService.save(beanMapper.mapAsList(draftproxys, ProxyModel.class));
