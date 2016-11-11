@@ -4,9 +4,11 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <bean class="com.virjar.dungproxy.server.proxyservice.server.DispatchServer" init-method="start" destroy-method="shutdown">
+    <bean class="com.virjar.dungproxy.server.proxyservice.server.ProxySelectorHolder"/>
+
+    <bean class="com.virjar.dungproxy.server.proxyservice.server.DispatchServer" init-method="init" destroy-method="shutdown">
         <constructor-arg name="serverPort" value="8081"/>
         <!--<constructor-arg name="serverHost" value="115.159.40.202"/>-->
-        <constructor-arg name="serverHost" value="127.0.0.1"/>
+        <constructor-arg name="serverHost" value="localhost"/>
     </bean>
 </beans>

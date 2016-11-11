@@ -1,6 +1,5 @@
 package com.virjar.dungproxy.server.proxyservice.server;
 
-import com.virjar.dungproxy.client.httpclient.HttpInvoker;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.DispatchHandler;
 import com.virjar.dungproxy.server.proxyservice.handler.DispatchHandlerInitializer;
@@ -13,8 +12,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.protocol.BasicHttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +26,7 @@ import static com.virjar.dungproxy.server.proxyservice.common.util.Executors.wor
  * @author lingtong.fu
  * @version 2016-10-18 17:00
  */
-public class DispatchServer extends Thread {
+public class DispatchServer {
 
     private static final Logger log = LoggerFactory.getLogger(DispatchServer.class);
 
@@ -44,8 +41,7 @@ public class DispatchServer extends Thread {
         this.serverHost = serverHost;
     }
 
-    @Override
-    public void run() {
+    public void init() {
 
         // 端口检测
         for (int port = 8081; port <= 65535; port++) {

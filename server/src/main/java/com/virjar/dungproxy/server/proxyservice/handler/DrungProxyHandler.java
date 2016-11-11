@@ -16,6 +16,7 @@ import com.virjar.dungproxy.server.proxyservice.client.listener.RequestExecutor;
 import com.virjar.dungproxy.server.proxyservice.client.listener.RequestExecutorProxy;
 import com.virjar.dungproxy.server.proxyservice.common.ProxyResponse;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
+import com.virjar.dungproxy.server.proxyservice.server.ProxySelectorHolder;
 import com.virjar.dungproxy.server.repository.DomainIpRepository;
 import com.virjar.dungproxy.server.repository.ProxyRepository;
 import io.netty.buffer.ByteBuf;
@@ -68,6 +69,7 @@ public class DrungProxyHandler extends EndpointHandler {
     private Proxy proxy;
     private SimpleHttpClient proxyClient;
     private String domain;
+    private ProxySelectorHolder proxySelectorHolder;
 
 
     /**
@@ -112,8 +114,7 @@ public class DrungProxyHandler extends EndpointHandler {
         Preconditions.checkArgument(msg instanceof FullHttpRequest);
         Boolean customUserAgent = ctx.channel().attr(CUSTOM_USER_AGENT).get();
 
-
-        //proxy = ProxySelectorHolder
+        proxy = proxySelectorHolder.selectProxySelector(domain);
 
         request = (FullHttpRequest) msg;
         protocol = NetworkUtil.isSchemaHttps(request.uri()) ? 1 : 0;

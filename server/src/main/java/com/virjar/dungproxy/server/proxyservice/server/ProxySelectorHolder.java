@@ -29,6 +29,9 @@ public class ProxySelectorHolder {
     @Resource
     private ProxyRepository proxyRepository;
 
+    public ProxySelectorHolder() {
+    }
+
     public Proxy selectProxySelector(String domain) {
         Preconditions.checkNotNull(domain, "domain does not exists");
         // 获取Proxy
