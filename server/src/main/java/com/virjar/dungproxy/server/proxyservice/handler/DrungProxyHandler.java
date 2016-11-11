@@ -31,6 +31,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.querydsl.QPageRequest;
 
 import javax.annotation.Resource;
@@ -53,12 +54,6 @@ import static io.netty.util.AttributeKey.valueOf;
 public class DrungProxyHandler extends EndpointHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DrungProxyHandler.class);
-
-    @Resource
-    private DomainIpRepository domainIpRepository;
-
-    @Resource
-    private ProxyRepository proxyRepository;
 
     private static final AttributeKey<Boolean> CUSTOM_USER_AGENT = valueOf("cusUserAgent");
 
@@ -117,11 +112,8 @@ public class DrungProxyHandler extends EndpointHandler {
         Preconditions.checkArgument(msg instanceof FullHttpRequest);
         Boolean customUserAgent = ctx.channel().attr(CUSTOM_USER_AGENT).get();
 
-        // 获取Proxy
-        QPageRequest qPageRequest = new QPageRequest(0, 1);
-        List<DomainIp> domainIpList = domainIpRepository.selectAvailable(domain, qPageRequest);
-        Long proxyId = domainIpList.get(0).getProxyId();
-        proxy = proxyRepository.selectByPrimaryKey(proxyId);
+
+        //proxy = ProxySelectorHolder
 
         request = (FullHttpRequest) msg;
         protocol = NetworkUtil.isSchemaHttps(request.uri()) ? 1 : 0;

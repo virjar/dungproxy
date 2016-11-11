@@ -19,7 +19,7 @@
         <commons-io.commons-io.version>2.4</commons-io.commons-io.version>
         <dbunit.dbunit.version>2.2</dbunit.dbunit.version>
         <javax.servlet.servlet-api.version>2.5</javax.servlet.servlet-api.version>
-        <junit.junit-dep.version>4.10</junit.junit-dep.version>
+        <!--<junit.junit-dep.version>4.10</junit.junit-dep.version>-->
         <ma.glasnost.orika.orika-core.version>1.4.5</ma.glasnost.orika.orika-core.version>
         <mysql.mysql-connector-java.version>5.1.35</mysql.mysql-connector-java.version>
         <org.apache.commons.commons-lang3.version>3.4</org.apache.commons.commons-lang3.version>
@@ -102,12 +102,12 @@
                 <version>${javax.servlet.servlet-api.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
+           <!-- <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit-dep</artifactId>
                 <version>${junit.junit-dep.version}</version>
                 <scope>test</scope>
-            </dependency>
+            </dependency>-->
             <dependency>
                 <groupId>ma.glasnost.orika</groupId>
                 <artifactId>orika-core</artifactId>
@@ -268,11 +268,11 @@
                 <artifactId>spring-oxm</artifactId>
                 <version>${springframework.version}</version>
             </dependency>
-            <dependency>
+            <!--<dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${springframework.version}</version>
-            </dependency>
+            </dependency>-->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
@@ -398,10 +398,10 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>junit</groupId>
             <artifactId>junit-dep</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>ma.glasnost.orika</groupId>
             <artifactId>orika-core</artifactId>

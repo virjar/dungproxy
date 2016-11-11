@@ -75,7 +75,7 @@ public class VirjarAsyncClient {
             getClient().close();
     }
 
-    private  <T> ListenableFuture<T> privateGet(String url, HttpOption option, AsyncHandler<T> handler) throws IOException {
+    <T> ListenableFuture<T> privateGet(String url, HttpOption option, AsyncHandler<T> handler) throws IOException {
         AsyncHttpClient.BoundRequestBuilder builder = getClient().prepareGet(url);
 
         if (option != null) {
@@ -133,7 +133,6 @@ public class VirjarAsyncClient {
         return new GuavaListenableFuture<T>(getClient().executeRequest(request, new AsyncClientHandler<T>(handler)));
     }
 
-    @Deprecated
     <T> ListenableFuture<T> privatePost(final String url, Map<String, String> params, HttpOption option, String charset, AsyncHandler<T> handler) throws IOException {
         AsyncHttpClient.BoundRequestBuilder builder = getClient().preparePost(url);
         for (Map.Entry<String, String> entry : params.entrySet()) {

@@ -37,4 +37,7 @@
         <property name="basePackage" value="com.virjar.dungproxy.server.model.**"/>
     </bean>
     <bean class="com.virjar.dungproxy.server.distributer.DistributeService"/>
+
+    <!--<import resource="classpath:spring/bean.xml"/>-->
+
 </beans>

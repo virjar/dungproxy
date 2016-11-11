@@ -61,10 +61,10 @@ public class DispatchServer extends Thread {
         }
         try {
             // TEST
-            HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
+           /* HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
             String quatity = HttpInvoker.get("http://www.66ip.cn/3.html", httpClientContext);
 
-            log.info("启动前尝试通过客户端连接, 获取 quatity 为: {}", quatity);
+            log.info("启动前尝试通过客户端连接, 获取 quatity 为: {}", quatity);*/
 
             //启动Netty Server 提供统一代理服务转发请求
             ServerBootstrap b = new ServerBootstrap();

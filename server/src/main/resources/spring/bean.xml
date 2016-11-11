@@ -6,6 +6,7 @@
 
     <bean class="com.virjar.dungproxy.server.proxyservice.server.DispatchServer" init-method="start" destroy-method="shutdown">
         <constructor-arg name="serverPort" value="8081"/>
-        <constructor-arg name="serverHost" value="115.159.40.202"/>
+        <!--<constructor-arg name="serverHost" value="115.159.40.202"/>-->
+        <constructor-arg name="serverHost" value="127.0.0.1"/>
     </bean>
 </beans>
