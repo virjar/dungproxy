@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<fetch verson="1.0">
-    <property name="res" xpath="//tbody/tr" fetch="true">
-        <property name="ip" xpath="/td[1]/script/text()"
-                  regex="Base64\.decode\(&quot;(.*)&quot;\)" decoder="base64"/>
-        <property name="port" xpath="/td[2]/span/script/text()"
-                  regex="Base64\.decode\(&quot;(.*)&quot;\)" decoder="base64"/>
-    </property>
-</fetch>

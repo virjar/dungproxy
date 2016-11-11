@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<fetch verson="1.0">
-    <property name="res" xpath="//tbody/tr" fetch="true">
-        <property name="ip" xpath="/td[2]/text()" regex="(\d+\.\d+\.\d+\.\d+)" require="true"/>
-    </property>
-</fetch>
