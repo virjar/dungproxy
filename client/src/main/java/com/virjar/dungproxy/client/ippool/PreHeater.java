@@ -43,7 +43,6 @@ public class PreHeater {
     private ExecutorService pool;
     private AtomicBoolean hasInit = new AtomicBoolean(false);
     private Map<String, DomainPool> stringDomainPoolMap;
-    private long totalTask;
     private AtomicLong processedTask = new AtomicLong(0);
     private AtomicBoolean isRunning = new AtomicBoolean(false);
 
@@ -94,7 +93,6 @@ public class PreHeater {
         List<Future<Boolean>> futureList = Lists.newArrayList();
         ResourceFacade resourceFacade = ObjectFactory.newInstance(Context.getInstance().getResourceFacade());
         List<AvProxy> candidateProxies = resourceFacade.allAvailable();
-        totalTask = candidateProxies.size() * (long) taskUrls.size();
         // 加载历史数据
         for (Map.Entry<String, DomainPool> entry : stringDomainPoolMap.entrySet()) {
             if (!urlMap.containsKey(entry.getKey())) {
@@ -102,7 +100,6 @@ public class PreHeater {
             }
             for (AvProxy avProxy : entry.getValue().availableProxy()) {
                 futureList.add(pool.submit(new UrlCheckTask(avProxy, urlMap.get(entry.getKey()))));
-                totalTask++;
             }
         }
 
@@ -177,9 +174,6 @@ public class PreHeater {
             }
             proxy.setDomainPool(domainPool);
             long l = processedTask.incrementAndGet();
-            if (l * 100 % totalTask == 0) {
-                logger.info("total:{} now:{}", totalTask, l);
-            }
             if (IpAvValidator.available(proxy, url)) {
                 domainPool.addAvailable(Lists.newArrayList(proxy));
                 logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(proxy),
