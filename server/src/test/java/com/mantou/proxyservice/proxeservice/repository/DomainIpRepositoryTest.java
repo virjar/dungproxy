@@ -34,11 +34,11 @@ public class DomainIpRepositoryTest {
         System.out.println("Hello World!");
         PageRequest pageRequest = new PageRequest(0, Integer.MAX_VALUE);
         List<DomainIp> domainIpList = domainIpRepository.selectAvailable("www.66ip.cn", pageRequest);
-        Long proxyId = domainIpList.get(0).getProxyId();
-        //return proxyRepository.selectByPrimaryKey(proxyId);
-        /*for (DomainIp domainIp: domainIpList) {
+        for (DomainIp domainIp: domainIpList) {
             System.out.println("domainIp is :" + domainIp.getIp());
-        }*/
+        }
+
+        Long proxyId = domainIpList.get(0).getProxyId();
         System.out.println("Proxy id is : " + String.valueOf(proxyId));
         Proxy proxy = proxyRepository.selectByPrimaryKey(proxyId);
         System.out.println(proxy.toString());
