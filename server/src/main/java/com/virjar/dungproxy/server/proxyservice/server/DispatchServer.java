@@ -1,5 +1,6 @@
 package com.virjar.dungproxy.server.proxyservice.server;
 
+import com.virjar.dungproxy.server.proxyservice.client.SimpleHttpClient;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.DispatchHandler;
 import com.virjar.dungproxy.server.proxyservice.handler.DispatchHandlerInitializer;
@@ -41,9 +42,13 @@ public class DispatchServer {
     @Resource
     private ProxySelectorHolder proxySelectorHolder;
 
+    private SimpleHttpClient simpleHttpClient;
+
     public DispatchServer(int serverPort, String serverHost) {
         this.serverPort = serverPort;
         this.serverHost = serverHost;
+        //采用默认配置
+        this.simpleHttpClient = new SimpleHttpClient();
     }
 
     public void init() {
@@ -85,7 +90,7 @@ public class DispatchServer {
                                     SysConfig.getInstance().getClientReadTimeoutSeconds(),
                                     SysConfig.getInstance().getClientWriteTimeoutSeconds(),
                                     SysConfig.getInstance().getClientAllTimeoutSeconds(),
-                                    new DispatchHandler(serverHost, proxySelectorHolder))
+                                    new DispatchHandler(serverHost, proxySelectorHolder, simpleHttpClient))
                     );
 
             ch = (NioServerSocketChannel) b.bind(serverPort).addListener(new ChannelFutureListener() {

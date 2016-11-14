@@ -1,6 +1,7 @@
 package com.virjar.dungproxy.server.proxyservice.handler;
 
 import com.google.common.base.Charsets;
+import com.virjar.dungproxy.server.proxyservice.client.SimpleHttpClient;
 import com.virjar.dungproxy.server.proxyservice.common.AttributeKeys;
 import com.virjar.dungproxy.server.proxyservice.common.ProxyResponse;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
@@ -32,10 +33,12 @@ public class DispatchHandler extends ClientProcessHandler {
 
     private String serverHost;
     private ProxySelectorHolder proxySelectorHolder;
+    private SimpleHttpClient simpleHttpClient;
 
-    public DispatchHandler(String serverHost, ProxySelectorHolder proxySelectorHolder) {
+    public DispatchHandler(String serverHost, ProxySelectorHolder proxySelectorHolder, SimpleHttpClient simpleHttpClient) {
         this.serverHost = serverHost;
         this.proxySelectorHolder = proxySelectorHolder;
+        this.simpleHttpClient = simpleHttpClient;
     }
 
     @Override
@@ -43,6 +46,7 @@ public class DispatchHandler extends ClientProcessHandler {
         try {
             ChannelPipeline pipeline = ctx.pipeline();
             NetworkUtil.setAttr(ctx.channel(), AttributeKeys.PROXY_SELECTOR_HOLDER, proxySelectorHolder);
+            NetworkUtil.setAttr(ctx.channel(), AttributeKeys.SIMPLE_HTTP_CLIENT, simpleHttpClient);
             if (msg instanceof FullHttpRequest) {
                 FullHttpRequest request = (FullHttpRequest) msg;
                 if (request.decoderResult().isFailure()) {

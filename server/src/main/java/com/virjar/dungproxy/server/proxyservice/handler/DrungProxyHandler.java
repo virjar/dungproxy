@@ -41,6 +41,7 @@ import java.util.List;
 import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.DOMAIN;
 import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.PROXY_SELECTOR_HOLDER;
 import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.REQUEST_TIMEOUT;
+import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.SIMPLE_HTTP_CLIENT;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.CONNECTION_RESET_MSG;
 import static com.virjar.dungproxy.server.proxyservice.common.ProxyResponse.TOO_MANY_CONNECTION_RESPONSE;
 import static com.virjar.dungproxy.server.proxyservice.common.ProxyResponse.proxyError;
@@ -109,6 +110,7 @@ public class DrungProxyHandler extends EndpointHandler {
         this.requestTimeout = NetworkUtil.getAttr(clientChannel, REQUEST_TIMEOUT);
         this.domain = NetworkUtil.getAttr(clientChannel, DOMAIN);
         this.proxySelectorHolder = NetworkUtil.getAttr(clientChannel, PROXY_SELECTOR_HOLDER);
+        this.proxyClient = NetworkUtil.getAttr(clientChannel, SIMPLE_HTTP_CLIENT);
     }
 
 

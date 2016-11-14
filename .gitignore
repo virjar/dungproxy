@@ -49,3 +49,4 @@ nohup.out
 /proxyipcenter-dotnet/.vs
 /server/src/main/resources.local/mysql.properties
 /server/src/main/resources.local/config.properties
+/server/src/test/resources/mysql.properties

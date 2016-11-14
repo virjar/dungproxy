@@ -1,15 +1,17 @@
 package com.virjar.dungproxy.server.proxyservice.client;
 
 import com.virjar.dungproxy.server.entity.Proxy;
-import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.proxyservice.client.listener.DefaultRequestExecutor;
 import com.virjar.dungproxy.server.proxyservice.client.listener.RequestExecutorProxy;
 import com.virjar.dungproxy.server.proxyservice.client.listener.ResponseListener;
 import com.virjar.dungproxy.server.proxyservice.client.listener.SimpleConnectionsPool;
+import com.virjar.dungproxy.server.proxyservice.common.util.Executors;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.ssl.SslContext;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -35,6 +37,28 @@ public class SimpleHttpClient implements Closeable {
         this.sslContext = sslContext;
         this.connectionsPool = connectionsPool;
         this.defaultExecutor = defaultExecutor;
+    }
+
+    public SimpleHttpClient() {
+        //默认配置参数
+        this.defaultReadTimeoutMs = 300000;
+        this.defaultRequestTimeoutMs = 60000;
+        this.defaultConnectionTimeoutMs = 2000;
+        this.defaultWriteBufferLowWaterMark = 262144;
+        this.defaultWriteBufferHighWaterMark = 524288;
+        this.sslContext = getSslContext();
+        this.defaultExecutor = Executors.workerGroup;
+        this.connectionsPool = new SimpleConnectionsPool(100, 1000, 60000, -1, true, newNettyTimer());
+    }
+
+    private static Timer newNettyTimer() {
+        HashedWheelTimer timer = new HashedWheelTimer();
+        timer.start();
+        return timer;
+    }
+
+    private SslContext getSslContext() {
+        return null;
     }
 
     public RequestBuilder prepare(
