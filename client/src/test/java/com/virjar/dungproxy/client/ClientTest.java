@@ -17,6 +17,7 @@ public class ClientTest {
         for (int i = 0; i < 10; i++) {
             PoolUtil.cleanProxy(httpClientContext);
             String quiet = HttpInvoker.get("http://www.66ip.cn/5.html", httpClientContext);
+            System.out.println(PoolUtil.getBindProxy(httpClientContext));
             if (quiet == null) {
                 faildTimes++;
             }
