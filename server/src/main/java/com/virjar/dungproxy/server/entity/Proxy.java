@@ -294,4 +294,38 @@ public class Proxy  {
     }
 
 
+    @Override
+    public String toString() {
+        return "Proxy{" +
+                "id=" + id +
+                ", ip='" + ip + '\'' +
+                ", proxyIp='" + proxyIp + '\'' +
+                ", port=" + port +
+                ", ipValue=" + ipValue +
+                ", country='" + country + '\'' +
+                ", area='" + area + '\'' +
+                ", region='" + region + '\'' +
+                ", city='" + city + '\'' +
+                ", isp='" + isp + '\'' +
+                ", countryId='" + countryId + '\'' +
+                ", areaId='" + areaId + '\'' +
+                ", regionId='" + regionId + '\'' +
+                ", cityId='" + cityId + '\'' +
+                ", ispId='" + ispId + '\'' +
+                ", addressId=" + addressId +
+                ", transperent=" + transperent +
+                ", speed=" + speed +
+                ", type=" + type +
+                ", connectionScore=" + connectionScore +
+                ", availbelScore=" + availbelScore +
+                ", connectionScoreDate=" + connectionScoreDate +
+                ", availbelScoreDate=" + availbelScoreDate +
+                ", createtime=" + createtime +
+                ", supportGfw=" + supportGfw +
+                ", gfwSpeed=" + gfwSpeed +
+                ", source='" + source + '\'' +
+                ", crawlerKey='" + crawlerKey + '\'' +
+                ", lostheader=" + lostheader +
+                '}';
+    }
 }

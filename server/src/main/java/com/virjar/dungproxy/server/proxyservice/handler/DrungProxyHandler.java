@@ -39,6 +39,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.DOMAIN;
+import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.PROXY_SELECTOR_HOLDER;
 import static com.virjar.dungproxy.server.proxyservice.common.AttributeKeys.REQUEST_TIMEOUT;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.CONNECTION_RESET_MSG;
 import static com.virjar.dungproxy.server.proxyservice.common.ProxyResponse.TOO_MANY_CONNECTION_RESPONSE;
@@ -107,20 +108,25 @@ public class DrungProxyHandler extends EndpointHandler {
         this.channelHex = Integer.toHexString(this.clientChannel.hashCode());
         this.requestTimeout = NetworkUtil.getAttr(clientChannel, REQUEST_TIMEOUT);
         this.domain = NetworkUtil.getAttr(clientChannel, DOMAIN);
+        this.proxySelectorHolder = NetworkUtil.getAttr(clientChannel, PROXY_SELECTOR_HOLDER);
     }
+
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         Preconditions.checkArgument(msg instanceof FullHttpRequest);
         Boolean customUserAgent = ctx.channel().attr(CUSTOM_USER_AGENT).get();
+        try {
+            proxy = proxySelectorHolder.selectProxySelector(domain);
+            request = (FullHttpRequest) msg;
+            protocol = NetworkUtil.isSchemaHttps(request.uri()) ? 1 : 0;
+            perRequestStart = totalRequestStart = System.currentTimeMillis();
 
-        proxy = proxySelectorHolder.selectProxySelector(domain);
-
-        request = (FullHttpRequest) msg;
-        protocol = NetworkUtil.isSchemaHttps(request.uri()) ? 1 : 0;
-        perRequestStart = totalRequestStart = System.currentTimeMillis();
-
-        sendRequest(ctx, request.headers().contains(HttpHeaderNames.AUTHORIZATION), customUserAgent != null && customUserAgent, true);
+            sendRequest(ctx, request.headers().contains(HttpHeaderNames.AUTHORIZATION), customUserAgent != null && customUserAgent, true);
+        } catch (Exception e) {
+            log.error("[FAILED] [] 请求失败, 获取代理失败, 域名:{} 异常: ", domain, e);
+            ctx.channel().close();
+        }
     }
 
     private void sendRequest(final ChannelHandlerContext ctx, final boolean customAuth, final boolean customUserAgent, final boolean retry) {

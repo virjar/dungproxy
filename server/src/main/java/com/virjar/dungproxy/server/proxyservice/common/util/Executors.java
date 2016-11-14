@@ -14,10 +14,10 @@ public class Executors {
     public static final int DEFAULT_THREAD_NUM = Runtime.getRuntime().availableProcessors() * 2;
 
     public static final NioEventLoopGroup bossGroup = new NioEventLoopGroup(Executors.DEFAULT_THREAD_NUM,
-            new ThreadFactoryBuilder().setNameFormat("qp-boss-%s").build());
+            new ThreadFactoryBuilder().setNameFormat("proxy-boss-%s").build());
 
     public static final NioEventLoopGroup workerGroup = new NioEventLoopGroup(Executors.DEFAULT_THREAD_NUM,
-            new ThreadFactoryBuilder().setNameFormat("qp-worker-%s").build());
+            new ThreadFactoryBuilder().setNameFormat("proxy-worker-%s").build());
 
     public static void shutdownAll() {
         if (!bossGroup.isShutdown()) {

@@ -34,7 +34,6 @@ public class ProxyClient extends VirjarAsyncClient{
         return privateGet(url, realOption, handler);
     }
 
-    //使用qproxy做代理进行get请求
     public <T> ListenableFuture<T> get(final String url, AsyncHandler<T> handler) throws IOException {
         return get(url, new HttpOption(), handler);
     }

@@ -26,7 +26,7 @@ public class ProxyserviceTest {
     private static final Logger log = LoggerFactory.getLogger(ProxyserviceTest.class);
 
     private static final String url = "http://www.66ip.cn";
-    private static final VirjarAsyncClient client = new VirjarAsyncClient();
+    //private static final VirjarAsyncClient client = new VirjarAsyncClient();
     private static final long MAX_CRAWL_TIMEOUT = 60000;
 
     @Test

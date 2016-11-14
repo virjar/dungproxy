@@ -1,10 +1,12 @@
 package com.virjar.dungproxy.server.proxyservice.handler;
 
 import com.google.common.base.Charsets;
+import com.virjar.dungproxy.server.proxyservice.common.AttributeKeys;
 import com.virjar.dungproxy.server.proxyservice.common.ProxyResponse;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.checker.ConnectMethodValidator;
 import com.virjar.dungproxy.server.proxyservice.handler.checker.RequestValidator;
+import com.virjar.dungproxy.server.proxyservice.server.ProxySelectorHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,6 +15,8 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.netty.util.AttributeKey.valueOf;
 
 /**
  * Description: DispatchHandler
@@ -27,15 +31,18 @@ public class DispatchHandler extends ClientProcessHandler {
     private static final Logger log = LoggerFactory.getLogger(DispatchHandler.class);
 
     private String serverHost;
+    private ProxySelectorHolder proxySelectorHolder;
 
-    public DispatchHandler(String serverHost) {
+    public DispatchHandler(String serverHost, ProxySelectorHolder proxySelectorHolder) {
         this.serverHost = serverHost;
+        this.proxySelectorHolder = proxySelectorHolder;
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
             ChannelPipeline pipeline = ctx.pipeline();
+            NetworkUtil.setAttr(ctx.channel(), AttributeKeys.PROXY_SELECTOR_HOLDER, proxySelectorHolder);
             if (msg instanceof FullHttpRequest) {
                 FullHttpRequest request = (FullHttpRequest) msg;
                 if (request.decoderResult().isFailure()) {

@@ -1,6 +1,7 @@
 package com.mantou.proxyservice.proxeservice.repository;
 
 import com.virjar.dungproxy.server.entity.DomainIp;
+import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.repository.DomainIpRepository;
 import com.virjar.dungproxy.server.repository.ProxyRepository;
 import org.junit.Test;
@@ -33,10 +34,13 @@ public class DomainIpRepositoryTest {
         System.out.println("Hello World!");
         PageRequest pageRequest = new PageRequest(0, Integer.MAX_VALUE);
         List<DomainIp> domainIpList = domainIpRepository.selectAvailable("www.66ip.cn", pageRequest);
-        //Long proxyId = domainIpList.get(0).getProxyId();
+        Long proxyId = domainIpList.get(0).getProxyId();
         //return proxyRepository.selectByPrimaryKey(proxyId);
-        for (DomainIp domainIp: domainIpList) {
+        /*for (DomainIp domainIp: domainIpList) {
             System.out.println("domainIp is :" + domainIp.getIp());
-        }
+        }*/
+        System.out.println("Proxy id is : " + String.valueOf(proxyId));
+        Proxy proxy = proxyRepository.selectByPrimaryKey(proxyId);
+        System.out.println(proxy.toString());
     }
 }

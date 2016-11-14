@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import com.virjar.dungproxy.server.proxyservice.common.util.Executors;
 
+import javax.annotation.Resource;
+
 import static com.virjar.dungproxy.server.proxyservice.common.util.Executors.bossGroup;
 import static com.virjar.dungproxy.server.proxyservice.common.util.Executors.workerGroup;
 
@@ -35,6 +37,9 @@ public class DispatchServer {
     private int serverPort = 0;
 
     private String serverHost;
+
+    @Resource
+    private ProxySelectorHolder proxySelectorHolder;
 
     public DispatchServer(int serverPort, String serverHost) {
         this.serverPort = serverPort;
@@ -80,7 +85,7 @@ public class DispatchServer {
                                     SysConfig.getInstance().getClientReadTimeoutSeconds(),
                                     SysConfig.getInstance().getClientWriteTimeoutSeconds(),
                                     SysConfig.getInstance().getClientAllTimeoutSeconds(),
-                                    new DispatchHandler(serverHost))
+                                    new DispatchHandler(serverHost, proxySelectorHolder))
                     );
 
             ch = (NioServerSocketChannel) b.bind(serverPort).addListener(new ChannelFutureListener() {

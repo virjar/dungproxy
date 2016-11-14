@@ -95,7 +95,6 @@ public class VirjarAsyncClient {
 
         }
         Request request = builder.build();
-        // 这个 IOException 异常捕获不到了, 等待 ahc 升级解决这个问题吧
 
         return new GuavaListenableFuture<T>(getClient().executeRequest(request, new AsyncClientHandler<T>(handler)));
     }

@@ -37,7 +37,7 @@ public class ProxySelectorHolder {
         // 获取Proxy
         PageRequest pageRequest = new PageRequest(0, Integer.MAX_VALUE);
         List<DomainIp> domainIpList = domainIpRepository.selectAvailable(domain, pageRequest);
-        Long proxyId = domainIpList.get(0).getProxyId();
+        Long proxyId = domainIpList.get(domainIpList.size() - 1).getProxyId();
         return proxyRepository.selectByPrimaryKey(proxyId);
     }
 }

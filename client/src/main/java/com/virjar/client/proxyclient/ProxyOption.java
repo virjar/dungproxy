@@ -4,9 +4,6 @@ import com.virjar.client.http.HttpOption;
 
 import java.util.Map;
 
-/**
- * @author zhizhan.wu
- */
 public class ProxyOption extends HttpOption {
 
 

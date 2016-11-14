@@ -78,15 +78,15 @@
         <wildcardgenerator>http://pachong.org/</wildcardgenerator>
         <enable>false</enable>
     </maper>-->
-    <maper>
-        <!-- 需要JavaScript支持 这个不提取端口号,直接使用端口探测机制-->
+    <!--<maper>
+        &lt;!&ndash; 需要JavaScript支持 这个不提取端口号,直接使用端口探测机制&ndash;&gt;
         <website>http://pachong.org/anonymous.html</website>
         <fetcher>/fetcher/pachong_org.xml</fetcher>
         <classgenerator></classgenerator>
         <hierate>3h</hierate>
         <wildcardgenerator>http://pachong.org/</wildcardgenerator>
         <enable>true</enable>
-    </maper>
+    </maper>-->
     <maper>
         <!-- 需要JavaScript支持  直接走端口探测流程-->
         <website>http://proxy.goubanjia.com/</website>
@@ -119,7 +119,7 @@
         <enable>false</enable>
         
     </maper>
-    <maper>
+    <!--<maper>
         <website>http://www.3464.com/data/Proxy/http/</website>
         <fetcher>/fetcher/www_3464_com.xml</fetcher>
         <batchsize>5</batchsize>
@@ -138,7 +138,7 @@
         </wildcardgenerator>
         <enable>true</enable>
         <successKey>禁止浏览任何非法内容</successKey>
-    </maper>
+    </maper>-->
     <maper>
         <!-- 过时，弃用 -->
         <website>http://www.56ads.com/proxyip/</website>
