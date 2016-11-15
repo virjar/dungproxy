@@ -1,6 +1,7 @@
 package com.virjar.client.proxyclient;
 
 import com.virjar.client.http.HttpOption;
+import com.virjar.common.util.PropertiesUtil;
 
 import java.util.Map;
 
@@ -35,19 +36,16 @@ public class ProxyOption extends HttpOption {
 
     static ProxyOption getRealOption(HttpOption option) {
         ProxyOption realOption = new ProxyOption();
-
         if (option != null) {
-            //设置header
             for (Map.Entry<String, String> entry : option.getHeaders().entrySet()) {
                 realOption.addHeader(entry.getKey(), entry.getValue());
             }
         }
-
-        realOption.setProxy("localhost", 8081);
-
+        realOption.setProxy(
+                PropertiesUtil.getProperty("proxyclient.defaultUrl"),
+                Integer.valueOf(PropertiesUtil.getProperty("proxyclient.defaultPort"))
+        );
         return realOption;
-
-
     }
 
 }

@@ -54,6 +54,7 @@
         <com.google.guava.guava.version>19.0</com.google.guava.guava.version>
         <httpcomponent.version>4.4.1</httpcomponent.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -96,12 +97,20 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>cn.edu.hfut.dmic.webcollector</groupId>
             <artifactId>WebCollector</artifactId>
             <version>2.32</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

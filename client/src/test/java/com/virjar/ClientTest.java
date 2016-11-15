@@ -5,11 +5,10 @@ package com.virjar;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import com.virjar.client.proxyclient.ProxyClient;
-import com.virjar.client.proxyclient.VirjarAsyncClient;
-import com.virjar.dungproxy.client.Phone;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URLEncoder;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -37,8 +36,6 @@ public class ClientTest {
     }
 
     private static final long MAX_CRAWL_TIMEOUT = 60000;
-
-    //private static VirjarAsyncClient client = new VirjarAsyncClient();
 
     private static final String url = "http://www.baidu.com/s?rsv_bp=0&inputT=4659&wd=%e5%bd%92%e5%b1%9e%e5%9c%b0+";
 
@@ -80,5 +77,56 @@ public class ClientTest {
             phone.setMmo((short) 0);
         }
         return phone;
+    }
+
+    private static class Phone implements Serializable {
+
+        private static final long serialVersionUID = -6732131032651082674L;
+
+        private String province;
+        private String city;
+        private short mmo;
+
+        public Phone() {
+        }
+
+        public Phone(String province, String city, short mmo) {
+            this.province = province;
+            this.city = city;
+            this.mmo = mmo;
+        }
+
+        public String getProvince() {
+            return province;
+        }
+
+        public void setProvince(String province) {
+            this.province = province;
+        }
+
+        public String getCity() {
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
+        }
+
+        public short getMmo() {
+            return mmo;
+        }
+
+        public void setMmo(short mmo) {
+            this.mmo = mmo;
+        }
+
+        @Override
+        public String toString() {
+            return "Phone [" +
+                    "province=" + province +
+                    ", city=" + city +
+                    ", mmo=" + mmo +
+                    "]";
+        }
     }
 }
