@@ -17,7 +17,7 @@ public class ProxyConstant {
     public static final String BLACK_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.backList";
     public static final String WHITE_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.whiteList";
     public static final String FEEDBACK_DURATION = "proxyclient.feedback.duration";
-    public static final String DEFAULT_PROXY = "proxyclient.defaultProxy";
+    public static final String DEFAULT_PROXY_LIST = "proxyclient.defaultProxyList";
     public static final String PREHEATER_TASK_LIST ="proxyclient.preHeater.testList";
 
     public static final String configFileName = "proxyclient.properties";

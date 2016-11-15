@@ -15,6 +15,7 @@ import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.strategy.resource.DefaultResourceFacade;
 import com.virjar.dungproxy.client.ippool.strategy.resource.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.model.DefaultProxy;
 
 /**
  * Created by virjar on 16/9/29.
@@ -87,7 +88,11 @@ public class DomainPool {
         readWriteLock.readLock().lock();
         try {
             if (consistentBuckets.size() == 0) {
-                return Context.getInstance().getDefaultProxy();
+                List<DefaultProxy> defaultProxyList = Context.getInstance().getDefaultProxyList();
+                if (defaultProxyList.size() == 0) {
+                    return null;
+                }
+                return defaultProxyList.get(new Random().nextInt(defaultProxyList.size()));
             }
             // 注意hash空间问题,之前是Integer,hash值就是字面值,导致hash空间只存在了正数空间
             AvProxy hint = hint(userID == null ? String.valueOf(random.nextInt()).hashCode() : userID.hashCode());

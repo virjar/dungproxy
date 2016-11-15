@@ -3,6 +3,7 @@ package com.virjar.dungproxy.client.ippool.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -12,6 +13,7 @@ import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.PreHeater;
@@ -52,7 +54,7 @@ public class Context {
 
     private PreHeater preHeater = new PreHeater();
 
-    private DefaultProxy defaultProxy;
+    private List<DefaultProxy> defaultProxyList = Lists.newArrayList();
 
     private List<String> preHeaterTaskList;
 
@@ -75,8 +77,8 @@ public class Context {
         return feedBackDuration;
     }
 
-    public DefaultProxy getDefaultProxy() {
-        return defaultProxy;
+    public List<DefaultProxy> getDefaultProxyList() {
+        return defaultProxyList;
     }
 
     public List<String> getPreHeaterTaskList() {
@@ -131,7 +133,7 @@ public class Context {
 
         private String avDumper;
         private String defaultAvDumpeFileName;
-        private String defaultProxy;
+        private String defaultProxyList;
         private String preHeaterTaskList;
 
         public ConfigBuilder buildWithProperties(Properties properties) {
@@ -148,7 +150,7 @@ public class Context {
 
             avDumper = properties.getProperty(ProxyConstant.PROXY_SERIALIZER);
             defaultAvDumpeFileName = properties.getProperty(ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE);
-            defaultProxy = properties.getProperty(ProxyConstant.DEFAULT_PROXY);
+            defaultProxyList = properties.getProperty(ProxyConstant.DEFAULT_PROXY_LIST);
             preHeaterTaskList = properties.getProperty(ProxyConstant.PREHEATER_TASK_LIST);
             return this;
         }
@@ -190,11 +192,11 @@ public class Context {
         /**
          * 设置默认的代理,如果当前代理池还拿不到代理,则尝试使用默认,默认代理应该为一个转发服务器
          * 
-         * @param defaultProxy ip:port
+         * @param defaultProxyList ip:port
          * @return configBuilder
          */
-        public ConfigBuilder setDefaultProxy(String defaultProxy) {
-            this.defaultProxy = defaultProxy;
+        public ConfigBuilder setDefaultProxyList(String defaultProxyList) {
+            this.defaultProxyList = defaultProxyList;
             return this;
         }
 
@@ -268,7 +270,7 @@ public class Context {
             }
 
             // default proxy
-            resolveDefaultProxy(this.defaultProxy, context);
+            resolveDefaultProxy(this.defaultProxyList, context);
 
             if (StringUtils.isNoneEmpty(this.preHeaterTaskList)) {
                 context.preHeaterTaskList = Splitter.on(",").omitEmptyStrings().trimResults()
@@ -284,16 +286,18 @@ public class Context {
                 return;
             }
             try {
-                List<String> strings = Splitter.on(":").omitEmptyStrings().trimResults().splitToList(proxyString);
-                DefaultProxy defaultProxy = new DefaultProxy();
-                int port = NumberUtils.toInt(strings.get(1));
-                if (!IpAvValidator.validateProxyConnect(new HttpHost(strings.get(0), port))) {
-                    logger.warn("不能链接到默认代理服务器,默认代理资源加载失败");
-                    return;
+                Map<String, String> map = Splitter.on(",").omitEmptyStrings().trimResults().withKeyValueSeparator(":")
+                        .split(proxyString);
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    int port = NumberUtils.toInt(entry.getValue(), 8081);
+                    if (IpAvValidator.validateProxyConnect(new HttpHost(entry.getKey(), port))) {
+                        DefaultProxy defaultProxy = new DefaultProxy();
+                        defaultProxy.setIp(entry.getKey());
+                        defaultProxy.setPort(port);
+                        context.defaultProxyList.add(defaultProxy);
+                    }
                 }
-                defaultProxy.setIp(strings.get(0));
-                defaultProxy.setPort(port);
-                context.defaultProxy = defaultProxy;
+                logger.info("统一代理服务,有效地址:{}", JSONObject.toJSONString(context.defaultProxyList));
             } catch (Exception e) {
                 logger.warn("默认代理加载失败,不能识别的格式:{}", proxyString);
             }
