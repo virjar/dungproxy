@@ -3,6 +3,7 @@ package com.virjar.dungproxy.client.model;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.virjar.dungproxy.client.ippool.DomainPool;
+import com.virjar.dungproxy.client.ippool.SmartProxyQueue;
 import com.virjar.dungproxy.client.ippool.config.Context;
 
 /**
@@ -29,12 +30,18 @@ public class AvProxy {
     // 平均打分
     private long avgScore = 0;
 
-    //最后被引用的时间
+    // 最后被引用的时间
     private long lastUsedTime = 0;
 
     private DomainPool domainPool;
 
     private boolean disable = false;
+
+    private SmartProxyQueue.Node node;
+
+    public void setNode(SmartProxyQueue.Node node) {
+        this.node = node;
+    }
 
     // 虽然加锁,但是锁等待概率很小
     public synchronized void reset() {

@@ -58,6 +58,10 @@ public class Context {
 
     private List<String> preHeaterTaskList;
 
+    private int scoreFactory = 10;
+
+    private int minActivityTime = 10* 60 * 1000;//一个IP如果超过10分钟没有被使用
+
     private Context() {
     }
 
@@ -68,6 +72,10 @@ public class Context {
     // 唯一持有的对象,存储策略
     private static Context instance;
     private static volatile boolean hasInit = false;
+
+    public int getScoreFactory() {
+        return scoreFactory;
+    }
 
     public Offline getOffliner() {
         return offliner;
