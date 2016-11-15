@@ -33,81 +33,69 @@ public class DispatchServer {
 
     private static final Logger log = LoggerFactory.getLogger(DispatchServer.class);
 
-    private NioServerSocketChannel ch;
-
     private int serverPort = 0;
 
     private String serverHost;
 
-    @Resource
-    private ProxySelectorHolder proxySelectorHolder;
+    private NioServerSocketChannel ch;
 
     private SimpleHttpClient simpleHttpClient;
+
+    @Resource
+    private ProxySelectorHolder proxySelectorHolder;
 
     public DispatchServer(int serverPort, String serverHost) {
         this.serverPort = serverPort;
         this.serverHost = serverHost;
-        //采用默认配置
         this.simpleHttpClient = new SimpleHttpClient();
     }
 
     public void init() {
-
-        // 端口检测
-        for (int port = 8081; port <= 65535; port++) {
-            if (NetworkUtil.isPortAvailable(port)) {
-                log.info("检测可用端口号为:{}", port);
-                serverPort = port;
-                break;
-            }
-        }
-        if (serverPort == 0) {
-            log.error("无法找到可用端口");
+        if (!NetworkUtil.isPortAvailable(8081)) {
+            log.error("8081端口号不可用, Netty Server启动失败");
             return;
         }
         try {
-            // TEST
-           /* HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
-            String quatity = HttpInvoker.get("http://www.66ip.cn/3.html", httpClientContext);
-
-            log.info("启动前尝试通过客户端连接, 获取 quatity 为: {}", quatity);*/
-
-            //启动Netty Server 提供统一代理服务转发请求
-            ServerBootstrap b = new ServerBootstrap();
-            b.option(ChannelOption.SO_REUSEADDR, true);
-            b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-            b.childOption(ChannelOption.RCVBUF_ALLOCATOR, AdaptiveRecvByteBufAllocator.DEFAULT);
-            b.childOption(ChannelOption.TCP_NODELAY, true);
-            b.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT);
-            b.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(
-                            new DispatchHandlerInitializer(
-                                    SysConfig.getInstance().getHttpClientCodecMaxInitialLineLength(),
-                                    SysConfig.getInstance().getHttpClientCodecMaxHeaderSize(),
-                                    SysConfig.getInstance().getHttpClientCodecMaxChunkSize(),
-                                    SysConfig.getInstance().getMaxAggregateSize(),
-                                    SysConfig.getInstance().getClientReadTimeoutSeconds(),
-                                    SysConfig.getInstance().getClientWriteTimeoutSeconds(),
-                                    SysConfig.getInstance().getClientAllTimeoutSeconds(),
-                                    new DispatchHandler(serverHost, proxySelectorHolder, simpleHttpClient))
-                    );
-
-            ch = (NioServerSocketChannel) b.bind(serverPort).addListener(new ChannelFutureListener() {
-
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if (future.isSuccess()) {
-                        log.info("Netty 服务器成功启动, 端口 {}", serverPort);
-                    } else {
-                        log.error("Netty 启动失败, port [{}] 原因: ", serverPort, future.cause());
-                    }
-                }
-            }).sync().channel();
-            ch.closeFuture().sync();
-        } catch (Exception e) {
-            log.error("***: Netty 服务器启动失败, 端口 {}", serverPort, e);
+            startNettyServer();
+        } catch (InterruptedException e) {
+            log.error(" Netty Server 启动失败, 端口 {}", serverPort, e);
         }
+    }
+
+    private void startNettyServer() throws InterruptedException {
+        //启动Netty Server 提供统一代理服务转发请求
+        ServerBootstrap b = new ServerBootstrap();
+        b.option(ChannelOption.SO_REUSEADDR, true);
+        b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        b.childOption(ChannelOption.RCVBUF_ALLOCATOR, AdaptiveRecvByteBufAllocator.DEFAULT);
+        b.childOption(ChannelOption.TCP_NODELAY, true);
+        b.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT);
+        b.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(
+                        new DispatchHandlerInitializer(
+                                SysConfig.getInstance().getHttpClientCodecMaxInitialLineLength(),
+                                SysConfig.getInstance().getHttpClientCodecMaxHeaderSize(),
+                                SysConfig.getInstance().getHttpClientCodecMaxChunkSize(),
+                                SysConfig.getInstance().getMaxAggregateSize(),
+                                SysConfig.getInstance().getClientReadTimeoutSeconds(),
+                                SysConfig.getInstance().getClientWriteTimeoutSeconds(),
+                                SysConfig.getInstance().getClientAllTimeoutSeconds(),
+                                new DispatchHandler(serverHost, proxySelectorHolder, simpleHttpClient))
+                );
+
+        ch = (NioServerSocketChannel) b.bind(serverPort).addListener(new ChannelFutureListener() {
+
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    log.info("Netty Server 成功启动, 端口 {}", serverPort);
+                } else {
+                    log.error("Netty Server 启动失败, 端口 {} 原因: ", serverPort, future.cause());
+                }
+            }
+        }).sync().channel();
+        ch.closeFuture().sync();
     }
 
     /**

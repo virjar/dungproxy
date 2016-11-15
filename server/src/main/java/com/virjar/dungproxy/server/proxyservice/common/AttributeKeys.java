@@ -21,4 +21,7 @@ public class AttributeKeys {
     public static final AttributeKey<ProxySelectorHolder> PROXY_SELECTOR_HOLDER = valueOf("proxySelectorHolder");
 
     public static final AttributeKey<SimpleHttpClient> SIMPLE_HTTP_CLIENT = valueOf("simpleHttpClient");
+
+    public static final AttributeKey<Boolean> CUSTOM_USER_AGENT = valueOf("cusUserAgent");
+
 }

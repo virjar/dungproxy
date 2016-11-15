@@ -1,5 +1,6 @@
 package com.virjar.dungproxy.server.proxyservice.server;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.virjar.dungproxy.server.entity.DomainIp;
 import com.virjar.dungproxy.server.entity.Proxy;
@@ -32,12 +33,14 @@ public class ProxySelectorHolder {
     public ProxySelectorHolder() {
     }
 
-    public Proxy selectProxySelector(String domain) {
+    public Optional<Proxy> selectProxySelector(String domain) {
         Preconditions.checkNotNull(domain, "domain does not exists");
-        // 获取Proxy
         PageRequest pageRequest = new PageRequest(0, Integer.MAX_VALUE);
         List<DomainIp> domainIpList = domainIpRepository.selectAvailable(domain, pageRequest);
+        if (domainIpList.size() <= 0) {
+            return Optional.absent();
+        }
         Long proxyId = domainIpList.get(domainIpList.size() - 1).getProxyId();
-        return proxyRepository.selectByPrimaryKey(proxyId);
+        return Optional.of(proxyRepository.selectByPrimaryKey(proxyId));
     }
 }
