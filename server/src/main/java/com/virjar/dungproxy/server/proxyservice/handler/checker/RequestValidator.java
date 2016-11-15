@@ -110,6 +110,8 @@ public class RequestValidator extends ClientProcessHandler {
         String userAgent = request.headers().get(CUSTOM_USER_AGENT_KEY);
         if (userAgent != null) {
             NetworkUtil.setAttr(ctx.channel(), valueOf("cusUserAgent"), true);
+        } else {
+            NetworkUtil.setAttr(ctx.channel(), valueOf("cusUserAgent"), false);
         }
     }
 
