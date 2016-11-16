@@ -10,6 +10,5 @@
     <modules>
         <module>server</module>
         <module>client</module>
-        <module>repeater</module>
     </modules>
 </project>
