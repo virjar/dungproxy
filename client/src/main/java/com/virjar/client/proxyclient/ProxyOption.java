@@ -43,7 +43,7 @@ public class ProxyOption extends HttpOption {
         }
         realOption.setProxy(
                 PropertiesUtil.getProperty("proxyclient.defaultUrl"),
-                Integer.valueOf(PropertiesUtil.getProperty("proxyclient.defaultPort"))
+                Integer.parseInt(PropertiesUtil.getProperty("proxyclient.defaultPort"))
         );
         return realOption;
     }

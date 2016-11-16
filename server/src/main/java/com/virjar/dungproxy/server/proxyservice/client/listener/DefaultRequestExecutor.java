@@ -252,7 +252,8 @@ public class DefaultRequestExecutor implements RequestExecutor {
                         setServerChannel((NioSocketChannel) future.channel());
                     } else {
                         Channel channel = future.channel();
-                        if (channel != null && channel.isActive()) { //这里不关疑似会泄漏连接。
+                        //不关可能会导致连接泄漏
+                        if (channel != null && channel.isActive()) {
                             channel.close();
                         }
                     }
@@ -270,17 +271,21 @@ public class DefaultRequestExecutor implements RequestExecutor {
                             createTimeoutTask();
                             log.debug("Connection to proxy [{}:{}] established", proxyHost, proxyPort);
                             NioSocketChannel serverChannelToSet = (NioSocketChannel) future.channel();
-                            serverChannelToSet.attr(CONNECTION_POOL_KEY).set(buildPoolKey(proxyHost, proxyPort).get());
+                            Optional<String> poolKey = buildPoolKey(proxyHost, proxyPort);
+                            if (poolKey.isPresent()) {
+                                serverChannelToSet.attr(CONNECTION_POOL_KEY).set(poolKey.get());
+                            }
                             setServerChannel(serverChannelToSet);
                             sendRequest(request, isHttps);
                         } else {
                             Channel channel = future.channel();
-                            if (channel != null && channel.isActive()) { //这里不关疑似会泄漏连接。
+                            //不关可能会导致连接泄漏
+                            if (channel != null && channel.isActive()) {
                                 channel.close();
                             }
                         }
                     } catch (Exception e) {
-                        // FIXME 这里有 NullPointer, 疑似是并发问题, 查看 catalina.out 有记录
+                        // FIXME 这里有 NullPointer,可能是并发问题, catalina.out有记录.
                         log.error("strange exception", e);
                         throw e;
                     }

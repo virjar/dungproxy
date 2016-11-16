@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class ManagedThreadPool extends ThreadPoolExecutor implements TimeCounter {
     private static final Logger log = LoggerFactory.getLogger(ManagedThreadPool.class);
     private final AtomicLong finishTime = new AtomicLong();
-    private static final ThreadLocal<Long> local = new ThreadLocal();
+    private static final ThreadLocal<Long> local = new ThreadLocal<>();
 
     public ManagedThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, ManagedExecutors.defaultThreadFactory());
@@ -42,6 +42,7 @@ public class ManagedThreadPool extends ThreadPoolExecutor implements TimeCounter
         return this.finishTime.get();
     }
 
+    @Override
     public void beforeExecute(Thread t, Runnable r) {
         local.set(System.currentTimeMillis());
         super.beforeExecute(t, r);
@@ -49,28 +50,27 @@ public class ManagedThreadPool extends ThreadPoolExecutor implements TimeCounter
         try {
             ThreadRecycles.init();
         } catch (RuntimeException var4) {
-            log.warn("ThreadRecycles.init error", var4);
+            log.warn("ThreadRecycles.init() error", var4);
         }
 
     }
 
+    @Override
     protected void afterExecute(Runnable r, Throwable ex) {
         try {
             long e = local.get();
             local.remove();
             this.finishTime.addAndGet(System.currentTimeMillis() - e);
-        } catch (Throwable var11) {
-            var11.printStackTrace();
+        } catch (Exception e11) {
+            log.error("ThreadLocal.remove() error", e11);
         }
-
         try {
             ThreadRecycles.release();
-        } catch (Throwable var9) {
-            log.warn("ThreadRecycles.release error", var9);
+        } catch (Exception e9) {
+            log.warn("ThreadRecycles.release() error", e9);
         } finally {
             super.afterExecute(r, ex);
         }
-
         if(ex != null) {
             log.warn("在线程池中捕获到未知异常:" + ex, ex);
         }
@@ -91,10 +91,8 @@ public class ManagedThreadPool extends ThreadPoolExecutor implements TimeCounter
             }
         });
         Thread.sleep(1000L);
-        Iterator i$ = Thread.getAllStackTraces().keySet().iterator();
 
-        while(i$.hasNext()) {
-            Thread t = (Thread)i$.next();
+        for (Object t : Thread.getAllStackTraces().keySet()) {
             System.out.println(t);
         }
 

@@ -129,12 +129,15 @@ public class SimpleConnectionsPool {
                     for (ConcurrentLinkedQueue<IdleChannel> hostChannels : connectionsPool.values()) {
                         openChannels += hostChannels.size();
                     }
-                    log.trace(String.format("%d channel open, %d idle channels closed (times: 1st-loop=%d, 2nd-loop=%d).\n", openChannels, channelsInTimeout.size(),
-                            endConcurrentLoop - currentTime, millisTime() - endConcurrentLoop));
+                    log.trace(String.format("%d channel open, %d idle channels closed (times: 1st-loop=%d, 2nd-loop=%d).",
+                            openChannels,
+                            channelsInTimeout.size(),
+                            endConcurrentLoop - currentTime,
+                            millisTime() - endConcurrentLoop));
                 }
 
-            } catch (Throwable t) {
-                log.error("uncaught exception!", t);
+            } catch (Exception t) {
+                log.error("Uncaught exception message: ", t);
             }
 
             scheduleNewIdleChannelDetector(timeout.getTask());
@@ -278,9 +281,8 @@ public class SimpleConnectionsPool {
         try {
             channel2CreationDate.remove(channel);
             channel.close();
-        } catch (Throwable t) {
-            log.error("Close channel failed.", t);
-            // noop
+        } catch (Exception e) {
+            log.error("Close channel failed.", e);
         }
     }
 
