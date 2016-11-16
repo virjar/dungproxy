@@ -12,8 +12,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.Context;
-import com.virjar.dungproxy.client.ippool.strategy.resource.DefaultResourceFacade;
-import com.virjar.dungproxy.client.ippool.strategy.resource.ResourceFacade;
+import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade;
+import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.DefaultProxy;
 

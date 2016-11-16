@@ -1,7 +1,8 @@
-package com.virjar.dungproxy.client.ippool.strategy.resource;
+package com.virjar.dungproxy.client.ippool.strategy.impl;
 
 import java.util.List;
 
+import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;

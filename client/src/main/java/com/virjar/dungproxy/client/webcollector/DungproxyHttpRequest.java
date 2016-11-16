@@ -10,7 +10,7 @@ import java.net.URL;
 import java.util.zip.GZIPInputStream;
 
 import com.virjar.dungproxy.client.ippool.config.Context;
-import com.virjar.dungproxy.client.ippool.strategy.proxydomain.ProxyDomainStrategy;
+import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
 import org.apache.commons.io.IOUtils;
 
 import com.virjar.dungproxy.client.ippool.IpPool;

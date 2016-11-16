@@ -1,4 +1,4 @@
-package com.virjar.dungproxy.client.ippool.strategy.serialization;
+package com.virjar.dungproxy.client.ippool.strategy.impl;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
+import com.virjar.dungproxy.client.ippool.strategy.AvProxyDumper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

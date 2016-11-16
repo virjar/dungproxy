@@ -1,4 +1,6 @@
-package com.virjar.dungproxy.client.ippool.strategy.offline;
+package com.virjar.dungproxy.client.ippool.strategy.impl;
+
+import com.virjar.dungproxy.client.ippool.strategy.Offline;
 
 /**
  * Created by virjar on 16/10/1.

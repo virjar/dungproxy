@@ -1,8 +1,9 @@
-package com.virjar.dungproxy.client.ippool.strategy.proxydomain;
+package com.virjar.dungproxy.client.ippool.strategy.impl;
 
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
 
 /**
  * Created by virjar on 16/9/30.

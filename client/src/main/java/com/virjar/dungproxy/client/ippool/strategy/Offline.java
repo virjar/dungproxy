@@ -1,4 +1,4 @@
-package com.virjar.dungproxy.client.ippool.strategy.offline;
+package com.virjar.dungproxy.client.ippool.strategy;
 
 /**
  * Created by virjar on 16/10/1.

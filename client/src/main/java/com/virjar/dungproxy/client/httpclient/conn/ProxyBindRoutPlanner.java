@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.virjar.dungproxy.client.ippool.IpPool;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
-import com.virjar.dungproxy.client.ippool.strategy.proxydomain.ProxyDomainStrategy;
+import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.UserEnv;
 

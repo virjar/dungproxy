@@ -12,7 +12,7 @@ import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.ippool.exception.PoolDestroyException;
-import com.virjar.dungproxy.client.ippool.strategy.resource.ResourceFacade;
+import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.client.model.AvProxy;
 

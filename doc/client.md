@@ -21,7 +21,7 @@ proxyclient.proxyDomainStrategy.backList=115.159.40.202
 proxyclient.proxyDomainStrategy.whiteList=pachong.org,cn-proxy.com,www.sslproxies.org,www.66ip.cn,proxy-list.org,free-proxy-list.net
 #两分钟一次向服务器反馈IP使用情况
 proxyclient.feedback.duration=120000
-proxyclient.serialize.serializer=com.virjar.dungproxy.client.ippool.strategy.serialization.JSONFileAvProxyDumper
+proxyclient.serialize.serializer=com.virjar.dungproxy.client.ippool.strategy.JSONFileAvProxyDumper
 prxyclient.DefaultAvProxyDumper.dumpFileName=/tmp/proxyclient/availableProxy.json
 #server统一代理服务
 proxyclient.defaultProxy=115.159.40.202:8081
@@ -41,7 +41,7 @@ IpPool是单例的,做成单例的原因是,没有地方存放这个实例。我
 #### IpPool 数据模型
 分为两层,算起来就是一个multiMap结构,外层是一个总容器,根据domain放置了各自的domainPool,domainPool里面是一个IP资源集合,存放这个domain下面的可用IP。domainPool里面的IP不是list,是一个TreeMap,通过他实现了一个一致性hash结构,使IP绑定支持一致性hash的方式。
 #### 资源引入接口 ``com.virjar.ipproxy.ippool.strategy.resource.ResourceFacade``
-可以自己定义IP导入方式,系统一个默认实现``com.virjar.dungproxy.client.ippool.strategy.resource.DefaultResourceFacade``,默认通过DungProxy的server请求数据。这个处理器要完成两个任务,下载IP资源,对IP资源进行使用反馈。
+可以自己定义IP导入方式,系统一个默认实现``com.virjar.dungproxy.client.ippool.strategy.DefaultResourceFacade``,默认通过DungProxy的server请求数据。这个处理器要完成两个任务,下载IP资源,对IP资源进行使用反馈。
 #### 判定哪些请求需要被代理 ``com.virjar.ipproxy.ippool.strategy.proxydomain.ProxyDomainStrategy``
 默认有两个实现,黑名单方式和白名单方式。默认使白名单方式,只有再白名单中的host才会被代理,相反黑名单方式除了黑名单之中的host都会被代理(有意思的是如果你代理IP资源引入请求,会有死递归的问题)
 #### 序列化和反序列化 ``com.virjar.ipproxy.ippool.strategy.serialization.AvProxyDumper``

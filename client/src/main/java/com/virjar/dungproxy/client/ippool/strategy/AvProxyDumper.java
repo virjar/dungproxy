@@ -1,4 +1,4 @@
-package com.virjar.dungproxy.client.ippool.strategy.serialization;
+package com.virjar.dungproxy.client.ippool.strategy;
 
 import java.util.List;
 import java.util.Map;

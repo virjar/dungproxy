@@ -1,4 +1,4 @@
-package com.virjar.dungproxy.client.ippool.strategy.resource;
+package com.virjar.dungproxy.client.ippool.strategy;
 
 import java.util.List;
 
