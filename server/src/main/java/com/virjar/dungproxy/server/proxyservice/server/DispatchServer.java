@@ -81,7 +81,7 @@ public class DispatchServer {
                                 SysConfig.getInstance().getClientReadTimeoutSeconds(),
                                 SysConfig.getInstance().getClientWriteTimeoutSeconds(),
                                 SysConfig.getInstance().getClientAllTimeoutSeconds(),
-                                new DispatchHandler(serverHost, proxySelectorHolder, simpleHttpClient))
+                                new DispatchHandler(proxySelectorHolder, simpleHttpClient))
                 );
 
         ch = (NioServerSocketChannel) b.bind(serverPort).addListener(new ChannelFutureListener() {

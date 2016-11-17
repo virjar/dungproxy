@@ -17,8 +17,6 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.netty.util.AttributeKey.valueOf;
-
 /**
  * Description: DispatchHandler
  *
@@ -31,12 +29,10 @@ public class DispatchHandler extends ClientProcessHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DispatchHandler.class);
 
-    private String serverHost;
     private ProxySelectorHolder proxySelectorHolder;
     private SimpleHttpClient simpleHttpClient;
 
-    public DispatchHandler(String serverHost, ProxySelectorHolder proxySelectorHolder, SimpleHttpClient simpleHttpClient) {
-        this.serverHost = serverHost;
+    public DispatchHandler(ProxySelectorHolder proxySelectorHolder, SimpleHttpClient simpleHttpClient) {
         this.proxySelectorHolder = proxySelectorHolder;
         this.simpleHttpClient = simpleHttpClient;
     }
