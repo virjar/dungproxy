@@ -37,12 +37,6 @@ public class AvProxy {
 
     private boolean disable = false;
 
-    private SmartProxyQueue.Node node;
-
-    public void setNode(SmartProxyQueue.Node node) {
-        this.node = node;
-    }
-
     // 虽然加锁,但是锁等待概率很小
     public synchronized void reset() {
         referCount.set(0);

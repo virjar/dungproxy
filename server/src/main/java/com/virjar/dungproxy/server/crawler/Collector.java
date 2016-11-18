@@ -152,6 +152,7 @@ public class Collector {
         }
         this.failedTimes += failedTimes;
         getnumber += ret.size();
+        logger.info("收集器:{} 收集的资源数目:{}", getLastUrl(), ret.size());
         return ret;
     }
 

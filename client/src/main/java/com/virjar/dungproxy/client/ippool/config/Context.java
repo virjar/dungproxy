@@ -17,12 +17,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.PreHeater;
-import com.virjar.dungproxy.client.ippool.strategy.Offline;
-import com.virjar.dungproxy.client.ippool.strategy.impl.BlackListProxyStrategy;
-import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
-import com.virjar.dungproxy.client.ippool.strategy.impl.WhiteListProxyStrategy;
 import com.virjar.dungproxy.client.ippool.strategy.AvProxyDumper;
+import com.virjar.dungproxy.client.ippool.strategy.Offline;
+import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
+import com.virjar.dungproxy.client.ippool.strategy.Scoring;
+import com.virjar.dungproxy.client.ippool.strategy.impl.BlackListProxyStrategy;
+import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultScoring;
 import com.virjar.dungproxy.client.ippool.strategy.impl.JSONFileAvProxyDumper;
+import com.virjar.dungproxy.client.ippool.strategy.impl.WhiteListProxyStrategy;
 import com.virjar.dungproxy.client.model.DefaultProxy;
 import com.virjar.dungproxy.client.util.IpAvValidator;
 
@@ -60,7 +62,9 @@ public class Context {
 
     private int scoreFactory = 10;
 
-    private int minActivityTime = 10* 60 * 1000;//一个IP如果超过10分钟没有被使用
+    private int minActivityTime = 10 * 60 * 1000;// 一个IP如果超过10分钟没有被使用
+
+    private Scoring scoring = new DefaultScoring();// 暂时硬编码
 
     private Context() {
     }
@@ -72,6 +76,10 @@ public class Context {
     // 唯一持有的对象,存储策略
     private static Context instance;
     private static volatile boolean hasInit = false;
+
+    public Scoring getScoring() {
+        return scoring;
+    }
 
     public int getScoreFactory() {
         return scoreFactory;
