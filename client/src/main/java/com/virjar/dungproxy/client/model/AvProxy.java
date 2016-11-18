@@ -59,6 +59,10 @@ public class AvProxy {
     }
 
     public void recordUsage() {
+        while (sucessTimes.decrementAndGet() > 0) {
+            Scoring scoring = Context.getInstance().getScoring();
+            score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
+        }
         sucessTimes.incrementAndGet();
         lastUsedTime = System.currentTimeMillis();
         score.getReferCount().incrementAndGet();

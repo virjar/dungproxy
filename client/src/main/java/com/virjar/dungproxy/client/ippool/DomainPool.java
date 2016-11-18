@@ -1,6 +1,9 @@
 package com.virjar.dungproxy.client.ippool;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -12,8 +15,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.Context;
-import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
+import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.DefaultProxy;
 
@@ -31,7 +34,6 @@ public class DomainPool {
     private List<String> testUrls = Lists.newArrayList();
 
     private Random random = new Random(System.currentTimeMillis());
-
 
     private SmartProxyQueue smartProxyQueue = new SmartProxyQueue();
 
@@ -60,19 +62,12 @@ public class DomainPool {
         }
     }
 
-
-
     public void addAvailable(Collection<AvProxy> avProxyList) {
         smartProxyQueue.addAllProxy(avProxyList);
-        /*readWriteLock.writeLock().lock();
-        try {
-            for (AvProxy avProxy : avProxyList) {
-                avProxy.setDomainPool(this);
-                consistentBuckets.put(avProxy.hashCode(), avProxy);
-            }
-        } finally {
-            readWriteLock.writeLock().unlock();
-        }*/
+        /*
+         * readWriteLock.writeLock().lock(); try { for (AvProxy avProxy : avProxyList) { avProxy.setDomainPool(this);
+         * consistentBuckets.put(avProxy.hashCode(), avProxy); } } finally { readWriteLock.writeLock().unlock(); }
+         */
     }
 
     public List<AvProxy> availableProxy() {
@@ -98,8 +93,14 @@ public class DomainPool {
                 }
                 return defaultProxyList.get(new Random().nextInt(defaultProxyList.size()));
             }
+
             // 注意hash空间问题,之前是Integer,hash值就是字面值,导致hash空间只存在了正数空间
-            AvProxy hint = hint(userID == null ? String.valueOf(random.nextInt()).hashCode() : userID.hashCode());
+            AvProxy hint;
+            if (userID == null) {
+                hint = smartProxyQueue.getAndAdjustPriority();
+            } else {
+                hint = smartProxyQueue.hint(userID.hashCode());
+            }
             if (userID != null && hint != null) {
                 if (!hint.equals(bindMap.get(userID))) {
                     // IP 绑定改变事件
@@ -154,16 +155,6 @@ public class DomainPool {
             addAvailable(passedProxy);
             isRefreshing.set(false);
         }
-    }
-
-    /**
-     * 分配一个IP,根据一致性哈希算法,这样根据业务ID可以每次绑定相同的IP
-     * 
-     * @param hash
-     * @return
-     */
-    public AvProxy hint(int hash) {
-        return smartProxyQueue.hind(hash);
     }
 
     @Override

@@ -68,6 +68,9 @@ public class SmartProxyQueue {
     public AvProxy getAndAdjustPriority() {
         synchronized (mutex) {
             AvProxy poll = proxies.poll();
+            if (poll == null) {
+                return null;
+            }
             int index = (int) (proxies.size() * ratio);
             proxies.add(index, poll);
             return poll;
@@ -115,7 +118,7 @@ public class SmartProxyQueue {
         return proxies.size();
     }
 
-    public AvProxy hind(int hash) {
+    public AvProxy hint(int hash) {
         if (consistentBuckets.size() == 0) {
             return null;
         }
