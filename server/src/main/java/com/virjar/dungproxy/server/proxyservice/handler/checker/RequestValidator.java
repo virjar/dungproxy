@@ -9,7 +9,6 @@ import com.virjar.dungproxy.server.proxyservice.handler.DrungProxyHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
@@ -22,7 +21,6 @@ import static com.virjar.dungproxy.server.proxyservice.common.Constants.CUSTOM_U
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.PROXY_HEADER_SET;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.REQ_TTL_KEY;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.USE_HTTPS_KEY;
-import static io.netty.handler.codec.http.HttpHeaders.getHost;
 import static io.netty.util.AttributeKey.valueOf;
 
 /**

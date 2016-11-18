@@ -130,6 +130,7 @@ public class DrungProxyHandler extends EndpointHandler {
             writeFailedResponse("Request Released");
             return;
         }
+        perRequestStart = System.currentTimeMillis();
         listener = getAbstractResponseListener(ctx, customAuth, customUserAgent);
         log.info("START 请求开始");
         if (request.refCnt() <= 0) {
@@ -188,12 +189,12 @@ public class DrungProxyHandler extends EndpointHandler {
                     sb.append(" |");
                 }
                 if (requestSentTime > 0) {
+                    sb.append(" request sent time:");
                     if (handShakeSuccTime > 0) {
                         sb.append(requestSentTime - handShakeSuccTime);
                     } else {
                         sb.append(requestSentTime - connectCompletedTime);
                     }
-                    sb.append(" request sent time:");
                     sb.append(" |");
                 }
                 if (headerReceivedTime > 0) {
@@ -208,7 +209,6 @@ public class DrungProxyHandler extends EndpointHandler {
                 sb.append(" |");
                 sb.append(" request total time:");
                 sb.append(sysTime - totalRequestStart);
-                sb.append(" |");
                 return sb.toString();
             }
 

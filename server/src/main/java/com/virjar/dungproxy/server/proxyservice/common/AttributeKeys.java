@@ -24,4 +24,6 @@ public class AttributeKeys {
 
     public static final AttributeKey<Boolean> CUSTOM_USER_AGENT = valueOf("cusUserAgent");
 
+    public final static AttributeKey<Boolean> KEEP_ALIVE = AttributeKey.valueOf("keep-alive");
+
 }

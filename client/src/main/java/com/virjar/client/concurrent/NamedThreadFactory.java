@@ -6,6 +6,7 @@ package com.virjar.client.concurrent;
  * @author lingtong.fu
  * @version 2016-09-04 12:18
  */
+
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,7 +26,7 @@ public class NamedThreadFactory implements ThreadFactory {
         this.mPrefix = prefix + "-thread-";
         this.mDaemo = daemo;
         SecurityManager s = System.getSecurityManager();
-        this.mGroup = s == null?Thread.currentThread().getThreadGroup():s.getThreadGroup();
+        this.mGroup = s == null ? Thread.currentThread().getThreadGroup() : s.getThreadGroup();
     }
 
     public Thread newThread(Runnable runnable) {
