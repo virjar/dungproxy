@@ -1,5 +1,7 @@
 package com.virjar.dungproxy.client.ippool.strategy;
 
+import com.virjar.dungproxy.client.model.Score;
+
 /**
  * Created by virjar on 16/10/1.
  */
@@ -11,5 +13,5 @@ public interface Offline {
      * @param failedTimes 失败次数
      * @return
      */
-    public boolean needOffline(int totalUse, int failedTimes);
+    public boolean needOffline(Score score);
 }

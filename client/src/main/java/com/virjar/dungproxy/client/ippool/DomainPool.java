@@ -32,7 +32,8 @@ public class DomainPool {
 
     private Random random = new Random(System.currentTimeMillis());
 
-    private TreeMap<Integer, AvProxy> consistentBuckets = new TreeMap<>();
+
+    private SmartProxyQueue smartProxyQueue = new SmartProxyQueue();
 
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
 
@@ -59,8 +60,11 @@ public class DomainPool {
         }
     }
 
+
+
     public void addAvailable(Collection<AvProxy> avProxyList) {
-        readWriteLock.writeLock().lock();
+        smartProxyQueue.addAllProxy(avProxyList);
+        /*readWriteLock.writeLock().lock();
         try {
             for (AvProxy avProxy : avProxyList) {
                 avProxy.setDomainPool(this);
@@ -68,11 +72,11 @@ public class DomainPool {
             }
         } finally {
             readWriteLock.writeLock().unlock();
-        }
+        }*/
     }
 
     public List<AvProxy> availableProxy() {
-        return Lists.newArrayList(consistentBuckets.values());
+        return Lists.newArrayList(smartProxyQueue.values());
     }
 
     public AvProxy bind(String url, Object userID) {
@@ -81,13 +85,13 @@ public class DomainPool {
         } else {
             testUrls.set(random.nextInt(10), url);
         }
-        if (consistentBuckets.size() < minSize) {
+        if (smartProxyQueue.size() < minSize) {
             refreshInNewThread();// 在新线程刷新
         }
 
         readWriteLock.readLock().lock();
         try {
-            if (consistentBuckets.size() == 0) {
+            if (smartProxyQueue.size() == 0) {
                 List<DefaultProxy> defaultProxyList = Context.getInstance().getDefaultProxyList();
                 if (defaultProxyList.size() == 0) {
                     return null;
@@ -121,11 +125,11 @@ public class DomainPool {
     }
 
     public boolean needFresh() {
-        return consistentBuckets.size() < coreSize;
+        return smartProxyQueue.size() < coreSize;
     }
 
     public void feedBack() {
-        resourceFacade.feedBack(domain, Lists.newArrayList(consistentBuckets.values()), removedProxies);
+        resourceFacade.feedBack(domain, Lists.newArrayList(smartProxyQueue.values()), removedProxies);
         removedProxies.clear();
         /*
          * for (AvProxy avProxy : consistentBuckets.values()) { avProxy.reset(); }
@@ -159,11 +163,7 @@ public class DomainPool {
      * @return
      */
     public AvProxy hint(int hash) {
-        if (consistentBuckets.size() == 0) {
-            return null;
-        }
-        SortedMap<Integer, AvProxy> tmap = this.consistentBuckets.tailMap(hash);
-        return (tmap.isEmpty()) ? consistentBuckets.firstEntry().getValue() : tmap.get(tmap.firstKey());
+        return smartProxyQueue.hind(hash);
     }
 
     @Override
@@ -185,7 +185,7 @@ public class DomainPool {
     }
 
     public void offline(AvProxy avProxy) {
-        consistentBuckets.remove(avProxy.hashCode());
+        smartProxyQueue.remove(avProxy);
         removedProxies.add(avProxy);
         logger.warn("IP offline {}", JSONObject.toJSONString(avProxy));
     }
@@ -196,5 +196,9 @@ public class DomainPool {
 
     public ResourceFacade getResourceFacade() {
         return resourceFacade;
+    }
+
+    public void adjustPriority(AvProxy avProxy) {
+        smartProxyQueue.adjustPriority(avProxy);
     }
 }
