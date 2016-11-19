@@ -78,6 +78,9 @@ public class SmartProxyQueue {
     }
 
     public void adjustPriority(AvProxy avProxy) {
+        if (consistentBuckets.containsKey(avProxy.hashCode())) {// 如果已经下线,则不进行优先级调整动作
+            return;
+        }
         synchronized (mutex) {
             proxies.remove(avProxy);
             consistentBuckets.remove(avProxy.hashCode());
@@ -96,7 +99,7 @@ public class SmartProxyQueue {
         checkScore(score);
         synchronized (mutex) {
             AvProxy last = proxies.getLast();
-            while (last != null && last.getScore().getAvgScore() > score) {
+            while (last != null && last.getScore().getAvgScore() < score) {
                 proxies.removeLast();
                 consistentBuckets.remove(last.hashCode());
                 last = proxies.getLast();
@@ -132,7 +135,6 @@ public class SmartProxyQueue {
             consistentBuckets.remove(avProxy.hashCode());
         }
     }
-
 
     // 数据结构需要改造这个东西。。。我们需要一个高度灵活的优先级队列。但是不保证公平的优先级和绝对优先级。
     // ConcurrentLinkedQueue只是一个队列的时候。不能做到在队列中间插入数据z

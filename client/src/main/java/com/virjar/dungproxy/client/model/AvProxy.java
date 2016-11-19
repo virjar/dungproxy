@@ -42,10 +42,11 @@ public class AvProxy {
     }
 
     public void recordFailed() {
-        while (sucessTimes.decrementAndGet() > 0) {
-            Scoring scoring = Context.getInstance().getScoring();
+        Scoring scoring = Context.getInstance().getScoring();
+        while (sucessTimes.decrementAndGet() > 0) {//这个基本不会发生
             score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
         }
+        score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), false));
         score.getFailedCount().incrementAndGet();
         if (Context.getInstance().getOffliner().needOffline(score)) {
             offline();// 资源下线,下次将不会分配这个IP了
