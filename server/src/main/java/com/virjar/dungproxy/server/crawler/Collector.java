@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.virjar.dungproxy.client.httpclient.HttpInvoker;
-import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
-import com.virjar.dungproxy.client.util.CommonUtil;
-import com.virjar.dungproxy.client.util.PoolUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -23,6 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.virjar.dungproxy.client.httpclient.HttpInvoker;
+import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
+import com.virjar.dungproxy.client.util.CommonUtil;
+import com.virjar.dungproxy.client.util.PoolUtil;
 import com.virjar.dungproxy.server.crawler.extractor.XmlModeFetcher;
 import com.virjar.dungproxy.server.entity.Proxy;
 
@@ -56,6 +56,10 @@ public class Collector {
 
     // 如果存在,拿到key代表数据成功获取,而不是通过是否提取到数据来判定是否成功
     private String sucessKey = null;
+
+    private long lastCleanTimeStamp = System.currentTimeMillis();
+
+    private volatile boolean isFirstRun = true;
 
     public String getErrorinfo() {
         return errorinfo;
@@ -100,11 +104,21 @@ public class Collector {
         if (System.currentTimeMillis() - lastactivity < hibrate) {
             return ret;
         }
+        if (System.currentTimeMillis() - lastCleanTimeStamp > 24 * 60 * 60 * 1000) {
+            getnumber = 0;// 每隔一天,清理一次收集到的IP,用于监控IP收集任务
+            lastCleanTimeStamp = System.currentTimeMillis();
+        }
         logger.info("begin collector:{}", this.website);
         lastactivity = System.currentTimeMillis();
         lastUrl = urlGenerator.newURL();
         while (ret.size() < batchsize) {
-            if(this.failedTimes > 20){//不论如何,连续一定次数失败,重置url生成器
+            if (isFirstRun) {//第一次启动,IP可能没有预热,等待100次重试
+                if (this.failedTimes > 100) {
+                    urlGenerator.reset();
+                    isFirstRun = false;
+                    break;
+                }
+            } else if (this.failedTimes > 20) {// 不论如何,连续一定次数失败,重置url生成器
                 urlGenerator.reset();
                 break;
             }
@@ -134,7 +148,7 @@ public class Collector {
                     } else {
                         PoolUtil.cleanProxy(httpClientContext);// 每次使用不用的代理IP
                         failedTimes = 0;
-                        this.failedTimes =0;
+                        this.failedTimes = 0;
                         sucessTimes++;
                         ret.addAll(fetchResult);
                         CommonUtil.sleep(2000);
