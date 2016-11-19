@@ -9,10 +9,10 @@ import com.virjar.dungproxy.client.model.Score;
 public class DefaultScoring implements Scoring {
     @Override
     public double newAvgScore(Score score, int factory, boolean isSuccess) {
-        if (score.getAvgScore() == 0L && isSuccess) {
-            return 1L;
+        if (score.getAvgScore() == 0D && isSuccess) {
+            return 1D;
         }
-        long newScore = isSuccess ? 1L : 0L;
+        double newScore = isSuccess ? 1D : 0D;
         return (score.getAvgScore() * (factory - 1) + newScore) / factory;
     }
 }
