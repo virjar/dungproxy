@@ -149,6 +149,7 @@ public class DomainPool {
             for (AvProxy avProxy : avProxies) {
                 if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
                     passedProxy.add(avProxy);
+                    avProxy.setDomainPool(this);
                 }
             }
             addAvailable(passedProxy);
