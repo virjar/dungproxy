@@ -63,10 +63,11 @@ public class DomainPool {
     }
 
     public void addAvailable(Collection<AvProxy> avProxyList) {
-        for (AvProxy avProxy : avProxyList) {//这里必须设置这个,然后才能真正放到资源池里面去
+        List<AvProxy> newList = Lists.newArrayList(avProxyList);//傻逼Collection可能是懒加载的。导致遍历的对象是新建的,操作不到
+        for (AvProxy avProxy : newList) {//这里必须设置这个,然后才能真正放到资源池里面去
             avProxy.setDomainPool(this);
         }
-        smartProxyQueue.addAllProxy(avProxyList);
+        smartProxyQueue.addAllProxy(newList);
         /*
          * readWriteLock.writeLock().lock(); try { for (AvProxy avProxy : avProxyList) { avProxy.setDomainPool(this);
          * consistentBuckets.put(avProxy.hashCode(), avProxy); } } finally { readWriteLock.writeLock().unlock(); }
