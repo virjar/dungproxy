@@ -2,6 +2,7 @@ package com.virjar.dungproxy.client.model;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.alibaba.fastjson.JSONObject;
 import com.virjar.dungproxy.client.ippool.DomainPool;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.strategy.Scoring;
@@ -51,6 +52,9 @@ public class AvProxy {
         if (Context.getInstance().getOffliner().needOffline(score)) {
             offline();// 资源下线,下次将不会分配这个IP了
         } else {
+                if(domainPool == null){
+                    JSONObject.toJSONString(this);
+                }
             domainPool.adjustPriority(this);
         }
     }
@@ -128,10 +132,6 @@ public class AvProxy {
     }
 
     public void setDomainPool(DomainPool domainPool) {
-        if (domainPool == null) {
-            System.out.println("设置空domainPool对象");
-            throw new RuntimeException("");
-        }
         this.domainPool = domainPool;
     }
 
