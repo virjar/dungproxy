@@ -43,7 +43,7 @@ public class AvProxy {
 
     public void recordFailed() {
         Scoring scoring = Context.getInstance().getScoring();
-        while (sucessTimes.decrementAndGet() > 0) {//这个基本不会发生
+        while (sucessTimes.decrementAndGet() > 0) {// 这个基本不会发生
             score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
         }
         score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), false));
@@ -128,6 +128,10 @@ public class AvProxy {
     }
 
     public void setDomainPool(DomainPool domainPool) {
+        if (domainPool == null) {
+            System.out.println("设置空domainPool对象");
+            throw new RuntimeException("");
+        }
         this.domainPool = domainPool;
     }
 

@@ -158,7 +158,6 @@ public class PreHeater {
             this.domainPool = domainPool;
             this.proxy = proxy;
             this.url = url;
-            proxy.setDomainPool(domainPool);
         }
 
         @Override
@@ -173,7 +172,6 @@ public class PreHeater {
                 stringDomainPoolMap.put(domain, domainPool);
             }
             proxy.setDomainPool(domainPool);
-            long l = processedTask.incrementAndGet();
             if (IpAvValidator.available(proxy, url)) {
                 domainPool.addAvailable(Lists.newArrayList(proxy));
                 logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(proxy),
