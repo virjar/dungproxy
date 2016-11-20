@@ -15,7 +15,7 @@ public class DefaultProxy extends AvProxy {
     @Override
     public void offline() {//TODO 统一代理服务的上线逻辑
         if (!IpAvValidator.validateProxyConnect(new HttpHost(this.getIp(), getPort()))) {
-            super.offline();
+            //super.offline();
         }
     }
 }

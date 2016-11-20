@@ -70,7 +70,8 @@ public class IpPool {
                 pool.get(entry.getKey()).addAvailable(entry.getValue());
             } else {
                 pool.put(entry.getKey(), new DomainPool(entry.getKey(),
-                        ObjectFactory.<ResourceFacade> newInstance(importer), entry.getValue()));
+                        ObjectFactory.<ResourceFacade> newInstance(importer)));
+                pool.get(entry.getKey()).addAvailable(entry.getValue());
             }
         }
     }
