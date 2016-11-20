@@ -1,6 +1,7 @@
 package com.virjar.dungproxy.client.model;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.fastjson.JSONObject;
 import com.virjar.dungproxy.client.ippool.DomainPool;
@@ -147,7 +148,7 @@ public class AvProxy {
         newProxy.ip = ip;
         newProxy.isInit = isInit;
         newProxy.port = port;
-        newProxy.score = score;
+        newProxy.score = new Score(score.getAvgScore(),new AtomicInteger(score.getFailedCount().get()),new AtomicInteger(score.getReferCount().get()));
         return newProxy;
     }
 

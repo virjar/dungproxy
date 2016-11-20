@@ -6,6 +6,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by virjar on 16/11/18.
  */
 public class Score {
+
+    public Score() {
+    }
+
+    public Score(double avgScore, AtomicInteger failedCount, AtomicInteger referCount) {
+        this.avgScore = avgScore;
+        this.failedCount = failedCount;
+        this.referCount = referCount;
+    }
+
     // 引用次数,当引用次数为0的时候,由调度任务清除该
     private AtomicInteger referCount = new AtomicInteger(0);
 
