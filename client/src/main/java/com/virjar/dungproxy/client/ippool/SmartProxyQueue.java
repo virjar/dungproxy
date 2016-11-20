@@ -1,7 +1,8 @@
 package com.virjar.dungproxy.client.ippool;
 
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.*;
 
+import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.model.AvProxy;
 
 /**
@@ -9,78 +10,134 @@ import com.virjar.dungproxy.client.model.AvProxy;
  * Created by virjar on 16/11/15.
  */
 public class SmartProxyQueue {
+    private double ratio;
 
-    private Node head = new Node();
-    private Node tail = head;
+    private final Object mutex = this;
+
+    // 效率不高,但是先用这个实现.我们使用两个数据结构来实现绑定IP和优先级IP两种方案
+    private LinkedList<AvProxy> proxies = Lists.newLinkedList();
+    private TreeMap<Integer, AvProxy> consistentBuckets = new TreeMap<>();
+
+    public SmartProxyQueue() {
+        this(0.3);
+    }
+
+    public SmartProxyQueue(double ratio) {
+        if (ratio < 0 || ratio > 1) {
+            throw new IllegalStateException("ratio for SmartProxyQueue need between 0 and 1");
+        }
+        this.ratio = ratio;
+    }
 
     /**
-     * 仅在初始化的时候使用
-     * 
-     * @param avProxy 增加代理
+     * 一般用在初始化的时候,
+     *
+     * @param avProxy
      */
-    public synchronized void addProxy(AvProxy avProxy) {
-        Node node = new Node();
-        node.pre = tail;
-        tail.after = node;
-        tail = node;
-        node.avProxy = avProxy;
-        avProxy.setNode(node);
-    }
-
-    public AvProxy get() {
-        Node after = head.after;
-        if (after == null) {
-            return null;
+    public void addProxy(AvProxy avProxy) {
+        synchronized (mutex) {
+            proxies.addFirst(avProxy);
+            consistentBuckets.put(avProxy.hashCode(), avProxy);
         }
-        remove(after);
-        return after.avProxy;
     }
 
-    private void remove(Node node) {
-        accquirWriteLock(node);
-        Node pre = node.pre;
-        Node next = node.after;
-        pre.after = next.after;
-        next.pre = pre;
-        node.pre = null;
-        node.after = null;
-        releaseWriteLock(pre, node, next);
-    }
-
-    private void releaseWriteLock(Node pre, Node node, Node next) {
-
-        pre.afterlLock.unlock();
-        node.preLock.unlock();
-        node.afterlLock.unlock();
-        next.preLock.unlock();
-    }
-
-    private void accquirWriteLock(Node node) {
-        while (true) {
-            if (node.pre.afterlLock.tryLock()) {
-                // 拿到上一个节点的写权限
-                if (node.preLock.tryLock()) {
-                    if (node.afterlLock.tryLock()) {
-                        if (node.after == null) {
-                            return;
-                        }
-                        if (node.after.preLock.tryLock()) {
-                            return;
-                        }
-                        node.afterlLock.unlock();
-                    }
-                    node.preLock.unlock();
-                }
-                node.pre.afterlLock.unlock();
+    /**
+     * 一般用在初始化的时候,向容器中增加代理
+     *
+     * @param avProxies
+     */
+    public void addAllProxy(Collection<AvProxy> avProxies) {
+        synchronized (mutex) {
+            proxies.addAll(avProxies);
+            for (AvProxy avProxy : avProxies) {
+                consistentBuckets.put(avProxy.hashCode(), avProxy);
             }
         }
     }
 
-    public static class Node {
-        AvProxy avProxy;// 代理和node一一对应
-        ReentrantLock preLock = new ReentrantLock(false);
-        ReentrantLock afterlLock = new ReentrantLock(false);
-        Node pre;
-        Node after;
+    public void addWithScore(AvProxy avProxy) {
+        checkScore(avProxy.getScore().getAvgScore());
+        synchronized (mutex) {
+            int index = (int) (proxies.size() * (ratio + (1 - ratio) * avProxy.getScore().getAvgScore()));
+            proxies.add(index, avProxy);
+            consistentBuckets.put(avProxy.hashCode(), avProxy);
+        }
+
     }
+
+    public AvProxy getAndAdjustPriority() {
+        synchronized (mutex) {
+            AvProxy poll = proxies.poll();
+            if (poll == null) {
+                return null;
+            }
+            int index = (int) (proxies.size() * ratio);
+            proxies.add(index, poll);
+            return poll;
+        }
+    }
+
+    public void adjustPriority(AvProxy avProxy) {
+        if (consistentBuckets.containsKey(avProxy.hashCode())) {// 如果已经下线,则不进行优先级调整动作
+            return;
+        }
+        synchronized (mutex) {
+            proxies.remove(avProxy);
+            consistentBuckets.remove(avProxy.hashCode());
+        }
+        addWithScore(avProxy);
+    }
+
+    public void offline(AvProxy avProxy) {
+        synchronized (mutex) {
+            proxies.remove(avProxy);
+            consistentBuckets.remove(avProxy.hashCode());
+        }
+    }
+
+    public void offlineWithScore(double score) {
+        checkScore(score);
+        synchronized (mutex) {
+            AvProxy last = proxies.getLast();
+            while (last != null && last.getScore().getAvgScore() < score) {
+                proxies.removeLast();
+                consistentBuckets.remove(last.hashCode());
+                last = proxies.getLast();
+            }
+        }
+    }
+
+    private void checkScore(double score) {
+        if (score < 0 || score > 1) {
+            throw new IllegalStateException("avgScore for a AvProxy need between 0 and 1");
+        }
+    }
+
+    public Iterator<? extends AvProxy> values() {
+        return proxies.iterator();
+    }
+
+    public int size() {
+        return proxies.size();
+    }
+
+    public AvProxy hint(int hash) {
+        if (consistentBuckets.size() == 0) {
+            return null;
+        }
+        SortedMap<Integer, AvProxy> tmap = this.consistentBuckets.tailMap(hash);
+        return (tmap.isEmpty()) ? consistentBuckets.firstEntry().getValue() : tmap.get(tmap.firstKey());
+    }
+
+    public void remove(AvProxy avProxy) {
+        synchronized (mutex) {
+            proxies.remove(avProxy);
+            consistentBuckets.remove(avProxy.hashCode());
+        }
+    }
+
+    // 数据结构需要改造这个东西。。。我们需要一个高度灵活的优先级队列。但是不保证公平的优先级和绝对优先级。
+    // ConcurrentLinkedQueue只是一个队列的时候。不能做到在队列中间插入数据z
+    // private ConcurrentLinkedQueue<AvProxy> avProxies = new ConcurrentLinkedQueue<>();
+
 }

@@ -106,7 +106,6 @@ public class CollectorTask implements Runnable, InitializingBean {
         @Override
         public Object call() throws Exception {
             List<Proxy> draftproxys = collector.newProxy();
-            logger.info("收集器:{} 收集的资源数目:{}", collector.getLastUrl(), draftproxys.size());
             // logger.info("收集到的新资源:{}", JSON.toJSONString(draftproxys));
             ResourceFilter.filter(draftproxys);
             proxyService.save(beanMapper.mapAsList(draftproxys, ProxyModel.class));

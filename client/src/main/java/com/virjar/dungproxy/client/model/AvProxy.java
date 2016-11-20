@@ -3,8 +3,8 @@ package com.virjar.dungproxy.client.model;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.virjar.dungproxy.client.ippool.DomainPool;
-import com.virjar.dungproxy.client.ippool.SmartProxyQueue;
 import com.virjar.dungproxy.client.ippool.config.Context;
+import com.virjar.dungproxy.client.ippool.strategy.Scoring;
 
 /**
  * Description: AvProxy
@@ -20,15 +20,7 @@ public class AvProxy {
     // 端口号
     private Integer port;
 
-    // 引用次数,当引用次数为0的时候,由调度任务清除该
-    private AtomicInteger referCount = new AtomicInteger(0);
-
-    private AtomicInteger failedCount = new AtomicInteger(0);
-
     private boolean isInit = true;
-
-    // 平均打分
-    private long avgScore = 0;
 
     // 最后被引用的时间
     private long lastUsedTime = 0;
@@ -37,29 +29,44 @@ public class AvProxy {
 
     private boolean disable = false;
 
-    private SmartProxyQueue.Node node;
+    // 打分保证
+    private Score score = new Score();
 
-    public void setNode(SmartProxyQueue.Node node) {
-        this.node = node;
-    }
+    private AtomicInteger sucessTimes = new AtomicInteger(0);
 
     // 虽然加锁,但是锁等待概率很小
     public synchronized void reset() {
-        referCount.set(0);
-        failedCount.set(0);
+        score.getReferCount().set(0);
+        score.getFailedCount().set(0);
         disable = false;
     }
 
     public void recordFailed() {
-        failedCount.incrementAndGet();
-        if (Context.getInstance().getOffliner().needOffline(referCount.get(), failedCount.get())) {
+        Scoring scoring = Context.getInstance().getScoring();
+        while (sucessTimes.decrementAndGet() > 0) {//这个基本不会发生
+            score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
+        }
+        score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), false));
+        score.getFailedCount().incrementAndGet();
+        if (Context.getInstance().getOffliner().needOffline(score)) {
             offline();// 资源下线,下次将不会分配这个IP了
+        } else {
+            domainPool.adjustPriority(this);
         }
     }
 
+    public void adjustPriority() {
+        domainPool.adjustPriority(this);
+    }
+
     public void recordUsage() {
+        while (sucessTimes.decrementAndGet() > 0) {
+            Scoring scoring = Context.getInstance().getScoring();
+            score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
+        }
+        sucessTimes.incrementAndGet();
         lastUsedTime = System.currentTimeMillis();
-        referCount.incrementAndGet();
+        score.getReferCount().incrementAndGet();
     }
 
     public void offline() {
@@ -92,14 +99,6 @@ public class AvProxy {
         return disable;
     }
 
-    public long getAvgScore() {
-        return avgScore;
-    }
-
-    public void setAvgScore(long avgScore) {
-        this.avgScore = avgScore;
-    }
-
     public String getIp() {
         return ip;
     }
@@ -124,14 +123,6 @@ public class AvProxy {
         this.port = port;
     }
 
-    public int getReferCount() {
-        return referCount.get();
-    }
-
-    public int getFailedCount() {
-        return failedCount.get();
-    }
-
     public DomainPool getDomainPool() {
         return domainPool;
     }
@@ -143,13 +134,23 @@ public class AvProxy {
     public AvProxy copy() {
         AvProxy newProxy = new AvProxy();
         newProxy.domainPool = domainPool;
-        newProxy.avgScore = avgScore;
         newProxy.disable = disable;
-        newProxy.failedCount = failedCount;
         newProxy.ip = ip;
         newProxy.isInit = isInit;
         newProxy.port = port;
-        newProxy.referCount = referCount;
+        newProxy.score = score;
         return newProxy;
+    }
+
+    public Score getScore() {
+        return score;
+    }
+
+    public long getFailedCount() {
+        return score.getFailedCount().get();
+    }
+
+    public long getReferCount() {
+        return score.getReferCount().get();
     }
 }
