@@ -112,13 +112,13 @@ public class Collector {
         lastactivity = System.currentTimeMillis();
         lastUrl = urlGenerator.newURL();
         while (ret.size() < batchsize) {
-            if (isFirstRun) {//第一次启动,IP可能没有预热,等待100次重试
+            if (isFirstRun) {// 第一次启动,IP可能没有预热,等待100次重试
                 if (this.failedTimes > 100) {
                     urlGenerator.reset();
                     isFirstRun = false;
                     break;
                 }
-            } else if (this.failedTimes > 20 ) {// 不论如何,连续一定次数失败,重置url生成器
+            } else if (this.failedTimes > 20) {// 不论如何,连续一定次数失败,重置url生成器
                 urlGenerator.reset();
                 break;
             }
@@ -156,6 +156,7 @@ public class Collector {
                     }
                 }
             } catch (Exception e) {// 发生socket异常不切换url
+                logger.error("运行时异常:", e);
                 errorinfo = lastUrl + ":" + e;
                 failedTimes++;
                 if (failedTimes > 5) {
