@@ -76,7 +76,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
 
     private NioSocketChannel serverChannel;
 
-    private SimpleConnectionsPool connectionsPool;
+    private NettyConnectionsPool connectionsPool;
 
     private int readTimeoutMs;
     private int requestTimeoutMs;
@@ -105,7 +105,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
             ResponseListener listener,
             SslContext sslContext,
             Proxy proxyServer,
-            SimpleConnectionsPool connectionsPool,
+            NettyConnectionsPool connectionsPool,
             boolean customAuth,
             boolean retry) {
         this.listener = listener;
@@ -118,7 +118,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
         this.writeBufferHighWaterMark = writeBufferHighWaterMark;
         this.sslContext = sslContext;
         this.proxyServer = proxyServer;
-        this.isHttps = NetworkUtil.isSchemaHttps(request.getUri());
+        this.isHttps = NetworkUtil.isSchemaHttps(request.uri());
         this.connectionsPool = connectionsPool;
         this.listener.setRequestExecutor(this);
         this.timeoutsHolder = new TimeoutsHolder();
@@ -585,7 +585,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
 
     private static final List<Class> handlersToKeepInPool = Lists.<Class>newArrayList(SslHandler.class);
 
-    private void offerChannelToConnectionPool(final Channel channel, final SimpleConnectionsPool connectionsPool) {
+    private void offerChannelToConnectionPool(final Channel channel, final NettyConnectionsPool connectionsPool) {
         // 免费代理不进入连接池, 因为免费代理的连接池策略无法确定
         // 免费代理有可能将当前域名的请求发到上一次请求的域名ip
         // 实际上这个问题可以通过 poolKey = target + proxy 解决(目前是 poolKey = proxy)

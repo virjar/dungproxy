@@ -28,9 +28,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SimpleConnectionsPool {
+public class NettyConnectionsPool {
 
-    private final static Logger log = LoggerFactory.getLogger(SimpleConnectionsPool.class);
+    private final static Logger log = LoggerFactory.getLogger(NettyConnectionsPool.class);
     private final ConcurrentHashMap<String, ConcurrentLinkedQueue<IdleChannel>> connectionsPool = new ConcurrentHashMap<String, ConcurrentLinkedQueue<IdleChannel>>();
     private final ConcurrentHashMap<Channel, IdleChannel> channel2IdleChannel = new ConcurrentHashMap<Channel, IdleChannel>();
     private final ConcurrentHashMap<Channel, Long> channel2CreationDate = new ConcurrentHashMap<Channel, Long>();
@@ -42,8 +42,8 @@ public class SimpleConnectionsPool {
     private final int maxConnectionLifeTimeInMs;
     private final long maxIdleTime;
 
-    public SimpleConnectionsPool(int maxTotalConnections, int maxConnectionPerHost, long maxIdleTime, int maxConnectionLifeTimeInMs, boolean sslConnectionPoolEnabled,
-                                 Timer nettyTimer) {
+    public NettyConnectionsPool(int maxTotalConnections, int maxConnectionPerHost, long maxIdleTime, int maxConnectionLifeTimeInMs, boolean sslConnectionPoolEnabled,
+                                Timer nettyTimer) {
         Preconditions.checkArgument(maxConnectionLifeTimeInMs == -1, "暂不支持控制channel最大存活时间, 只能设置maxConnectionLifeTimeInMs = -1");
         //TODO 目前这个功能在channel被poll走了以后不用offer归还时，会使channel2CreationDate中entry不释放，导致内存泄漏，在需要这个功能时再支持它
         this.maxTotalConnections = maxTotalConnections;
