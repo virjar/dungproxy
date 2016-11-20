@@ -1,27 +1,24 @@
 package com.virjar.dungproxy.server.proxyservice.server;
 
+import static com.virjar.dungproxy.server.proxyservice.common.util.Executors.bossGroup;
+import static com.virjar.dungproxy.server.proxyservice.common.util.Executors.workerGroup;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.virjar.dungproxy.server.proxyservice.client.NettyHttpClient;
+import com.virjar.dungproxy.server.proxyservice.common.util.Executors;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.DispatchHandler;
 import com.virjar.dungproxy.server.proxyservice.handler.DispatchHandlerInitializer;
 import com.virjar.dungproxy.server.utils.SysConfig;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.AdaptiveRecvByteBufAllocator;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.WriteBufferWaterMark;
+import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.virjar.dungproxy.server.proxyservice.common.util.Executors;
-
-import javax.annotation.Resource;
-
-import static com.virjar.dungproxy.server.proxyservice.common.util.Executors.bossGroup;
-import static com.virjar.dungproxy.server.proxyservice.common.util.Executors.workerGroup;
 
 /**
  * Description: DispatchServer
@@ -56,14 +53,20 @@ public class DispatchServer {
 
     public void init() {
         if (!NetworkUtil.isPortAvailable(8081)) {
-            log.error("8081端口号不可用, Netty Server启动失败");
-            return;
+            throw new IllegalStateException("8081端口号不可用, Netty Server启动失败");
         }
-        try {
-            startNettyServer();
-        } catch (InterruptedException e) {
-            log.error(" Netty Server 启动失败, 端口 {}", serverPort, e);
-        }
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    startNettyServer();
+                } catch (InterruptedException e) {
+                    log.error(" Netty Server 启动失败, 端口 {}", serverPort, e);
+                }
+            }
+        }.start();
+
     }
 
     private void startNettyServer() throws InterruptedException {
