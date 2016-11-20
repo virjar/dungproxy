@@ -263,7 +263,7 @@ public class Context {
 
             // offliner
             if (this.offliner == null) {
-                offliner = "com.virjar.dungproxy.client.ippool.strategy.offline.DefaultOffliner";
+                offliner = "com.virjar.dungproxy.client.ippool.strategy.impl.DefaultOffliner";
             }
             context.offliner = ObjectFactory.newInstance(offliner);
 

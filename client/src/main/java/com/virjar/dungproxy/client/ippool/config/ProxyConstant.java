@@ -11,7 +11,7 @@ public class ProxyConstant {
 
     // config 文件默认配置key值
     public static final String RESOURCE_FACADE = "proxyclient.resouce.resourceFacade";
-    public static final String DEFAULT_RESOURCE_FACADE = "com.virjar.dungproxy.client.ippool.strategy.resource.DefaultResourceFacade";
+    public static final String DEFAULT_RESOURCE_FACADE = "com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade";
     public static final String PROXY_DOMAIN_STRATEGY = "proxyclient.proxyDomainStrategy";
     public static final String DEFAULT_DOMAIN_STRATEGY = "WHITE_LIST";
     public static final String BLACK_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.backList";
@@ -22,7 +22,7 @@ public class ProxyConstant {
 
     public static final String configFileName = "proxyclient.properties";
     public static final String PROXY_SERIALIZER = "proxyclient.serialize.serializer";
-    public static final String DEFAULT_PROXY_SERIALIZER = "com.virjar.dungproxy.client.ippool.strategy.serialization.JSONFileAvProxyDumper";
+    public static final String DEFAULT_PROXY_SERIALIZER = "com.virjar.dungproxy.client.ippool.strategy.impl.JSONFileAvProxyDumper";
     public static final String DEFAULT_PROXY_SERALIZER_FILE = "prxyclient.DefaultAvProxyDumper.dumpFileName";
     public static final String DEFAULT_PROXY_SERALIZER_FILE_VALUE = "availableProxy.json";
 

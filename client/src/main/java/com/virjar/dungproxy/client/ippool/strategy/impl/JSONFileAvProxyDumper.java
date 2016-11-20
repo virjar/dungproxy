@@ -74,6 +74,8 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
                 logger.warn("本地代理IP池序列化文件损坏");
                 return ret;
             }
+
+            logger.info("test log");
             for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
                 ret.put(entry.getKey(),
                         Lists.transform(
