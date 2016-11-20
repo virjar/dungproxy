@@ -21,7 +21,6 @@ import static com.virjar.dungproxy.server.proxyservice.common.Constants.CUSTOM_U
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.PROXY_HEADER_SET;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.REQ_TTL_KEY;
 import static com.virjar.dungproxy.server.proxyservice.common.Constants.USE_HTTPS_KEY;
-import static io.netty.handler.codec.http.HttpHeaders.getHost;
 import static io.netty.util.AttributeKey.valueOf;
 
 /**
@@ -73,8 +72,7 @@ public class RequestValidator extends ClientProcessHandler {
     }
 
     private void setHostFromRequest(ChannelHandlerContext ctx, HttpRequest request) {
-        //String host = HttpHeaderNames.HOST.toString();
-        String host = CommonUtil.extractDomain(getHost(request));
+        String host = CommonUtil.extractDomain(request.headers().get(HttpHeaderNames.HOST));
         NetworkUtil.setAttr(ctx.channel(), AttributeKeys.DOMAIN, host);
     }
 

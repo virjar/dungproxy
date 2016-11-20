@@ -1,13 +1,13 @@
 package com.virjar.dungproxy.server.proxyservice.handler;
 
 import com.google.common.base.Charsets;
-import com.virjar.dungproxy.server.proxyservice.client.SimpleHttpClient;
+import com.virjar.dungproxy.server.proxyservice.client.NettyHttpClient;
 import com.virjar.dungproxy.server.proxyservice.common.AttributeKeys;
 import com.virjar.dungproxy.server.proxyservice.common.ProxyResponse;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.checker.ConnectMethodValidator;
 import com.virjar.dungproxy.server.proxyservice.handler.checker.RequestValidator;
-import com.virjar.dungproxy.server.proxyservice.server.ProxySelectorHolder;
+import com.virjar.dungproxy.server.proxyservice.server.ProxySelector;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,8 +16,6 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.netty.util.AttributeKey.valueOf;
 
 /**
  * Description: DispatchHandler
@@ -31,22 +29,20 @@ public class DispatchHandler extends ClientProcessHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DispatchHandler.class);
 
-    private String serverHost;
-    private ProxySelectorHolder proxySelectorHolder;
-    private SimpleHttpClient simpleHttpClient;
+    private ProxySelector proxySelector;
+    private NettyHttpClient nettyHttpClient;
 
-    public DispatchHandler(String serverHost, ProxySelectorHolder proxySelectorHolder, SimpleHttpClient simpleHttpClient) {
-        this.serverHost = serverHost;
-        this.proxySelectorHolder = proxySelectorHolder;
-        this.simpleHttpClient = simpleHttpClient;
+    public DispatchHandler(ProxySelector proxySelector, NettyHttpClient nettyHttpClient) {
+        this.proxySelector = proxySelector;
+        this.nettyHttpClient = nettyHttpClient;
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
             ChannelPipeline pipeline = ctx.pipeline();
-            NetworkUtil.setAttr(ctx.channel(), AttributeKeys.PROXY_SELECTOR_HOLDER, proxySelectorHolder);
-            NetworkUtil.setAttr(ctx.channel(), AttributeKeys.SIMPLE_HTTP_CLIENT, simpleHttpClient);
+            NetworkUtil.setAttr(ctx.channel(), AttributeKeys.PROXY_SELECTOR_HOLDER, proxySelector);
+            NetworkUtil.setAttr(ctx.channel(), AttributeKeys.SIMPLE_HTTP_CLIENT, nettyHttpClient);
             if (msg instanceof FullHttpRequest) {
                 FullHttpRequest request = (FullHttpRequest) msg;
                 if (request.decoderResult().isFailure()) {

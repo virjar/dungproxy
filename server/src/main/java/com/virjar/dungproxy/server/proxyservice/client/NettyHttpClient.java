@@ -4,20 +4,30 @@ import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.proxyservice.client.listener.DefaultRequestExecutor;
 import com.virjar.dungproxy.server.proxyservice.client.listener.RequestExecutorProxy;
 import com.virjar.dungproxy.server.proxyservice.client.listener.ResponseListener;
-import com.virjar.dungproxy.server.proxyservice.client.listener.SimpleConnectionsPool;
+import com.virjar.dungproxy.server.proxyservice.client.listener.NettyConnectionsPool;
 import com.virjar.dungproxy.server.proxyservice.common.util.Executors;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.KeyManagerFactory;
 import java.io.Closeable;
 import java.io.IOException;
+import java.security.KeyStore;
 
 
-public class SimpleHttpClient implements Closeable {
+public class NettyHttpClient implements Closeable {
+
+    private static final Logger log = LoggerFactory.getLogger(NettyHttpClient.class);
 
     private int defaultReadTimeoutMs = 5000;
     private int defaultRequestTimeoutMs = 15000;
@@ -26,9 +36,9 @@ public class SimpleHttpClient implements Closeable {
     private int defaultWriteBufferHighWaterMark = 524288;
     private EventLoopGroup defaultExecutor;
     private SslContext sslContext;
-    private SimpleConnectionsPool connectionsPool;
+    private NettyConnectionsPool connectionsPool;
 
-    public SimpleHttpClient(int readTimeoutMs, int requestTimeoutMs, int connectionTimeoutMs, int writeBufferLowWaterMark, int writeBufferHighWaterMark, SslContext sslContext, NioEventLoopGroup defaultExecutor, SimpleConnectionsPool connectionsPool) {
+    public NettyHttpClient(int readTimeoutMs, int requestTimeoutMs, int connectionTimeoutMs, int writeBufferLowWaterMark, int writeBufferHighWaterMark, SslContext sslContext, NioEventLoopGroup defaultExecutor, NettyConnectionsPool connectionsPool) {
         this.defaultReadTimeoutMs = readTimeoutMs;
         this.defaultRequestTimeoutMs = requestTimeoutMs;
         this.defaultConnectionTimeoutMs = connectionTimeoutMs;
@@ -39,7 +49,7 @@ public class SimpleHttpClient implements Closeable {
         this.defaultExecutor = defaultExecutor;
     }
 
-    public SimpleHttpClient() {
+    public NettyHttpClient() throws Exception {
         //默认配置参数
         this.defaultReadTimeoutMs = 300000;
         this.defaultRequestTimeoutMs = 60000;
@@ -48,7 +58,7 @@ public class SimpleHttpClient implements Closeable {
         this.defaultWriteBufferHighWaterMark = 524288;
         this.sslContext = getSslContext();
         this.defaultExecutor = Executors.workerGroup;
-        this.connectionsPool = new SimpleConnectionsPool(100, 1000, 60000, -1, true, newNettyTimer());
+        this.connectionsPool = new NettyConnectionsPool(100, 1000, 60000, -1, true, newNettyTimer());
     }
 
     private static Timer newNettyTimer() {
@@ -57,8 +67,26 @@ public class SimpleHttpClient implements Closeable {
         return timer;
     }
 
-    private SslContext getSslContext() {
-        return null;
+    private SslContext getSslContext() throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(NettyHttpClient.class.getResourceAsStream("/lingtong.keystore"), "225588".toCharArray());
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore, "225588".toCharArray());
+
+        return buildingSslContext(keyManagerFactory);
+    }
+
+    private SslContext buildingSslContext(KeyManagerFactory keyManagerFactory) throws javax.net.ssl.SSLException {
+        SslContextBuilder sslContextBuilder = SslContextBuilder.forClient()
+                .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                .keyManager(keyManagerFactory);
+        if (!OpenSsl.isAvailable()) {
+            log.info("OpenSSL provider not available, falling back to JDK SSL provider");
+            sslContextBuilder.sslProvider(SslProvider.JDK);
+        } else {
+            sslContextBuilder.sslProvider(SslProvider.OPENSSL);
+        }
+        return sslContextBuilder.build();
     }
 
     public RequestBuilder prepare(
@@ -84,11 +112,11 @@ public class SimpleHttpClient implements Closeable {
         private int connectionTimeoutMs = defaultConnectionTimeoutMs;
         private int writeBufferLowWaterMark = defaultWriteBufferLowWaterMark;
         private int writeBufferHighWaterMark = defaultWriteBufferHighWaterMark;
-        private SimpleConnectionsPool connectionsPool;
+        private NettyConnectionsPool connectionsPool;
         private boolean customAuth = false;
         private boolean retry;
 
-        public RequestBuilder(FullHttpRequest request, ResponseListener listener, Proxy proxyServer, SimpleConnectionsPool connectionsPool) {
+        public RequestBuilder(FullHttpRequest request, ResponseListener listener, Proxy proxyServer, NettyConnectionsPool connectionsPool) {
             this.request = request;
             this.listener = listener;
             this.proxyServer = proxyServer;
@@ -119,7 +147,7 @@ public class SimpleHttpClient implements Closeable {
             this.writeBufferHighWaterMark = writeBufferHighWaterMark;
         }
 
-        public void setConnectionsPool(SimpleConnectionsPool connectionsPool) {
+        public void setConnectionsPool(NettyConnectionsPool connectionsPool) {
             this.connectionsPool = connectionsPool;
         }
 

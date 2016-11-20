@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import com.virjar.dungproxy.server.entity.Proxy;
-import com.virjar.dungproxy.server.proxyservice.client.SimpleHttpClient;
+import com.virjar.dungproxy.server.proxyservice.client.NettyHttpClient;
 import com.virjar.dungproxy.server.proxyservice.client.exception.ServerChannelInactiveException;
 import com.virjar.dungproxy.server.proxyservice.client.exception.ServerChannelNotWritableException;
 import com.virjar.dungproxy.server.proxyservice.client.listener.AbstractResponseListener;
@@ -13,7 +13,7 @@ import com.virjar.dungproxy.server.proxyservice.client.listener.RequestExecutor;
 import com.virjar.dungproxy.server.proxyservice.client.listener.RequestExecutorProxy;
 import com.virjar.dungproxy.server.proxyservice.common.ProxyResponse;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
-import com.virjar.dungproxy.server.proxyservice.server.ProxySelectorHolder;
+import com.virjar.dungproxy.server.proxyservice.server.ProxySelector;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -56,10 +56,10 @@ public class DrungProxyHandler extends EndpointHandler {
     private Proxy proxy;
     private Channel clientChannel;
     private FullHttpRequest request;
-    private SimpleHttpClient proxyClient;
+    private NettyHttpClient proxyClient;
     private AbstractResponseListener listener;
     private RequestExecutorProxy requestExecutor;
-    private ProxySelectorHolder proxySelectorHolder;
+    private ProxySelector proxySelector;
 
 
 
@@ -99,7 +99,7 @@ public class DrungProxyHandler extends EndpointHandler {
         this.channelHex = Integer.toHexString(this.clientChannel.hashCode());
         this.requestTimeout = NetworkUtil.getAttr(clientChannel, REQUEST_TIMEOUT);
         this.domain = NetworkUtil.getAttr(clientChannel, DOMAIN);
-        this.proxySelectorHolder = NetworkUtil.getAttr(clientChannel, PROXY_SELECTOR_HOLDER);
+        this.proxySelector = NetworkUtil.getAttr(clientChannel, PROXY_SELECTOR_HOLDER);
         this.proxyClient = NetworkUtil.getAttr(clientChannel, SIMPLE_HTTP_CLIENT);
     }
 
@@ -109,7 +109,7 @@ public class DrungProxyHandler extends EndpointHandler {
         Preconditions.checkArgument(msg instanceof FullHttpRequest);
         Boolean customUserAgent = NetworkUtil.getAttr(ctx.channel(), CUSTOM_USER_AGENT);
         try {
-            Optional<Proxy> proxyMeta = proxySelectorHolder.selectProxySelector(domain);
+            Optional<Proxy> proxyMeta = proxySelector.selectProxySelector(domain);
             if (proxyMeta.isPresent()) {
                 proxy = proxyMeta.get();
             }
@@ -130,6 +130,7 @@ public class DrungProxyHandler extends EndpointHandler {
             writeFailedResponse("Request Released");
             return;
         }
+        perRequestStart = System.currentTimeMillis();
         listener = getAbstractResponseListener(ctx, customAuth, customUserAgent);
         log.info("START 请求开始");
         if (request.refCnt() <= 0) {
@@ -139,12 +140,12 @@ public class DrungProxyHandler extends EndpointHandler {
         if (!customUserAgent) {
             request.headers().set(HttpHeaderNames.USER_AGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
         }
-        SimpleHttpClient.RequestBuilder builder = getRequestBuilder(customAuth, retry, proxyClient);
+        NettyHttpClient.RequestBuilder builder = getRequestBuilder(customAuth, retry, proxyClient);
         requestExecutor = builder.execute();
     }
 
-    private SimpleHttpClient.RequestBuilder getRequestBuilder(boolean customAuth, boolean retry, SimpleHttpClient proxyClient) {
-        SimpleHttpClient.RequestBuilder builder = proxyClient.prepare(request, listener, proxy);
+    private NettyHttpClient.RequestBuilder getRequestBuilder(boolean customAuth, boolean retry, NettyHttpClient proxyClient) {
+        NettyHttpClient.RequestBuilder builder = proxyClient.prepare(request, listener, proxy);
 
         int minus = (int) (System.currentTimeMillis() - totalRequestStart);
         if (minus < 0) {
@@ -188,12 +189,12 @@ public class DrungProxyHandler extends EndpointHandler {
                     sb.append(" |");
                 }
                 if (requestSentTime > 0) {
+                    sb.append(" request sent time:");
                     if (handShakeSuccTime > 0) {
                         sb.append(requestSentTime - handShakeSuccTime);
                     } else {
                         sb.append(requestSentTime - connectCompletedTime);
                     }
-                    sb.append(" request sent time:");
                     sb.append(" |");
                 }
                 if (headerReceivedTime > 0) {
@@ -208,7 +209,6 @@ public class DrungProxyHandler extends EndpointHandler {
                 sb.append(" |");
                 sb.append(" request total time:");
                 sb.append(sysTime - totalRequestStart);
-                sb.append(" |");
                 return sb.toString();
             }
 

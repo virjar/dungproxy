@@ -7,6 +7,7 @@ import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.proxyservice.client.decoder.HttpHeaderDecoder;
 import com.virjar.dungproxy.server.proxyservice.client.exception.ServerChannelInactiveException;
 import com.virjar.dungproxy.server.proxyservice.client.exception.ServerChannelNotWritableException;
+import com.virjar.dungproxy.server.proxyservice.common.AttributeKeys;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.ExceptionCaughtHandler;
 import com.virjar.dungproxy.server.proxyservice.handler.SocksInitResponseHandler;
@@ -63,8 +64,6 @@ public class DefaultRequestExecutor implements RequestExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultRequestExecutor.class);
 
-    public final static AttributeKey<Boolean> KEEP_ALIVE = AttributeKey.valueOf("keep-alive");
-
     private static final HashedWheelTimer timeoutManager = new HashedWheelTimer(new ThreadFactoryBuilder().setNameFormat("RE-timeout-%s").build());
 
     private static final long HAND_SHAKE_TIMEOUT = 20000;
@@ -77,7 +76,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
 
     private NioSocketChannel serverChannel;
 
-    private SimpleConnectionsPool connectionsPool;
+    private NettyConnectionsPool connectionsPool;
 
     private int readTimeoutMs;
     private int requestTimeoutMs;
@@ -106,7 +105,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
             ResponseListener listener,
             SslContext sslContext,
             Proxy proxyServer,
-            SimpleConnectionsPool connectionsPool,
+            NettyConnectionsPool connectionsPool,
             boolean customAuth,
             boolean retry) {
         this.listener = listener;
@@ -119,7 +118,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
         this.writeBufferHighWaterMark = writeBufferHighWaterMark;
         this.sslContext = sslContext;
         this.proxyServer = proxyServer;
-        this.isHttps = NetworkUtil.isSchemaHttps(request.getUri());
+        this.isHttps = NetworkUtil.isSchemaHttps(request.uri());
         this.connectionsPool = connectionsPool;
         this.listener.setRequestExecutor(this);
         this.timeoutsHolder = new TimeoutsHolder();
@@ -152,8 +151,8 @@ public class DefaultRequestExecutor implements RequestExecutor {
     private class TimeoutsHolder {
 
         private final AtomicBoolean cancelled = new AtomicBoolean();
-        public Timeout idleTimeout;
-        public Timeout requestTimeout;
+        private Timeout idleTimeout;
+        private Timeout requestTimeout;
 
         public void cancel() {
             if (cancelled.compareAndSet(false, true)) {
@@ -214,8 +213,17 @@ public class DefaultRequestExecutor implements RequestExecutor {
         log.debug("Starting to execute request [{}] through proxy [{}:{}]", request, proxyHost, proxyPort);
 
         // Use no cache
+        final boolean isSocks = (proxyServer.getType() == 4);
+        Bootstrap bootstrap = builderBootstrap(isSocks);
+        if (isSocks) {
+            socksConnect(proxyHost, proxyPort, bootstrap);
+        } else {
+            normalConnect(proxyHost, proxyPort, bootstrap);
+        }
+    }
+
+    private Bootstrap builderBootstrap(final boolean isSocks) {
         Bootstrap bootstrap = new Bootstrap();
-        final boolean isSocks = proxyServer.getType() == 4;
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
                 //禁用nagle算法
@@ -238,18 +246,27 @@ public class DefaultRequestExecutor implements RequestExecutor {
                         }
                     }
                 });
-        if (isSocks) {
-            bootstrap.connect(proxyHost, proxyPort).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    // 暂时不使用连接池
+        return bootstrap;
+    }
+
+    private void normalConnect(final String proxyHost, final int proxyPort, Bootstrap bootstrap) {
+        bootstrap.connect(proxyHost, proxyPort).addListener(new ChannelFutureListener() {
+
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                try {
                     ResponseListener.Result result = new ResponseListener.Result(future.isSuccess(), future.cause());
                     result.setAttr(Boolean.FALSE);
                     if (listener.onConnectCompleted(result).equals(ResponseListener.State.CONTINUE)) {
-                        future.channel().config().setAutoRead(true);
-                        future.channel().writeAndFlush(new SocksInitRequest(Lists.newArrayList(SocksAuthScheme.NO_AUTH)));
                         createTimeoutTask();
-                        setServerChannel((NioSocketChannel) future.channel());
+                        log.debug("Connection to proxy [{}:{}] established", proxyHost, proxyPort);
+                        NioSocketChannel serverChannelToSet = (NioSocketChannel) future.channel();
+                        Optional<String> poolKey = buildPoolKey(proxyHost, proxyPort);
+                        if (poolKey.isPresent()) {
+                            serverChannelToSet.attr(CONNECTION_POOL_KEY).set(poolKey.get());
+                        }
+                        setServerChannel(serverChannelToSet);
+                        sendRequest(request, isHttps);
                     } else {
                         Channel channel = future.channel();
                         //不关可能会导致连接泄漏
@@ -257,54 +274,59 @@ public class DefaultRequestExecutor implements RequestExecutor {
                             channel.close();
                         }
                     }
+                } catch (Exception e) {
+                    // FIXME 这里有 NullPointer,可能是并发问题, catalina.out有记录.
+                    log.error("strange exception", e);
+                    throw e;
                 }
-            });
-        } else {
-            bootstrap.connect(proxyHost, proxyPort).addListener(new ChannelFutureListener() {
+            }
+        });
+    }
 
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    try {
-                        ResponseListener.Result result = new ResponseListener.Result(future.isSuccess(), future.cause());
-                        result.setAttr(Boolean.FALSE);
-                        if (listener.onConnectCompleted(result).equals(ResponseListener.State.CONTINUE)) {
-                            createTimeoutTask();
-                            log.debug("Connection to proxy [{}:{}] established", proxyHost, proxyPort);
-                            NioSocketChannel serverChannelToSet = (NioSocketChannel) future.channel();
-                            Optional<String> poolKey = buildPoolKey(proxyHost, proxyPort);
-                            if (poolKey.isPresent()) {
-                                serverChannelToSet.attr(CONNECTION_POOL_KEY).set(poolKey.get());
-                            }
-                            setServerChannel(serverChannelToSet);
-                            sendRequest(request, isHttps);
-                        } else {
-                            Channel channel = future.channel();
-                            //不关可能会导致连接泄漏
-                            if (channel != null && channel.isActive()) {
-                                channel.close();
-                            }
-                        }
-                    } catch (Exception e) {
-                        // FIXME 这里有 NullPointer,可能是并发问题, catalina.out有记录.
-                        log.error("strange exception", e);
-                        throw e;
+    private void socksConnect(String proxyHost, int proxyPort, Bootstrap bootstrap) {
+        bootstrap.connect(proxyHost, proxyPort).addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                // 暂时不使用连接池
+                ResponseListener.Result result = new ResponseListener.Result(future.isSuccess(), future.cause());
+                result.setAttr(Boolean.FALSE);
+                if (listener.onConnectCompleted(result).equals(ResponseListener.State.CONTINUE)) {
+                    future.channel().config().setAutoRead(true);
+                    future.channel().writeAndFlush(new SocksInitRequest(Lists.newArrayList(SocksAuthScheme.NO_AUTH)));
+                    createTimeoutTask();
+                    setServerChannel((NioSocketChannel) future.channel());
+                } else {
+                    Channel channel = future.channel();
+                    //不关可能会导致连接泄漏
+                    if (channel != null && channel.isActive()) {
+                        channel.close();
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     private void addHandlersForHttpProxy(ChannelPipeline pipeline) {
         if (isHttps) {
-            pipeline.addLast(
-                    // new LoggingHandler(),
-                    new HttpClientCodec(),
-                    new HttpObjectAggregator(1024 * 1024),
-                    new ConnectFinishHandler()
-            );
+            addHandlersForHttpsRequests(pipeline);
         } else {
             addHandlersForHttpRequests(pipeline);
         }
+    }
+
+    private void addHandlersForHttpsRequests(ChannelPipeline pipeline) {
+        pipeline.addLast(
+                new HttpClientCodec(),
+                new HttpObjectAggregator(1024 * 1024),
+                new ConnectFinishHandler()
+        );
+    }
+
+    private void addHandlersForHttpRequests(ChannelPipeline pipeline) {
+        pipeline.addLast(
+                new HttpRequestEncoder(),
+                new HttpHeaderDecoder(4096, 4096 * 4, listener, retry, proxyServer)
+        );
     }
 
     public void continueRequestAfterSocksInit(Channel channel) {
@@ -339,12 +361,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
 
     }
 
-    private void addHandlersForHttpRequests(ChannelPipeline pipeline) {
-        pipeline.addLast(
-                new HttpRequestEncoder(),
-                new HttpHeaderDecoder(4096, 4096 * 4, listener, retry, proxyServer)
-        );
-    }
+
 
     private boolean tryToUseCachedConnection(String proxyHost, int proxyPort) {
         if (connectionsPool == null)  {
@@ -568,7 +585,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
 
     private static final List<Class> handlersToKeepInPool = Lists.<Class>newArrayList(SslHandler.class);
 
-    private void offerChannelToConnectionPool(final Channel channel, final SimpleConnectionsPool connectionsPool) {
+    private void offerChannelToConnectionPool(final Channel channel, final NettyConnectionsPool connectionsPool) {
         // 免费代理不进入连接池, 因为免费代理的连接池策略无法确定
         // 免费代理有可能将当前域名的请求发到上一次请求的域名ip
         // 实际上这个问题可以通过 poolKey = target + proxy 解决(目前是 poolKey = proxy)
@@ -593,7 +610,7 @@ public class DefaultRequestExecutor implements RequestExecutor {
     }
 
     public static boolean shouldChannelBeKept(Channel channel) {
-        Boolean keepAlive = channel.attr(KEEP_ALIVE).get();
+        Boolean keepAlive = channel.attr(AttributeKeys.KEEP_ALIVE).get();
         return keepAlive != null && keepAlive;
     }
 

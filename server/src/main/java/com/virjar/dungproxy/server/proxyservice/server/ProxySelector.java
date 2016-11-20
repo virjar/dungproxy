@@ -20,9 +20,9 @@ import java.util.List;
  * @author lingtong.fu
  * @version 2016-11-11 14:56
  */
-public class ProxySelectorHolder {
+public class ProxySelector {
 
-    private static final Logger log = LoggerFactory.getLogger(ProxySelectorHolder.class);
+    private static final Logger log = LoggerFactory.getLogger(ProxySelector.class);
 
     @Resource
     private DomainIpRepository domainIpRepository;
@@ -30,7 +30,7 @@ public class ProxySelectorHolder {
     @Resource
     private ProxyRepository proxyRepository;
 
-    public ProxySelectorHolder() {
+    public ProxySelector() {
     }
 
     public Optional<Proxy> selectProxySelector(String domain) {

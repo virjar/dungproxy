@@ -1,6 +1,6 @@
 package com.virjar.dungproxy.server.proxyservice.server;
 
-import com.virjar.dungproxy.server.proxyservice.client.SimpleHttpClient;
+import com.virjar.dungproxy.server.proxyservice.client.NettyHttpClient;
 import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.proxyservice.handler.DispatchHandler;
 import com.virjar.dungproxy.server.proxyservice.handler.DispatchHandlerInitializer;
@@ -39,15 +39,19 @@ public class DispatchServer {
 
     private NioServerSocketChannel ch;
 
-    private SimpleHttpClient simpleHttpClient;
+    private NettyHttpClient nettyHttpClient;
 
     @Resource
-    private ProxySelectorHolder proxySelectorHolder;
+    private ProxySelector proxySelector;
 
     public DispatchServer(int serverPort, String serverHost) {
         this.serverPort = serverPort;
         this.serverHost = serverHost;
-        this.simpleHttpClient = new SimpleHttpClient();
+        try {
+            this.nettyHttpClient = new NettyHttpClient();
+        } catch (Exception e) {
+            log.error("Create nettyHttpClient error.", e);
+        }
     }
 
     public void init() {
@@ -81,7 +85,7 @@ public class DispatchServer {
                                 SysConfig.getInstance().getClientReadTimeoutSeconds(),
                                 SysConfig.getInstance().getClientWriteTimeoutSeconds(),
                                 SysConfig.getInstance().getClientAllTimeoutSeconds(),
-                                new DispatchHandler(serverHost, proxySelectorHolder, simpleHttpClient))
+                                new DispatchHandler(proxySelector, nettyHttpClient))
                 );
 
         ch = (NioServerSocketChannel) b.bind(serverPort).addListener(new ChannelFutureListener() {
