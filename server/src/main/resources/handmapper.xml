@@ -176,7 +176,7 @@
         <website>http://www.cz88.net/proxy/</website>
         <fetcher>/fetcher/www_cz88_net.xml</fetcher>
         <hierate>24h</hierate>
-        <classgenerator>com.mantou.proxyservice.collection.generator.ChunZhenGenerator
+        <classgenerator>com.virjar.dungproxy.server.crawler.ChunZhenGenerator
         </classgenerator>
         <batchsize>1100</batchsize>
         <enable>true</enable>
@@ -235,7 +235,7 @@
     <maper>
         <website>http://www.mrhinkydink.com/proxies.htm</website>
         <fetcher>/fetcher/www_mrhinkydink_com.xml</fetcher>
-        <classgenerator>com.mantou.proxyservice.collection.generator.MrhinkydinkGenerator
+        <classgenerator>com.virjar.dungproxy.server.crawler.MrhinkydinkGenerator
         </classgenerator>
         <batchsize>500</batchsize>
         <hierate>1h</hierate>
