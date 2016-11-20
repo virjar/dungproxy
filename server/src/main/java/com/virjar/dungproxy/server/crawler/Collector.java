@@ -118,8 +118,11 @@ public class Collector {
                     isFirstRun = false;
                     break;
                 }
-            } else if (this.failedTimes > 20) {// 不论如何,连续一定次数失败,重置url生成器
+            } else if (this.failedTimes > 20 ) {// 不论如何,连续一定次数失败,重置url生成器
                 urlGenerator.reset();
+                break;
+            }
+            if (failedTimes > 20) {
                 break;
             }
             try {
@@ -128,9 +131,6 @@ public class Collector {
                 if (StringUtils.isEmpty(response)) {
                     PoolUtil.recordFailed(httpClientContext);
                     failedTimes++;
-                    if (failedTimes > 5) {
-                        break;
-                    }
                 }
                 if (StringUtils.isNotEmpty(response)) {
                     List<Proxy> fetchResult = convert(fetcher.fetch(response), lastUrl);
