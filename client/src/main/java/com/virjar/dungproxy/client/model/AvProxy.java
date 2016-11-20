@@ -44,17 +44,20 @@ public class AvProxy {
 
     public void recordFailed() {
         Scoring scoring = Context.getInstance().getScoring();
-        while (sucessTimes.getAndDecrement() > 0) {// 这个基本不会发生
-            score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
+        if (sucessTimes.get() > 1) {
+            while (sucessTimes.getAndDecrement() > 1) {
+                score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
+            }
         }
+        sucessTimes.set(0);
         score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), false));
         score.getFailedCount().incrementAndGet();
         if (Context.getInstance().getOffliner().needOffline(score)) {
             offline();// 资源下线,下次将不会分配这个IP了
         } else {
-                if(domainPool == null){
-                    JSONObject.toJSONString(this);
-                }
+            if (domainPool == null) {
+                JSONObject.toJSONString(this);
+            }
             domainPool.adjustPriority(this);
         }
     }
@@ -64,11 +67,13 @@ public class AvProxy {
     }
 
     public void recordUsage() {
-        while (sucessTimes.getAndDecrement() > 0) {
-            Scoring scoring = Context.getInstance().getScoring();
-            score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
-        }
         sucessTimes.incrementAndGet();
+        if (sucessTimes.get() > 1) {
+            while (sucessTimes.getAndDecrement() > 1) {
+                Scoring scoring = Context.getInstance().getScoring();
+                score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
+            }
+        }
         lastUsedTime = System.currentTimeMillis();
         score.getReferCount().incrementAndGet();
     }

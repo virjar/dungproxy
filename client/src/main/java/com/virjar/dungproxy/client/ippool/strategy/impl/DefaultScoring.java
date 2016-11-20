@@ -14,13 +14,13 @@ public class DefaultScoring implements Scoring {
 
     @Override
     public double newAvgScore(Score score, int factory, boolean isSuccess) {
-       // logger.info("old Score:{}  factory:{} isSuccess:{}", score.getAvgScore(), factory,isSuccess);
+        logger.info("old Score:{}  factory:{} isSuccess:{}", score.getAvgScore(), factory,isSuccess);
         if (score.getAvgScore() == 0D && isSuccess) {
             return 1D;
         }
         double newScore = isSuccess ? 1D : 0D;
         double ret = (score.getAvgScore() * (factory - 1) + newScore) / factory;
-        //logger.info("newScore :{}", ret);
+        logger.info("newScore :{}", ret);
         return ret;
     }
 }
