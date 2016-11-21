@@ -152,6 +152,7 @@ public class DomainPool {
             PreHeater preHeater = Context.getInstance().getPreHeater();
             for (AvProxy avProxy : avProxies) {
                 if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
+                    avProxy.getScore().setAvgScore(0.5);//设置默认值。让他处于次级缓存的中间。
                     passedProxy.add(avProxy);
                 }
             }
