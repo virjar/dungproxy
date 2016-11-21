@@ -30,26 +30,17 @@ public class SmartProxyQueue {
     }
 
     /**
-     * 一般用在初始化的时候,
-     *
-     * @param avProxy
-     */
-    public void addProxy(AvProxy avProxy) {
-        synchronized (mutex) {
-            proxies.addFirst(avProxy);
-            consistentBuckets.put(avProxy.hashCode(), avProxy);
-        }
-    }
-
-    /**
      * 一般用在初始化的时候,向容器中增加代理
      *
      * @param avProxies
      */
     public void addAllProxy(Collection<AvProxy> avProxies) {
         synchronized (mutex) {
-            proxies.addAll(avProxies);
             for (AvProxy avProxy : avProxies) {
+                if(consistentBuckets.containsKey(avProxies.hashCode())){
+                    continue;
+                }
+                proxies.addLast(avProxy);//新加入资源,需要放置到
                 consistentBuckets.put(avProxy.hashCode(), avProxy);
             }
         }
@@ -58,6 +49,9 @@ public class SmartProxyQueue {
     public void addWithScore(AvProxy avProxy) {
         checkScore(avProxy.getScore().getAvgScore());
         synchronized (mutex) {
+            if(consistentBuckets.containsKey(avProxy.hashCode())){
+                return;
+            }
             int index = (int) (proxies.size() * (ratio + (1 - ratio) * avProxy.getScore().getAvgScore()));
             proxies.add(index, avProxy);
             consistentBuckets.put(avProxy.hashCode(), avProxy);
@@ -78,7 +72,7 @@ public class SmartProxyQueue {
     }
 
     public void adjustPriority(AvProxy avProxy) {
-        if (consistentBuckets.containsKey(avProxy.hashCode())) {// 如果已经下线,则不进行优先级调整动作
+        if (!consistentBuckets.containsKey(avProxy.hashCode())) {// 如果已经下线,则不进行优先级调整动作
             return;
         }
         synchronized (mutex) {
@@ -100,8 +94,7 @@ public class SmartProxyQueue {
         synchronized (mutex) {
             AvProxy last = proxies.getLast();
             while (last != null && last.getScore().getAvgScore() < score) {
-                proxies.removeLast();
-                consistentBuckets.remove(last.hashCode());
+                last.offline();
                 last = proxies.getLast();
             }
         }
@@ -114,7 +107,7 @@ public class SmartProxyQueue {
     }
 
     public Iterator<? extends AvProxy> values() {
-        return proxies.iterator();
+        return proxies.iterator();//保证顺序
     }
 
     public int size() {
@@ -129,12 +122,6 @@ public class SmartProxyQueue {
         return (tmap.isEmpty()) ? consistentBuckets.firstEntry().getValue() : tmap.get(tmap.firstKey());
     }
 
-    public void remove(AvProxy avProxy) {
-        synchronized (mutex) {
-            proxies.remove(avProxy);
-            consistentBuckets.remove(avProxy.hashCode());
-        }
-    }
 
     // 数据结构需要改造这个东西。。。我们需要一个高度灵活的优先级队列。但是不保证公平的优先级和绝对优先级。
     // ConcurrentLinkedQueue只是一个队列的时候。不能做到在队列中间插入数据z

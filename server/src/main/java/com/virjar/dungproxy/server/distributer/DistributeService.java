@@ -6,7 +6,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import com.virjar.dungproxy.client.util.CommonUtil;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -16,10 +15,11 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.server.core.beanmapper.BeanMapper;
 import com.virjar.dungproxy.server.entity.DomainIp;
 import com.virjar.dungproxy.server.entity.Proxy;
-import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.server.model.DomainIpModel;
 import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.repository.DomainIpRepository;
@@ -142,7 +142,7 @@ public class DistributeService {
             return Lists.newArrayList();
         }
         List<DomainIp> domainIps = domainIpRepository.selectAvailable(domain, new PageRequest(0, Integer.MAX_VALUE));
-        if (StringUtils.isNotEmpty(checkUrl)) {
+        if (StringUtils.isNotEmpty(checkUrl)) {// 当前url正在使用,属于活跃域名,所以发送到检查模块,没有毛病
             DomainTestTask.sendDomainTask(checkUrl);
         }
         return domainIps;

@@ -179,7 +179,7 @@ public class DomainPool {
     }
 
     public void offline(AvProxy avProxy) {
-        smartProxyQueue.remove(avProxy);
+        smartProxyQueue.offline(avProxy);
         removedProxies.add(avProxy);
         if (avProxy.getReferCount() != 0) {
             logger.warn("IP offline {}", JSONObject.toJSONString(avProxy));
