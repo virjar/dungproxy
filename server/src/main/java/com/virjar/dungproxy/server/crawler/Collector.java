@@ -115,11 +115,13 @@ public class Collector {
             if (isFirstRun) {// 第一次启动,IP可能没有预热,等待100次重试
                 if (this.failedTimes > 100) {
                     urlGenerator.reset();
+                    this.failedTimes = 0;
                     isFirstRun = false;
                     break;
                 }
             } else if (this.failedTimes > 20) {// 不论如何,连续一定次数失败,重置url生成器
                 urlGenerator.reset();
+                this.failedTimes =0;//需要同时重置失败记录
                 break;
             }
             if (failedTimes > 20) {
@@ -142,6 +144,7 @@ public class Collector {
                         } else {
                             if (failedTimes > 5) {
                                 urlGenerator.reset();
+                                this.failedTimes =0;
                                 break;
                             }
                         }
