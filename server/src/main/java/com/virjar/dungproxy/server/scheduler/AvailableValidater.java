@@ -32,7 +32,7 @@ public class AvailableValidater implements InitializingBean, Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(AvailableValidater.class);
 
-    private ExecutorService pool = null;
+    private ThreadPoolExecutor pool = null;
 
     private volatile boolean isRunning = false;
 
@@ -66,6 +66,10 @@ public class AvailableValidater implements InitializingBean, Runnable {
         logger.info("AvailableValidater start");
         while (isRunning) {
             try {
+                if (pool.getActiveCount() >= pool.getCorePoolSize()) {//线程池都在执行任务,那么不产生任务,否则添加新任务
+                    Thread.sleep(1000);
+                    continue;
+                }
                 List<ProxyModel> needupdate = proxyService.find4availableupdate();
                 // logger.info("待跟新可用性资源数目:{},资源:{}", needupdate.size(), JSONObject.toJSON(needupdate));
                 if (needupdate.size() == 0) {
@@ -73,12 +77,10 @@ public class AvailableValidater implements InitializingBean, Runnable {
                     CommonUtil.sleep(1 << 19);
                     continue;
                 }
-                List<Future<Integer>> futures = Lists.newArrayList();
                 for (ProxyModel proxy : needupdate) {
                     ProxyAvailableTester proxyAvailableTester = new ProxyAvailableTester(proxy);
-                    futures.add(pool.submit(proxyAvailableTester));
+                    pool.submit(proxyAvailableTester);
                 }
-                CommonUtil.waitAllFutures(futures);
             } catch (Exception e) {
                 // do nothing
                 logger.error("error when check available", e);

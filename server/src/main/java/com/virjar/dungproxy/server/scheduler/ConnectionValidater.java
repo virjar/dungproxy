@@ -4,7 +4,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -15,8 +18,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Lists;
-import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.service.ProxyService;
 import com.virjar.dungproxy.server.utils.NameThreadFactory;
@@ -31,7 +32,7 @@ public class ConnectionValidater implements Runnable, InitializingBean {
 
     private boolean isRunning = false;
 
-    private ExecutorService pool = null;
+    private ThreadPoolExecutor pool = null;
 
     private Logger logger = LoggerFactory.getLogger(ConnectionValidater.class);
 
@@ -55,23 +56,26 @@ public class ConnectionValidater implements Runnable, InitializingBean {
     }
 
     public void run() {
-        long totalWaitTime = 100 * 60 * 1000;
         logger.info("Component start");
-
         while (isRunning) {
             try {
+                if (pool.getActiveCount() >= pool.getCorePoolSize()) {//线程池都在执行任务,那么不产生任务,否则添加新任务
+                    Thread.sleep(1000);
+                    continue;
+                }
                 // logger.info("begin connection check");
                 List<ProxyModel> needupdate = proxyService.find4connectionupdate();
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
                     return;
                 }
-                List<Future<Object>> futures = Lists.newArrayList();
+                // List<Future<Object>> futures = Lists.newArrayList();
                 for (ProxyModel proxy : needupdate) {
-                    futures.add(pool.submit(new ProxyTester(proxy)));
+                    pool.submit(new ProxyTester(proxy));
+                    // futures.add();
                 }
-                CommonUtil.waitAllFutures(futures);
-                Thread.sleep(9000);// 等待9秒钟,用于系统释放套接字资源
+                // CommonUtil.waitAllFutures(futures);
+
             } catch (Exception e) {
                 logger.error("error when check connection ", e);
             }
