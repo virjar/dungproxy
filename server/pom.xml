@@ -549,6 +549,12 @@
                 <deploy.type>skyee</deploy.type>
             </properties>
         </profile>
+        <profile>
+            <id>skye</id>
+            <properties>
+                <deploy.type>skye</deploy.type>
+            </properties>
+        </profile>
     </profiles>
     <build>
         <finalName>proxyipcenter</finalName>
