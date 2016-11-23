@@ -594,11 +594,6 @@
     </build>
     <repositories>
         <repository>
-            <id>aliyun</id>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
-            <name>aliyun</name>
-        </repository>
-        <repository>
             <id>people.apache.snapshots</id>
             <url>http://repository.apache.org/content/groups/snapshots-group/</url>
             <releases>

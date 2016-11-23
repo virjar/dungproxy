@@ -11,4 +11,11 @@
         <module>server</module>
         <module>client</module>
     </modules>
+    <repositories>
+        <repository>
+            <id>aliyun</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <name>aliyun</name>
+        </repository>
+    </repositories>
 </project>
