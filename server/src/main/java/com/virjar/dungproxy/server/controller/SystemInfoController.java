@@ -16,7 +16,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.virjar.dungproxy.server.core.rest.ResponseEnvelope;
 import com.virjar.dungproxy.server.core.utils.ReturnUtil;
-import com.virjar.dungproxy.server.crawler.Collector;
+import com.virjar.dungproxy.server.crawler.NewCollector;
 import com.virjar.dungproxy.server.scheduler.CollectorTask;
 import com.virjar.dungproxy.server.scheduler.NonePortResourceTester;
 
@@ -37,21 +37,20 @@ public class SystemInfoController {
 
     @RequestMapping(value = "/static", method = RequestMethod.GET)
     @ResponseBody
-    public String avaiable() {
+    public String available() {
         JSONArray jsonArray = new JSONArray();
-        List<Collector> collecters = CollectorTask.getCollectors();
+        List<NewCollector> collecters = CollectorTask.getCollectors();
         if (collecters == null) {
             logger.info("server not start to collect proxy resource");
             return jsonArray.toJSONString();
         }
-        for (Collector collecter : collecters) {
+        for (NewCollector collecter : collecters) {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("batchSize", collecter.getBatchsize());
-            jsonObject.put("lastUrl", collecter.getLastUrl());
-            jsonObject.put("collectNumber", collecter.getGetnumber());
-            jsonObject.put("hibtate", collecter.getHibrate());
-            jsonObject.put("website", collecter.getWebsite());
-            jsonObject.put("errorinfo", collecter.getErrorinfo());
+            jsonObject.put("batchSize", collecter.getBatchSize());
+            jsonObject.put("lastUrl", collecter.lasUrl());
+            jsonObject.put("collectNumber", collecter.getCollectedNumber());
+            jsonObject.put("hibtate", collecter.getDuration());
+            jsonObject.put("errorinfo", collecter.getErrorInfo());
             jsonArray.add(jsonObject);
         }
         return jsonArray.toJSONString();

@@ -8,14 +8,17 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.server.core.beanmapper.BeanMapper;
-import com.virjar.dungproxy.server.crawler.Collector;
+import com.virjar.dungproxy.server.crawler.NewCollector;
+import com.virjar.dungproxy.server.crawler.TemplateBuilder;
 import com.virjar.dungproxy.server.entity.Proxy;
 import com.virjar.dungproxy.server.model.ProxyModel;
 import com.virjar.dungproxy.server.service.ProxyService;
@@ -24,7 +27,7 @@ import com.virjar.dungproxy.server.utils.ResourceFilter;
 import com.virjar.dungproxy.server.utils.SysConfig;
 
 @Component
-public class CollectorTask implements Runnable, InitializingBean {
+public class CollectorTask implements Runnable, InitializingBean, ApplicationContextAware {
 
     @Resource
     private ProxyService proxyService;
@@ -40,21 +43,11 @@ public class CollectorTask implements Runnable, InitializingBean {
     // 从而阻塞主线程任务产生逻辑
     private ExecutorService pool = null;
 
-    public static List<Collector> getCollectors() {
-        return collectors;
+    public static List<NewCollector> getCollectors() {
+        return newCollectors;
     }
 
-    static List<Collector> collectors = null;
-    static {
-        try {
-            logger.info("start Collector");
-            collectors = Collector.buildfromSource("/handmapper.xml");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Map<Collector, Long> sleepTimeStamp = Maps.newHashMap();
+    static List<NewCollector> newCollectors = Lists.newArrayList();
 
     @Override
     public void run() {
@@ -62,7 +55,7 @@ public class CollectorTask implements Runnable, InitializingBean {
         while (isRunning) {
             try {
                 List<Future<Object>> futures = Lists.newArrayList();
-                for (Collector collector : collectors) {
+                for (NewCollector collector : newCollectors) {
                     futures.add(pool.submit(new WebsiteCollect(collector)));
                 }
                 CommonUtil.waitAllFutures(futures);
@@ -80,6 +73,7 @@ public class CollectorTask implements Runnable, InitializingBean {
             logger.info("collector task is not running");
             return;
         }
+
         pool = new ThreadPoolExecutor(SysConfig.getInstance().getIpCrawlerThread(),
                 SysConfig.getInstance().getIpCrawlerThread(), 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new NameThreadFactory("collector"),
@@ -89,15 +83,23 @@ public class CollectorTask implements Runnable, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        init();
+        // init();
 
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        Map<String, NewCollector> collectorMap = applicationContext.getBeansOfType(NewCollector.class);
+        newCollectors.addAll(collectorMap.values());// 由spring管理的收集器
+        newCollectors.addAll(TemplateBuilder.buildfromSource(null));// 模版类型的收集器
+        init();
     }
 
     private class WebsiteCollect implements Callable<Object> {
 
-        private Collector collector;
+        private NewCollector collector;
 
-        public WebsiteCollect(Collector collector) {
+        public WebsiteCollect(NewCollector collector) {
             super();
             this.collector = collector;
 
@@ -106,7 +108,6 @@ public class CollectorTask implements Runnable, InitializingBean {
         @Override
         public Object call() throws Exception {
             List<Proxy> draftproxys = collector.newProxy();
-            // logger.info("收集到的新资源:{}", JSON.toJSONString(draftproxys));
             ResourceFilter.filter(draftproxys);
             proxyService.save(beanMapper.mapAsList(draftproxys, ProxyModel.class));
             return this;

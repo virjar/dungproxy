@@ -1,1 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<fetch verson="1.0">
+    <property name="res" xpath="//tbody//tr" fetch="true">
+        <property name="ip" xpath="/td[2]/span"
+                  classfetcher="com.virjar.dungproxy.server.crawler.extractor.classfetcher.HideMyassFetcher"/>
+        <property name="port" xpath="/td[3]/text()" regex="(\d+)" require="true"/>
+    </property>
+</fetch>

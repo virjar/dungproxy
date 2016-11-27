@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<handmapers>
+    <maper>
+        <website>http://ip.qiaodm.com/</website>
+        <fetcher>/fetcher/ip_qiaodm_com.xml</fetcher>
+        <hierate>2m</hierate>
+        <batchsize>5</batchsize>
+        <wildcardgenerator>http://ip.qiaodm.com/</wildcardgenerator>
+        <enable>true</enable>
+    </maper>
+</handmapers>

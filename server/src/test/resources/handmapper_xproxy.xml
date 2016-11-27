@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<handmapers>
+    <maper>
+        <website>http://www.xroxy.com/proxylist.htm</website>
+        <fetcher>/fetcher/www_xroxy_com.xml</fetcher>
+        <wildcardgenerator>
+            <![CDATA[
+        http://www.xroxy.com/proxylist.php?port=&type=&ssl=&country=&latency=&reliability=&sort=reliability&desc=true&pnum=#{autoincreament}#table
+        ]]>
+        </wildcardgenerator>
+        <enable>true</enable>
+        <successKey>Open Proxy List sorted by reliability column</successKey>
+    </maper>
+</handmapers>

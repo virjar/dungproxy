@@ -1,4 +1,6 @@
-package com.virjar.dungproxy.server.crawler;
+package com.virjar.dungproxy.server.crawler.urlgenerator;
+
+import com.virjar.dungproxy.server.crawler.URLGenerator;
 
 public class ChunZhenGenerator extends URLGenerator {
 

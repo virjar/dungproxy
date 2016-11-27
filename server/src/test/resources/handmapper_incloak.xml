@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<handmapers>
+    <maper>
+        <website>https://incloak.com/proxy-list/</website>
+        <fetcher>/fetcher/incloak_com.xml</fetcher>
+        <classgenerator>com.virjar.dungproxy.server.crawler.urlgenerator.IncloakGenerator</classgenerator>
+        <enable>true</enable>
+        <successKey>Proxy type influences the way you can use it</successKey>
+    </maper>
+</handmapers>

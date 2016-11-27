@@ -24,8 +24,13 @@ import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.client.util.PoolUtil;
 import com.virjar.dungproxy.server.crawler.extractor.XmlModeFetcher;
+import com.virjar.dungproxy.server.crawler.urlgenerator.WildCardURLGenerator;
 import com.virjar.dungproxy.server.entity.Proxy;
 
+/**
+ * 大三写的代码,现在看起来着实level不同啊,本类废弃
+ */
+@Deprecated
 public class Collector {
 
     private int batchsize;
@@ -121,7 +126,7 @@ public class Collector {
                 }
             } else if (this.failedTimes > 20) {// 不论如何,连续一定次数失败,重置url生成器
                 urlGenerator.reset();
-                this.failedTimes =0;//需要同时重置失败记录
+                this.failedTimes = 0;// 需要同时重置失败记录
                 break;
             }
             if (failedTimes > 20) {
@@ -144,7 +149,7 @@ public class Collector {
                         } else {
                             if (failedTimes > 5) {
                                 urlGenerator.reset();
-                                this.failedTimes =0;
+                                this.failedTimes = 0;
                                 break;
                             }
                         }
