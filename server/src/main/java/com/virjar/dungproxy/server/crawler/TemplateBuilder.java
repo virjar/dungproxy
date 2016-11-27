@@ -25,7 +25,7 @@ public class TemplateBuilder {
 
     public static List<TemplateCollector> buildfromSource(String source) {
         if (source == null) {
-            source = "/handmaper.xml";
+            source = "/handmapper.xml";
         }
         List<TemplateCollector> ret = new ArrayList<>();
         Document parseText = null;

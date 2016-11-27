@@ -28,25 +28,45 @@ public abstract class AutoDownloadCollector extends NewCollector {
 
     @Override
     public List<Proxy> doCollect() {
-        if (totalFailedCount > 20) {
-            pageNow = 0;
-        }
+
+        int failedCount = 0;
+        List<Proxy> ret = Lists.newArrayList();// 单次,使用同一个IP
         PoolUtil.cleanProxy(httpClientContext);
-        for (int i = 0; i < 5; i++) {
+
+        while (ret.size() < this.batchSize) {
+            if (totalFailedCount > 20 || failedCount > 20) {
+                totalFailedCount = 0;
+                pageNow = 0;
+                break;
+            }
+            if (failedCount > 3) {// 连续3次失败,切换IP
+                PoolUtil.cleanProxy(httpClientContext);
+            }
+
             lastUrl = newUrl();
-            String response = HttpInvoker.get(lastUrl, httpClientContext);
+            String response = null;
+            for (int i = 0; i < 3; i++) {
+                response = HttpInvoker.get(lastUrl, httpClientContext);
+                if (!StringUtils.isEmpty(response)) {
+                    break;
+                }
+            }
             if (StringUtils.isEmpty(response)) {
+                failedCount++;
                 totalFailedCount++;
                 continue;
             }
-            List<Proxy> parse = parse(response);
-            if (parse.size() > 0) {
-                totalFailedCount = 0;
-                return parse;
+
+            List<Proxy> fetch = parse(response);
+            if (fetch.size() == 0) {
+                failedCount++;
+                totalFailedCount++;
+                continue;
             }
-            totalFailedCount++;
+            ret.addAll(fetch);
+            failedCount = totalFailedCount = 0;
         }
-        return Lists.newArrayList();
+        return ret;
     }
 
     protected abstract List<Proxy> parse(String response);
