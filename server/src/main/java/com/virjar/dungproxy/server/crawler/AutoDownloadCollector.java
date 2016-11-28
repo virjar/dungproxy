@@ -40,6 +40,7 @@ public abstract class AutoDownloadCollector extends NewCollector {
                 break;
             }
             if (failedCount > 3) {// 连续3次失败,切换IP
+                failedCount = 0;
                 PoolUtil.cleanProxy(httpClientContext);
             }
 

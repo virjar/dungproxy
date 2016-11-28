@@ -19,6 +19,7 @@ import com.virjar.dungproxy.server.entity.Proxy;
 /**
  * Created by virjar on 16/11/26.<br/>
  * 这个是模版收集器,不能被标记为spring bean
+ * 
  * @see com.virjar.dungproxy.server.crawler.TemplateBuilder
  */
 public class TemplateCollector extends NewCollector {
@@ -64,6 +65,7 @@ public class TemplateCollector extends NewCollector {
                 break;
             }
             if (faileCount > 3) {// 连续3次失败,切换IP
+                faileCount = 0;
                 PoolUtil.cleanProxy(httpClientContext);
             }
 
