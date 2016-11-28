@@ -15,6 +15,9 @@ public class CoolProxyClassFetcher implements ClassFetcher {
     @Override
     public String fetcher(TagNode tagnode, int type) {
         String text = StringUtils.substringBetween(tagnode.getText().toString().trim(), "str_rot13(\"", "\")");
+        if(StringUtils.isEmpty(text)){
+            return "";
+        }
         return new String(base64.decode(decodeRot13(text)));
     }
 

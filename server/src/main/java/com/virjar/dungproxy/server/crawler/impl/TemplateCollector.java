@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.protocol.BasicHttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
@@ -23,6 +25,7 @@ import com.virjar.dungproxy.server.entity.Proxy;
  * @see com.virjar.dungproxy.server.crawler.TemplateBuilder
  */
 public class TemplateCollector extends NewCollector {
+    private static final Logger logger = LoggerFactory.getLogger(TemplateCollector.class);
     private URLGenerator urlGenerator;
 
     private XmlModeFetcher fetcher;
@@ -72,6 +75,7 @@ public class TemplateCollector extends NewCollector {
             lasUrl = urlGenerator.newURL();
             String response = null;
             for (int i = 0; i < 3; i++) {
+                logger.info("request url:{} failedCount", lasUrl, faileCount);
                 response = HttpInvoker.get(lasUrl, httpClientContext);
                 if (!StringUtils.isEmpty(response)) {
                     break;

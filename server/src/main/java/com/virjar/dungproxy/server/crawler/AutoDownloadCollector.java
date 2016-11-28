@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.protocol.BasicHttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.httpclient.HttpInvoker;
@@ -15,6 +17,7 @@ import com.virjar.dungproxy.server.entity.Proxy;
  * Created by virjar on 16/11/27.
  */
 public abstract class AutoDownloadCollector extends NewCollector {
+    private static final Logger logger = LoggerFactory.getLogger(AutoDownloadCollector.class);
     protected int pageNow = 0;
     private HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
     private int totalFailedCount = 0;
@@ -47,6 +50,7 @@ public abstract class AutoDownloadCollector extends NewCollector {
             lastUrl = newUrl();
             String response = null;
             for (int i = 0; i < 3; i++) {
+                logger.info("request url:{} failedCount", lastUrl, totalFailedCount);
                 response = HttpInvoker.get(lastUrl, httpClientContext);
                 if (!StringUtils.isEmpty(response)) {
                     break;
