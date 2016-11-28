@@ -50,7 +50,7 @@ public abstract class AutoDownloadCollector extends NewCollector {
             lastUrl = newUrl();
             String response = null;
             for (int i = 0; i < 3; i++) {
-                logger.info("request url:{} failedCount", lastUrl, totalFailedCount);
+                logger.info("request url:{} failedCount:{}", lastUrl, totalFailedCount);
                 response = HttpInvoker.get(lastUrl, httpClientContext);
                 if (!StringUtils.isEmpty(response)) {
                     break;

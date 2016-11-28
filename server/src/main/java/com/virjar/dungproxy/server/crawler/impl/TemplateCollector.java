@@ -75,7 +75,7 @@ public class TemplateCollector extends NewCollector {
             lasUrl = urlGenerator.newURL();
             String response = null;
             for (int i = 0; i < 3; i++) {
-                logger.info("request url:{} failedCount", lasUrl, faileCount);
+                logger.info("request url:{} failedCount:{}", lasUrl, faileCount);
                 response = HttpInvoker.get(lasUrl, httpClientContext);
                 if (!StringUtils.isEmpty(response)) {
                     break;
