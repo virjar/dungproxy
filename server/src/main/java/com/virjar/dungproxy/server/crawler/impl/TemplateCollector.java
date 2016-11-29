@@ -58,10 +58,15 @@ public class TemplateCollector extends NewCollector {
     @Override
     public List<Proxy> doCollect() {
         int faileCount = 0;
+        int tryCount =0;
         List<Proxy> ret = Lists.newArrayList();// 单次,使用同一个IP
         PoolUtil.cleanProxy(httpClientContext);
 
         while (ret.size() < this.batchSize) {
+            if(tryCount > 40){
+                break;
+            }
+            tryCount ++;
             if (totalFaildCount > 20 || faileCount > 20) {
                 totalFaildCount = 0;
                 urlGenerator.reset();

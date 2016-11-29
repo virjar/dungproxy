@@ -31,7 +31,7 @@ public abstract class AutoDownloadCollector extends NewCollector {
 
     @Override
     public List<Proxy> doCollect() {
-
+        int tryCount =0;
         int failedCount = 0;
         List<Proxy> ret = Lists.newArrayList();// 单次,使用同一个IP
         PoolUtil.cleanProxy(httpClientContext);
@@ -42,6 +42,10 @@ public abstract class AutoDownloadCollector extends NewCollector {
                 pageNow = 0;
                 break;
             }
+            if(tryCount > 40){
+                break;
+            }
+            tryCount ++;
             if (failedCount > 3) {// 连续3次失败,切换IP
                 failedCount = 0;
                 PoolUtil.cleanProxy(httpClientContext);
