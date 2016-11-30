@@ -55,6 +55,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
 
 import com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner;
+import com.virjar.dungproxy.client.httpclient.execchain.AutoClearCookieExec;
 import com.virjar.dungproxy.client.httpclient.execchain.RetryExec;
 import com.virjar.dungproxy.client.httpclient.processor.ProxyResponseDetect;
 import com.virjar.dungproxy.client.util.HeaderUtil;
@@ -125,12 +126,19 @@ public class CrawlerHttpClientBuilder {
 
     private PublicSuffixMatcher publicSuffixMatcher;
 
+    private boolean clearCookie = false;
+
     public static CrawlerHttpClientBuilder create() {
         return new CrawlerHttpClientBuilder();
     }
 
     protected CrawlerHttpClientBuilder() {
         super();
+    }
+
+    public final CrawlerHttpClientBuilder setClearCookie(boolean clearCookie) {
+        this.clearCookie = clearCookie;
+        return this;
     }
 
     /**
@@ -1100,6 +1108,10 @@ public class CrawlerHttpClientBuilder {
 
             });
         }
+        if (clearCookie) {//对于爬虫场景,使用单一httpclient,将会导致cookie严重超标。特别是使用不稳定代理。所以,可以每次访问都清除cookie(重定向场景不清除)。
+            execChain = new AutoClearCookieExec(execChain);
+        }
+
         return new CrawlerHttpClient(execChain, connManagerCopy, routePlannerCopy, cookieSpecRegistryCopy,
                 authSchemeRegistryCopy, defaultCookieStore, defaultCredentialsProvider,
                 defaultRequestConfig != null ? defaultRequestConfig : RequestConfig.DEFAULT, closeablesCopy);

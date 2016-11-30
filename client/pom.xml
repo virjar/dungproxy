@@ -49,7 +49,7 @@
                         the classpath declaration in the bin scripts -->
                     <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
                     <!-- prefix all bin files with "mycompany" -->
-                    <binPrefix>startup</binPrefix>
+                    <!--<binPrefix>startup</binPrefix>-->
                     <!-- set alternative assemble directory -->
                     <assembleDirectory>${project.build.directory}/client</assembleDirectory>
                     <!-- Extra JVM arguments that will be included in the bin scripts -->
@@ -180,6 +180,13 @@
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
             <version>1.7.12</version>
+        </dependency>
+        <!-- 如果client运行在servlet容器环境中,那么可以直接通过servlet监控IP池的状态信息。思路源于druid -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

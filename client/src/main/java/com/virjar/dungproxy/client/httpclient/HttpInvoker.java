@@ -1,11 +1,13 @@
 package com.virjar.dungproxy.client.httpclient;
 
 import java.nio.charset.Charset;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -16,10 +18,6 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 /**
  * 以静态方式封装httpclient,方便的http请求客户端<br/>
@@ -48,16 +46,17 @@ public class HttpInvoker {
         SSLContext sslContext = null;
         try {
             sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{x509mgr}, null);
+            sslContext.init(null, new TrustManager[] { x509mgr }, null);
         } catch (Exception e) {
-            //// TODO: 16/11/23  
-        } 
+            //// TODO: 16/11/23
+        }
 
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
                 SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
         crawlerHttpClient = CrawlerHttpClientBuilder.create().setMaxConnTotal(1000).setMaxConnPerRoute(50)
-                .setDefaultSocketConfig(socketConfig).setSSLSocketFactory(sslConnectionSocketFactory).setRedirectStrategy(new LaxRedirectStrategy()).build();
+                .setDefaultSocketConfig(socketConfig).setSSLSocketFactory(sslConnectionSocketFactory)
+                .setRedirectStrategy(new LaxRedirectStrategy()).setClearCookie(true).build();
     }
 
     public static String postJSON(String url, Object entity, Header[] headers) {
