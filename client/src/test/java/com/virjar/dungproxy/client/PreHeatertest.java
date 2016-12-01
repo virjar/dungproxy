@@ -10,6 +10,5 @@ public class PreHeatertest {
     public static void main(String[] args) {
         PreHeater preHeater = new PreHeater();
         preHeater.addTask("https://www.douban.com/group/explore").doPreHeat();
-        System.out.println(JSONObject.toJSONString(preHeater.getStringDomainPoolMap()));
     }
 }

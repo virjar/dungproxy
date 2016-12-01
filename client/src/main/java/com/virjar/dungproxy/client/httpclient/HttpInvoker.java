@@ -25,7 +25,7 @@ import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
  */
 public class HttpInvoker {
     private static CrawlerHttpClient crawlerHttpClient;
-    static {// TODO 是否考虑cookie reject
+    static {
         SocketConfig socketConfig = SocketConfig.custom().setSoKeepAlive(true).setSoLinger(-1).setSoReuseAddress(false)
                 .setSoTimeout(ProxyConstant.SOCKETSO_TIMEOUT).setTcpNoDelay(true).build();
         X509TrustManager x509mgr = new X509TrustManager() {
@@ -56,7 +56,7 @@ public class HttpInvoker {
 
         crawlerHttpClient = CrawlerHttpClientBuilder.create().setMaxConnTotal(1000).setMaxConnPerRoute(50)
                 .setDefaultSocketConfig(socketConfig).setSSLSocketFactory(sslConnectionSocketFactory)
-                .setRedirectStrategy(new LaxRedirectStrategy()).setClearCookie(true).build();
+                .setRedirectStrategy(new LaxRedirectStrategy()).setDefaultCookieStore(new BarrierCookieStore()).build();
     }
 
     public static String postJSON(String url, Object entity, Header[] headers) {
