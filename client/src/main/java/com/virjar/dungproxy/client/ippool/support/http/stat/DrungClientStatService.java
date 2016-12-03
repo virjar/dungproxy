@@ -63,7 +63,7 @@ public final class DrungClientStatService implements DruidStatServiceMBean {
         if (url.equals("/basic.json")) {
             return returnJSONResult(RESULT_CODE_SUCCESS, poolManager.returnJSONBasicStat());
         }
-        if(url.equals("/domains.json")){
+        if(url.startsWith("/domains.json")){
             return returnJSONResult(RESULT_CODE_SUCCESS, poolManager.domainInfo());
         }
         return returnJSONResult(RESULT_CODE_ERROR, "Do not support this request, please contact with administrator.");
