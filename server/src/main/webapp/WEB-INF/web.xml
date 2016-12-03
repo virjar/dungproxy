@@ -39,6 +39,10 @@
         <servlet-name>DruidStatView</servlet-name>
         <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DrungStatView</servlet-name>
+        <servlet-class>com.virjar.dungproxy.client.ippool.support.http.StatViewServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>mvc</servlet-name>
         <url-pattern>/</url-pattern>
@@ -46,6 +50,10 @@
     <servlet-mapping>
         <servlet-name>DruidStatView</servlet-name>
         <url-pattern>/druid/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DrungStatView</servlet-name>
+        <url-pattern>/dungclient/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>default</servlet-name>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+    <title>DrungProxy 客户端监控</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf8"/>
+    <link href='css/bootstrap.min.css' rel="stylesheet"/>
+    <link href="css/style.css" type="text/css" rel="stylesheet"/>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script src="js/lang.js" type="text/javascript" charset="utf8"></script>
+    <script src="js/common.js" type="text/javascript" charset="utf8"></script>
+    <script src="js/bootstrap.min.js" type="text/javascript" charset="utf8"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <h3>
+                Domain Stat
+                <a href="domains.json" target="_blank">View JSON API</a>
+            </h3>
+            <table id="dataTable" class="table table-bordered table-striped responsive-utilities">
+                <thead>
+                <tr>
+                    <th>N</th>
+                    <th><a id="th-Domain">Domain</a></th>
+                    <th><a id="th-coreSize" class="lang" langKey="coreSize">核心IP数</a></th>
+                    <th><a id="th-size" class="lang" langKey="nowSize">当前IP数</a></th>
+                    <th><a id="th-minSize" class="lang" langKey="minSize">最小IP数</a></th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $.namespace("druid.domain");
+    druid.domain = function () {
+        return {
+            init: function () {
+                $("#dataTable th a").click(function (obj) {
+                    druid.common.setOrderBy(obj.target.id.substring(3))
+                });
+                druid.common.buildHead(1);
+                druid.common.ajaxuri = 'domains.json?';
+                druid.common.handleCallback = druid.domain.handleAjaxResult;
+                // druid.common.setOrderBy("SQL");
+                druid.common.ajaxRequestForBasicInfo();
+                setInterval("druid.common.ajaxRequestForBasicInfo();", 5000);
+            },
+
+            handleAjaxResult: function (data) {
+                var sqlStatList = data.Content;
+                if (sqlStatList == null) return;
+
+                var sqlStatTable = document.getElementById("dataTable");
+                while (sqlStatTable.rows.length > 1) {
+                    sqlStatTable.deleteRow(1);
+                }
+
+                var html = "";
+                for (var i = 0; i < sqlStatList.length; i++) {
+                    var stat = sqlStatList[i], statDomain = stat.domain;
+                    html += "<tr>";
+                    html += "<td>" + (i + 1) + "</td>";
+                    html += "<td>" + '<a data-dismiss="alert"  title="' + statDomain + '" target="_blank" href="domain-detail.html?domain=' + statDomain + '">' + druid.common.subSqlString(statDomain, 25) + '</a>' + "</td>";
+                    html += "<td>" + replace(stat.coreSize) + "</td>";
+                    html += "<td>" + replace(stat.size) + "</td>";
+                    html += "<td>" + replace(stat.minSize) + "</td>";
+                    html += "</tr>";
+                }
+                $("#dataTable tbody").html(html);
+                druid.common.stripes();
+            }
+        }
+    }();
+
+    $(document).ready(function () {
+        druid.domain.init();
+    });
+</script>
+</body>
+</html>

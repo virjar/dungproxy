@@ -26,7 +26,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.servlet.ServletException;
 
-import com.virjar.dungproxy.client.ippool.support.http.stat.DruidStatService;
+import com.virjar.dungproxy.client.ippool.support.http.stat.DrungClientStatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class StatViewServlet extends ResourceServlet {
     public static final String PARAM_NAME_JMX_USERNAME = "jmxUsername";
     public static final String PARAM_NAME_JMX_PASSWORD = "jmxPassword";
 
-    private DruidStatService      statService             = DruidStatService.getInstance();
+    private DrungClientStatService statService             = DrungClientStatService.getInstance();
 
     /** web.xml中配置的jmx的连接地址 */
     private String jmxUrl                  = null;
@@ -58,7 +58,7 @@ public class StatViewServlet extends ResourceServlet {
     private MBeanServerConnection conn                    = null;
 
     public StatViewServlet(){
-        super("support/http/resources");
+        super("support/http/dungresource");
     }
 
     public void init() throws ServletException {
@@ -69,7 +69,7 @@ public class StatViewServlet extends ResourceServlet {
             if (param != null && param.trim().length() != 0) {
                 param = param.trim();
                 boolean resetEnable = Boolean.parseBoolean(param);
-                statService.setResetEnable(resetEnable);
+               // statService.setResetEnable(resetEnable);
             }
         } catch (Exception e) {
             String msg = "initParameter config error, resetEnable : " + getInitParameter(PARAM_NAME_RESET_ENABLE);
@@ -142,7 +142,7 @@ public class StatViewServlet extends ResourceServlet {
      * @throws Exception the exception
      */
     private String getJmxResult(MBeanServerConnection connetion, String url) throws Exception {
-        ObjectName name = new ObjectName(DruidStatService.MBEAN_NAME);
+        ObjectName name = new ObjectName(DrungClientStatService.MBEAN_NAME);
 
         String result = (String) conn.invoke(name, "service", new String[] { url },
                                              new String[] { String.class.getName() });
@@ -166,7 +166,7 @@ public class StatViewServlet extends ResourceServlet {
                     initJmxConn();
                 } catch (IOException e) {
                     LOG.error("init jmx connection error", e);
-                    resp = DruidStatService.returnJSONResult(DruidStatService.RESULT_CODE_ERROR,
+                    resp = DrungClientStatService.returnJSONResult(DrungClientStatService.RESULT_CODE_ERROR,
                                                              "init jmx connection error" + e.getMessage());
                 }
                 if (conn != null) {// 连接成功
@@ -174,7 +174,7 @@ public class StatViewServlet extends ResourceServlet {
                         resp = getJmxResult(conn, url);
                     } catch (Exception e) {
                         LOG.error("get jmx data error", e);
-                        resp = DruidStatService.returnJSONResult(DruidStatService.RESULT_CODE_ERROR, "get data error:"
+                        resp = DrungClientStatService.returnJSONResult(DrungClientStatService.RESULT_CODE_ERROR, "get data error:"
                                                                                                      + e.getMessage());
                     }
                 }
@@ -183,7 +183,7 @@ public class StatViewServlet extends ResourceServlet {
                     resp = getJmxResult(conn, url);
                 } catch (Exception e) {
                     LOG.error("get jmx data error", e);
-                    resp = DruidStatService.returnJSONResult(DruidStatService.RESULT_CODE_ERROR,
+                    resp = DrungClientStatService.returnJSONResult(DrungClientStatService.RESULT_CODE_ERROR,
                                                              "get data error" + e.getMessage());
                 }
             }

@@ -198,4 +198,28 @@ public class DomainPool {
     public void adjustPriority(AvProxy avProxy) {
         smartProxyQueue.adjustPriority(avProxy);
     }
+
+    public int getCoreSize() {
+        return coreSize;
+    }
+
+    public void setCoreSize(int coreSize) {
+        this.coreSize = coreSize;
+    }
+
+    public int getMinSize() {
+        return minSize;
+    }
+
+    public void setMinSize(int minSize) {
+        this.minSize = minSize;
+    }
+
+    public List<String> getTestUrls() {
+        return testUrls;
+    }
+
+    public SmartProxyQueue getSmartProxyQueue() {
+        return smartProxyQueue;
+    }
 }

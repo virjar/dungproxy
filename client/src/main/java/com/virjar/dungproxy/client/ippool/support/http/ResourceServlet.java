@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 
+import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.support.http.util.IPAddress;
 import com.virjar.dungproxy.client.ippool.support.http.util.IPRange;
 import com.virjar.dungproxy.client.util.Utils;
@@ -38,7 +39,7 @@ public abstract class ResourceServlet extends HttpServlet {
 
     private final static Logger LOG                 = LoggerFactory.getLogger(ResourceServlet.class);
 
-    public static final String SESSION_USER_KEY    = "druid-user";
+    public static final String SESSION_USER_KEY    = "dungproxy-user";
     public static final String PARAM_NAME_USERNAME = "loginUsername";
     public static final String PARAM_NAME_PASSWORD = "loginPassword";
     public static final String PARAM_NAME_ALLOW    = "allow";
@@ -48,8 +49,8 @@ public abstract class ResourceServlet extends HttpServlet {
     protected String username            = null;
     protected String password            = null;
 
-    protected List<IPRange> allowList           = new ArrayList<IPRange>();
-    protected List<IPRange> denyList            = new ArrayList<IPRange>();
+    protected List<IPRange> allowList           = Lists.newArrayList();
+    protected List<IPRange> denyList            = Lists.newArrayList();
 
     protected final String resourcePath;
 
@@ -221,10 +222,10 @@ public abstract class ResourceServlet extends HttpServlet {
                  || path.startsWith("/js") //
             || path.startsWith("/img"))) {
             if (contextPath.equals("") || contextPath.equals("/")) {
-                response.sendRedirect("/druid/login.html");
+                response.sendRedirect(servletPath+"/login.html");
             } else {
                 if ("".equals(path)) {
-                    response.sendRedirect("druid/login.html");
+                    response.sendRedirect(servletPath+"/login.html");
                 } else {
                     response.sendRedirect("login.html");
                 }
@@ -234,9 +235,9 @@ public abstract class ResourceServlet extends HttpServlet {
 
         if ("".equals(path)) {
             if (contextPath.equals("") || contextPath.equals("/")) {
-                response.sendRedirect("/druid/index.html");
+                response.sendRedirect(servletPath+"/index.html");
             } else {
-                response.sendRedirect("druid/index.html");
+                response.sendRedirect(servletPath+"/index.html");
             }
             return;
         }

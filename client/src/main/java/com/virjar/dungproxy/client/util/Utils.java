@@ -15,6 +15,8 @@
  */
 package com.virjar.dungproxy.client.util;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.security.MessageDigest;
@@ -54,7 +56,7 @@ public class Utils {
             String text = Utils.read(in);
             return text;
         } finally {
-            JdbcUtils.close(in);
+            IOUtils.closeQuietly(in);
         }
     }
 
@@ -68,7 +70,7 @@ public class Utils {
 
             return readByteArray(in);
         } finally {
-            JdbcUtils.close(in);
+            IOUtils.closeQuietly(in);
         }
     }
 

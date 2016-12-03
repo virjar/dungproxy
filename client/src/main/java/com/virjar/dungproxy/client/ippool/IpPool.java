@@ -142,4 +142,13 @@ public class IpPool {
             }
         }
     }
+
+    //for monitor
+    public int totalDomain(){
+        return pool.size();
+    }
+
+    public Map<String, DomainPool> getPool() {
+        return pool;
+    }
 }

@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title class="lang" langKey="xxxx">Druid Stat Index</title>
+		<title class="lang" langKey="xxxx">DrungProxy 客户端监控</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
 		<link href='css/bootstrap.min.css' rel="stylesheet" />
 		<link href="css/style.css" type="text/css" rel="stylesheet"/>
@@ -24,18 +24,6 @@
 								<td id="DruidVersion" width="95%"></td>
 							</tr>
 							<tr >
-								<td valign="top" class="td_lable lang" langKey="Drivers"> Drivers </td>
-								<td id="DruidDrivers"> </td>
-							</tr>
-							<tr >
-								<td valign="top" class="td_lable lang" langKey="ResetEnable"> ResetEnable </td>
-								<td id="ResetEnable"></td>
-							</tr>
-							<tr >
-								<td valign="top" class="td_lable lang" langKey="ResetCount"> ResetCount </td>
-								<td id="ResetCount"></td>
-							</tr>
-							<tr >
 								<td valign="top" class="td_lable lang" langKey="JavaVersion"> JavaVersion </td>
 								<td id="JavaVersion"></td>
 							</tr>
@@ -51,8 +39,16 @@
 								<td valign="top" class="td_lable lang" langKey="StartTime"> StartTime </td>
 								<td id="StartTime"></td>
 							</tr>
+							<tr >
+								<td valign="top" class="td_lable lang" langKey="configPath"> configPath </td>
+								<td id="configPath"></td>
+							</tr>
+							<tr >
+								<td valign="top" class="td_lable lang" langKey="domainNum"> domainNum </td>
+								<td id="domainNum"></td>
+							</tr>
 						</table>
-          			</div>
+		</div>
 		<script type="text/javascript">
 			$.namespace("druid.index");
 			druid.index = function () {  
@@ -67,23 +63,13 @@
 							type: 'POST',
 							url: "basic.json",
 							success: function(data) {
-								$("#DruidVersion").text(data.Content.Version)
-								var driversList = data.Content.Drivers;
-								if (driversList) {
-									var driverHtml = '';
-									for ( var i = 0; i < driversList.length; i++) {
-										var driver = driversList[i];
-										driverHtml += driver + '<br/>';
-									}
-									$("#DruidDrivers").html(driverHtml);
-								}
-								$("#ResetEnable").text(data.Content.ResetEnable)
-								$("#ResetCount").text(data.Content.ResetCount)
-								$("#JavaVersion").text(data.Content.JavaVersion)
-								$("#JavaVMName").text(data.Content.JavaVMName)
-								$("#JavaClassPath").html(data.Content.JavaClassPath.split(/;|:/).join("<br/>"))
-								$("#StartTime").text(data.Content.StartTime)
-								
+								$("#DruidVersion").text(data.Content.Version);
+								$("#JavaVersion").text(data.Content.JavaVersion);
+								$("#JavaVMName").text(data.Content.JavaVMName);
+								$("#JavaClassPath").html(data.Content.JavaClassPath.split(/;|:/).join("<br/>"));
+								$("#StartTime").text(data.Content.StartTime);
+								$("#configPath").text(data.Content.configPath);
+								$("#domainNum").text(data.Content.domainNum);
 								druid.lang.trigger();
 							},
 							dataType: "json"
