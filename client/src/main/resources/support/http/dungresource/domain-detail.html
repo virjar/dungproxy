@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>DrungProxy 客户端监控</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
-    <link href='css/bootstrap.min.css' rel="stylesheet" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf8"/>
+    <link href='css/bootstrap.min.css' rel="stylesheet"/>
     <link href="css/style.css" type="text/css" rel="stylesheet"/>
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script src="js/lang.js" type="text/javascript" charset="utf8"></script>
@@ -18,122 +18,38 @@
                 FULL SQL
                 <a id="viewJsonApi" target="_blank">View JSON API</a>
             </h3>
-            <h5 id="fullSql"></h5>
-            <h2> Format View:</h2>
-					   	<textarea style='width:99%;height:120px;;border:1px #A8C7CE solid;line-height:20px;font-size:12px;' id="formattedSql">
-					  	</textarea>
-            <br/>
-            <br/>
-            <h3>ParseView:</h3>
-            <table class="table table-bordered" style="background-color: #fff">		<tr>
-                <td class='td_lable' width='130'  class="lang" langKey=" Tables"> Tables</td>
-                <td id="parsedtable"></td>
-            </tr>
+            <table id="dataTable" class="table table-bordered table-striped responsive-utilities">
+                <thead>
                 <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="Fields">Fields</td>
-                    <td id="parsedfields"></td>
+                    <th>N</th>
+                    <th><a id="th-Domain">Domain</a></th>
+                    <th><a id="th-coreSize" class="lang" langKey="coreSize">核心IP数</a></th>
+                    <th><a id="th-size" class="lang" langKey="nowSize">当前IP数</a></th>
+                    <th><a id="th-minSize" class="lang" langKey="minSize">最小IP数</a></th>
                 </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="Coditions">Coditions</td>
-                    <td id="parsedConditions"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="Relationships">Relationships</td>
-                    <td id="parsedRelationships"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="OrderByColumns">OrderByColumns</td>
-                    <td id="parsedOrderbycolumns"></td>
-                </tr>
+                </thead>
+                <tbody></tbody>
             </table>
-            <h3>LastSlowView:</h3>
-            <table class="table table-bordered" style="background-color: #fff">		<tr>
-                <td class='td_lable' width='130'  class="lang" langKey="MaxTimespan">MaxTimespan</td>
-                <td id="MaxTimespan"></td>
-            </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="MaxTimespanOccurTime">MaxTimespanOccurTime</td>
-                    <td id="MaxTimespanOccurTime"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="LastSlowParameters">LastSlowParameters</td>
-                    <td id="LastSlowParameters"></td>
-                </tr>
-            </table>
-            <h3>LastErrorView:</h3>
-            <table class="table table-bordered" style="background-color: #fff">		<tr>
-                <td class='td_lable' width='130'  class="lang" langKey="LastErrorMessage">LastErrorMessage</td>
-                <td id="LastErrorMessage"></td>
-            </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="LastErrorClass">LastErrorClass</td>
-                    <td id="LastErrorClass"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="LastErrorTime">LastErrorTime</td>
-                    <td id="LastErrorTime"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="LastErrorStackTrace">LastErrorStackTrace</td>
-                    <td id="LastErrorStackTrace"></td>
-                </tr>
-            </table>
-            <h3>OtherView:</h3>
-            <table class="table table-bordered" style="background-color: #fff">		<tr>
-                <td class='td_lable' width='130'  class="lang" langKey="BatchSizeMax">BatchSizeMax</td>
-                <td id="BatchSizeMax"></td>
-            </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="BatchSizeTotal">BatchSizeTotal</td>
-                    <td id="BatchSizeTotal"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="BlobOpenCount">BlobOpenCount</td>
-                    <td id="BlobOpenCount"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="ClobOpenCount">ClobOpenCount</td>
-                    <td id="ClobOpenCount"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="ReaderOpenCount">ReaderOpenCount</td>
-                    <td id="ReaderOpenCount"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="InputStreamOpenCount">InputStreamOpenCount</td>
-                    <td id="InputStreamOpenCount"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="ReadStringLength">ReadStringLength</td>
-                    <td id="ReadStringLength"></td>
-                </tr>
-                <tr>
-                    <td class='td_lable' width='130'  class="lang" langKey="ReadBytesLength">ReadBytesLength</td>
-                    <td id="ReadBytesLength"></td>
-                </tr>
-            </table>
-            <div class="container">
-                <a class="btn btn-primary" href="javascript:window.close();">Close</a>
-            </div>
         </div>
     </div>
 </div>
+
 <script type="text/javascript">
-    $.namespace("druid.sqlDetail");
-    druid.sqlDetail = function () {
-        var sqlId = druid.common.getUrlVar("sqlId");
-        return  {
-            init : function() {
+    $.namespace("druid.domainDetail");
+    druid.domainDetail = function () {
+        var sqlId = druid.common.getUrlVar("domain");
+        return {
+            init: function () {
                 druid.common.buildHead(2);
                 this.ajaxRequestForBasicInfo();
-                $("#viewJsonApi").attr("href", 'sql-' + sqlId + '.json');
+                $("#viewJsonApi").attr("href", 'domain-' + sqlId + '.json');
             },
 
-            ajaxRequestForBasicInfo : function() {
+            ajaxRequestForBasicInfo: function () {
                 $.ajax({
                     type: 'POST',
-                    url: 'sql-' + sqlId + '.json',
-                    success: function(data) {
+                    url: 'domain-' + sqlId + '.json',
+                    success: function (data) {
                         var sqlInfo = data.Content;
                         if (sqlInfo == null)
                             return;
@@ -172,8 +88,8 @@
         }
     }();
 
-    $(document).ready(function() {
-        druid.sqlDetail.init();
+    $(document).ready(function () {
+        druid.domainDetail.init();
     });
 </script>
 </body>

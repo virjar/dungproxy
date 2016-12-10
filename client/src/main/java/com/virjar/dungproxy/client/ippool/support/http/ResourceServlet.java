@@ -16,7 +16,6 @@
 package com.virjar.dungproxy.client.ippool.support.http;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -27,8 +26,8 @@ import javax.servlet.http.HttpSession;
 
 
 import com.google.common.collect.Lists;
-import com.virjar.dungproxy.client.ippool.support.http.util.IPAddress;
-import com.virjar.dungproxy.client.ippool.support.http.util.IPRange;
+import com.virjar.dungproxy.client.util.IPAddress;
+import com.virjar.dungproxy.client.util.IPRange;
 import com.virjar.dungproxy.client.util.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

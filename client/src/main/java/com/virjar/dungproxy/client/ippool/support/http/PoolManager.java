@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.VERSION;
 import com.virjar.dungproxy.client.ippool.DomainPool;
 import com.virjar.dungproxy.client.ippool.IpPool;
+import com.virjar.dungproxy.client.ippool.SmartProxyQueue;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.Utils;
@@ -33,7 +34,7 @@ public class PoolManager {
         return dataMap;
     }
 
-    public List<Map<String,String>> domainInfo(){
+    public List<Map<String,String>> domains(){
         Map<String, DomainPool> pool = ipPool.getPool();
         List<Map<String,String>> ret = Lists.newArrayList();
         for(Map.Entry<String,DomainPool> entry:pool.entrySet()){
@@ -45,6 +46,22 @@ public class PoolManager {
             record.put("minSize",String.valueOf(domainPool.getMinSize()));
             ret.add(record);
         }
+        return ret;
+    }
+
+    //获取某个domain的信息
+    public Map<String,Object> domainInfo(String domain){
+        Map<String,Object> ret = Maps.newHashMap();
+        DomainPool domainPool = ipPool.getPool().get(domain);
+        ret.put("domain",domain);
+        ret.put("coreSize",domainPool.getCoreSize());
+        ret.put("isRefreshing",domainPool.getIsRefreshing());
+        ret.put("site",domainPool.getSmartProxyQueue().size());
+        //容器相关信息
+        SmartProxyQueue smartProxyQueue = domainPool.getSmartProxyQueue();
+        ret.put("queue_ratio",smartProxyQueue.getRatio());
+        ret.put("queue_proxies",Lists.newArrayList(smartProxyQueue.values()));
+
         return ret;
     }
 }

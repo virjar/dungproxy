@@ -164,4 +164,9 @@ public class SmartProxyQueue {
     // ConcurrentLinkedQueue只是一个队列的时候。不能做到在队列中间插入数据z
     // private ConcurrentLinkedQueue<AvProxy> avProxies = new ConcurrentLinkedQueue<>();
 
+    // monitor
+
+    public double getRatio() {
+        return ratio;
+    }
 }

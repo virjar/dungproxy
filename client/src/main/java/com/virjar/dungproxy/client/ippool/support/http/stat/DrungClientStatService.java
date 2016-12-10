@@ -11,7 +11,6 @@ package com.virjar.dungproxy.client.ippool.support.http.stat;
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.management.JMException;
@@ -64,7 +63,11 @@ public final class DrungClientStatService implements DruidStatServiceMBean {
             return returnJSONResult(RESULT_CODE_SUCCESS, poolManager.returnJSONBasicStat());
         }
         if(url.startsWith("/domains.json")){
-            return returnJSONResult(RESULT_CODE_SUCCESS, poolManager.domainInfo());
+            return returnJSONResult(RESULT_CODE_SUCCESS, poolManager.domains());
+        }
+        if(url.startsWith("domain-") && StringUtils.contains(url,".json")){
+            String domain = StringUtils.substringBetween(url, "domain-", ".json");
+            return returnJSONResult(RESULT_CODE_SUCCESS,poolManager.domainInfo(domain));
         }
         return returnJSONResult(RESULT_CODE_ERROR, "Do not support this request, please contact with administrator.");
     }

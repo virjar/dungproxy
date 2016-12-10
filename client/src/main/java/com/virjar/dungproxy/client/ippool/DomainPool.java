@@ -222,4 +222,8 @@ public class DomainPool {
     public SmartProxyQueue getSmartProxyQueue() {
         return smartProxyQueue;
     }
+
+    public boolean getIsRefreshing() {
+        return isRefreshing.get();
+    }
 }
