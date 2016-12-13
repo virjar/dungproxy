@@ -35,9 +35,9 @@ import com.virjar.dungproxy.client.util.IpAvValidator;
  * @version 2016-09-11 18:16
  */
 
-public class PreHeater {
+public class ProxyExporter {
 
-    private static final Logger logger = LoggerFactory.getLogger(PreHeater.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProxyExporter.class);
     private Set<String> taskUrls = Sets.newConcurrentHashSet();
     private int threadNumber = 200;// TODO 配置这个参数
     private ExecutorService pool;
@@ -55,12 +55,12 @@ public class PreHeater {
 
     public static void start() {
         List<String> preHeaterTaskList = Context.getInstance().getPreHeaterTaskList();
-        PreHeater preHeater = new PreHeater();
+        ProxyExporter preHeater = new ProxyExporter();
         for (String url : preHeaterTaskList) {
             preHeater.addTask(url);
         }
         preHeater.doPreHeat();
-        preHeater.distroy();
+        preHeater.destroy();
     }
 
     private void init() {
@@ -71,12 +71,12 @@ public class PreHeater {
         }
     }
 
-    public void distroy() {
+    public void destroy() {
         isRunning.set(false);
         pool.shutdown();
     }
 
-    public PreHeater addTask(String url) {
+    public ProxyExporter addTask(String url) {
         taskUrls.add(url);
         return this;
     }
@@ -92,7 +92,7 @@ public class PreHeater {
         Map<String, String> urlMap = transformDomainUrlMap(taskUrls);
         List<Future<Boolean>> futureList = Lists.newArrayList();
         ResourceFacade resourceFacade = ObjectFactory.newInstance(Context.getInstance().getResourceFacade());
-        List<AvProxy> candidateProxies = resourceFacade.allAvailable();
+        List<AvProxy> candidateProxies = resourceFacade.importProxy(null, null, 500);
         // 加载历史数据
         for (Map.Entry<String, DomainPool> entry : stringDomainPoolMap.entrySet()) {
             if (!urlMap.containsKey(entry.getKey())) {
@@ -185,7 +185,7 @@ public class PreHeater {
         }
     }
 
-    public PreHeater setThreadNumber(int threadNumber) {
+    public ProxyExporter setThreadNumber(int threadNumber) {
         if (threadNumber < 1) {
             threadNumber = 1;
         }
