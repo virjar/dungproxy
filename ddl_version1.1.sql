@@ -23,8 +23,10 @@ CREATE TABLE `domainmeta` (
   `is_allow_lost_header` tinyint(1) DEFAULT NULL COMMENT '是否允许丢失头部',
   `has_https` tinyint(1) DEFAULT NULL COMMENT '该域名下是否存在https',
   `support_isp` varchar(255) DEFAULT NULL COMMENT '所支持的isp',
+  `last_access_time` datetime DEFAULT NULL COMMENT '最后更改时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 CREATE TABLE `proxy` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
