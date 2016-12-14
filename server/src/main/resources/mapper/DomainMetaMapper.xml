@@ -195,7 +195,7 @@
     <select id="selectBefore">
         SELECT
         <include refid="Base_Column_List"/>
-        FROM from domainmeta WHERE  last_access_time &lt; #{date,jdbcType=TIMESTAMP} or last_access_time is NULL
+        FROM  domainmeta WHERE  last_access_time &lt; #{date,jdbcType=TIMESTAMP} or last_access_time is NULL
         <if test="page.sort != null">
             order by
             <foreach collection="page.sort" item="order" separator=",">
