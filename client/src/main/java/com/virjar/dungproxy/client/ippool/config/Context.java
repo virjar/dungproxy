@@ -276,19 +276,17 @@ public class Context {
             if (this.avDumper == null) {
                 this.avDumper = ProxyConstant.DEFAULT_PROXY_SERIALIZER;
             }
-            if (this.avDumper.equals(ProxyConstant.DEFAULT_PROXY_SERIALIZER)) {
-                if (defaultAvDumpeFileName == null) {
-                    defaultAvDumpeFileName = ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE_VALUE;
-                }
-                context.avProxyDumper = new JSONFileAvProxyDumper(defaultAvDumpeFileName);
-            } else {
-                context.avProxyDumper = ObjectFactory.newInstance(avDumper);
+            if (defaultAvDumpeFileName == null) {
+                defaultAvDumpeFileName = ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE_VALUE;
             }
+            context.avProxyDumper = ObjectFactory.newInstance(avDumper);
+            context.avProxyDumper.setPath(defaultAvDumpeFileName);
+
 
             // default proxy
             resolveDefaultProxy(this.defaultProxyList, context);
 
-            if (StringUtils.isNoneEmpty(this.preHeaterTaskList)) {
+            if (StringUtils.isNotEmpty(this.preHeaterTaskList)) {
                 context.preHeaterTaskList = Splitter.on(",").omitEmptyStrings().trimResults()
                         .splitToList(preHeaterTaskList);
             } else {

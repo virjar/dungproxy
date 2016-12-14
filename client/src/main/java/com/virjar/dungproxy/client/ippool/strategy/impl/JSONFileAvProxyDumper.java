@@ -30,10 +30,6 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
     private Logger logger = LoggerFactory.getLogger(JSONFileAvProxyDumper.class);
     private String dumpFileName;
 
-    public JSONFileAvProxyDumper(String dumpFileName) {
-        this.dumpFileName = dumpFileName;
-    }
-
     @Override
     public void serializeProxy(Map<String, List<AvProxy>> data) {
         data = Maps.transformValues(data, new Function<List<AvProxy>, List<AvProxy>>() {
@@ -92,6 +88,11 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
             logger.error("error when unSerializeProxy proxy data", e);
         }
         return ret;
+    }
+
+    @Override
+    public void setPath(String path) {
+        this.dumpFileName = path;
     }
 
     /**

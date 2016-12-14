@@ -188,6 +188,10 @@ public class DistributeService {
             queryProxy.setLostheader(false);
         }
 
+        if(requestForm.getTransparent() != null){
+            queryProxy.setTransperent((byte)(0xff & requestForm.getTransparent()));
+        }
+
         queryProxy.setSpeed((long) (int) requestForm.getMaxPing());
         return queryProxy;
 
