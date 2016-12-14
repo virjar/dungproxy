@@ -33,10 +33,13 @@ public class DefaultResourceFacade implements ResourceFacade {
         if (number == null || number < 1) {
             number = 30;
         }
+//        matchAddress=true&country=%E4%B8%AD%E5%9B%BD&num=100
         List<NameValuePair> valuePairList = Lists.newArrayList();
         valuePairList.add(new BasicNameValuePair("usedSign", downloadSign));
-        valuePairList.add(new BasicNameValuePair("checkUrl", testUrl));
-        valuePairList.add(new BasicNameValuePair("domain", domain));
+//        valuePairList.add(new BasicNameValuePair("checkUrl", testUrl));
+        valuePairList.add(new BasicNameValuePair("matchAddress", "true"));
+        valuePairList.add(new BasicNameValuePair("country", "中国"));
+//        valuePairList.add(new BasicNameValuePair("domain", domain));
         valuePairList.add(new BasicNameValuePair("num", String.valueOf(number)));
         String response = HttpInvoker.post(avUrl, valuePairList);
         if (StringUtils.isBlank(response)) {

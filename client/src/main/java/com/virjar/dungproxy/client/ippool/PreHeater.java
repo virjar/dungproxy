@@ -39,7 +39,7 @@ public class PreHeater {
 
     private static final Logger logger = LoggerFactory.getLogger(PreHeater.class);
     private Set<String> taskUrls = Sets.newConcurrentHashSet();
-    private int threadNumber = 40;// TODO 配置这个参数
+    private int threadNumber = 200;// TODO 配置这个参数
     private ExecutorService pool;
     private AtomicBoolean hasInit = new AtomicBoolean(false);
     private Map<String, DomainPool> stringDomainPoolMap;

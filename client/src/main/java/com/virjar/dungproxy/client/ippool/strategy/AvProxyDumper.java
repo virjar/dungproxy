@@ -10,6 +10,9 @@ import com.virjar.dungproxy.client.model.AvProxy;
  * Created by virjar on 16/10/4.
  */
 public interface AvProxyDumper {
+	
+	
+	void setDumpFileName(String dumpFileName);
     /**
      * 序列化,传入为multiMap结构,根据domain区分,每个domain下面是可用代理IP列表
      */
