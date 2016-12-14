@@ -33,14 +33,13 @@ public class PlainTextFileAvProxyDumper implements AvProxyDumper {
 	public PlainTextFileAvProxyDumper() {
 		// TODO Auto-generated constructor stub
 	}
-	
 
 	@Override
 	public void setDumpFileName(String dumpFileName) {
 		// TODO Auto-generated method stub
 		this.dumpFileName = dumpFileName;
 	}
-	
+
 	@Override
 	public void serializeProxy(Map<String, List<AvProxy>> data) {
 		data = Maps.transformValues(data, new Function<List<AvProxy>, List<AvProxy>>() {
@@ -57,6 +56,7 @@ public class PlainTextFileAvProxyDumper implements AvProxyDumper {
 		});
 
 		BufferedWriter bufferedWriter = null;
+		int resultNum = 0;
 		try {
 			bufferedWriter = Files.newWriter(new File(CommonUtil.ensurePathExist(trimFileName())),
 					Charset.defaultCharset());
@@ -64,6 +64,7 @@ public class PlainTextFileAvProxyDumper implements AvProxyDumper {
 				for (AvProxy avProxy : proxies) {
 					bufferedWriter.write(avProxy.getIp() + ":" + avProxy.getPort());
 					bufferedWriter.newLine();
+					resultNum++;
 				}
 			}
 		} catch (IOException e) {// 发生异常打印日志,但是不抛异常,因为不会影响正常逻辑
@@ -71,6 +72,7 @@ public class PlainTextFileAvProxyDumper implements AvProxyDumper {
 		} finally {
 			IOUtils.closeQuietly(bufferedWriter);
 		}
+		logger.info("total checked proxy num " + resultNum);
 	}
 
 	@Override
