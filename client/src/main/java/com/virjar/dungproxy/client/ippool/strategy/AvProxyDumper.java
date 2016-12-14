@@ -25,9 +25,4 @@ public interface AvProxyDumper {
      */
     Map<String, List<AvProxy>> unSerializeProxy();
 
-    /**
-     * 设置序列化的文件路径,文件可以是虚拟的,或者网上,只要实现类可以识别他
-     * @param path 路径信息
-     */
-    void setPath(String path);
 }
