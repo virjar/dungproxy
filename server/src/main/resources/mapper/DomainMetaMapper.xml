@@ -192,7 +192,7 @@
             limit ${param2.offset}, ${param2.pageSize}
         </if>
     </select>
-    <select id="selectBefore">
+    <select id="selectBefore" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM  domainmeta WHERE  last_access_time &lt; #{date,jdbcType=TIMESTAMP} or last_access_time is NULL
