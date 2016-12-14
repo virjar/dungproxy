@@ -58,6 +58,7 @@ CREATE TABLE `proxy` (
   `source` varchar(255) DEFAULT NULL COMMENT '资源来源url',
   `crawler_key` varchar(255) DEFAULT NULL COMMENT '爬虫key，用户统计爬虫收集分布',
   `lostheader` tinyint(1) DEFAULT NULL COMMENT '是否会丢失http头部',
+  `post`   tinyint(1) DEFAULT NULL COMMENT '是否支持post',
   PRIMARY KEY (`id`),
   KEY `uniqe_ip` (`ip`,`port`),
   KEY `connection_score` (`connection_score`),
