@@ -24,9 +24,21 @@ public class DefaultResourceFacade implements ResourceFacade {
     private Logger logger = LoggerFactory.getLogger(DefaultResourceFacade.class);
     private String downloadSign = null;
 
-    private static final String avUrl = "http://115.159.40.202:8080/proxyipcenter/av";
-    private static final String feedBackUrl = "http://115.159.40.202:8080/proxyipcenter/feedBack";
-    private static final String allAvUrl = "http://115.159.40.202:8080/proxyipcenter/allAv";
+    private static  String avUrl = "http://proxy.scumall.com:8080/proxyipcenter/av";
+    private static  String feedBackUrl = "http://proxy.scumall.com:8080/proxyipcenter/feedBack";
+    private static  String allAvUrl = "http://proxy.scumall.com:8080/proxyipcenter/allAv";
+
+    public static void setAvUrl(String avUrl){
+        DefaultResourceFacade.avUrl = avUrl;
+    }
+
+    public static void setFeedBackUrl(String feedBackUrl){
+        DefaultResourceFacade.feedBackUrl = feedBackUrl;
+    }
+
+    public static void setAllAvUrl(String allAvUrl){
+        DefaultResourceFacade.allAvUrl = allAvUrl;
+    }
 
     @Override
     public List<AvProxy> importProxy(String domain, String testUrl, Integer number) {
