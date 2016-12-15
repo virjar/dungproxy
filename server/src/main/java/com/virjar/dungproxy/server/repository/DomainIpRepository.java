@@ -32,5 +32,5 @@ public interface DomainIpRepository {
 
     int deleteBatch(@Param("ids") List<Long> ids);
 
-    int deleteByDomain(@Param("domian") String domain);
+    int deleteByDomain(@Param("domain") String domain);
 }
