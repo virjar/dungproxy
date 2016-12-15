@@ -10,6 +10,15 @@
   <name>client</name>
   <url>http://maven.apache.org</url>
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>logback.xml</exclude>
+          <exclude>proxyclient.properties</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -17,6 +26,32 @@
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.1.1</version>
+        <configuration>
+          <repositoryLayout>flat</repositoryLayout>
+          <repositoryName>lib</repositoryName>
+          <configurationSourceDirectory>src/main/resources</configurationSourceDirectory>
+          <configurationDirectory>conf</configurationDirectory>
+          <copyConfigurationDirectory>true</copyConfigurationDirectory>
+          <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+          <assembleDirectory>${project.build.directory}/client</assembleDirectory>
+          <extraJvmArguments>-Xms768m -Xmx768m -XX:PermSize=128m
+                        -XX:MaxPermSize=256m -XX:NewSize=192m -XX:MaxNewSize=384m</extraJvmArguments>
+          <platforms>
+            <platform>windows</platform>
+            <platform>unix</platform>
+          </platforms>
+          <programs>
+            <program>
+              <mainClass>com.virjar.dungproxy.client.ippool.PreHeater</mainClass>
+              <name>preHeater</name>
+            </program>
+          </programs>
         </configuration>
       </plugin>
       <plugin>

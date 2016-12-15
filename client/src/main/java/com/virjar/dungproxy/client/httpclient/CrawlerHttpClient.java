@@ -424,22 +424,28 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
     private String decodeHttpResponse(CloseableHttpResponse response, Charset charset) throws IOException {
         byte[] bytes = EntityUtils.toByteArray(response.getEntity());
-        if (charset == null) {
-            Header contentType = response.getFirstHeader("Content-Type");
-            if (contentType != null) {
-                String charsetStr = CharsetDetector.detectHeader(contentType);
+        String charsetStr = null;
+        try {
+            if (charset == null) {
+                Header contentType = response.getFirstHeader("Content-Type");
+                if (contentType != null) {
+                    charsetStr = CharsetDetector.detectHeader(contentType);
+                    if (charsetStr != null) {
+                        charset = Charset.forName(charsetStr);
+                    }
+                }
+            }
+            if (charset == null) {
+                charsetStr = CharsetDetector.detectHtmlContent(bytes);
                 if (charsetStr != null) {
                     charset = Charset.forName(charsetStr);
                 }
             }
-        }
-        if (charset == null) {
-            String charsetStr = CharsetDetector.detectHtmlContent(bytes);
-            if (charsetStr != null) {
-                charset = Charset.forName(charsetStr);
+            if (charset == null) {
+                charset = Charset.defaultCharset();
             }
-        }
-        if (charset == null) {
+        } catch (java.nio.charset.IllegalCharsetNameException e) {
+            log.warn("字符集" + charsetStr + "不能识别", e);
             charset = Charset.defaultCharset();
         }
         return new String(bytes, charset);
