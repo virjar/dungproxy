@@ -3,7 +3,6 @@ package com.mantou.proxyservice.proxeservice.proxyservice;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
 import com.virjar.client.proxyclient.ProxyClient;
-import com.virjar.client.proxyclient.VirjarAsyncClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -25,15 +24,12 @@ public class ProxyserviceTest {
 
     private static final Logger log = LoggerFactory.getLogger(ProxyserviceTest.class);
 
-    private static final String url = "http://www.xroxy.com/";
-    //private static final VirjarAsyncClient client = new VirjarAsyncClient();
-    private static final long MAX_CRAWL_TIMEOUT = 60000;
+    private static final String url = "http://www.kuaidaili.com/";
 
     @Test
     public void test() {
         log.info("========================= Start test ========================= ");
         try {
-            //MAX_CRAWL_TIMEOUT, TimeUnit.MILLISECONDS
             String content = baiduTest().get();
 
             log.info("========================= Content is: {} ========================= ", content);

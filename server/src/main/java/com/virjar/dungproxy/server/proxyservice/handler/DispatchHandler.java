@@ -51,7 +51,6 @@ public class DispatchHandler extends ClientProcessHandler {
                 } else {
                     NetworkUtil.removeHandler(pipeline, HttpResponseEncoder.class);
                     NetworkUtil.addHandlerIfAbsent(pipeline, ConnectMethodValidator.instance);
-                    // TODO URL 校验
                     NetworkUtil.addHandlerIfAbsent(pipeline, RequestValidator.instance);
                 }
             } else {

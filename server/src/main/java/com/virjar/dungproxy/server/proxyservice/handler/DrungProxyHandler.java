@@ -61,9 +61,6 @@ public class DrungProxyHandler extends EndpointHandler {
     private RequestExecutorProxy requestExecutor;
     private ProxySelector proxySelector;
 
-
-
-
     /**
      * Time
      */
@@ -93,7 +90,6 @@ public class DrungProxyHandler extends EndpointHandler {
 
 
     public DrungProxyHandler(Channel clientChannel, String clientIp) {
-
         this.clientChannel = clientChannel;
         this.clientIp = clientIp;
         this.channelHex = Integer.toHexString(this.clientChannel.hashCode());
@@ -109,7 +105,7 @@ public class DrungProxyHandler extends EndpointHandler {
         Preconditions.checkArgument(msg instanceof FullHttpRequest);
         Boolean customUserAgent = NetworkUtil.getAttr(ctx.channel(), CUSTOM_USER_AGENT);
         try {
-            Optional<Proxy> proxyMeta = proxySelector.selectProxySelector(domain);
+            Optional<Proxy> proxyMeta = proxySelector.randomAvailableProxy(domain);
             if (proxyMeta.isPresent()) {
                 proxy = proxyMeta.get();
             }

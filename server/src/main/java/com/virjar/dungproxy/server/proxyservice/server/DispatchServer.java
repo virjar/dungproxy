@@ -69,8 +69,11 @@ public class DispatchServer {
 
     }
 
+    /**
+     * 启动Netty Server 提供统一代理服务转发请求
+     * @throws InterruptedException
+     */
     private void startNettyServer() throws InterruptedException {
-        //启动Netty Server 提供统一代理服务转发请求
         ServerBootstrap b = new ServerBootstrap();
         b.option(ChannelOption.SO_REUSEADDR, true);
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
