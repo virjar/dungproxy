@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import com.virjar.dungproxy.client.util.CommonUtil;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,8 @@ public class ConnectionValidater implements Runnable, InitializingBean {
                 List<ProxyModel> needupdate = proxyService.find4connectionupdate();
                 if (needupdate.size() == 0) {
                     logger.info("no proxy need to update");
-                    return;
+                    CommonUtil.sleep(600000);//十分钟
+                    continue;
                 }
                 // List<Future<Object>> futures = Lists.newArrayList();
                 for (ProxyModel proxy : needupdate) {
