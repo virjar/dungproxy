@@ -22,7 +22,7 @@ proxyclient.proxyDomainStrategy.whiteList=pachong.org,cn-proxy.com,www.sslproxie
 #两分钟一次向服务器反馈IP使用情况
 proxyclient.feedback.duration=120000
 proxyclient.serialize.serializer=com.virjar.dungproxy.client.ippool.strategy.JSONFileAvProxyDumper
-prxyclient.DefaultAvProxyDumper.dumpFileName=/tmp/proxyclient/availableProxy.json
+proxyclient.DefaultAvProxyDumper.dumpFileName=/tmp/proxyclient/availableProxy.json
 #server统一代理服务
 proxyclient.defaultProxy=115.159.40.202:8081
 proxyclient.preHeater.testList=http://www.66ip.cn/3.html

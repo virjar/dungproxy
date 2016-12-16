@@ -70,7 +70,7 @@ bogon:proxyipcenter virjar$
 ```
 proxyclient.proxyDomainStrategy.whiteList=pachong.org,1212.ip138.com
 proxyclient.preHeater.testList=http://pachong.org/
-prxyclient.DefaultAvProxyDumper.dumpFileName=/tmp/proxyclient/availableProxy.json
+proxyclient.DefaultAvProxyDumper.dumpFileName=/tmp/proxyclient/availableProxy.json
 ```
 这三个参数可以说使必须配置了。他们的含义如下:
 
@@ -78,7 +78,7 @@ prxyclient.DefaultAvProxyDumper.dumpFileName=/tmp/proxyclient/availableProxy.jso
 |----|----|
 |proxyclient.proxyDomainStrategy.whiteList|需要通过代理访问的网站,根据域名区分,子域名算不同域名。多个使用逗号分割|
 |proxyclient.preHeater.testList|需要被预热器探测的URL,预热器可以根据这个URL清洗第一批可以使用的IP,请注意这个URL正常的响应应该是200(302也可以,但是302之后,需要是200,这里的200是指HTTP.OK,即http协议返回码为200)|
-|prxyclient.DefaultAvProxyDumper.dumpFileName|临时文件,用于存放客户端运行时的可用IP数据,默认是:/tmp/proxyclient/availableProxy.json。windows上面的朋友要特别注意修改这个配置,否则不能正常的断点使用IP资源池,预热器也不能正常工作|
+|proxyclient.DefaultAvProxyDumper.dumpFileName|临时文件,用于存放客户端运行时的可用IP数据,默认是:/tmp/proxyclient/availableProxy.json。windows上面的朋友要特别注意修改这个配置,否则不能正常的断点使用IP资源池,预热器也不能正常工作|
 
 ## 启动预热器
 启动预热器的目的是离线的计算可用IP资源,为你的本地环境计算IP。这样能够尽力保证你本地的IP库是可用的。当然这个步骤只有第一次启动前需要做,也建议第一次访问某个网站的时候执行这一步.

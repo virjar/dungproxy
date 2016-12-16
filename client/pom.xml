@@ -13,15 +13,7 @@
     <name>client</name>
     <url>http://maven.apache.org</url>
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>logback.xml</exclude>
-                    <exclude>proxyclient.properties</exclude>
-                </excludes>
-            </resource>
-        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -39,7 +31,7 @@
                 <configuration>
                     <repositoryLayout>flat</repositoryLayout>
                     <repositoryName>lib</repositoryName>
-                    <configurationSourceDirectory>src/main/resources</configurationSourceDirectory>
+                    <configurationSourceDirectory>src/main/resources/preHeaterConfig</configurationSourceDirectory>
                     <!-- Set the target configuration directory to be used in the bin scripts -->
                     <configurationDirectory>conf</configurationDirectory>
                     <!-- Copy the contents from "/src/main/config" to the target configuration
@@ -51,11 +43,14 @@
                     <!-- prefix all bin files with "mycompany" -->
                     <!--<binPrefix>startup</binPrefix>-->
                     <!-- set alternative assemble directory -->
-                    <assembleDirectory>${project.build.directory}/client</assembleDirectory>
+                    <assembleDirectory>${project.build.directory}/dungclient</assembleDirectory>
                     <!-- Extra JVM arguments that will be included in the bin scripts -->
                     <extraJvmArguments>-Xms768m -Xmx768m -XX:PermSize=128m
                         -XX:MaxPermSize=256m -XX:NewSize=192m -XX:MaxNewSize=384m
                     </extraJvmArguments>
+                    <binFileExtensions>
+                        <unix>.sh</unix>
+                    </binFileExtensions>
                     <!-- Generate bin scripts for windows and unix pr default -->
                     <platforms>
                         <platform>windows</platform>
@@ -69,26 +64,7 @@
                     </programs>
                 </configuration>
             </plugin>
-            <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<configuration>
-					<transformers>
-						<transformer
-							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-							<mainClass>com.virjar.dungproxy.client.ippool.ProxyExporter</mainClass>
-						</transformer>
-					</transformers>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+
         </plugins>
     </build>
 
@@ -209,4 +185,51 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <excludes>
+                            <exclude>logback.xml</exclude>
+                            <exclude>proxyclient.properties</exclude>
+                        </excludes>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+        <!--  for黄承开 需要all in one 的工具,但是all in one 不建议作为依赖包使用在生成环境,所以主要方式还是打包成单独jar包-->
+        <profile>
+            <id>all_in_one</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.virjar.dungproxy.client.ippool.ProxyExporter</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
