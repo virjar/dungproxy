@@ -198,6 +198,12 @@
                         <excludes>
                             <exclude>logback.xml</exclude>
                             <exclude>proxyclient.properties</exclude>
+                            <exclude>proxyclient_all.properties</exclude>
+                            <exclude>proxyclient_minimal.properties</exclude>
+                            <exclude>proxyclient_preheater.properties</exclude>
+                            <!-- 下面两个文件专门为预热器离线预热所用 -->
+                            <exclude>preHeaterConfig/logback.xml</exclude>
+                            <exclude>preHeaterConfig/proxyclient.properties</exclude>
                         </excludes>
                     </resource>
                 </resources>
