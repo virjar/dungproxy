@@ -9,7 +9,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.virjar.dungproxy.server.entity.DomainIp;
 import com.virjar.dungproxy.server.entity.Proxy;
-import com.virjar.dungproxy.server.proxyservice.common.util.NetworkUtil;
 import com.virjar.dungproxy.server.repository.DomainIpRepository;
 import com.virjar.dungproxy.server.repository.ProxyRepository;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * Description: ProxySelectorHolder
+ * Description: ProxySelector
  *
  * @author lingtong.fu
  * @version 2016-11-11 14:56
@@ -65,12 +64,12 @@ public class ProxySelector {
             log.info("proxyCache.size() is: {}", proxyCache.size());
             return proxyFromCache(proxyCache);
         }
-        /*PageRequest pageRequest = new PageRequest(0, Integer.MAX_VALUE);
+        PageRequest pageRequest = new PageRequest(0, Integer.MAX_VALUE);
         List<DomainIp> domainIpList = domainIpRepository.selectAvailable(domain, pageRequest);
         if (domainIpList.size() > 0) {
             log.info("domainIpList.size() is: {}", domainIpList.size());
             return proxyFromDomainIp(domain, domainIpList);
-        }*/
+        }
         return ProxyFromAv(domain);
     }
 
@@ -79,7 +78,7 @@ public class ProxySelector {
         log.info("proxyList.size() is: {} randomSize is:{} ", proxyList.size(), randomSize);
         Proxy proxy = proxyList.get(randomSize);
         log.info("proxy  is: {}  ", proxy.getIp());
-        //putDomain(domain, proxy);
+        putDomain(domain, proxy);
         return Optional.of(proxy);
     }
 
