@@ -8,57 +8,7 @@
 - 使用webMagic
 
 ## 获取代码
-项目仍是snapshot中,所以需要用户自己build代码.不过在client/product目录中存在一个编译好的client,包括他所依赖的jar包
-![image](pic/client_jar.png)
-如果是自己构建代码,则如下步骤
-1. clone代码 ``git clone https://git.oschina.net/virjar/proxyipcenter.git``
 
-```
-bogon:temp virjar$ ls
-bogon:temp virjar$ git clone https://git.oschina.net/virjar/proxyipcenter.git
-Cloning into 'proxyipcenter'...
-remote: Counting objects: 4809, done.
-remote: Compressing objects: 100% (3638/3638), done.
-remote: Total 4809 (delta 2410), reused 990 (delta 530)
-Receiving objects: 100% (4809/4809), 11.59 MiB | 1.37 MiB/s, done.
-Resolving deltas: 100% (2410/2410), done.
-Checking connectivity... done.
-bogon:temp virjar$ ls
-proxyipcenter
-bogon:temp virjar$ cd proxyipcenter/
-bogon:proxyipcenter virjar$ ls
-README.md		ddl_version1.1.sql	pom.xml			repeater
-client			doc			proxyipcenter-dotnet	server
-bogon:proxyipcenter virjar$ 
-```
-2. install 到本地maven库 ``mvn install -Dmaven.test.skip=true``
-
-```
-bogon:proxyipcenter virjar$ mvn install -Dmaven.test.skip=true
-[INFO] Scanning for projects...
-[WARNING] 
-[WARNING] Some problems were encountered while building the effective model for com.virjar:client:jar:0.0.1-SNAPSHOT
-[WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-compiler-plugin is missing. @ line 17, column 21
-[WARNING] 
-[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
-[WARNING] 
-[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
-[WARNING] 
-.....
-[INFO] 
-[INFO] dungproxy ......................................... SUCCESS [0.502s]
-[INFO] client ............................................ SUCCESS [4.103s]
-[INFO] proxyipcenter-sever ............................... SUCCESS [9.467s]
-[INFO] repeater .......................................... SUCCESS [0.476s]
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------
-[INFO] Total time: 14.757s
-[INFO] Finished at: Tue Nov 01 01:11:40 CST 2016
-[INFO] Final Memory: 42M/368M
-[INFO] ------------------------------------------------------------------------
-bogon:proxyipcenter virjar$ 
-```
 
 ## 添加依赖
 ![image](pic/client_dependency.png)

@@ -1,5 +1,12 @@
 client其实是一个独立的项目,他专注于本地代理IP池的管理。他有一些默认策略,其中默认IP数据来源策略和我们的server适配。他是一个精简API,尽量不依赖与其他框架,使得它可以在跟多的环境下使用。
 
+## [构建客户端代码](build_code.md)
+
+
+
+
+
+以下是待整理的文档内容
 ## client依赖:
 - guava,google的工具类
 - logback,client默认使用logback打印日志
