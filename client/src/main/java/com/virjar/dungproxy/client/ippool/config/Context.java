@@ -68,6 +68,8 @@ public class Context {
 
     private String defaultResourceServerAddress ;
 
+    private int preheatSerilizeStep = 20;
+
     private Context() {
     }
 
@@ -105,6 +107,10 @@ public class Context {
 
     public String getDefaultResourceServerAddress() {
         return defaultResourceServerAddress;
+    }
+
+    public int getPreheatSerilizeStep() {
+        return preheatSerilizeStep;
     }
 
     public static Context getInstance() {
@@ -159,6 +165,7 @@ public class Context {
         private String preHeaterTaskList;
 
         private String defaultResourceServerAddress;
+        private String preheaterSerilizeStep;
 
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
@@ -177,6 +184,7 @@ public class Context {
             defaultProxyList = properties.getProperty(ProxyConstant.DEFAULT_PROXY_LIST);
             preHeaterTaskList = properties.getProperty(ProxyConstant.PREHEATER_TASK_LIST);
             defaultResourceServerAddress = properties.getProperty(ProxyConstant.DEFAULT_RESOURCE_SERVER_ADDRESS);
+            preheaterSerilizeStep = properties.getProperty(ProxyConstant.PREHEAT_SERIALIZE_STEP);
             return this;
         }
 
@@ -310,6 +318,8 @@ public class Context {
             }
 
 
+            //预热增量序列化时机
+            context.preheatSerilizeStep = NumberUtils.toInt(preheaterSerilizeStep,ProxyConstant.DEFAULT_PREHEATER_SERILIZE_STEP);
 
             return context;
         }

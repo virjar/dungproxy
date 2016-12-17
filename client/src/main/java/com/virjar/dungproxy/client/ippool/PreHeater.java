@@ -43,7 +43,7 @@ public class PreHeater {
     private ExecutorService pool;
     private AtomicBoolean hasInit = new AtomicBoolean(false);
     private Map<String, DomainPool> stringDomainPoolMap;
-    private AtomicLong processedTask = new AtomicLong(0);
+    private AtomicLong passedProxyNumber = new AtomicLong(0);
     private AtomicBoolean isRunning = new AtomicBoolean(false);
 
     /**
@@ -60,7 +60,7 @@ public class PreHeater {
             preHeater.addTask(url);
         }
         preHeater.doPreHeat();
-        preHeater.distroy();
+        preHeater.destroy();
     }
 
     private void init() {
@@ -71,7 +71,7 @@ public class PreHeater {
         }
     }
 
-    public void distroy() {
+    public void destroy() {
         isRunning.set(false);
         pool.shutdown();
     }
@@ -176,6 +176,9 @@ public class PreHeater {
                 domainPool.addAvailable(Lists.newArrayList(proxy));
                 logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(proxy),
                         url);
+                if (passedProxyNumber.incrementAndGet() % Context.getInstance().getPreheatSerilizeStep() == 0) {// 预热的时候,每产生20个IP,就序列化一次数据。
+                    Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
+                }
                 return true;
             } else {
                 proxy.offline();

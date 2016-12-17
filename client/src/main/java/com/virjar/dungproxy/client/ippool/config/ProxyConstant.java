@@ -22,6 +22,7 @@ public class ProxyConstant {
     public static final String DEFAULT_RESOURCE_SERVER_ADDRESS = "proxyclient.resource.defaultResourceServerAddress";
 
     public static final String PREHEATER_TASK_LIST ="proxyclient.preHeater.testList";
+    public static final String PREHEAT_SERIALIZE_STEP = "proxyclient.preHeater.serialize.step";
     public static final String configFileName = "proxyclient.properties";
     public static final String PROXY_SERIALIZER = "proxyclient.serialize.serializer";
     public static final String DEFAULT_PROXY_SERIALIZER = "com.virjar.dungproxy.client.ippool.strategy.impl.JSONFileAvProxyDumper";
@@ -35,4 +36,5 @@ public class ProxyConstant {
     // 连接池分配连接超时时间,一般用处不大
     public static final int REQUEST_TIMEOUT = 30000;
     public static final int SOCKETSO_TIMEOUT = 15000;
+    public static final int DEFAULT_PREHEATER_SERILIZE_STEP = 20;
 }
