@@ -19,7 +19,7 @@ com.virjar.dungproxy.client.ippool.strategy.Scoring 确定如何为IP打分
 接口和对应配置key的对应关系如下:
 
 |key|接口类|默认值|
-|--|--|--|
+|-|-|-|
 |proxyclient.resouce.resourceFacade|com.virjar.dungproxy.client.ippool.strategy.ResourceFacade|com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade|
 |proxyclient.proxyDomainStrategy|com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy|com.virjar.dungproxy.client.ippool.strategy.impl.WhiteListProxyStrategy|
 |proxyclient.serialize.serializer|com.virjar.dungproxy.client.ippool.strategy.AvProxyDumper|com.virjar.dungproxy.client.ippool.strategy.impl.JSONFileAvProxyDumper|
