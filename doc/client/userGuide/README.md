@@ -19,3 +19,5 @@ client其实是一个独立的项目,他专注于本地代理IP池的管理。�
 ## [使用统一代理服务(云代理)](cloud_proxy.md)
 
 ## [配置扩展点](extension.md)
+
+## [监控代理池IP状态](DrungStatView.md)(在web环境下)
