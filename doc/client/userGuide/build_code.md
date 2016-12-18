@@ -5,7 +5,7 @@
 
 ### 获取已经编译好的稳定版本jar包
 项目仍在开发中,暂时没有考虑在某个maven中央仓库发布,所以需要用户自己build代码.不过在client/dungclient 目录中存在一个编译好的client,包括他所依赖的jar包
-![image](../pic/preheater_bin_location.png)
+![image](../../pic/preheater_bin_location.png)
 无论通过何种方式,获取到代码,在发布文件目录可以找到jar包资源,同时这个目录包含了jar包所依赖的其他base lib。同时,这个文件夹也包含适用于离线预热IP资源的一个脚本。
 dunclient 目录结构如下 
 ```

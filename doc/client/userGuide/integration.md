@@ -3,11 +3,11 @@
 dungclient所有jar包在client/dungclient/lib,拷贝所有jar包到你的lib下,并将其添加到classpath即可
 ##通过maven的方式引入dungclient
 1. 首先需要安装依赖到本地maven库,参见[构建客户端代码](build_code.md)
-2. 在自己的pom里面添加依赖![image](../pic/client_dependency.png)
+2. 在自己的pom里面添加依赖![image](../../pic/client_dependency.png)
 
 ## 配置client规则
 配置参数是使用配置文件描述一些代理池需要的规则。如确定那些请求需要被代理等。在resources目录添加文件``proxyclient.properties``
-![image](../pic/proxyclient_properties.png)
+![image](../../pic/proxyclient_properties.png)
 
 完整的配置如下:
 ```

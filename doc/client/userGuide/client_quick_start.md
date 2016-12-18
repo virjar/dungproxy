@@ -11,11 +11,11 @@
 
 
 ## 添加依赖
-![image](pic/client_dependency.png)
+![image](../../pic/client_dependency.png)
 
 ## 配置参数
 配置参数是使用配置文件描述一些代理池需要的规则。如确定那些请求需要被代理等。在resouces目录添加文件``proxyclient.properties``
-![image](pic/proxyclient_properties.png)
+![image](../../pic/proxyclient_properties.png)
 内容如下:
 ```
 proxyclient.proxyDomainStrategy.whiteList=pachong.org,1212.ip138.com
@@ -34,7 +34,7 @@ proxyclient.DefaultAvProxyDumper.dumpFileName=/tmp/proxyclient/availableProxy.js
 启动预热器的目的是离线的计算可用IP资源,为你的本地环境计算IP。这样能够尽力保证你本地的IP库是可用的。当然这个步骤只有第一次启动前需要做,也建议第一次访问某个网站的时候执行这一步.
 预热器启动方式有两种
 1. 通过代码
-![image](pic/pre_heat_code.png)
+![image](../../pic/pre_heat_code.png)
 
 ```
 import com.virjar.dungproxy.client.ippool.PreHeater;
@@ -51,7 +51,7 @@ public class Main {
 
 2. 通过java命令
 在product目录中,执行 ``java -jar client-0.0.1-SNAPSHOT.jar ``
-![image](pic/pre_heat_jar.png)
+![image](../../pic/pre_heat_jar.png)
 等待程序执行结束(如果执行过,今后就不必再次执行了)
 
 ## 使用代理访问
@@ -83,7 +83,7 @@ public class Main {
 
 ## 使用webMagic
 ###添加webMagic依赖
-![image](pic/webmagic_dependency.png)
+![image](../.../pic/webmagic_dependency.png)
 ###添加如下代码 注意我们修改 ``new DungProxyDownloader()``,也即重写了downLoader
 ```
 import java.io.IOException;
@@ -121,4 +121,4 @@ public class Main implements PageProcessor {
 }
 ```
 ###效果如下
-![image](pic/webMagic_run.png)
+![image](../../pic/webMagic_run.png)

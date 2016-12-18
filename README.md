@@ -3,11 +3,11 @@ DrungProxy是一个代理IP服务,他包括一个代理IP资源server端和一�
 
 ## [server设计说明](doc/server/server.md )
 
-## [java client设计说明](doc/client/design.md)
+## [java client设计说明](doc/client/design/README.md)
 
 ## [server 部署手册]()
 
-## [client使用手册](doc/client/README.md)
+## [client使用手册](doc/client/userGuide/README.md)
 
 
 qq 群,人肉文档支持😁 
