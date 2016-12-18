@@ -1,6 +1,16 @@
-#所有的配置
+# 在java工程里面使用dungclient
+##在普通java工程里面引入dungclient
+dungclient所有jar包在client/dungclient/lib,拷贝所有jar包到你的lib下,并将其添加到classpath即可
+##通过maven的方式引入dungclient
+1. 首先需要安装依赖到本地maven库,参见[构建客户端代码](build_code.md)
+2. 在自己的pom里面添加依赖![image](../pic/client_dependency.png)
 
+## 配置client规则
+配置参数是使用配置文件描述一些代理池需要的规则。如确定那些请求需要被代理等。在resources目录添加文件``proxyclient.properties``
+![image](../pic/proxyclient_properties.png)
 
+完整的配置如下:
+```
 #调研,可配置既可编程
 #资源适配器,实现接口com.virjar.dungproxy.client.ippool.strategy.ResourceFacade,可以自定义,然后接入自己的ip源
 proxyclient.resouce.resourceFacade=com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade
@@ -25,3 +35,11 @@ proxyclient.preHeater.testList=https://www.douban.com/group/explore
 proxyclient.resource.defaultResourceServerAddress=http://proxy.scumall.com:8080
 #预热器增量序列化,在测试通过一定数目的资源的时候,就会将数据序列化,防止长时间运行,任务中断预热数据丢失
 proxyclient.preHeater.serialize.step=30
+```
+
+## 最简配置如下
+```
+proxyclient.proxyDomainStrategy.whiteList=pachong.org,cn-proxy.com,www.sslproxies.org,www.66ip.cn,proxy-list.org,free-proxy-list.net
+proxyclient.DefaultAvProxyDumper.dumpFileName=/Users/virjar/git/proxyipcenter/client/product/availableProxy.json
+```
+需要注意,proxyclient.DefaultAvProxyDumper.dumpFileName最好是预热器预热结果的那个文件。这样IP池才能使用到预热结果

@@ -44,7 +44,7 @@ bogon:dungclient virjar$
 - conf目录是离线预热器的配置目录,用来配置预热任务的相关参数
 - lib目录是离线预热器的相关jar包,包括dungproxyclient的jar和他所依赖的必要jar包
 
-关于离线预热器的具体作用,和具体使用方法,参见:TODO
+关于离线预热器的具体作用,和具体使用方法,参见:[预热](warm.md)
 
 ### 通过maven 将client安装到本地仓库(建议使用这种方式)
 项目通过maven管理,编译打包jar包比较简单。如下步骤

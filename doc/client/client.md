@@ -2,9 +2,13 @@ client其实是一个独立的项目,他专注于本地代理IP池的管理。�
 
 ## [构建客户端代码](build_code.md)
 
+## [预热IP资源](warm.md) 如果你的IP是私有高质量IP,可以考虑不进行此步骤
 
+## [集成client到你的工程](integration.md)
 
+## [调用IP池对象](ip_pool.md)
 
+## [集成IP池到httpclient](httpclient.md)
 
 以下是待整理的文档内容
 ## client依赖:
@@ -14,31 +18,6 @@ client其实是一个独立的项目,他专注于本地代理IP池的管理。�
 - httpclient
 - 没有啦,其他的感觉都不是必要的,即使现在有,等一段时间也会把它精简出去
 
-## client配置
-client使用其实是需要配置的,我们希望不用做任何配置就可以实现代理功能,但是这样会大大导致灵活性。所以有一点点必要的配置也是可以的。比如我们总应该配置哪些请求需要走代理,哪些不需要吧。
-默认client配置名称是``proxyclient.properties``这个文件名称是确定的,在proxyConstant中记录。事例如下
-```
-proxyclient.resouce.resourceFacade=com.virjar.dungproxy.client.ippool.strategy.resource.DefaultResourceFacade
-#代理策略配置
-#WHITE_LIST,BLACK_LIST,所有请求都要代理,所有请求都不代理,在白名单的请求代理,不在黑名单的请求代理
-proxyclient.proxyDomainStrategy=WHITE_LIST
-#配置需要代理的域名,当代理策略为黑名单策略的时候生效
-proxyclient.proxyDomainStrategy.backList=115.159.40.202
-#配置需要代理的域名,当代理策略为白名单策略的时候生效
-proxyclient.proxyDomainStrategy.whiteList=pachong.org,cn-proxy.com,www.sslproxies.org,www.66ip.cn,proxy-list.org,free-proxy-list.net
-#两分钟一次向服务器反馈IP使用情况
-proxyclient.feedback.duration=120000
-proxyclient.serialize.serializer=com.virjar.dungproxy.client.ippool.strategy.JSONFileAvProxyDumper
-proxyclient.DefaultAvProxyDumper.dumpFileName=/tmp/proxyclient/availableProxy.json
-#server统一代理服务
-proxyclient.defaultProxy=115.159.40.202:8081
-proxyclient.preHeater.testList=http://www.66ip.cn/3.html
-```
-最简配置还可以是这样
-```
-proxyclient.proxyDomainStrategy.whiteList=pachong.org,cn-proxy.com,www.sslproxies.org,www.66ip.cn,proxy.goubanjia.com,proxy-list.org,free-proxy-list.net
-```
-当前你什么都不配也可以使用,只是他不会代理任何请求,只是当作普通的httpclient使用了
 
 
 ## client三个组成模块
@@ -58,9 +37,6 @@ IpPool是单例的,做成单例的原因是,没有地方存放这个实例。我
 #### 规则加载
 我们也遵循可配置即可编程的原则,虽然我们默认提供了一个配置文件的方式控制各种策略,但是你完全可以不来这一套。可以通过``com.virjar.dungproxy.client.ippool.config.Context.ConfigBuilder``来实现代码定制规则。当前我们系统也是通过他来实现properties文件的规则加载的。获取Builder实例之后,可以通过代码对他定制,然后使用``com.virjar.ipproxy.ippool.config.Context.initEnv``注册配置。不好意思,这个Context也是静态的,就当我再一次拍脑门儿了吧。
 #### IP获取
-获取一个IP的方式是这样的 ``IpPool.getInstance().bind(target.getHostName(), accessUrl, user);`` 第一个参数是域名,第二个参数是你当前需要访问的url,第三个参数是当前那个用户再访问。第二个参数和第三个参数可以忽略,第一个不能,因为我们本来根据域名来维护IP池的。第二个参数的作用是:(如果IP不够,将会把这个url发送到服务器,服务器会根据这个url离线跑出可用IP,放置到对应的域名IP池)。第三个参数代表用户,这个用户是逻辑上的,主要场景是存在多个账户登录同一个网站进行数据抓取,这个时候希望每个用户再每次请求的时候,尽量(通过一致性hash尽量包装)获取的是同一个IP。当然传入null代表随机绑定IP了。
-#### IP下线
-IP下线很简单,拿到IP实例,这样调用``com.virjar.dungproxy.client.model.AvProxy.offline()``。当然其实我不建议这么做,最好的方式是记录一次失败使用``com.virjar.dungproxy.client.model.AvProxy.recordFailed()``。然后他会尝试问一问下线策略是否需要下线IP
 
 ### 和HttpClient集成
 和HttpClient集成很简单,只需要再HttpclientBuilder的时候,植入两个类即可
