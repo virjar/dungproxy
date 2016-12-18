@@ -21,3 +21,15 @@ DunProxyHttpRequestRetryHandler和自定义handler共存方法
 ```
 DunProxyHttpRequestRetryHandler dungHandler = new DunProxyHttpRequestRetryHandler(YourHandler);
 ```
+
+##在httpclient上面操作代理IP
+对于IPPool,httpclient属于IpPool上层,有些场景需要提供上层控制IpPool某个表现的能力。httpClient绑定代理IP之后,将会把IP注册到httpclientContext之中,这样就可以通过httpclientContext获取IP实例了
+有一个工具类用于操作IP ``com.virjar.dungproxy.client.util.PoolUtil1``提供的接口如下:
+- com.virjar.dungproxy.client.util.PoolUtil.recordFailed 记录IP使用失败
+- com.virjar.dungproxy.client.util.PoolUtil.offline 下线当前绑定到httpClientContext上面的IP
+- com.virjar.dungproxy.client.util.PoolUtil.cleanProxy 删除绑定在当前httpClientContext上面的IP(这样会强制切换IP),和下线不一样的是,他不会导致IP被IP池移除
+- com.virjar.dungproxy.client.util.PoolUtil.bindUserKey 注册当前模拟账户,这样不管代理池状态如何,都会绑定同一个IP(如果IP没有下线)
+- com.virjar.dungproxy.client.util.PoolUtil.getBindProxy 获取绑定在httpClientContext的IP
+
+
+

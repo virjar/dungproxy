@@ -243,7 +243,7 @@ public class Context {
             return this;
         }
 
-        public Context build() {
+        private Context build() {
             Context context = new Context();
             //服务器地址
             if(StringUtils.isEmpty(defaultResourceServerAddress)){
