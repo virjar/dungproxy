@@ -30,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=6.9.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>DLL\MySql.Data.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -45,19 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Decoder\JsonObjectDecoder.cs" />
-    <Compile Include="HTTPHelper.cs" />
-    <Compile Include="Model\MyDBHelper.cs" />
     <Compile Include="Model\Proxy.cs" />
-    <Compile Include="Model\ProxyDAL.cs" />
     <Compile Include="ProxyipCenterClicent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="DLL\MySql.Data.dll" />
-    <Content Include="DLL\MySql.Data.Entity.dll" />
-    <Content Include="DLL\MySql.Data.Entity.EF6.dll" />
-    <Content Include="DLL\MySql.Fabric.Plugin.dll" />
-    <Content Include="DLL\MySql.Web.dll" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -4,7 +4,6 @@
 //============================================================
 //此处的属性名请与json包中对应的名字保持一致 否则解析会非常困难
 //============================================================
-using proxyipcenter_dotnet.DAL;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,8 +19,7 @@ namespace proxyipcenter_dotnet.Model
 	public class Proxy
     {
 
-        private static readonly ProxyDAL dal = new ProxyDAL();
-
+       
         #region 属性
 
         /// <summary>
@@ -170,15 +168,7 @@ namespace proxyipcenter_dotnet.Model
 
         #region
 
-        /// <summary>
-        /// 加载可用的代理数据
-        /// </summary>
-        /// <param name="pageCount"></param>
-        /// <returns></returns>
-        public static IEnumerable<Proxy> LoadAvailableProxyList(int pageCount=0)
-        {
-            return dal.GetAvailableProxyList(pageCount);
-        }
+        
         public Proxy()
         {
 
