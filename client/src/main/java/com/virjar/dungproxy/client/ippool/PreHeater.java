@@ -77,6 +77,9 @@ public class PreHeater {
     }
 
     public PreHeater addTask(String url) {
+        if (!url.startsWith("http")) {
+            url = "http://" + url;
+        }
         taskUrls.add(url);
         return this;
     }
