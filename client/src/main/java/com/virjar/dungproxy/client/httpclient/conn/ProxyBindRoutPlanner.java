@@ -59,6 +59,7 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
             bind = IpPool.getInstance().bind(target.getHostName(), accessUrl, user);
         }
         if (bind != null) {
+            logger.info("当前使用IP为:{}:{}", bind.getIp(), bind.getPort());
             bind.recordUsage();
             if (user != null) {// 记录这个用户绑定的IP
                 UserEnv userEnv = UserEnv.class.cast(context.getAttribute(ProxyConstant.USER_ENV_CONTAINER_KEY));
