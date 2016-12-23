@@ -43,3 +43,5 @@ proxyclient.proxyDomainStrategy.whiteList=pachong.org,cn-proxy.com,www.sslproxie
 proxyclient.DefaultAvProxyDumper.dumpFileName=/Users/virjar/git/proxyipcenter/client/product/availableProxy.json
 ```
 需要注意,proxyclient.DefaultAvProxyDumper.dumpFileName最好是预热器预热结果的那个文件。这样IP池才能使用到预热结果
+
+请注意⚠:最简配置里面的两个参数必须配置,且域名信息必须和预热器里面填写的testURL域名一致。dumpFile必须指向正确的预热结果文件。否则在启动程序的开始一段时间,是不会挂上代理的

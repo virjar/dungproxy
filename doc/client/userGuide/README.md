@@ -21,3 +21,5 @@ client其实是一个独立的项目,他专注于本地代理IP池的管理。�
 ## [配置扩展点](extension.md)
 
 ## [监控代理池IP状态](DrungStatView.md)(在web环境下)
+
+## [faq 常见问题](faq.md)
