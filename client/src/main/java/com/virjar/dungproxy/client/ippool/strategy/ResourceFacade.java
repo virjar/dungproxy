@@ -2,7 +2,7 @@ package com.virjar.dungproxy.client.ippool.strategy;
 
 import java.util.List;
 
-import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.model.AvProxyVO;
 
 /**
  * Created by virjar on 16/9/29.<br/>
@@ -10,10 +10,10 @@ import com.virjar.dungproxy.client.model.AvProxy;
  */
 public interface ResourceFacade {
 
-    List<AvProxy> importProxy(String domain, String testUrl, Integer number);
+    List<AvProxyVO> importProxy(String domain, String testUrl, Integer number);
 
-    void feedBack(String domain, List<AvProxy> avProxies, List<AvProxy> disableProxies);
+    void feedBack(String domain, List<AvProxyVO> avProxies, List<AvProxyVO> disableProxies);
 
-    //for preHeater
-    List<AvProxy> allAvailable();
+    // for preHeater
+    List<AvProxyVO> allAvailable();
 }

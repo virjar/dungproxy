@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.virjar.dungproxy.client.ippool.strategy.AvProxyDumper;
+import com.virjar.dungproxy.client.model.AvProxyVO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,27 +42,16 @@ public class PlainTextFileAvProxyDumper implements AvProxyDumper {
 	}
 
 	@Override
-	public void serializeProxy(Map<String, List<AvProxy>> data) {
-		data = Maps.transformValues(data, new Function<List<AvProxy>, List<AvProxy>>() {
-			@Override
-			public List<AvProxy> apply(List<AvProxy> input) {
-				return Lists.transform(input, new Function<AvProxy, AvProxy>() {
-					@Override
-					public AvProxy apply(AvProxy input) {
-						input.setDomainPool(null);
-						return input;
-					}
-				});
-			}
-		});
+	public void serializeProxy(Map<String, List<AvProxyVO>> data) {
+
 
 		BufferedWriter bufferedWriter = null;
 		int resultNum = 0;
 		try {
 			bufferedWriter = Files.newWriter(new File(CommonUtil.ensurePathExist(trimFileName())),
 					Charset.defaultCharset());
-			for (List<AvProxy> proxies : data.values()) {
-				for (AvProxy avProxy : proxies) {
+			for (List<AvProxyVO> proxies : data.values()) {
+				for (AvProxyVO avProxy : proxies) {
 					bufferedWriter.write(avProxy.getIp() + ":" + avProxy.getPort());
 					bufferedWriter.newLine();
 					resultNum++;
@@ -76,16 +66,16 @@ public class PlainTextFileAvProxyDumper implements AvProxyDumper {
 	}
 
 	@Override
-	public Map<String, List<AvProxy>> unSerializeProxy() {
-		Map<String, List<AvProxy>> ret = Maps.newHashMap();
+	public Map<String, List<AvProxyVO>> unSerializeProxy() {
+		Map<String, List<AvProxyVO>> ret = Maps.newHashMap();
 		if (!new File(trimFileName()).exists()) {
 			return ret;
 		}
 		try {
 			List<String> proxies = Files.readLines(new File(trimFileName()), Charset.defaultCharset());
-			List<AvProxy> avProxies = Lists.newLinkedList();
+			List<AvProxyVO> avProxies = Lists.newLinkedList();
 			for (String proxyString : proxies) {
-				AvProxy avProxy = new AvProxy();
+				AvProxyVO avProxy = new AvProxyVO();
 				String tmpString[] = proxyString.split(":");
 				avProxy.setIp(tmpString[0]);
 				avProxy.setPort(new Integer(tmpString[1]));

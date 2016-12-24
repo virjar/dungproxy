@@ -20,7 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.ippool.strategy.AvProxyDumper;
-import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.util.CommonUtil;
 
 /**
@@ -31,19 +31,7 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
     private String dumpFileName;
 
     @Override
-    public void serializeProxy(Map<String, List<AvProxy>> data) {
-        data = Maps.transformValues(data, new Function<List<AvProxy>, List<AvProxy>>() {
-            @Override
-            public List<AvProxy> apply(List<AvProxy> input) {
-                return Lists.transform(input, new Function<AvProxy, AvProxy>() {
-                    @Override
-                    public AvProxy apply(AvProxy input) {
-                        input.setDomainPool(null);
-                        return input;
-                    }
-                });
-            }
-        });
+    public void serializeProxy(Map<String, List<AvProxyVO>> data) {
 
         BufferedWriter bufferedWriter = null;
         try {
@@ -58,8 +46,8 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
     }
 
     @Override
-    public Map<String, List<AvProxy>> unSerializeProxy() {
-        Map<String, List<AvProxy>> ret = Maps.newHashMap();
+    public Map<String, List<AvProxyVO>> unSerializeProxy() {
+        Map<String, List<AvProxyVO>> ret = Maps.newHashMap();
         if (!new File(trimFileName()).exists()) {
             return ret;
         }
@@ -71,16 +59,15 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
                 return ret;
             }
 
-            logger.info("test log");
             for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
                 ret.put(entry.getKey(),
                         Lists.transform(
                                 JSONArray.class.cast(entry.getValue()).subList(0,
                                         JSONArray.class.cast(entry.getValue()).size()),
-                                new Function<Object, AvProxy>() {
+                                new Function<Object, AvProxyVO>() {
                                     @Override
-                                    public AvProxy apply(Object input) {
-                                        return JSONObject.toJavaObject(JSONObject.class.cast(input), AvProxy.class);
+                                    public AvProxyVO apply(Object input) {
+                                        return JSONObject.toJavaObject(JSONObject.class.cast(input), AvProxyVO.class);
                                     }
                                 }));
             }

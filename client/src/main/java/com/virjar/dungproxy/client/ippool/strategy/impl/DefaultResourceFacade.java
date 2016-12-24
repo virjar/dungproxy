@@ -3,6 +3,7 @@ package com.virjar.dungproxy.client.ippool.strategy.impl;
 import java.util.List;
 
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
+import com.virjar.dungproxy.client.model.AvProxyVO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -41,7 +42,7 @@ public class DefaultResourceFacade implements ResourceFacade {
     }
 
     @Override
-    public List<AvProxy> importProxy(String domain, String testUrl, Integer number) {
+    public List<AvProxyVO> importProxy(String domain, String testUrl, Integer number) {
         if (number == null || number < 1) {
             number = 30;
         }
@@ -68,7 +69,7 @@ public class DefaultResourceFacade implements ResourceFacade {
     }
 
     @Override
-    public void feedBack(String domain, List<AvProxy> avProxies, List<AvProxy> disableProxies) {
+    public void feedBack(String domain, List<AvProxyVO> avProxies, List<AvProxyVO> disableProxies) {
         Preconditions.checkNotNull(domain);
         Preconditions.checkNotNull(avProxies);
         Preconditions.checkNotNull(disableProxies);
@@ -80,7 +81,7 @@ public class DefaultResourceFacade implements ResourceFacade {
     }
 
     @Override
-    public List<AvProxy> allAvailable() {
+    public List<AvProxyVO> allAvailable() {
         String response = HttpInvoker.get(allAvUrl);
         if (StringUtils.isBlank(response)) {
             logger.error("can not get available ip resource from server: ");
@@ -95,11 +96,11 @@ public class DefaultResourceFacade implements ResourceFacade {
         return convert(jsonObject.getJSONArray("data"));
     }
 
-    private List<AvProxy> convert(JSONArray jsonArray) {
-        List<AvProxy> ret = Lists.newArrayList();
+    private List<AvProxyVO> convert(JSONArray jsonArray) {
+        List<AvProxyVO> ret = Lists.newArrayList();
         for (Object obj : jsonArray) {
             JSONObject proxy = JSONObject.class.cast(obj);
-            AvProxy avProxy = new AvProxy();
+            AvProxyVO avProxy = new AvProxyVO();
             avProxy.setIp(proxy.getString("ip"));
             avProxy.setPort(proxy.getInteger("port"));
             ret.add(avProxy);

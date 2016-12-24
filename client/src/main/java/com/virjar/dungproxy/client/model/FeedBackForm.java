@@ -8,22 +8,22 @@ import java.util.List;
 public class FeedBackForm {
     private String domain;
 
-    private List<AvProxy> avProxy;
-    private List<AvProxy> disableProxy;
+    private List<AvProxyVO> avProxy;
+    private List<AvProxyVO> disableProxy;
 
-    public List<AvProxy> getAvProxy() {
+    public List<AvProxyVO> getAvProxy() {
         return avProxy;
     }
 
-    public void setAvProxy(List<AvProxy> avProxy) {
+    public void setAvProxy(List<AvProxyVO> avProxy) {
         this.avProxy = avProxy;
     }
 
-    public List<AvProxy> getDisableProxy() {
+    public List<AvProxyVO> getDisableProxy() {
         return disableProxy;
     }
 
-    public void setDisableProxy(List<AvProxy> disableProxy) {
+    public void setDisableProxy(List<AvProxyVO> disableProxy) {
         this.disableProxy = disableProxy;
     }
 

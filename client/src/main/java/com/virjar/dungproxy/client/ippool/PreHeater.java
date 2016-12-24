@@ -24,6 +24,7 @@ import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.client.util.IpAvValidator;
 
@@ -95,7 +96,7 @@ public class PreHeater {
         Map<String, String> urlMap = transformDomainUrlMap(taskUrls);
         List<Future<Boolean>> futureList = Lists.newArrayList();
         ResourceFacade resourceFacade = ObjectFactory.newInstance(Context.getInstance().getResourceFacade());
-        List<AvProxy> candidateProxies = resourceFacade.allAvailable();
+        List<AvProxyVO> candidateProxies = resourceFacade.allAvailable();
         // 加载历史数据
         for (Map.Entry<String, DomainPool> entry : stringDomainPoolMap.entrySet()) {
             if (!urlMap.containsKey(entry.getKey())) {
@@ -107,7 +108,7 @@ public class PreHeater {
         }
 
         // 加载服务器新导入的资源
-        for (AvProxy avProxy : candidateProxies) {
+        for (AvProxyVO avProxy : candidateProxies) {
             for (String url : taskUrls) {
                 futureList.add(pool.submit(new UrlCheckTask(avProxy, url)));
             }
@@ -139,7 +140,7 @@ public class PreHeater {
 
     }
 
-    public boolean check4UrlSync(AvProxy avProxy, String url, DomainPool domainPool) {
+    public boolean check4UrlSync(AvProxyVO avProxy, String url, DomainPool domainPool) {
         try {
             return new UrlCheckTask(domainPool, avProxy, url).call();
         } catch (Exception e) {
@@ -152,14 +153,25 @@ public class PreHeater {
         AvProxy proxy;
         DomainPool domainPool;
 
-        UrlCheckTask(AvProxy proxy, String url) {
-            this.proxy = proxy.copy();
+        UrlCheckTask(AvProxyVO proxy, String url) {
+            this.proxy = proxy.toModel();// proxy.copy();
             this.url = url;
         }
 
-        public UrlCheckTask(DomainPool domainPool, AvProxy proxy, String url) {
+        public UrlCheckTask(DomainPool domainPool, AvProxyVO proxy, String url) {
             this.domainPool = domainPool;
-            this.proxy = proxy;
+            this.proxy = proxy.toModel();
+            this.url = url;
+        }
+
+        public UrlCheckTask(DomainPool domainPool, AvProxy avProxy, String url) {
+            this.domainPool = domainPool;
+            this.proxy = avProxy;
+            this.url = url;
+        }
+
+        public UrlCheckTask(AvProxy avProxy, String url) {
+            this.proxy = avProxy;// proxy.copy();
             this.url = url;
         }
 
@@ -200,31 +212,39 @@ public class PreHeater {
     }
 
     private void unSerialize() {
-        Map<String, DomainPool> pool = Maps.newConcurrentMap();
-        Map<String, List<AvProxy>> stringListMap = Context.getInstance().getAvProxyDumper().unSerializeProxy();
+        final Map<String, DomainPool> pool = Maps.newConcurrentMap();
+        Map<String, List<AvProxyVO>> stringListMap = Context.getInstance().getAvProxyDumper().unSerializeProxy();
         if (stringListMap == null) {
             return;
         }
         String importer = Context.getInstance().getResourceFacade();
-        for (Map.Entry<String, List<AvProxy>> entry : stringListMap.entrySet()) {
+
+        for (final Map.Entry<String, List<AvProxyVO>> entry : stringListMap.entrySet()) {
+            List<AvProxy> avProxies = Lists.transform(entry.getValue(), new Function<AvProxyVO, AvProxy>() {
+                @Override
+                public AvProxy apply(AvProxyVO input) {
+                    return input.toModel();
+                }
+            });
+
             if (pool.containsKey(entry.getKey())) {
-                pool.get(entry.getKey()).addAvailable(entry.getValue());
+                pool.get(entry.getKey()).addAvailable(avProxies);
             } else {
                 pool.put(entry.getKey(), new DomainPool(entry.getKey(),
-                        ObjectFactory.<ResourceFacade> newInstance(importer), entry.getValue()));
+                        ObjectFactory.<ResourceFacade> newInstance(importer), avProxies));
             }
         }
         stringDomainPoolMap = pool;
     }
 
-    private Map<String, List<AvProxy>> getPoolInfo(Map<String, DomainPool> pool) {
-        return Maps.transformValues(pool, new Function<DomainPool, List<AvProxy>>() {
+    private Map<String, List<AvProxyVO>> getPoolInfo(Map<String, DomainPool> pool) {
+        return Maps.transformValues(pool, new Function<DomainPool, List<AvProxyVO>>() {
             @Override
-            public List<AvProxy> apply(DomainPool domainPool) {// copy 一份新数据出去,数据结构会给外部使用,随意暴露可能会导致数据错误
-                return Lists.transform(domainPool.availableProxy(), new Function<AvProxy, AvProxy>() {
+            public List<AvProxyVO> apply(DomainPool domainPool) {// copy 一份新数据出去,数据结构会给外部使用,随意暴露可能会导致数据错误
+                return Lists.transform(domainPool.availableProxy(), new Function<AvProxy, AvProxyVO>() {
                     @Override
-                    public AvProxy apply(AvProxy input) {
-                        return input.copy();
+                    public AvProxyVO apply(AvProxy input) {
+                        return AvProxyVO.fromModel(input);
                     }
                 });
 

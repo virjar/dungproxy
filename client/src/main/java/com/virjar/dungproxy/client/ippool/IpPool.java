@@ -13,8 +13,9 @@ import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.ippool.exception.PoolDestroyException;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
-import com.virjar.dungproxy.client.util.CommonUtil;
 import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.model.AvProxyVO;
+import com.virjar.dungproxy.client.util.CommonUtil;
 
 /**
  * Description: IpListPool
@@ -53,25 +54,43 @@ public class IpPool {
     }
 
     public void destroy() {
-        Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo());
+        Context.getInstance().getAvProxyDumper()
+                .serializeProxy(Maps.transformValues(getPoolInfo(), new Function<List<AvProxy>, List<AvProxyVO>>() {
+                    @Override
+                    public List<AvProxyVO> apply(List<AvProxy> input) {
+                        return Lists.transform(input, new Function<AvProxy, AvProxyVO>() {
+                            @Override
+                            public AvProxyVO apply(AvProxy input) {
+                                return AvProxyVO.fromModel(input);
+                            }
+                        });
+                    }
+                }));
         isRunning = false;
         feedBackThread.interrupt();
         freshResourceThread.interrupt();
     }
 
     public void unSerialize() {
-        Map<String, List<AvProxy>> stringListMap = Context.getInstance().getAvProxyDumper().unSerializeProxy();
+        Map<String, List<AvProxyVO>> stringListMap = Context.getInstance().getAvProxyDumper().unSerializeProxy();
         if (stringListMap == null) {
             return;
         }
         String importer = Context.getInstance().getResourceFacade();
-        for (Map.Entry<String, List<AvProxy>> entry : stringListMap.entrySet()) {
+        for (Map.Entry<String, List<AvProxyVO>> entry : stringListMap.entrySet()) {
+            List<AvProxy> proxies = Lists.transform(entry.getValue(), new Function<AvProxyVO, AvProxy>() {
+
+                @Override
+                public AvProxy apply(AvProxyVO input) {
+                    return input.toModel();
+                }
+            });
             if (pool.containsKey(entry.getKey())) {
-                pool.get(entry.getKey()).addAvailable(entry.getValue());
+                pool.get(entry.getKey()).addAvailable(proxies);
             } else {
-                pool.put(entry.getKey(), new DomainPool(entry.getKey(),
-                        ObjectFactory.<ResourceFacade> newInstance(importer)));
-                pool.get(entry.getKey()).addAvailable(entry.getValue());
+                pool.put(entry.getKey(),
+                        new DomainPool(entry.getKey(), ObjectFactory.<ResourceFacade> newInstance(importer)));
+                pool.get(entry.getKey()).addAvailable(proxies);
             }
         }
     }
@@ -95,13 +114,12 @@ public class IpPool {
         return Maps.transformValues(pool, new Function<DomainPool, List<AvProxy>>() {
             @Override
             public List<AvProxy> apply(DomainPool domainPool) {// copy 一份新数据出去,数据结构会给外部使用,随意暴露可能会导致数据错误
-                return Lists.transform(domainPool.availableProxy(), new Function<AvProxy, AvProxy>() {
-                    @Override
-                    public AvProxy apply(AvProxy input) {
-                        return input.copy();
-                    }
-                });
+                return domainPool.availableProxy();// 新设计,模型视图分离,不考虑copy数据问题
 
+                /*
+                 * return Lists.transform(domainPool.availableProxy(), new Function<AvProxy, AvProxy>() {
+                 * @Override public AvProxy apply(AvProxy input) { return input.copy(); } });
+                 */
             }
         });
     }
@@ -112,7 +130,6 @@ public class IpPool {
         public void run() {
             while (isRunning) {
                 CommonUtil.sleep(Context.getInstance().getFeedBackDuration());
-                Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo());
                 for (DomainPool domainPool : pool.values()) {
                     try {
                         domainPool.feedBack();
@@ -143,8 +160,8 @@ public class IpPool {
         }
     }
 
-    //for monitor
-    public int totalDomain(){
+    // for monitor
+    public int totalDomain() {
         return pool.size();
     }
 

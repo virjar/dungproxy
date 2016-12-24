@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.virjar.dungproxy.client.ippool.strategy.Scoring;
-import com.virjar.dungproxy.client.model.Score;
+import com.virjar.dungproxy.client.model.AvProxy;
 
 /**
  * Created by virjar on 16/11/16.
@@ -13,7 +13,7 @@ public class DefaultScoring implements Scoring {
     private static final Logger logger = LoggerFactory.getLogger(DefaultScoring.class);
 
     @Override
-    public double newAvgScore(Score score, int factory, boolean isSuccess) {
+    public double newAvgScore(AvProxy score, int factory, boolean isSuccess) {
         if (score.getAvgScore() == 0D && isSuccess) {
             return 1D;
         }

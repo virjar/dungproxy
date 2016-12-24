@@ -12,12 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.model.DefaultProxy;
 
 /**
@@ -63,15 +65,16 @@ public class DomainPool {
     }
 
     public void addAvailable(Collection<AvProxy> avProxyList) {
-        List<AvProxy> newList = Lists.newArrayList(avProxyList);//傻逼Collection可能是懒加载的。导致遍历的对象是新建的,操作不到
-        for (AvProxy avProxy : newList) {//这里必须设置这个,然后才能真正放到资源池里面去
+        List<AvProxy> newList = Lists.newArrayList(avProxyList);// 傻逼Collection可能是懒加载的。导致遍历的对象是新建的,操作不到
+        for (AvProxy avProxy : newList) {// 这里必须设置这个,然后才能真正放到资源池里面去
             avProxy.setDomainPool(this);
         }
         smartProxyQueue.addAllProxy(newList);
-        /*
-         * readWriteLock.writeLock().lock(); try { for (AvProxy avProxy : avProxyList) { avProxy.setDomainPool(this);
-         * consistentBuckets.put(avProxy.hashCode(), avProxy); } } finally { readWriteLock.writeLock().unlock(); }
-         */
+    }
+
+    public void addAvailable(AvProxy avProxy) {
+        avProxy.setDomainPool(this);
+        smartProxyQueue.addWithScore(avProxy);
     }
 
     public List<AvProxy> availableProxy() {
@@ -133,11 +136,19 @@ public class DomainPool {
     }
 
     public void feedBack() {
-        resourceFacade.feedBack(domain, Lists.newArrayList(smartProxyQueue.values()), removedProxies);
+        resourceFacade.feedBack(domain,
+                Lists.transform(Lists.newArrayList(smartProxyQueue.values()), new Function<AvProxy, AvProxyVO>() {
+                    @Override
+                    public AvProxyVO apply(AvProxy input) {
+                        return AvProxyVO.fromModel(input);
+                    }
+                }), Lists.transform(removedProxies, new Function<AvProxy, AvProxyVO>() {
+                    @Override
+                    public AvProxyVO apply(AvProxy input) {
+                        return AvProxyVO.fromModel(input);
+                    }
+                }));
         removedProxies.clear();
-        /*
-         * for (AvProxy avProxy : consistentBuckets.values()) { avProxy.reset(); }
-         */
     }
 
     public void fresh() {
@@ -145,18 +156,15 @@ public class DomainPool {
             return;// 数据还没有进来,不refresh
         }
         if (isRefreshing.compareAndSet(false, true)) {
-            List<AvProxy> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
-                    coreSize);
-            // addAvailable(avProxies);
-            List<AvProxy> passedProxy = Lists.newArrayList();
+            List<AvProxyVO> avProxies = resourceFacade.importProxy(domain,
+                    testUrls.get(random.nextInt(testUrls.size())), coreSize);
             PreHeater preHeater = Context.getInstance().getPreHeater();
-            for (AvProxy avProxy : avProxies) {
+            for (AvProxyVO avProxy : avProxies) {
                 if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
-                    avProxy.getScore().setAvgScore(0.5);//设置默认值。让他处于次级缓存的中间。
-                    passedProxy.add(avProxy);
+                    avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
+                    addAvailable(avProxy.toModel());
                 }
             }
-            addAvailable(passedProxy);
             isRefreshing.set(false);
         }
     }

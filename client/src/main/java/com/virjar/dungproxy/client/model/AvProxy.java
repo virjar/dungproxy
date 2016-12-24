@@ -1,10 +1,14 @@
 package com.virjar.dungproxy.client.model;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.DomainPool;
+import com.virjar.dungproxy.client.ippool.IpPool;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.strategy.Scoring;
 
@@ -15,6 +19,8 @@ import com.virjar.dungproxy.client.ippool.strategy.Scoring;
  * @version 2016-09-11 09:52
  */
 public class AvProxy {
+
+    private static AtomicLong proxyNumberChange = new AtomicLong(0);
 
     // IP地址
     private String ip;
@@ -31,15 +37,41 @@ public class AvProxy {
 
     private boolean disable = false;
 
-    // 打分保证
-    private Score score = new Score();
+    // 引用次数,当引用次数为0的时候,由调度任务清除该
+    private AtomicInteger referCount = new AtomicInteger(0);
+
+    private AtomicInteger failedCount = new AtomicInteger(0);
+
+    // 平均打分 需要归一化,在0-1的一个小数
+    private double avgScore = 0;
 
     private AtomicInteger sucessTimes = new AtomicInteger(0);
 
+    public AvProxy() {
+        recordProxyChange();
+    }
+
+    public static void recordProxyChange() {
+        if (proxyNumberChange.incrementAndGet() % 10 == 0) {// 序列化
+            Context.getInstance().getAvProxyDumper().serializeProxy(Maps.transformValues(
+                    IpPool.getInstance().getPoolInfo(), new Function<List<AvProxy>, List<AvProxyVO>>() {
+                        @Override
+                        public List<AvProxyVO> apply(List<AvProxy> input) {
+                            return Lists.transform(input, new Function<AvProxy, AvProxyVO>() {
+                                @Override
+                                public AvProxyVO apply(AvProxy input) {
+                                    return AvProxyVO.fromModel(input);
+                                }
+                            });
+                        }
+                    }));
+        }
+    }
+
     // 虽然加锁,但是锁等待概率很小
     public synchronized void reset() {
-        score.getReferCount().set(0);
-        score.getFailedCount().set(0);
+        referCount.set(0);
+        failedCount.set(0);
         disable = false;
     }
 
@@ -47,13 +79,14 @@ public class AvProxy {
         Scoring scoring = Context.getInstance().getScoring();
         if (sucessTimes.get() > 1) {
             while (sucessTimes.getAndDecrement() > 1) {
-                score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
+                avgScore = scoring.newAvgScore(this, Context.getInstance().getScoreFactory(), true);
+                // score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
             }
         }
         sucessTimes.set(0);
-        score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), false));
-        score.getFailedCount().incrementAndGet();
-        if (Context.getInstance().getOffliner().needOffline(score)) {
+        avgScore = scoring.newAvgScore(this, Context.getInstance().getScoreFactory(), false);
+        failedCount.incrementAndGet();
+        if (Context.getInstance().getOffliner().needOffline(this)) {
             offline();// 资源下线,下次将不会分配这个IP了
         } else {
             domainPool.adjustPriority(this);
@@ -69,14 +102,16 @@ public class AvProxy {
         if (sucessTimes.get() > 1) {
             while (sucessTimes.getAndDecrement() > 1) {
                 Scoring scoring = Context.getInstance().getScoring();
-                score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
+                avgScore = scoring.newAvgScore(this, Context.getInstance().getScoreFactory(), true);
+                // score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
             }
         }
         lastUsedTime = System.currentTimeMillis();
-        score.getReferCount().incrementAndGet();
+        referCount.incrementAndGet();
     }
 
     public void offline() {
+        recordProxyChange();
         disable = true;
         domainPool.offline(this);
     }
@@ -138,6 +173,7 @@ public class AvProxy {
         this.domainPool = domainPool;
     }
 
+    @Deprecated
     public AvProxy copy() {
         AvProxy newProxy = new AvProxy();
         newProxy.domainPool = domainPool;
@@ -145,19 +181,35 @@ public class AvProxy {
         newProxy.ip = ip;
         newProxy.isInit = isInit;
         newProxy.port = port;
-        newProxy.score = new Score(score.getAvgScore(),new AtomicInteger(score.getFailedCount().get()),new AtomicInteger(score.getReferCount().get()));
+        newProxy.failedCount = new AtomicInteger(failedCount.get());
+        newProxy.referCount = new AtomicInteger(referCount.get());
+        newProxy.avgScore = avgScore;
+        // newProxy.score = new Score(score.getAvgScore(), new AtomicInteger(score.getFailedCount().get()),
+        // new AtomicInteger(score.getReferCount().get()));
         return newProxy;
     }
 
-    public Score getScore() {
-        return score;
+    public Integer getFailedCount() {
+        return failedCount.get();
     }
 
-    public long getFailedCount() {
-        return score.getFailedCount().get();
+    public Integer getReferCount() {
+        return referCount.get();
     }
 
-    public long getReferCount() {
-        return score.getReferCount().get();
+    public double getAvgScore() {
+        return avgScore;
+    }
+
+    public void setAvgScore(double avgScore) {
+        this.avgScore = avgScore;
+    }
+
+    public void setFailedCount(Integer failedCount) {
+        this.failedCount = new AtomicInteger(failedCount);
+    }
+
+    public void setReferCount(Integer referCount) {
+        this.referCount = new AtomicInteger(referCount);
     }
 }
