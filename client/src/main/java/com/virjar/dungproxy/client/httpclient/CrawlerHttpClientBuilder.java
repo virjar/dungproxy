@@ -56,7 +56,6 @@ import org.apache.http.util.TextUtils;
 
 import com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner;
 import com.virjar.dungproxy.client.httpclient.execchain.RetryExec;
-import com.virjar.dungproxy.client.httpclient.processor.ProxyResponseDetect;
 import com.virjar.dungproxy.client.util.HeaderUtil;
 
 /**
@@ -125,7 +124,6 @@ public class CrawlerHttpClientBuilder {
 
     private PublicSuffixMatcher publicSuffixMatcher;
 
-
     public static CrawlerHttpClientBuilder create() {
         return new CrawlerHttpClientBuilder();
     }
@@ -133,7 +131,6 @@ public class CrawlerHttpClientBuilder {
     protected CrawlerHttpClientBuilder() {
         super();
     }
-
 
     /**
      * Assigns {@link HttpRequestExecutor} instance.
@@ -638,7 +635,6 @@ public class CrawlerHttpClientBuilder {
      * Assigns default {@link org.apache.http.cookie.CookieSpec} registry which will be used for request execution if
      * not explicitly set in the client execution context.
      *
-     * @see org.apache.http.impl.client.CookieSpecRegistries
      *
      */
     public final CrawlerHttpClientBuilder setDefaultCookieSpecRegistry(
@@ -985,7 +981,6 @@ public class CrawlerHttpClientBuilder {
                     b.addLast(i);
                 }
             }
-            b.addLast(new ProxyResponseDetect());
             httpprocessorCopy = b.build();
         }
         execChain = new ProtocolExec(execChain, httpprocessorCopy);

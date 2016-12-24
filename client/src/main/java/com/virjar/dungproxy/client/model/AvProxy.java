@@ -56,9 +56,6 @@ public class AvProxy {
         if (Context.getInstance().getOffliner().needOffline(score)) {
             offline();// 资源下线,下次将不会分配这个IP了
         } else {
-            if (domainPool == null) {
-                JSONObject.toJSONString(this);
-            }
             domainPool.adjustPriority(this);
         }
     }
