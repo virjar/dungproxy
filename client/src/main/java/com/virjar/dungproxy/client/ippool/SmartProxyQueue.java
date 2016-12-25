@@ -51,12 +51,14 @@ public class SmartProxyQueue {
                 }
 
                 List<AvProxy> avProxyCopy = Lists.newArrayList(filteredProxies);
-                Collections.sort(avProxyCopy, new Comparator<AvProxy>() {
-                    @Override
-                    public int compare(AvProxy o1, AvProxy o2) {
-                        return o2.getAvgScore() > o1.getAvgScore() ? -1 : 1;
-                    }
-                });
+                if(avProxyCopy.size() > 1) {//单个数据进来貌似会抛错
+                    Collections.sort(avProxyCopy, new Comparator<AvProxy>() {
+                        @Override
+                        public int compare(AvProxy o1, AvProxy o2) {
+                            return o2.getAvgScore() > o1.getAvgScore() ? -1 : 1;
+                        }
+                    });
+                }
                 proxies.addAll(avProxyCopy);
 
             } else {
