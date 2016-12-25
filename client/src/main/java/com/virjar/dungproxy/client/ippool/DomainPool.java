@@ -126,7 +126,7 @@ public class DomainPool {
         new Thread() {
             @Override
             public void run() {
-                fresh();
+                refresh();
             }
         }.start();
     }
@@ -151,21 +151,24 @@ public class DomainPool {
         removedProxies.clear();
     }
 
-    public void fresh() {
+    public void refresh() {
         if (testUrls.size() == 0) {
             return;// 数据还没有进来,不refresh
         }
         if (isRefreshing.compareAndSet(false, true)) {
-            List<AvProxyVO> avProxies = resourceFacade.importProxy(domain,
-                    testUrls.get(random.nextInt(testUrls.size())), coreSize);
-            PreHeater preHeater = Context.getInstance().getPreHeater();
-            for (AvProxyVO avProxy : avProxies) {
-                if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
-                    avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
-                    addAvailable(avProxy.toModel());
+            try {
+                List<AvProxyVO> avProxies = resourceFacade.importProxy(domain,
+                        testUrls.get(random.nextInt(testUrls.size())), coreSize);
+                PreHeater preHeater = Context.getInstance().getPreHeater();
+                for (AvProxyVO avProxy : avProxies) {
+                    if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
+                        avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
+                        addAvailable(avProxy.toModel());
+                    }
                 }
+            }finally {
+                isRefreshing.set(false);
             }
-            isRefreshing.set(false);
         }
     }
 

@@ -149,10 +149,10 @@ public class IpPool {
                 for (DomainPool domainPool : pool.values()) {
                     try {
                         if (domainPool.needFresh()) {
-                            domainPool.fresh();
+                            domainPool.refresh();
                         }
                     } catch (Exception e) {
-                        logger.error("error when fresh ip pool for domain:{}", domainPool.getDomain(), e);
+                        logger.error("error when refresh ip pool for domain:{}", domainPool.getDomain(), e);
                     }
                 }
                 CommonUtil.sleep(4000);
