@@ -189,7 +189,7 @@ public class PreHeater {
             proxy.setDomainPool(domainPool);
             if (IpAvValidator.available(proxy, url)) {
                 domainPool.addAvailable(Lists.newArrayList(proxy));
-                logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(proxy),
+                logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(AvProxyVO.fromModel(proxy)),
                         url);
                 if (passedProxyNumber.incrementAndGet() % Context.getInstance().getPreheatSerilizeStep() == 0) {// 预热的时候,每产生20个IP,就序列化一次数据。
                     Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
