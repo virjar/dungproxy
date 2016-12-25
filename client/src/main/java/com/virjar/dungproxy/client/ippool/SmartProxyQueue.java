@@ -40,49 +40,31 @@ public class SmartProxyQueue {
      */
     public void addAllProxy(Collection<AvProxy> avProxies) {
         synchronized (mutex) {
-            if (proxies.size() == 0) {// 肯定是初始化的时候,根据平均分值倒序
-                List<AvProxy> filteredProxies = Lists.newArrayList();
-                for (AvProxy avProxy : avProxies) {
-                    if (consistentBuckets.containsKey(avProxies.hashCode())) {
-                        continue;
-                    }
-                    filteredProxies.add(avProxy);
-                    consistentBuckets.put(avProxy.hashCode(), avProxy);
+
+            for (AvProxy avProxy : avProxies) {
+                if (consistentBuckets.containsKey(avProxies.hashCode())) {
+                    continue;
+                }
+                // Score score = avProxy.getScore();
+                if (avProxy.getAvgScore() < 0D || avProxy.getAvgScore() > 1D) {
+                    logger.warn("avProxy score is illegal , avgScore need between 0 and 1 ,real score is:{}",
+                            avProxy.getAvgScore());
+                    avProxy.setAvgScore(0.5D);// 数据损坏
                 }
 
-                List<AvProxy> avProxyCopy = Lists.newArrayList(filteredProxies);
-                if(avProxyCopy.size() > 1) {//单个数据进来貌似会抛错
-                    Collections.sort(avProxyCopy, new Comparator<AvProxy>() {
-                        @Override
-                        public int compare(AvProxy o1, AvProxy o2) {
-                            return o2.getAvgScore() > o1.getAvgScore() ? -1 : 1;
-                        }
-                    });
+                if(proxies.size() ==0){
+                    proxies.add(avProxy);
                 }
-                proxies.addAll(avProxyCopy);
-
-            } else {
-                for (AvProxy avProxy : avProxies) {
-                    if (consistentBuckets.containsKey(avProxies.hashCode())) {
-                        continue;
-                    }
-                    // Score score = avProxy.getScore();
-                    if (avProxy.getAvgScore() < 0D || avProxy.getAvgScore() > 1D) {
-                        logger.warn("avProxy score is illegal , avgScore need between 0 and 1 ,real score is:{}",
-                                avProxy.getAvgScore());
-                        avProxy.setAvgScore(0.5D);// 数据损坏
-                    }
-
-                    if (avProxy.getAvgScore() != 0.0) {// 考虑断点使用IP资源的时候。需要按照分值来插入
-                        int index = (int) (proxies.size() * (ratio + (1 - ratio) * (1 - avProxy.getAvgScore())));
-                        proxies.add(index, avProxy);
-                    } else {
-                        proxies.addLast(avProxy);// 新加入资源,需要放置到链表尾部
-                    }
-                    consistentBuckets.put(avProxy.hashCode(), avProxy);
+                else if (avProxy.getAvgScore() != 0.0) {// 考虑断点使用IP资源的时候。需要按照分值来插入
+                    int index = (int) (proxies.size() * (ratio + (1 - ratio) * (1 - avProxy.getAvgScore())));
+                    proxies.add(index, avProxy);
+                } else {
+                    proxies.addLast(avProxy);// 新加入资源,需要放置到链表尾部
                 }
+                consistentBuckets.put(avProxy.hashCode(), avProxy);
             }
         }
+
     }
 
     public void addWithScore(AvProxy avProxy) {
