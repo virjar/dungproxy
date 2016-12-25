@@ -6,7 +6,14 @@ public abstract class URLGenerator {
 	protected int nowPage;
 	protected int totallPage;
 	public abstract String newURL();
-	
+
+	protected  int maxPage = Integer.MAX_VALUE;
+
+
+	public void setMaxPage(int maxPage) {
+		this.maxPage = maxPage;
+	}
+
 	public URLGenerator(){
 		nowPage =1;
 		totallPage =0;

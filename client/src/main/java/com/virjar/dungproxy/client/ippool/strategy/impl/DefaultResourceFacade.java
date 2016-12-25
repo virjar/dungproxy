@@ -2,8 +2,6 @@ package com.virjar.dungproxy.client.ippool.strategy.impl;
 
 import java.util.List;
 
-import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
-import com.virjar.dungproxy.client.model.AvProxyVO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -15,7 +13,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.httpclient.HttpInvoker;
-import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
+import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.model.FeedBackForm;
 
 /**
@@ -25,19 +24,19 @@ public class DefaultResourceFacade implements ResourceFacade {
     private Logger logger = LoggerFactory.getLogger(DefaultResourceFacade.class);
     private String downloadSign = null;
 
-    private static  String avUrl = "http://proxy.scumall.com:8080/proxyipcenter/av";
-    private static  String feedBackUrl = "http://proxy.scumall.com:8080/proxyipcenter/feedBack";
-    private static  String allAvUrl = "http://proxy.scumall.com:8080/proxyipcenter/allAv";
+    private static String avUrl = "http://proxy.scumall.com:8080/proxyipcenter/av";
+    private static String feedBackUrl = "http://proxy.scumall.com:8080/proxyipcenter/feedBack";
+    private static String allAvUrl = "http://proxy.scumall.com:8080/proxyipcenter/allAv";
 
-    public static void setAvUrl(String avUrl){
+    public static void setAvUrl(String avUrl) {
         DefaultResourceFacade.avUrl = avUrl;
     }
 
-    public static void setFeedBackUrl(String feedBackUrl){
+    public static void setFeedBackUrl(String feedBackUrl) {
         DefaultResourceFacade.feedBackUrl = feedBackUrl;
     }
 
-    public static void setAllAvUrl(String allAvUrl){
+    public static void setAllAvUrl(String allAvUrl) {
         DefaultResourceFacade.allAvUrl = allAvUrl;
     }
 

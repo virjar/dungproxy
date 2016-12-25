@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.virjar.dungproxy.server.crawler.urlgenerator.WildCardURLGenerator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.dom4j.Document;
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.server.crawler.extractor.XmlModeFetcher;
 import com.virjar.dungproxy.server.crawler.impl.TemplateCollector;
+import com.virjar.dungproxy.server.crawler.urlgenerator.WildCardURLGenerator;
 
 /**
  * Created by virjar on 16/11/26.
@@ -70,7 +70,14 @@ public class TemplateBuilder {
                             collector.setUrlGenerator(new WildCardURLGenerator(wildcardgenerator.getTextTrim()));
                             hasagenerator = true;
                         }
+
+                        Element maxPage = next.element("maxPage");
+
                         if (hasagenerator) {
+                            if (maxPage != null) {//最大页数阀值
+                                collector.getUrlGenerator()
+                                        .setMaxPage(NumberUtils.toInt(maxPage.getTextTrim(), Integer.MAX_VALUE));
+                            }
                             ret.add(collector);
                         }
                     } catch (Exception e) {

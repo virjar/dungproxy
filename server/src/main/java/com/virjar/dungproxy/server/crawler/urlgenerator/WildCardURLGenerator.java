@@ -13,7 +13,9 @@ public class WildCardURLGenerator extends URLGenerator {
 
 	@Override
 	public String newURL() {
-		// TODO Auto-generated method stub
+		if(nowPage > maxPage){
+			reset();
+		}
 		return wildcard.replaceAll("#\\{autoincreament\\}", nowPage+++"");
 	}
 }
