@@ -53,6 +53,9 @@ public class AvProxy {
 
     public static void recordProxyChange() {
         if (proxyNumberChange.incrementAndGet() % 10 == 0) {// 序列化
+            if(IpPool.getInstance() == null){
+                return;//说明是初始化的时候,在递归调用到这里了。放弃序列化
+            }
             Context.getInstance().getAvProxyDumper().serializeProxy(Maps.transformValues(
                     IpPool.getInstance().getPoolInfo(), new Function<List<AvProxy>, List<AvProxyVO>>() {
                         @Override
