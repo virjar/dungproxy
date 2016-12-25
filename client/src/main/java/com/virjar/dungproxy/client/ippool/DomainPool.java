@@ -87,7 +87,7 @@ public class DomainPool {
         } else {
             testUrls.set(random.nextInt(10), url);
         }
-        if (smartProxyQueue.size() < minSize) {
+        if (smartProxyQueue.size() < coreSize) {
             refreshInNewThread();// 在新线程刷新
         }
 
