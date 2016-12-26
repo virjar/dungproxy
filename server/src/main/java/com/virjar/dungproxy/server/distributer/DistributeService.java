@@ -79,11 +79,10 @@ public class DistributeService {
             if (domainIpModel == null) {
                 continue;
             }
-            if (domainIpModel.getDomainScore() > -1) {
+            if (domainIpModel.getDomainScore() > -1) {//
                 domainIpModel.setDomainScore(-1L);
             } else {
-                domainIpModel.setDomainScore(
-                        domainIpModel.getDomainScore() - avProxy.getFailedCount() * 10 / avProxy.getReferCount());
+                domainIpModel.setDomainScore(domainIpModel.getDomainScore() - 1);
             }
             domainIpModel.setDomainScoreDate(new Date());
             domainIpService.updateByPrimaryKeySelective(domainIpModel);
@@ -188,8 +187,8 @@ public class DistributeService {
             queryProxy.setLostheader(false);
         }
 
-        if(requestForm.getTransparent() != null){
-            queryProxy.setTransperent((byte)(0xff & requestForm.getTransparent()));
+        if (requestForm.getTransparent() != null) {
+            queryProxy.setTransperent((byte) (0xff & requestForm.getTransparent()));
         }
 
         queryProxy.setSpeed((long) (int) requestForm.getMaxPing());
