@@ -119,11 +119,18 @@ public class TaobaoAreaTask extends CommonTask {
     public Object execute() {
         logger.info("begin proxy address collect start");
 
+        int maxTimes = 10;
+
         try {
+            int i =0;
             List<Proxy> proxyList = find4Update();
             while (proxyList.size() > 0) {
+                i++;
                 doSyncAddress(proxyList);
                 proxyList = find4Update();
+                if(i > maxTimes){
+                    return "";
+                }
             }
         } catch (Exception e) {
             logger.error("error when address query", e);
