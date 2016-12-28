@@ -14,6 +14,7 @@ DrungProxy是一个代理IP服务,他包括一个代理IP资源server端和一�
 - http://git.oschina.net/dwjmantou/proxyservice
 - http://git.oschina.net/virjar/proxyservice
 - http://git.oschina.net/virjar/proxyipcenter
+
 我是一个执着的人,两年来对本项目又很多思考和设计,也算是让一个看起来比较难的东西变成了实现。很多人说免费的始终比不上收费的,这个我没有意见
 ,但是如果收钱的哪些IP供应商的IP源也是爬的或者扫的,那么我很自信本系统效果将会比他好。讲真一个IP在没有经过足够的测试谁也不知道是否是高质量的,
 本系统存在四层检查过滤,已经有一个非常灵敏的打分模型,我能保证下发的IP至少有一半是可用的(免费网站来源比这个低很多)。
