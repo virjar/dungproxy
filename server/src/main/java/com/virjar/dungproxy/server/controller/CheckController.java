@@ -69,7 +69,7 @@ public class CheckController {
             proxy.setPort(NumberUtils.toInt(port, 3128));
             proxy.setIpValue(ProxyUtil.toIPValue(ip));
             if (!ResourceFilter.contains(proxy)) {
-                proxyService.create(beanMapper.map(proxy, ProxyModel.class));
+                proxyService.createSelective(beanMapper.map(proxy, ProxyModel.class));
             }
         }
         return ReturnUtil.retSuccess(availbelCheckResponse);
