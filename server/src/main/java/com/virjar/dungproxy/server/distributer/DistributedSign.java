@@ -188,16 +188,20 @@ public class DistributedSign {
         if (sign == null) {
             sign = new DistributedSign();
         }
-        int failedNumber = 0;
-        for (ProxyModel proxyModel : distribute) {
-            if (!sign.add(proxyModel.getIp() + ":" + proxyModel.getPort())) {
-                failedNumber++;
+        try {
+            int failedNumber = 0;
+            for (ProxyModel proxyModel : distribute) {
+                if (!sign.add(proxyModel.getIp() + ":" + proxyModel.getPort())) {
+                    failedNumber++;
+                }
             }
-        }
-        if (failedNumber > distribute.size() / 5) {
+            if (failedNumber > distribute.size() / 5) {
+                return empty;
+            }
+            return sign.sign();
+        } catch (Exception e) {
             return empty;
         }
-        return sign.sign();
     }
 
     private static String empty = new DistributedSign().sign();
