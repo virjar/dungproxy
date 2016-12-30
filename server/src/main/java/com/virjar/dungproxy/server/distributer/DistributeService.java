@@ -163,8 +163,9 @@ public class DistributeService {
                 }
             }
         } catch (Exception e) {
-            logger.error("过滤已使用资源失败 ", e);
-            return  dbProxy;
+            //logger.error("过滤已使用资源失败 ", e);
+            //return  dbProxy;
+            ret.addAll(dbProxy);
         }
 
         return ret;
