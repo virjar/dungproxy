@@ -340,65 +340,77 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     }
 
     public String post(String url, String entity, Charset charset, Header[] headers, String proxyIp, int proxyPort) {
-        return post(url, new StringEntity(entity, ContentType.TEXT_PLAIN), charset, headers, proxyIp, proxyPort);
+        return post(url, new StringEntity(entity, ContentType.TEXT_PLAIN), charset, headers, proxyIp, proxyPort, null);
     }
 
     public String postJSON(String url, Object entity, Charset charset, Header[] headers, String proxyIp,
             int proxyPort) {
         return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), charset,
-                headers, proxyIp, proxyPort);
+                headers, proxyIp, proxyPort, null);
     }
 
     public String post(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
             int proxyPort) {
         return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), charset, headers, proxyIp,
-                proxyPort);
+                proxyPort, null);
     }
 
     public String post(String url, List<NameValuePair> params, Header[] headers) {
-        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, headers, null, -1);
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, headers, null, -1, null);
     }
 
     public String post(String url, Map<String, String> params, Header[] headers) {
-        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, headers, null, -1);
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, headers, null, -1,
+                null);
     }
 
     public String post(String url, String entity, Header[] headers) {
         return post(url, new StringEntity(entity, ContentType.create("text/plain", Charset.defaultCharset())), null,
-                headers, null, -1);
+                headers, null, -1, null);
     }
 
     public String postJSON(String url, Object entity, Header[] headers) {
         return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), null, headers,
-                null, -1);
+                null, -1, null);
     }
 
     public String post(String url, Map<String, String> params) {
-        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, null, null, -1);
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, null, null, -1,
+                null);
+    }
+
+    public String post(String url, List<NameValuePair> params, HttpClientContext httpClientContext) {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, null, null, -1,
+                httpClientContext);
+    }
+
+    public String post(String url, Map<String, String> params, HttpClientContext httpClientContext) {
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, null, null, -1,
+                httpClientContext);
     }
 
     public String post(String url, String entity) {
         return post(url, new StringEntity(entity, ContentType.create("text/plain", Charset.defaultCharset())), null,
-                null, null, -1);
+                null, null, -1, null);
     }
 
     public String postJSON(String url, Object entity) {
         return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), null, null,
-                null, -1);
+                null, -1, null);
     }
 
     public String post(String url, List<NameValuePair> params) {
-        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, null, null, -1);
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, null, null, -1, null);
     }
 
     public String post(String url, Map<String, String> params, Charset charset, Header[] headers, String proxyIp,
             int proxyPort) {
         return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), charset, headers, proxyIp,
-                proxyPort);
+                proxyPort, null);
     }
 
-    public String post(String url, HttpEntity entity, Charset charset, Header[] headers, String proxyIp,
-            int proxyPort) {
+    public String post(String url, HttpEntity entity, Charset charset, Header[] headers, String proxyIp, int proxyPort,
+            HttpClientContext httpClientContext) {
 
         HttpPost httpPost = new HttpPost(url);
         RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
@@ -415,7 +427,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
         httpPost.setEntity(entity);
         try {
-            return decodeHttpResponse(execute(httpPost), charset);
+            return decodeHttpResponse(execute(httpPost, httpClientContext), charset);
         } catch (IOException e) {
             return null;
         }

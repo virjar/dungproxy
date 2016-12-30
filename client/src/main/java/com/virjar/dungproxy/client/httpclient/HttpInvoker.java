@@ -148,8 +148,8 @@ public class HttpInvoker {
     }
 
     public static String post(String url, HttpEntity entity, Charset charset, Header[] headers, String proxyIp,
-            int proxyPort) {
-        return crawlerHttpClient.post(url, entity, charset, headers, proxyIp, proxyPort);
+            int proxyPort, HttpClientContext httpClientContext) {
+        return crawlerHttpClient.post(url, entity, charset, headers, proxyIp, proxyPort, httpClientContext);
     }
 
     public static String post(String url, String entity) {
@@ -189,6 +189,10 @@ public class HttpInvoker {
 
     public static String post(String url, Map<String, String> params, Header[] headers) {
         return crawlerHttpClient.post(url, params, headers);
+    }
+
+    public static String post(String url, Map<String, String> params, HttpClientContext httpClientContext) {
+        return crawlerHttpClient.post(url, params, httpClientContext);
     }
 
     public static String postJSON(String url, Object entity) {

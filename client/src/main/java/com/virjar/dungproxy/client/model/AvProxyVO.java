@@ -85,7 +85,7 @@ public class AvProxyVO {
         avProxyVO.setIp(avProxy.getIp());
         avProxyVO.setPort(avProxy.getPort());
         avProxyVO.setFailedCount(avProxy.getFailedCount());
-        avProxyVO.setFailedCount(avProxy.getReferCount());
+        avProxyVO.setReferCount(avProxy.getReferCount());
         avProxyVO.setAvgScore(avProxy.getAvgScore());
         if (avProxy.getDomainPool() != null) {// 今后的domainPool永远不能为null
             avProxyVO.setDomain(avProxy.getDomainPool().getDomain());
