@@ -153,19 +153,19 @@ public class DistributeService {
             ret.addAll(dbProxy);
             return ret;
         }
-        DistributedSign sign = null;
         try {
-            sign = DistributedSign.unSign(usedSign);
-        } catch (Exception e) {
-            logger.error("used unsigned failed ", e);
-        }
-        if (sign != null) {
-            for (ProxyModel proxy : dbProxy) {
-                if (!sign.contains(proxy)) {
-                    ret.add(proxy);
+            DistributedSign sign = DistributedSign.unSign(usedSign);
+            if (sign != null) {
+                for (ProxyModel proxy : dbProxy) {
+                    if (!sign.contains(proxy)) {
+                        ret.add(proxy);
+                    }
                 }
             }
+        } catch (Exception e) {
+            logger.error("过滤已使用资源失败 ", e);
         }
+
         return ret;
     }
 
