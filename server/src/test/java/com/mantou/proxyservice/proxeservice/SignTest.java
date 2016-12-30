@@ -1,0 +1,15 @@
+package com.mantou.proxyservice.proxeservice;
+
+import com.virjar.dungproxy.server.distributer.DistributedSign;
+
+/**
+ * Created by virjar on 16/12/30.
+ */
+public class SignTest {
+
+    public static void main(String[] args) {
+        String sign = "9999vPVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTVVVVVVVVVUVVVVVVVVVVVVVVVV0VVVVTVVVVVRVVVVVVVVVVVVVVVVVVVTVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV0VVVVjVVVVVVVVVVVVVVVVVVVV3VVVVVVVVVVVVVVVVVVVVVVVVVVV0VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVyVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTVVVVVVVVVVV";
+        DistributedSign distributedSign = DistributedSign.unSign(sign);
+        System.out.println(distributedSign.getSizeBytes());
+    }
+}
