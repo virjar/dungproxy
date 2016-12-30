@@ -164,6 +164,7 @@ public class DistributeService {
             }
         } catch (Exception e) {
             logger.error("过滤已使用资源失败 ", e);
+            return  dbProxy;
         }
 
         return ret;
