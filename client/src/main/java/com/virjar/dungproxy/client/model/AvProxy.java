@@ -47,14 +47,18 @@ public class AvProxy {
 
     private AtomicInteger sucessTimes = new AtomicInteger(0);
 
+    public static boolean needRecordChange = true;
+
     public AvProxy() {
-        recordProxyChange();
+        if (needRecordChange) {
+            recordProxyChange();
+        }
     }
 
     public static void recordProxyChange() {
         if (proxyNumberChange.incrementAndGet() % 10 == 0) {// 序列化
-            if(IpPool.getInstance() == null){
-                return;//说明是初始化的时候,在递归调用到这里了。放弃序列化
+            if (IpPool.getInstance() == null) {
+                return;// 说明是初始化的时候,在递归调用到这里了。放弃序列化
             }
             Context.getInstance().getAvProxyDumper().serializeProxy(Maps.transformValues(
                     IpPool.getInstance().getPoolInfo(), new Function<List<AvProxy>, List<AvProxyVO>>() {
@@ -114,7 +118,9 @@ public class AvProxy {
     }
 
     public void offline() {
-        recordProxyChange();
+        if (needRecordChange) {
+            recordProxyChange();
+        }
         disable = true;
         domainPool.offline(this);
     }

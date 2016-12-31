@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,18 +31,24 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
     private Logger logger = LoggerFactory.getLogger(JSONFileAvProxyDumper.class);
     private String dumpFileName;
 
+    private AtomicBoolean serializing = new AtomicBoolean(false);
+
     @Override
     public void serializeProxy(Map<String, List<AvProxyVO>> data) {
 
         BufferedWriter bufferedWriter = null;
-        try {
-            bufferedWriter = Files.newWriter(new File(CommonUtil.ensurePathExist(trimFileName())),
-                    Charset.defaultCharset());
-            bufferedWriter.write(JSONObject.toJSONString(data));
-        } catch (IOException e) {// 发生异常打印日志,但是不抛异常,因为不会影响正常逻辑
-            logger.error("error when serialize proxy data", e);
-        } finally {
-            IOUtils.closeQuietly(bufferedWriter);
+        if (serializing.compareAndSet(false, true)) {//不允许并发的序列化,无意义
+            try {
+                bufferedWriter = Files.newWriter(new File(CommonUtil.ensurePathExist(trimFileName())),
+                        Charset.defaultCharset());
+                bufferedWriter.write(JSONObject.toJSONString(data));
+
+            } catch (IOException e) {// 发生异常打印日志,但是不抛异常,因为不会影响正常逻辑
+                logger.error("error when serialize proxy data", e);
+            } finally {
+                serializing.set(false);
+                IOUtils.closeQuietly(bufferedWriter);
+            }
         }
     }
 

@@ -86,6 +86,7 @@ public class PreHeater {
     }
 
     public synchronized void doPreHeat() {
+        AvProxy.needRecordChange = false;
         if (taskUrls.size() == 0) {
             logger.warn("preHeater task is empty");
             return;
@@ -191,6 +192,7 @@ public class PreHeater {
                 domainPool.addAvailable(Lists.newArrayList(proxy));
                 logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(AvProxyVO.fromModel(proxy)),
                         url);
+
                 if (passedProxyNumber.incrementAndGet() % Context.getInstance().getPreheatSerilizeStep() == 0) {// 预热的时候,每产生20个IP,就序列化一次数据。
                     Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
                 }
