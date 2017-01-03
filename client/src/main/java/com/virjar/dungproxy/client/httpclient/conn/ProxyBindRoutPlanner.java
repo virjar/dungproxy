@@ -57,9 +57,12 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
         bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
         if (bind == null || bind.isDisable()) {
             bind = IpPool.getInstance().bind(target.getHostName(), accessUrl, user);
+            if (bind == null) {
+                logger.warn("IP池中,域名:{} 暂时没有IP", target.getHostName());
+            }
         }
         if (bind != null) {
-            logger.info("{} 当前使用IP为:{}:{}",target.getHostName(), bind.getIp(), bind.getPort());
+            logger.info("{} 当前使用IP为:{}:{}", target.getHostName(), bind.getIp(), bind.getPort());
             bind.recordUsage();
             if (user != null) {// 记录这个用户绑定的IP
                 UserEnv userEnv = UserEnv.class.cast(context.getAttribute(ProxyConstant.USER_ENV_CONTAINER_KEY));

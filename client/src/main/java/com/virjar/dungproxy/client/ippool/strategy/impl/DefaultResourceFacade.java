@@ -50,6 +50,7 @@ public class DefaultResourceFacade implements ResourceFacade {
         valuePairList.add(new BasicNameValuePair("checkUrl", testUrl));
         valuePairList.add(new BasicNameValuePair("domain", domain));
         valuePairList.add(new BasicNameValuePair("num", String.valueOf(number)));
+        logger.info("默认IP下载器,IP下载URL:{}",avUrl);
         String response = HttpInvoker.post(avUrl, valuePairList);
         if (StringUtils.isBlank(response)) {
             logger.error("can not get available ip resource from server: request body is {}",
@@ -81,6 +82,7 @@ public class DefaultResourceFacade implements ResourceFacade {
 
     @Override
     public List<AvProxyVO> allAvailable() {
+        logger.info("默认IP下载器,IP下载URL:{}",allAvUrl);
         String response = HttpInvoker.get(allAvUrl);
         if (StringUtils.isBlank(response)) {
             logger.error("can not get available ip resource from server: ");
