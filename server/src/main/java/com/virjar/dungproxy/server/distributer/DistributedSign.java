@@ -195,7 +195,7 @@ public class DistributedSign {
                     failedNumber++;
                 }
             }
-            if (failedNumber > distribute.size() / 5) {
+            if (failedNumber > distribute.size() / 5 || distribute.size() <0) {//小于0的时候数据损坏,暂时没有时间排查原因
                 return empty;
             }
             return sign.sign();
