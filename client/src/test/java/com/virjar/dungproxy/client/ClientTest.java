@@ -16,12 +16,13 @@ public class ClientTest {
     public static void main(String[] args) {
         HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
         String quiet = HttpInvoker.get("http://www.xicidaili.com/nn/4", httpClientContext);
-        CommonUtil.sleep(30000);
+
 
         int faildTimes = 0;
         for (int i = 0; i < 100; i++) {
             PoolUtil.cleanProxy(httpClientContext);
             quiet = HttpInvoker.get("http://www.xicidaili.com/nn/5", httpClientContext);
+            System.out.println(quiet);
             AvProxy bindProxy = PoolUtil.getBindProxy(httpClientContext);
             if (bindProxy != null) {
                 System.out.println(quiet);
