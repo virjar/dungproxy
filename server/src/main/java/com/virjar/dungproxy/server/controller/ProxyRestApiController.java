@@ -112,7 +112,11 @@ public class ProxyRestApiController {
         logger.info("distribute request:{}", JSONObject.toJSONString(requestForm));
         List<ProxyModel> distribute = distributeService.distribute(requestForm);
         Map<String, Object> ret = Maps.newHashMap();
-        ret.put("sign", DistributedSign.resign(requestForm.getUsedSign(), distribute));
+        if(distribute.size() ==0){
+            ret.put("sign",DistributedSign.empty);
+        }else {
+            ret.put("sign", DistributedSign.resign(requestForm.getUsedSign(), distribute));
+        }
         ret.put("num", distribute.size());
         ret.put("data", beanMapper.mapAsList(distribute, ProxyVO.class));
         ResponseEntity<ResponseEnvelope<Object>> responseEnvelopeResponseEntity = ReturnUtil.retSuccess(ret);
