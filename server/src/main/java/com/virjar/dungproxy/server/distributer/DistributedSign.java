@@ -13,7 +13,7 @@ import com.virjar.dungproxy.server.model.ProxyModel;
  */
 public class DistributedSign {
     // 每个签名容器最多存500个IP使用信息,如果超过,服务器将会强制重置
-    private static final int maxNumber = 500;
+    private static final int maxNumber = 5000;
     // hash标记位,一般来说这个数值越高越不容易出现数据冲突,但是相对来说容器大小将会增加。服务器使用的是22个,考虑客户端数据量较小,设置为10
     private static final int hashFunction = 5;
     // 随机种子,我们这里只是使用一个种子产生数字序列,用来散列数据,所以这个数值作为客户端服务器协议的一部分,共同约定即可,无特殊含义
