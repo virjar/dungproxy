@@ -4,4 +4,4 @@
    http://nntime.com/
    http://www.cybersyndrome.net/pla.html
    http://www.my-proxy.com/free-proxy-list-2.html
-   
+   http://www.cybersyndrome.net/pla.html
