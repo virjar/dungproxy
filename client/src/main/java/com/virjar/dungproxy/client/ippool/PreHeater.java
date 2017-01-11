@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.alibaba.fastjson.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,10 +95,13 @@ public class PreHeater {
         if (!hasInit.get()) {
             init();
         }
+        logger.info("待测试任务:{}", JSONArray.toJSONString(taskUrls));
         Map<String, String> urlMap = transformDomainUrlMap(taskUrls);
         List<Future<Boolean>> futureList = Lists.newArrayList();
         ResourceFacade resourceFacade = ObjectFactory.newInstance(Context.getInstance().getResourceFacade());
+        logger.info("下载可用IP...");
         List<AvProxyVO> candidateProxies = resourceFacade.allAvailable();
+        logger.info("总过下载到{}个IP资源",candidateProxies.size());
         // 加载历史数据
         for (Map.Entry<String, DomainPool> entry : stringDomainPoolMap.entrySet()) {
             if (!urlMap.containsKey(entry.getKey())) {
