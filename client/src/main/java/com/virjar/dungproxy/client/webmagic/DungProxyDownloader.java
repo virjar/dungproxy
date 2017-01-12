@@ -7,16 +7,19 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,26 +29,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.virjar.dungproxy.client.util.PoolUtil;
+import com.virjar.dungproxy.client.util.ReflectUtil;
 
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.downloader.AbstractDownloader;
+import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.selector.PlainText;
 import us.codecraft.webmagic.utils.HttpConstant;
 import us.codecraft.webmagic.utils.UrlUtils;
 
 /**
- * 为webMagic实现的downloader,如果有其他定制需求,参考本类实现即可<br/>
- * 
+ * The http downloader based on HttpClient.
+ *
+ * * 为webMagic实现的downloader,如果有其他定制需求,参考本类实现即可<br/>
+ *
  * <pre>
  * public static void main(String[] args) {
  *     Spider.create(new GithubRepoPageProcessor()).addUrl("https://github.com/code4craft")
  *             .setDownloader(new DungProxyDownloader()).thread(5).run();
  * }
  * </pre>
- * 
+ *
  * <pre>
  *     如果自己实现代理池到httpclient的织入:
  *    CloseableHttpClient closeableHttpClient =
@@ -53,8 +61,11 @@ import us.codecraft.webmagic.utils.UrlUtils;
  *          .setRoutePlanner(new ProxyBindRoutPlanner()).build();
  * </pre>
  *
- * Created by virjar on 16/10/30.
+ * @author code4crafter@gmail.com <br>
+ * @author virjar
+ * @since 0.0.0
  */
+@ThreadSafe
 public class DungProxyDownloader extends AbstractDownloader {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -64,9 +75,9 @@ public class DungProxyDownloader extends AbstractDownloader {
     // 自动代理替换了这里
     private DungProxyHttpClientGenerator httpClientGenerator = new DungProxyHttpClientGenerator();
 
-    private CloseableHttpClient getHttpClient(Site site) {
+    private CloseableHttpClient getHttpClient(Site site, Proxy proxy) {
         if (site == null) {
-            return httpClientGenerator.getClient(null);
+            return httpClientGenerator.getClient(null, proxy);
         }
         String domain = site.getDomain();
         CloseableHttpClient httpClient = httpClients.get(domain);
@@ -74,7 +85,7 @@ public class DungProxyDownloader extends AbstractDownloader {
             synchronized (this) {
                 httpClient = httpClients.get(domain);
                 if (httpClient == null) {
-                    httpClient = httpClientGenerator.getClient(site);
+                    httpClient = httpClientGenerator.getClient(site, proxy);
                     httpClients.put(domain, httpClient);
                 }
             }
@@ -96,26 +107,46 @@ public class DungProxyDownloader extends AbstractDownloader {
             charset = site.getCharset();
             headers = site.getHeaders();
         } else {
-            acceptStatCode = Sets.newHashSet(200);
+            acceptStatCode = Sets.newHashSet(200);// 使用guava等价替换 WMCollections.newHashSet(200);
         }
         logger.info("downloading page {}", request.getUrl());
         CloseableHttpResponse httpResponse = null;
         int statusCode = 0;
         try {
-            HttpUriRequest httpUriRequest = getHttpUriRequest(request, site, headers);
-            httpResponse = getHttpClient(site).execute(httpUriRequest);
+            HttpHost proxyHost = null;
+            Proxy proxy = null; // TODO
+            if (site != null && site.getHttpProxyPool() != null && site.getHttpProxyPool().isEnable()) {
+                Object proxyObject = ReflectUtil.invoke(site, "getHttpProxyFromPool", new Class[] {}, new Object[] {});// site.getHttpProxyFromPool();
+                // 在0.6.x下面,返回类型是Proxy,所以虽然编译器报警,但是也只能忽略语法检查,因为不同版本的webMagic会走不同的分之
+                if (proxyObject instanceof HttpHost) {// 0.5.x的用法
+                    proxyHost = (HttpHost) proxyObject;
+                } else if (proxyObject instanceof Proxy) {// 0.6.x的用法
+                    proxy = (Proxy) proxyObject;
+                    proxyHost = proxy.getHttpHost();
+                }
+
+            } else if (site != null && site.getHttpProxy() != null) {
+                proxyHost = site.getHttpProxy();
+            }
+
+            HttpUriRequest httpUriRequest = getHttpUriRequest(request, site, headers, proxyHost);
+            HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
+            httpResponse = getHttpClient(site, proxy).execute(httpUriRequest, httpClientContext);
             statusCode = httpResponse.getStatusLine().getStatusCode();
             request.putExtra(Request.STATUS_CODE, statusCode);
             if (statusAccept(acceptStatCode, statusCode)) {
                 Page page = handleResponse(request, charset, httpResponse, task);
+                if (needOfflineProxy(page)) {
+                    PoolUtil.offline(httpClientContext);
+                }
                 onSuccess(request);
                 return page;
             } else {
-                logger.warn("code error " + statusCode + "\t" + request.getUrl());
+                logger.warn("get page {} error, status code {} ", request.getUrl(), statusCode);
                 return null;
             }
         } catch (IOException e) {
-            logger.warn("download page " + request.getUrl() + " error", e);
+            logger.warn("download page {} error", request.getUrl(), e);
             if (site != null && site.getCycleRetryTimes() > 0) {
                 return addToCycleRetry(request, site);
             }
@@ -123,6 +154,10 @@ public class DungProxyDownloader extends AbstractDownloader {
             return null;
         } finally {
             request.putExtra(Request.STATUS_CODE, statusCode);
+            if (site != null && site.getHttpProxyPool() != null && site.getHttpProxyPool().isEnable()) {
+                site.returnHttpProxyToPool((HttpHost) request.getExtra(Request.PROXY),
+                        (Integer) request.getExtra(Request.STATUS_CODE));
+            }
             try {
                 if (httpResponse != null) {
                     // ensure the connection is released back to pool
@@ -134,6 +169,19 @@ public class DungProxyDownloader extends AbstractDownloader {
         }
     }
 
+    /**
+     * 默认封禁403和401两个状态码的IP
+     * @param page 爬取结果
+     * @return 是否需要封禁这个IP
+     */
+    protected boolean needOfflineProxy(Page page) {
+        Integer statusCode = (Integer) page.getRequest().getExtra(Request.STATUS_CODE);
+        if (statusCode == null) {
+            return false;// 不知道状态码
+        }
+        return statusCode == 401 || statusCode == 403;// 401和403两个状态强制下线IP
+    }
+
     @Override
     public void setThread(int thread) {
         httpClientGenerator.setPoolSize(thread);
@@ -143,7 +191,8 @@ public class DungProxyDownloader extends AbstractDownloader {
         return acceptStatCode.contains(statusCode);
     }
 
-    protected HttpUriRequest getHttpUriRequest(Request request, Site site, Map<String, String> headers) {
+    protected HttpUriRequest getHttpUriRequest(Request request, Site site, Map<String, String> headers,
+            HttpHost proxy) {
         RequestBuilder requestBuilder = selectRequestMethod(request).setUri(request.getUrl());
         if (headers != null) {
             for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
@@ -153,14 +202,9 @@ public class DungProxyDownloader extends AbstractDownloader {
         RequestConfig.Builder requestConfigBuilder = RequestConfig.custom()
                 .setConnectionRequestTimeout(site.getTimeOut()).setSocketTimeout(site.getTimeOut())
                 .setConnectTimeout(site.getTimeOut()).setCookieSpec(CookieSpecs.BEST_MATCH);
-        if (site.getHttpProxyPool() != null && site.getHttpProxyPool().isEnable()) {
-            HttpHost host = site.getHttpProxyFromPool();
-            requestConfigBuilder.setProxy(host);
-            request.putExtra(Request.PROXY, host);
-        } else if (site.getHttpProxy() != null) {
-            HttpHost host = site.getHttpProxy();
-            requestConfigBuilder.setProxy(host);
-            request.putExtra(Request.PROXY, host);
+        if (proxy != null) {
+            requestConfigBuilder.setProxy(proxy);
+            request.putExtra(Request.PROXY, proxy);
         }
         requestBuilder.setConfig(requestConfigBuilder.build());
         return requestBuilder.build();
