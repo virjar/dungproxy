@@ -21,12 +21,16 @@ public class ProxyConstant {
     public static final String DEFAULT_PROXY_LIST = "proxyclient.defaultProxyList";
     public static final String DEFAULT_RESOURCE_SERVER_ADDRESS = "proxyclient.resource.defaultResourceServerAddress";
 
+    public static final String PROXY_USE_INTERVAL = "proxyclient.proxyUseIntervalMillis";
+
     public static final String PREHEATER_TASK_LIST ="proxyclient.preHeater.testList";
     public static final String PREHEAT_SERIALIZE_STEP = "proxyclient.preHeater.serialize.step";
     public static final String configFileName = "proxyclient.properties";
     public static final String PROXY_SERIALIZER = "proxyclient.serialize.serializer";
     public static final String DEFAULT_PROXY_SERIALIZER = "com.virjar.dungproxy.client.ippool.strategy.impl.JSONFileAvProxyDumper";
     public static final String DEFAULT_PROXY_SERALIZER_FILE = "proxyclient.DefaultAvProxyDumper.dumpFileName";
+
+
 
     public static final String DEFAULT_PROXY_SERALIZER_FILE_VALUE = "availableProxy.json";
     // socket超时时间

@@ -42,7 +42,7 @@ public class PoolManager {
             Map<String,String> record = Maps.newHashMap();
             record.put("domain",entry.getKey());
             record.put("coreSize",String.valueOf(domainPool.getCoreSize()));
-            record.put("size",String.valueOf(domainPool.getSmartProxyQueue().size()));
+            record.put("size",String.valueOf(domainPool.getSmartProxyQueue().availableSize()));
             record.put("minSize",String.valueOf(domainPool.getMinSize()));
             ret.add(record);
         }
@@ -56,7 +56,7 @@ public class PoolManager {
         ret.put("domain",domain);
         ret.put("coreSize",domainPool.getCoreSize());
         ret.put("isRefreshing",domainPool.getIsRefreshing());
-        ret.put("site",domainPool.getSmartProxyQueue().size());
+        ret.put("site",domainPool.getSmartProxyQueue().availableSize());
         //容器相关信息
         SmartProxyQueue smartProxyQueue = domainPool.getSmartProxyQueue();
         ret.put("queue_ratio",smartProxyQueue.getRatio());

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -23,6 +22,7 @@ import com.virjar.dungproxy.client.ippool.strategy.Offline;
 import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
 import com.virjar.dungproxy.client.ippool.strategy.Scoring;
 import com.virjar.dungproxy.client.ippool.strategy.impl.BlackListProxyStrategy;
+import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade;
 import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultScoring;
 import com.virjar.dungproxy.client.ippool.strategy.impl.WhiteListProxyStrategy;
 import com.virjar.dungproxy.client.model.DefaultProxy;
@@ -66,9 +66,11 @@ public class Context {
 
     private Scoring scoring = new DefaultScoring();// 暂时硬编码
 
-    private String defaultResourceServerAddress ;
+    private String defaultResourceServerAddress;
 
     private int preheatSerilizeStep = 20;
+
+    private long globalProxyUseInterval = 0L;
 
     private Context() {
     }
@@ -87,6 +89,10 @@ public class Context {
 
     public int getScoreFactory() {
         return scoreFactory;
+    }
+
+    public long getGlobalProxyUseInterval() {
+        return globalProxyUseInterval;
     }
 
     public Offline getOffliner() {
@@ -167,6 +173,8 @@ public class Context {
         private String defaultResourceServerAddress;
         private String preheaterSerilizeStep;
 
+        private String proxyUseInterval;
+
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
                 return this;
@@ -185,6 +193,7 @@ public class Context {
             preHeaterTaskList = properties.getProperty(ProxyConstant.PREHEATER_TASK_LIST);
             defaultResourceServerAddress = properties.getProperty(ProxyConstant.DEFAULT_RESOURCE_SERVER_ADDRESS);
             preheaterSerilizeStep = properties.getProperty(ProxyConstant.PREHEAT_SERIALIZE_STEP);
+            proxyUseInterval = properties.getProperty(ProxyConstant.PROXY_USE_INTERVAL);
             return this;
         }
 
@@ -245,8 +254,8 @@ public class Context {
 
         private Context build() {
             Context context = new Context();
-            //服务器地址
-            if(StringUtils.isEmpty(defaultResourceServerAddress)){
+            // 服务器地址
+            if (StringUtils.isEmpty(defaultResourceServerAddress)) {
                 defaultResourceServerAddress = ProxyConstant.SERVER_ADDRESS;
             }
             context.defaultResourceServerAddress = defaultResourceServerAddress;
@@ -317,22 +326,28 @@ public class Context {
                 context.preHeaterTaskList = Lists.newArrayList();
             }
 
+            // 预热增量序列化时机
+            context.preheatSerilizeStep = NumberUtils.toInt(preheaterSerilizeStep,
+                    ProxyConstant.DEFAULT_PREHEATER_SERILIZE_STEP);
 
-            //预热增量序列化时机
-            context.preheatSerilizeStep = NumberUtils.toInt(preheaterSerilizeStep,ProxyConstant.DEFAULT_PREHEATER_SERILIZE_STEP);
-
+            // 全局的IP最小使用间隔
+            context.globalProxyUseInterval = NumberUtils.toInt(proxyUseInterval, 0);
+            if (context.globalProxyUseInterval < 0) {
+                context.globalProxyUseInterval = 0;
+            }
             return context;
         }
 
         /**
          * 如果是服务器默认资源导入器,特殊处理,因为他在class层面提供扩展,同时也在配置上面提供扩展
+         * 
          * @param context
          */
-        void resolveDefaultResourceFacade(Context context){
-            if(ProxyConstant.DEFAULT_RESOURCE_FACADE.equals(context.resourceFacade)){
-                DefaultResourceFacade.setAllAvUrl(context.defaultResourceServerAddress+"/proxyipcenter/allAv");
-                DefaultResourceFacade.setAvUrl(context.defaultResourceServerAddress +"/proxyipcenter/av");
-                DefaultResourceFacade.setFeedBackUrl(context.defaultResourceServerAddress +"/proxyipcenter/feedBack");
+        void resolveDefaultResourceFacade(Context context) {
+            if (ProxyConstant.DEFAULT_RESOURCE_FACADE.equals(context.resourceFacade)) {
+                DefaultResourceFacade.setAllAvUrl(context.defaultResourceServerAddress + "/proxyipcenter/allAv");
+                DefaultResourceFacade.setAvUrl(context.defaultResourceServerAddress + "/proxyipcenter/av");
+                DefaultResourceFacade.setFeedBackUrl(context.defaultResourceServerAddress + "/proxyipcenter/feedBack");
             }
         }
 

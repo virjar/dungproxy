@@ -2,6 +2,7 @@ package com.virjar.dungproxy.client.ippool;
 
 import java.util.*;
 
+import com.virjar.dungproxy.client.ippool.config.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,11 +17,17 @@ public class SmartProxyQueue {
     private static final Logger logger = LoggerFactory.getLogger(SmartProxyQueue.class);
     private double ratio;
 
+    // ip使用时间间隔,如果被调度到的时候,发现IP使用时间太短,则先放弃本IP的调度
+    private long useInterval = 0L;
+
     private final Object mutex = this;
 
     // 效率不高,但是先用这个实现.我们使用两个数据结构来实现绑定IP和优先级IP两种方案
     private LinkedList<AvProxy> proxies = Lists.newLinkedList();
     private TreeMap<Integer, AvProxy> consistentBuckets = new TreeMap<>();
+
+    //暂时封禁的容器,放到本容器的IP只是被暂时封禁,但是不会被下线
+    private LinkedList<AvProxy> blockedProxies = Lists.newLinkedList();
 
     public SmartProxyQueue() {
         this(0.3);
@@ -30,6 +37,8 @@ public class SmartProxyQueue {
         if (ratio < 0 || ratio > 1) {
             throw new IllegalStateException("ratio for SmartProxyQueue need between 0 and 1");
         }
+        //暂时不考虑多个domain的差异化配置
+        this.useInterval = Context.getInstance().getGlobalProxyUseInterval();
         this.ratio = ratio;
     }
 
@@ -52,10 +61,9 @@ public class SmartProxyQueue {
                     avProxy.setAvgScore(0.5D);// 数据损坏
                 }
 
-                if(proxies.size() ==0){
+                if (proxies.size() == 0) {
                     proxies.add(avProxy);
-                }
-                else if (avProxy.getAvgScore() != 0.0) {// 考虑断点使用IP资源的时候。需要按照分值来插入
+                } else if (avProxy.getAvgScore() != 0.0) {// 考虑断点使用IP资源的时候。需要按照分值来插入
                     int index = (int) (proxies.size() * (ratio + (1 - ratio) * (1 - avProxy.getAvgScore())));
                     proxies.add(index, avProxy);
                 } else {
@@ -82,13 +90,38 @@ public class SmartProxyQueue {
 
     public AvProxy getAndAdjustPriority() {
         synchronized (mutex) {
-            AvProxy poll = proxies.poll();
-            if (poll == null) {
-                return null;
+            for (;;) {
+                AvProxy poll = proxies.poll();
+                if (poll == null) {
+                    return null;
+                }
+                if (System.currentTimeMillis() - poll.getLastUsedTime() < useInterval) {
+                    blockedProxies.add(poll);// 使用频率太高,放到备用资源池
+                    continue;
+                }
+                int index = (int) (proxies.size() * ratio);
+                proxies.add(index, poll);
+                return poll;
             }
-            int index = (int) (proxies.size() * ratio);
-            proxies.add(index, poll);
-            return poll;
+        }
+    }
+
+    /**
+     * 解禁因为频率问题被block的IP资源
+     */
+    public void recoveryBlockedProxy() {
+        synchronized (mutex) {
+            if (blockedProxies.size() == 0) {
+                return;
+            }
+            Iterator<AvProxy> iterator = blockedProxies.iterator();
+            while (iterator.hasNext()) {
+                AvProxy next = iterator.next();
+                if (System.currentTimeMillis() - next.getLastUsedTime() > useInterval) {
+                    proxies.add(0, next);// 封禁的前提是IP曾经在队列头部,处于最高优先级,所以这批资源直接恢复到头部
+                    iterator.remove();
+                }
+            }
         }
     }
 
@@ -131,8 +164,19 @@ public class SmartProxyQueue {
         return proxies.iterator();// 保证顺序
     }
 
-    public int size() {
+    /**
+     * @return 可用IP量
+     */
+    public int availableSize() {
         return proxies.size();
+    }
+
+    /**
+     *
+     * @return 总IP量,包括当前正被封禁的IP量
+     */
+    public  int allSize(){
+        return proxies.size() + blockedProxies.size();
     }
 
     public AvProxy hint(int hash) {

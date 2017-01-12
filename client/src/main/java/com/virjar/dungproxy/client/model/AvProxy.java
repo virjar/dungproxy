@@ -125,6 +125,10 @@ public class AvProxy {
         domainPool.offline(this);
     }
 
+    public long getLastUsedTime() {
+        return lastUsedTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)

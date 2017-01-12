@@ -93,7 +93,7 @@ public class DomainPool {
 
         readWriteLock.readLock().lock();
         try {
-            if (smartProxyQueue.size() == 0) {
+            if (smartProxyQueue.availableSize() == 0) {
                 List<DefaultProxy> defaultProxyList = Context.getInstance().getDefaultProxyList();
                 if (defaultProxyList.size() == 0) {
                     return null;
@@ -131,8 +131,15 @@ public class DomainPool {
         }.start();
     }
 
+    /**
+     * 当前IP池是否需要下载新的IP资源。
+     * @return 是否
+     */
     public boolean needFresh() {
-        return smartProxyQueue.size() < coreSize;
+        if( smartProxyQueue.availableSize() < coreSize){
+            smartProxyQueue.recoveryBlockedProxy();
+        }
+        return  smartProxyQueue.availableSize() < coreSize;
     }
 
     public void feedBack() {
