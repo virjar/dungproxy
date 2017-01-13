@@ -22,6 +22,7 @@ public class ProxyConstant {
     public static final String DEFAULT_RESOURCE_SERVER_ADDRESS = "proxyclient.resource.defaultResourceServerAddress";
 
     public static final String PROXY_USE_INTERVAL = "proxyclient.proxyUseIntervalMillis";
+    public static final String CLIENT_ID = "proxyclient.clientID";
 
     public static final String PREHEATER_TASK_LIST ="proxyclient.preHeater.testList";
     public static final String PREHEAT_SERIALIZE_STEP = "proxyclient.preHeater.serialize.step";

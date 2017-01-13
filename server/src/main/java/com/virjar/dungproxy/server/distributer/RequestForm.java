@@ -4,6 +4,7 @@ package com.virjar.dungproxy.server.distributer;
  * ip资源请求封装 Created by virjar on 16/9/2.
  */
 public class RequestForm {
+    private String clientID;//客户端标识,统一消重
     private String usedSign;// 资源签名,标记已经分配过的资源
     private Integer num; // 期望获取资源数目
     private Integer transparent; // 期望透明度
@@ -159,5 +160,13 @@ public class RequestForm {
 
     public void setCheckUrl(String checkUrl) {
         this.checkUrl = checkUrl;
+    }
+
+    public String getClientID() {
+        return clientID;
+    }
+
+    public void setClientID(String clientID) {
+        this.clientID = clientID;
     }
 }

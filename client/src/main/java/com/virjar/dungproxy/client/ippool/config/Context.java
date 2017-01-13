@@ -72,6 +72,9 @@ public class Context {
 
     private long globalProxyUseInterval = 0L;
 
+    //clientID 标识一组客户端,他们可能在一个集群里,clientID用来解决一个集群的不同节点IP不重复
+    private String clientID;
+
     private Context() {
     }
 
@@ -175,6 +178,8 @@ public class Context {
 
         private String proxyUseInterval;
 
+        private String clientID;
+
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
                 return this;
@@ -194,6 +199,7 @@ public class Context {
             defaultResourceServerAddress = properties.getProperty(ProxyConstant.DEFAULT_RESOURCE_SERVER_ADDRESS);
             preheaterSerilizeStep = properties.getProperty(ProxyConstant.PREHEAT_SERIALIZE_STEP);
             proxyUseInterval = properties.getProperty(ProxyConstant.PROXY_USE_INTERVAL);
+            clientID = properties.getProperty(ProxyConstant.CLIENT_ID);
             return this;
         }
 
@@ -335,6 +341,9 @@ public class Context {
             if (context.globalProxyUseInterval < 0) {
                 context.globalProxyUseInterval = 0;
             }
+
+            //clientID
+            context.clientID = clientID;
             return context;
         }
 
@@ -372,6 +381,10 @@ public class Context {
                 logger.warn("默认代理加载失败,不能识别的格式:{}", proxyString);
             }
         }
+    }
+
+    public String getClientID() {
+        return clientID;
     }
 
     public PreHeater getPreHeater() {

@@ -3,6 +3,7 @@ package com.virjar.dungproxy.server.distributer;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -13,6 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.virjar.dungproxy.client.model.AvProxy;
@@ -52,6 +57,33 @@ public class DistributeService {
     private BeanMapper beanMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(DistributeService.class);
+
+    private Cache<String, String> signCache = CacheBuilder.newBuilder()
+            .removalListener(new RemovalListener<String, String>() {
+                @Override
+                public void onRemoval(RemovalNotification<String, String> notification) {
+                    logger.info("签名缓存下线:{}", notification.getKey());
+                }
+            }).expireAfterAccess(1, TimeUnit.DAYS).build();// 一天过期
+
+    public String findSign(String clientID) {
+        return signCache.getIfPresent(clientID);
+    }
+
+    public void setSign(String clientID, String sign) {
+        synchronized (clientID.intern()) {
+           signCache.put(clientID,sign);
+        }
+    }
+
+    public String resign(String clientID, List<String> ipAndPortList) {
+        synchronized (clientID.intern()) {
+            String oldSign = signCache.getIfPresent(clientID);
+            String s = DistributedSign.resignStr(oldSign, ipAndPortList);
+            signCache.put(clientID, s);
+            return s;
+        }
+    }
 
     public Boolean feedBack(FeedBackForm feedBackForm) {
         List<AvProxy> avProxys = feedBackForm.getAvProxy();
@@ -163,8 +195,8 @@ public class DistributeService {
                 }
             }
         } catch (Exception e) {
-            //logger.error("过滤已使用资源失败 ", e);
-            //return  dbProxy;
+            // logger.error("过滤已使用资源失败 ", e);
+            // return dbProxy;
             ret.addAll(dbProxy);
         }
 

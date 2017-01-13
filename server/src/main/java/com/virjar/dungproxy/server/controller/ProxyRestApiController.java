@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.virjar.dungproxy.server.core.beanmapper.BeanMapper;
 import com.virjar.dungproxy.server.core.rest.ResponseEnvelope;
@@ -110,11 +113,35 @@ public class ProxyRestApiController {
     @RequestMapping("/av")
     public ResponseEntity<ResponseEnvelope<Object>> avaliable(RequestForm requestForm) {
         logger.info("distribute request:{}", JSONObject.toJSONString(requestForm));
+        // clientID缓存
+        if (StringUtils.isNotEmpty(requestForm.getClientID())) {
+            String sign = distributeService.findSign(requestForm.getClientID());
+            if (StringUtils.isNotEmpty(sign)) {
+                logger.info("client:{} find a distribute sign:{}", requestForm.getClientID(), sign);
+                requestForm.setUsedSign(sign);
+            }
+        }
+
         List<ProxyModel> distribute = distributeService.distribute(requestForm);
         Map<String, Object> ret = Maps.newHashMap();
-        if(distribute.size() ==0){
-            ret.put("sign",DistributedSign.empty);
-        }else {
+
+        if (StringUtils.isNotEmpty(requestForm.getClientID())) {
+            if (distribute.size() == 0) {
+                distributeService.setSign(requestForm.getClientID(), DistributedSign.empty);
+            } else {
+                distributeService.resign(requestForm.getClientID(),
+                        Lists.transform(distribute, new Function<ProxyModel, String>() {
+                            @Override
+                            public String apply(ProxyModel input) {
+                                return input.getIp() + ":" + input.getPort();
+                            }
+                        }));
+            }
+        }
+
+        if (distribute.size() == 0) {
+            ret.put("sign", DistributedSign.empty);
+        } else {
             ret.put("sign", DistributedSign.resign(requestForm.getUsedSign(), distribute));
         }
         ret.put("num", distribute.size());

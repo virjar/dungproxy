@@ -2,6 +2,7 @@ package com.virjar.dungproxy.client.ippool.strategy.impl;
 
 import java.util.List;
 
+import com.virjar.dungproxy.client.ippool.config.Context;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -46,7 +47,11 @@ public class DefaultResourceFacade implements ResourceFacade {
             number = 30;
         }
         List<NameValuePair> valuePairList = Lists.newArrayList();
-        valuePairList.add(new BasicNameValuePair("usedSign", downloadSign));
+        if(StringUtils.isNotEmpty(Context.getInstance().getClientID())){
+            valuePairList.add(new BasicNameValuePair("clientID",Context.getInstance().getClientID()));
+        }else {
+            valuePairList.add(new BasicNameValuePair("usedSign", downloadSign));
+        }
         valuePairList.add(new BasicNameValuePair("checkUrl", testUrl));
         valuePairList.add(new BasicNameValuePair("domain", domain));
         valuePairList.add(new BasicNameValuePair("num", String.valueOf(number)));
