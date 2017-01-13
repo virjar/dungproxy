@@ -37,6 +37,8 @@ proxyclient.resource.defaultResourceServerAddress=http://proxy.scumall.com:8080
 proxyclient.preHeater.serialize.step=30
 #IP使用间隔,单位是毫秒,有些场景,IP有明确的控制说QPS,可以考虑使用这个参数来控制。如一分钟访问不能超过20次,那么 (60 * 1000 / 20) ,可以配置proxyclient.proxyUseIntervalMillis=3000
 proxyclient.proxyUseIntervalMillis=0
+#客户端ID,配置此参数拥有相同ID配置的所有节点的IP资源不重复
+proxyclient.clientID=com.virjar.webcrawler
 ```
 
 ## 最简配置如下
