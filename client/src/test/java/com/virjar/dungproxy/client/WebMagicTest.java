@@ -12,11 +12,13 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 /**
- * Created by virjar on 17/1/14.
+ * Created by virjar on 17/1/14.<br/>
+ * webMagic测试,使用webMagic爬取电影天堂的电影文件下载地址
+ *
  */
 public class WebMagicTest implements PageProcessor {
     private Site site = Site.me()// .setHttpProxy(new HttpHost("127.0.0.1",8888))
-            .setRetryTimes(3).setTimeOut(30000).setSleepTime(0).setUseGzip(true);
+            .setRetryTimes(3).setTimeOut(30000).setSleepTime(0).setUseGzip(true);//注意调整超时时间
 
     public static void main(String[] args) {
         Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(30)
@@ -32,7 +34,7 @@ public class WebMagicTest implements PageProcessor {
         for (Element el : a) {
             String href = el.absUrl("href");
             if (StringUtils.startsWith(href, "ftp:")) {
-                System.out.println(href);
+                System.out.println(href);//输出所有下下载地址
             } else {
                 if (needAddToTarget(href)) {
                     page.addTargetRequest(href);

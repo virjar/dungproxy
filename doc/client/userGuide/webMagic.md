@@ -38,3 +38,10 @@ webMagic最近在实现代理功能,本身代理功能是本项目的核心,所�
 dungProxy对此做了兼容方案,使用DungProxyDownloader可以同时支持0.5.x和0.6.x的用法。也就是说如果您的webMagic版本是0.5.x,那么DungProxyDownloader走0.5.x的代理逻辑,如果你的webMagic版本是0.6.x,那么DungProxyDownloader则会走0.6.x的代理逻辑。两种模式的切换是自动实现的,你不必关心。只需要知道在0.5.x上面怎么使用,然后根据0.5.x的规范进行使用。或者知道0.6.x的功能,然后根据0.6.x的规范使用。
 
 另外注意,本项目本身专注代理IP池的管理。webMagic本身也有代理池的概念。如果使用了webMagic的代理池的同时使用DungProxy,那么DungProxy将不会生效。任何时刻,只有WebMagic定义了,那么已webMagic为主
+
+
+### webMagic注意事项
+- 调整timeOut,webMagic的默认超时时间是5秒,这个对于使用代理对的场景来说是不合适的。建议调整到20秒以上
+- 对失败有预期,框架只能尽可能减少失败,但是不可能杜绝失败
+- 在没有遇到IP被封的时候,没有必要接入本工具
+- 参考demo [点击这里](http://git.oschina.net/virjar/proxyipcenter/tree/master/client/src/test/java/com/virjar/dungproxy/client/WebMagicTest.java)
