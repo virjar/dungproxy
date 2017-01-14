@@ -1,7 +1,7 @@
 package com.virjar.dungproxy.client.sample;
 
 import com.virjar.dungproxy.client.webmagic.DungProxyDownloader;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import us.codecraft.webmagic.Page;
 
 /**

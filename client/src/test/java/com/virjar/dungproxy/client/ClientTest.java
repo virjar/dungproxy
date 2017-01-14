@@ -1,7 +1,7 @@
 package com.virjar.dungproxy.client;
 
 import com.virjar.dungproxy.client.ippool.PreHeater;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.protocol.BasicHttpContext;
 
