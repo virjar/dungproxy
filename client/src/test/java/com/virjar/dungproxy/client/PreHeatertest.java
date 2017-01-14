@@ -1,6 +1,5 @@
 package com.virjar.dungproxy.client;
 
-import com.alibaba.fastjson.JSONObject;
 import com.virjar.dungproxy.client.ippool.PreHeater;
 
 /**

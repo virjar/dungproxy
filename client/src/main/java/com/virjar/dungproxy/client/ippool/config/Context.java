@@ -152,6 +152,8 @@ public class Context {
                 } finally {
                     IOUtils.closeQuietly(is);
                 }
+            }else{
+                logger.warn("没有找到dungClient的配置文件,代理规则几乎不会生效");
             }
 
         }

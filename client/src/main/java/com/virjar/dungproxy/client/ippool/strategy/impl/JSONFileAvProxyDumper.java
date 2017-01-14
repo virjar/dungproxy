@@ -37,11 +37,16 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
     public void serializeProxy(Map<String, List<AvProxyVO>> data) {
 
         BufferedWriter bufferedWriter = null;
-        if (serializing.compareAndSet(false, true)) {//不允许并发的序列化,无意义
+        if (serializing.compareAndSet(false, true)) {// 不允许并发的序列化,无意义
             try {
                 bufferedWriter = Files.newWriter(new File(CommonUtil.ensurePathExist(trimFileName())),
                         Charset.defaultCharset());
-                bufferedWriter.write(JSONObject.toJSONString(data));
+                String s = JSONObject.toJSONString(data);
+                if (StringUtils.isEmpty(s)) {
+                    logger.warn("序列化的时候,数据损坏,放弃序列化");
+                } else {
+                    bufferedWriter.write(s);
+                }
 
             } catch (IOException e) {// 发生异常打印日志,但是不抛异常,因为不会影响正常逻辑
                 logger.error("error when serialize proxy data", e);

@@ -1,12 +1,13 @@
 package com.virjar.dungproxy.client.ippool;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
-import com.virjar.dungproxy.client.ippool.config.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.model.AvProxy;
 
 /**
@@ -20,13 +21,13 @@ public class SmartProxyQueue {
     // ip使用时间间隔,如果被调度到的时候,发现IP使用时间太短,则先放弃本IP的调度
     private long useInterval = 0L;
 
-    private final Object mutex = this;
+    private final ReentrantLock mutex = new ReentrantLock();
 
     // 效率不高,但是先用这个实现.我们使用两个数据结构来实现绑定IP和优先级IP两种方案
     private LinkedList<AvProxy> proxies = Lists.newLinkedList();
     private TreeMap<Integer, AvProxy> consistentBuckets = new TreeMap<>();
 
-    //暂时封禁的容器,放到本容器的IP只是被暂时封禁,但是不会被下线
+    // 暂时封禁的容器,放到本容器的IP只是被暂时封禁,但是不会被下线
     private LinkedList<AvProxy> blockedProxies = Lists.newLinkedList();
 
     public SmartProxyQueue() {
@@ -37,7 +38,7 @@ public class SmartProxyQueue {
         if (ratio < 0 || ratio > 1) {
             throw new IllegalStateException("ratio for SmartProxyQueue need between 0 and 1");
         }
-        //暂时不考虑多个domain的差异化配置
+        // 暂时不考虑多个domain的差异化配置
         this.useInterval = Context.getInstance().getGlobalProxyUseInterval();
         this.ratio = ratio;
     }
@@ -48,8 +49,8 @@ public class SmartProxyQueue {
      * @param avProxies
      */
     public void addAllProxy(Collection<AvProxy> avProxies) {
-        synchronized (mutex) {
-
+        mutex.lock();
+        try {
             for (AvProxy avProxy : avProxies) {
                 if (consistentBuckets.containsKey(avProxies.hashCode())) {
                     continue;
@@ -71,38 +72,49 @@ public class SmartProxyQueue {
                 }
                 consistentBuckets.put(avProxy.hashCode(), avProxy);
             }
+        } finally {
+            mutex.unlock();
         }
 
     }
 
     public void addWithScore(AvProxy avProxy) {
         checkScore(avProxy.getAvgScore());
-        synchronized (mutex) {
+        mutex.lock();
+        try {
             if (consistentBuckets.containsKey(avProxy.hashCode())) {
                 return;
             }
             int index = (int) (proxies.size() * (ratio + (1 - ratio) * (1 - avProxy.getAvgScore())));
             proxies.add(index, avProxy);
             consistentBuckets.put(avProxy.hashCode(), avProxy);
+        } finally {
+            mutex.unlock();
         }
 
     }
 
     public AvProxy getAndAdjustPriority() {
-        synchronized (mutex) {
+        mutex.lock();
+        try {
             for (;;) {
                 AvProxy poll = proxies.poll();
                 if (poll == null) {
                     return null;
                 }
                 if (System.currentTimeMillis() - poll.getLastUsedTime() < useInterval) {
+                    recoveryBlockedProxy();
                     blockedProxies.add(poll);// 使用频率太高,放到备用资源池
+                    logger.info("IP:{}使用小于规定时间间隔,暂时封禁", poll.getIp());
+                    proxies.remove(poll);
                     continue;
                 }
                 int index = (int) (proxies.size() * ratio);
                 proxies.add(index, poll);
                 return poll;
             }
+        } finally {
+            mutex.unlock();
         }
     }
 
@@ -110,18 +122,24 @@ public class SmartProxyQueue {
      * 解禁因为频率问题被block的IP资源
      */
     public void recoveryBlockedProxy() {
-        synchronized (mutex) {
+        mutex.lock();
+        try {
             if (blockedProxies.size() == 0) {
                 return;
             }
+            int recoveredNumber = 0;
             Iterator<AvProxy> iterator = blockedProxies.iterator();
             while (iterator.hasNext()) {
                 AvProxy next = iterator.next();
                 if (System.currentTimeMillis() - next.getLastUsedTime() > useInterval) {
                     proxies.add(0, next);// 封禁的前提是IP曾经在队列头部,处于最高优先级,所以这批资源直接恢复到头部
                     iterator.remove();
+                    recoveredNumber++;
                 }
             }
+            logger.info("本次IP解禁数目为:{}", recoveredNumber);
+        } finally {
+            mutex.unlock();
         }
     }
 
@@ -129,28 +147,38 @@ public class SmartProxyQueue {
         if (!consistentBuckets.containsKey(avProxy.hashCode())) {// 如果已经下线,则不进行优先级调整动作
             return;
         }
-        synchronized (mutex) {
+        mutex.lock();
+        try {
             proxies.remove(avProxy);
             consistentBuckets.remove(avProxy.hashCode());
+            addWithScore(avProxy);
+        } finally {
+            mutex.unlock();
         }
-        addWithScore(avProxy);
+
     }
 
     public void offline(AvProxy avProxy) {
-        synchronized (mutex) {
+        mutex.lock();
+        try {
             proxies.remove(avProxy);
             consistentBuckets.remove(avProxy.hashCode());
+        } finally {
+            mutex.unlock();
         }
     }
 
     public void offlineWithScore(double score) {
         checkScore(score);
-        synchronized (mutex) {
+        mutex.lock();
+        try {
             AvProxy last = proxies.getLast();
             while (last != null && last.getAvgScore() < score) {
                 last.offline();
                 last = proxies.getLast();
             }
+        } finally {
+            mutex.unlock();
         }
     }
 
@@ -161,7 +189,42 @@ public class SmartProxyQueue {
     }
 
     public Iterator<? extends AvProxy> values() {
-        return proxies.iterator();// 保证顺序
+        return new ProxyQueueIterator();// 保证顺序
+    }
+
+    // 可能有bug,遍历的时候没有做到安全检查。暂时先这样吧
+    private class ProxyQueueIterator implements Iterator<AvProxy> {
+        Iterator<AvProxy> activedProxies = proxies.iterator();
+        Iterator<AvProxy> blockedProxiesIterator = blockedProxies.iterator();
+        boolean firstCollection = true;
+
+        @Override
+        public boolean hasNext() {
+            if (!firstCollection) {
+                return blockedProxiesIterator.hasNext();
+            }
+            if (activedProxies.hasNext()) {
+                return true;
+            }
+            firstCollection = false;
+            return blockedProxiesIterator.hasNext();
+        }
+
+        @Override
+        public AvProxy next() {
+            if (firstCollection) {
+                return activedProxies.next();
+            }
+            return blockedProxiesIterator.next();
+        }
+
+        @Override
+        public void remove() {
+            if (firstCollection) {
+                activedProxies.remove();
+            }
+            blockedProxiesIterator.remove();
+        }
     }
 
     /**
@@ -175,7 +238,7 @@ public class SmartProxyQueue {
      *
      * @return 总IP量,包括当前正被封禁的IP量
      */
-    public  int allSize(){
+    public int allSize() {
         return proxies.size() + blockedProxies.size();
     }
 

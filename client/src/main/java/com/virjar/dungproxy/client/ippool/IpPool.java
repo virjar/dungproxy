@@ -110,6 +110,7 @@ public class IpPool {
 
         ProxyDomainStrategy needProxyStrategy = Context.getInstance().getNeedProxyStrategy();
         if (!needProxyStrategy.needProxy(host)) {
+            logger.info("域名:{}没有被代理",host);
             return null;
         }
 
