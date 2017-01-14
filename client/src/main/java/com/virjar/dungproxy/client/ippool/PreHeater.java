@@ -101,7 +101,7 @@ public class PreHeater {
         ResourceFacade resourceFacade = ObjectFactory.newInstance(Context.getInstance().getResourceFacade());
         logger.info("下载可用IP...");
         List<AvProxyVO> candidateProxies = resourceFacade.allAvailable();
-        logger.info("总过下载到{}个IP资源",candidateProxies.size());
+        logger.info("总共下载到{}个IP资源",candidateProxies.size());
         // 加载历史数据
         for (Map.Entry<String, DomainPool> entry : stringDomainPoolMap.entrySet()) {
             if (!urlMap.containsKey(entry.getKey())) {

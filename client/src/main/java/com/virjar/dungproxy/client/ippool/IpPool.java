@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.ippool.exception.PoolDestroyException;
+import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
@@ -34,6 +35,8 @@ public class IpPool {
     private FeedBackThread feedBackThread;
     private FreshResourceThread freshResourceThread;
 
+    private GroupBindRouter groupBindRouter;
+
     private IpPool() {
         init();
     }
@@ -41,6 +44,10 @@ public class IpPool {
     private void init() {
         isRunning = true;
         unSerialize();
+
+        groupBindRouter = new GroupBindRouter();
+        groupBindRouter.buildCombinationRule(Context.getInstance().getRuleRouter());
+
         feedBackThread = new FeedBackThread();
         freshResourceThread = new FreshResourceThread();
         feedBackThread.start();
@@ -99,6 +106,13 @@ public class IpPool {
         if (!isRunning) {
             throw new PoolDestroyException();
         }
+        host = groupBindRouter.routeDomain(host);
+
+        ProxyDomainStrategy needProxyStrategy = Context.getInstance().getNeedProxyStrategy();
+        if (!needProxyStrategy.needProxy(host)) {
+            return null;
+        }
+
         if (!pool.containsKey(host)) {
             synchronized (this) {
                 if (!pool.containsKey(host)) {
@@ -107,7 +121,11 @@ public class IpPool {
                 }
             }
         }
-        return pool.get(host).bind(url, userID);
+        AvProxy bind = pool.get(host).bind(url, userID);
+        if (bind == null) {
+            logger.warn("IP池中,域名:{} 暂时没有IP", host);
+        }
+        return bind;
     }
 
     public Map<String, List<AvProxy>> getPoolInfo() {

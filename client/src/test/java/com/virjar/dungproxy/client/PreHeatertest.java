@@ -8,8 +8,6 @@ import com.virjar.dungproxy.client.ippool.PreHeater;
  */
 public class PreHeatertest {
     public static void main(String[] args) {
-       // PreHeater preHeater = new PreHeater();
-       // preHeater.addTask("http://211.94.187.236/").doPreHeat();
-        PreHeater.main(null);
+        PreHeater.start();
     }
 }

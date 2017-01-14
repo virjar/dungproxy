@@ -43,10 +43,6 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
     @Override
     protected HttpHost determineProxy(HttpHost target, HttpRequest request, HttpContext context) throws HttpException {
-        ProxyDomainStrategy needProxyStrategy = Context.getInstance().getNeedProxyStrategy();
-        if (!needProxyStrategy.needProxy(target.getHostName())) {
-            return null;
-        }
 
         String accessUrl = null;
         if (request instanceof HttpRequestWrapper || request instanceof HttpGet) {
@@ -57,9 +53,6 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
         bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
         if (bind == null || bind.isDisable()) {
             bind = IpPool.getInstance().bind(target.getHostName(), accessUrl, user);
-            if (bind == null) {
-                logger.warn("IP池中,域名:{} 暂时没有IP", target.getHostName());
-            }
         }
         if (bind != null) {
             logger.info("{} 当前使用IP为:{}:{}", target.getHostName(), bind.getIp(), bind.getPort());

@@ -72,8 +72,10 @@ public class Context {
 
     private long globalProxyUseInterval = 0L;
 
-    //clientID 标识一组客户端,他们可能在一个集群里,clientID用来解决一个集群的不同节点IP不重复
+    // clientID 标识一组客户端,他们可能在一个集群里,clientID用来解决一个集群的不同节点IP不重复
     private String clientID;
+
+    private String ruleRouter;
 
     private Context() {
     }
@@ -180,6 +182,8 @@ public class Context {
 
         private String clientID;
 
+        private String ruleRouter;
+
         public ConfigBuilder buildWithProperties(Properties properties) {
             if (properties == null) {
                 return this;
@@ -200,6 +204,7 @@ public class Context {
             preheaterSerilizeStep = properties.getProperty(ProxyConstant.PREHEAT_SERIALIZE_STEP);
             proxyUseInterval = properties.getProperty(ProxyConstant.PROXY_USE_INTERVAL);
             clientID = properties.getProperty(ProxyConstant.CLIENT_ID);
+            ruleRouter = properties.getProperty(ProxyConstant.PROXY_DOMAIN_STRATEGY_ROUTE);
             return this;
         }
 
@@ -342,8 +347,10 @@ public class Context {
                 context.globalProxyUseInterval = 0;
             }
 
-            //clientID
+            // clientID
             context.clientID = clientID;
+
+            context.ruleRouter = ruleRouter;
             return context;
         }
 
@@ -389,5 +396,9 @@ public class Context {
 
     public PreHeater getPreHeater() {
         return preHeater;
+    }
+
+    public String getRuleRouter() {
+        return ruleRouter;
     }
 }
