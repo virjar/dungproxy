@@ -39,6 +39,8 @@ proxyclient.preHeater.serialize.step=30
 proxyclient.proxyUseIntervalMillis=0
 #客户端ID,配置此参数拥有相同ID配置的所有节点的IP资源不重复
 proxyclient.clientID=com.virjar.webcrawler
+#代理规则路由,多个域名可以使用同一个代理规则,domain:similarDomain1,similarDomain2;domain2:similarDomain3,similarDomain4...
+proxyclient.proxyDomainStrategy.group=www.dytt8.net:www.ygdy8.net
 ```
 
 ## 最简配置如下
