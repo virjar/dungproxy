@@ -136,7 +136,8 @@ public class SmartProxyQueue {
             while (iterator.hasNext()) {
                 AvProxy next = iterator.next();
                 if (System.currentTimeMillis() - next.getLastUsedTime() > useInterval) {
-                    proxies.add(0, next);// 封禁的前提是IP曾经在队列头部,处于最高优先级,所以这批资源直接恢复到头部
+                    // proxies.add(0, next);
+                    proxies.addFirst(next);// 封禁的前提是IP曾经在队列头部,处于最高优先级,所以这批资源直接恢复到头部
                     iterator.remove();
                     recoveredNumber++;
                 }
@@ -153,7 +154,9 @@ public class SmartProxyQueue {
         }
         mutex.lock();
         try {
-            proxies.remove(avProxy);
+            if (!proxies.remove(avProxy)) {
+                blockedProxies.remove(avProxy);
+            }
             consistentBuckets.remove(avProxy.hashCode());
             addWithScore(avProxy);
         } finally {
@@ -165,7 +168,9 @@ public class SmartProxyQueue {
     public void offline(AvProxy avProxy) {
         mutex.lock();
         try {
-            proxies.remove(avProxy);
+            if (!proxies.remove(avProxy)) {
+                blockedProxies.remove(avProxy);
+            }
             consistentBuckets.remove(avProxy.hashCode());
         } finally {
             mutex.unlock();
@@ -177,6 +182,12 @@ public class SmartProxyQueue {
         mutex.lock();
         try {
             AvProxy last = proxies.getLast();
+            while (last != null && last.getAvgScore() < score) {
+                last.offline();
+                last = proxies.getLast();
+            }
+
+            last = blockedProxies.getLast();
             while (last != null && last.getAvgScore() < score) {
                 last.offline();
                 last = proxies.getLast();
