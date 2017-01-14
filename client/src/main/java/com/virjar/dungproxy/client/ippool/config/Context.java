@@ -70,7 +70,7 @@ public class Context {
 
     private int preheatSerilizeStep = 20;
 
-    private long globalProxyUseInterval = 0L;
+    private long globalProxyUseInterval = 10000L;//默认一个IP使用间隔不能小于10秒
 
     // clientID 标识一组客户端,他们可能在一个集群里,clientID用来解决一个集群的不同节点IP不重复
     private String clientID;
@@ -345,8 +345,8 @@ public class Context {
 
             // 全局的IP最小使用间隔
             context.globalProxyUseInterval = NumberUtils.toInt(proxyUseInterval, 0);
-            if (context.globalProxyUseInterval < 0) {
-                context.globalProxyUseInterval = 0;
+            if (context.globalProxyUseInterval <= 0) {
+                context.globalProxyUseInterval = 10000L;//默认IP使用间隔不能小于10秒
             }
 
             // clientID
