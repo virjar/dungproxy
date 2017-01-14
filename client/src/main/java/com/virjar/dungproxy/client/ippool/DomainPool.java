@@ -30,7 +30,7 @@ public class DomainPool {
     // 数据引入器,默认引入我们现在的服务器数据,可以扩展,改为其他数据来源
     private ResourceFacade resourceFacade;
     // 系统稳定的时候需要保持的资源
-    private int coreSize = 30;
+    private int coreSize = 50;
     // 系统可以运行的时候需要保持的资源数目,如果少于这个数据,系统将会延迟等待,直到资源load完成
     private int minSize = 1;
     private List<String> testUrls = Lists.newArrayList();

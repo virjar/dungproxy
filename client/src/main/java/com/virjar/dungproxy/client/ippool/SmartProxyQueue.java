@@ -96,6 +96,7 @@ public class SmartProxyQueue {
 
     public AvProxy getAndAdjustPriority() {
         mutex.lock();
+        boolean hasBlock = false;
         try {
             for (;;) {
                 AvProxy poll = proxies.poll();
@@ -103,7 +104,7 @@ public class SmartProxyQueue {
                     return null;
                 }
                 if (System.currentTimeMillis() - poll.getLastUsedTime() < useInterval) {
-                    recoveryBlockedProxy();
+                    hasBlock = true;
                     blockedProxies.add(poll);// 使用频率太高,放到备用资源池
                     logger.info("IP:{}使用小于规定时间间隔,暂时封禁", poll.getIp());
                     proxies.remove(poll);
@@ -114,6 +115,9 @@ public class SmartProxyQueue {
                 return poll;
             }
         } finally {
+            if(hasBlock){
+                recoveryBlockedProxy();
+            }
             mutex.unlock();
         }
     }

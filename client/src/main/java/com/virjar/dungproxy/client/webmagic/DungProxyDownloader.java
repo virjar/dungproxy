@@ -142,11 +142,14 @@ public class DungProxyDownloader extends AbstractDownloader {
                 onSuccess(request);
                 return page;
             } else {
+                PoolUtil.offline(httpClientContext);// webMagic对状态码的拦截可能出现在这里,所以也要在这里下线IP
                 logger.warn("get page {} error, status code {} ", request.getUrl(), statusCode);
                 return null;
             }
         } catch (IOException e) {
-            logger.warn("download page {} error", request.getUrl(), e);
+            if (isLastRetry(request, site)) {// 移动异常日志位置,只记录最终失败的。中途失败不算失败
+                logger.warn("download page {} error", request.getUrl(), e);
+            }
             if (site != null && site.getCycleRetryTimes() > 0) {
                 return addToCycleRetry(request, site);
             }
@@ -170,7 +173,31 @@ public class DungProxyDownloader extends AbstractDownloader {
     }
 
     /**
+     * 判断当前请求是不是最后的重试,流程等同于 addToCycleRetry
+     * 
+     * @see us.codecraft.webmagic.downloader.AbstractDownloader#addToCycleRetry(us.codecraft.webmagic.Request,
+     *      us.codecraft.webmagic.Site)
+     * @param request request
+     * @param site site
+     * @return 是否是最后一次重试
+     */
+    protected boolean isLastRetry(Request request, Site site) {
+        Object cycleTriedTimesObject = request.getExtra(Request.CYCLE_TRIED_TIMES);
+        if (cycleTriedTimesObject == null) {
+            return false;
+        } else {
+            int cycleTriedTimes = (Integer) cycleTriedTimesObject;
+            cycleTriedTimes++;
+            if (cycleTriedTimes >= site.getCycleRetryTimes()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 默认封禁403和401两个状态码的IP
+     * 
      * @param page 爬取结果
      * @return 是否需要封禁这个IP
      */
