@@ -1,6 +1,8 @@
 package com.virjar.dungproxy.client.webmagic;
 
 import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +20,7 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -29,8 +32,13 @@ import org.apache.http.protocol.HttpContext;
 import com.virjar.dungproxy.client.httpclient.CrawlerHttpClientBuilder;
 import com.virjar.dungproxy.client.util.ReflectUtil;
 
+import org.apache.http.ssl.SSLContextBuilder;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.proxy.Proxy;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * @author code4crafter@gmail.com <br>
@@ -41,9 +49,22 @@ public class DungProxyHttpClientGenerator {
     private PoolingHttpClientConnectionManager connectionManager;
 
     public DungProxyHttpClientGenerator() {
+        //和webMagic不同的是,这里忽略https证书,大多数场景需要忽略证书校验
+        SSLContext sslContext = null;
+        try {
+            sslContext = new SSLContextBuilder().loadTrustMaterial(new TrustStrategy() {
+                // 信任所有
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            }).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext);
         Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory> create()
-                .register("http", PlainConnectionSocketFactory.INSTANCE)
-                .register("https", SSLConnectionSocketFactory.getSocketFactory()).build();
+                .register("http", PlainConnectionSocketFactory.INSTANCE).register("https", sslsf).build();
+
         connectionManager = new PoolingHttpClientConnectionManager(reg);
         connectionManager.setDefaultMaxPerRoute(100);
     }
@@ -119,13 +140,50 @@ public class DungProxyHttpClientGenerator {
 
         SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(site.getTimeOut()).setSoKeepAlive(true)
                 .setTcpNoDelay(true).build();
+
+
         httpClientBuilder.setDefaultSocketConfig(socketConfig);
         connectionManager.setDefaultSocketConfig(socketConfig);
+
+        //ignoreSSLCertificate(httpClientBuilder);
 
         httpClientBuilder.setRetryHandler(new DefaultHttpRequestRetryHandler(site.getRetryTimes(), true));
 
         generateCookie(httpClientBuilder, site);
         return httpClientBuilder.build();
+    }
+
+    /**
+     * 忽略https证书
+     * @param httpClientBuilder httpclient构建器
+     */
+    private void ignoreSSLCertificate(CrawlerHttpClientBuilder httpClientBuilder){
+        X509TrustManager x509mgr = new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(X509Certificate[] xcs, String string) {
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] xcs, String string) {
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        };
+
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[] { x509mgr }, null);
+        } catch (Exception e) {
+            //// TODO: 16/11/23
+        }
+
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
+                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        httpClientBuilder.setSSLContext(sslContext);
     }
 
     private void generateCookie(CrawlerHttpClientBuilder httpClientBuilder, Site site) {
