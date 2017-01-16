@@ -10,6 +10,7 @@
     <modules>
         <module>server</module>
         <module>client</module>
+        <module>clientsample</module>
     </modules>
     <repositories>
         <repository>
