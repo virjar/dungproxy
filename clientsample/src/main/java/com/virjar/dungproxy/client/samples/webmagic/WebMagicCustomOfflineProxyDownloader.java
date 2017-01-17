@@ -1,4 +1,4 @@
-package com.virjar.dungproxy.client.sample;
+package com.virjar.dungproxy.client.samples.webmagic;
 
 import com.virjar.dungproxy.client.webmagic.DungProxyDownloader;
 import org.apache.commons.lang3.StringUtils;

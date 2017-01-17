@@ -31,7 +31,7 @@ public class WebMagicCustomOfflineProxyDownloader extends DungProxyDownloader {
     }
 }
 ```
-[示例代码地址](http://git.oschina.net/virjar/proxyipcenter/tree/master/client/src/test/java/com/virjar/dungproxy/client/sample/WebMagicCustomOfflineProxyDownloader.java)
+[示例代码地址](http://git.oschina.net/virjar/proxyipcenter/tree/master/clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/WebMagicCustomOfflineProxyDownloader.java)
 
 ### webMagic兼容0.5.x和0.6.x
 webMagic最近在实现代理功能,本身代理功能是本项目的核心,所以必然webMagic的代理相关代码变动可能性特别大。目前已经出现了在0.5.3和0.6.0上面的API不兼容问题。
@@ -44,7 +44,7 @@ dungProxy对此做了兼容方案,使用DungProxyDownloader可以同时支持0.5
 - 调整timeOut,webMagic的默认超时时间是5秒,这个对于使用代理对的场景来说是不合适的。建议调整到20秒以上
 - 对失败有预期,框架只能尽可能减少失败,但是不可能杜绝失败
 - 在没有遇到IP被封的时候,没有必要接入本工具
-- 参考demo [点击这里](http://git.oschina.net/virjar/proxyipcenter/tree/master/client/src/test/java/com/virjar/dungproxy/client/WebMagicTest.java)
+- 参考demo [点击这里](http://git.oschina.net/virjar/proxyipcenter/tree/master/clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/dytt8/WebMagicTest.java)
 
 
 ### 推荐的参数

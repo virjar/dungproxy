@@ -19,6 +19,7 @@ public class CommonUtil {
     private static Pattern ipPattern = Pattern.compile(
             "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$");
 
+    private static Pattern ipAndPortPattern  = Pattern.compile("([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}:\\d{1,6}");
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     public static String extractDomain(String url) {
@@ -75,5 +76,9 @@ public class CommonUtil {
 
         Matcher matcher = ipPattern.matcher(ipAddress);
         return matcher.find();
+    }
+
+    public static boolean isPlainProxyItem(String ipAndPort){
+        return ipAndPortPattern.matcher(ipAndPort).find();
     }
 }

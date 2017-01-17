@@ -8,6 +8,7 @@
 - 定义打分策略
 
 com.virjar.dungproxy.client.ippool.strategy.ResourceFacade:实现此类,接入数据源(可以考虑同时接入dungProxy—server和自己的IP)
+ 本扩展点有两个demo实现,分别是[CustomIPSource](http://git.oschina.net/virjar/proxyipcenter/tree/master/clientsample/src/main/java/com/virjar/dungproxy/client/samples/poolstrategy/CustomIPSource.java)和[CombineIpSource](http://git.oschina.net/virjar/proxyipcenter/tree/master/clientsample/src/main/java/com/virjar/dungproxy/client/samples/poolstrategy/CombineIpSource.java) 分别实现导入IP文件和实现多数据源同时导入
 com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy:传递一个域名,判断该域名下的请求是否需要被代理
 com.virjar.dungproxy.client.ippool.strategy.AvProxyDumper 确定如何实时序列化可用IP
 com.virjar.dungproxy.client.ippool.strategy.Offline 确定一个IP什么时候会被下线

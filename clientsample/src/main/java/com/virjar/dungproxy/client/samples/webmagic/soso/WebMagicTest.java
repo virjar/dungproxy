@@ -1,6 +1,5 @@
 package com.virjar.dungproxy.client.samples.webmagic.soso;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +26,6 @@ public class WebMagicTest implements PageProcessor {
             .setCycleRetryTimes(3)// 这个重试会换IP重试,是setRetryTimes的上一层的重试,不要怕三次重试解决一切问题。。
             .setUseGzip(true);// 注意调整超时时间
 
-    private BufferedWriter bufferedWriter;// = new BufferedWriter(new FileWriter("/Users/virjar/Desktop/moveLinksNew.txt"));
-
     public WebMagicTest() throws IOException {
     }
 
@@ -45,14 +42,6 @@ public class WebMagicTest implements PageProcessor {
         for (Element el : a) {
             String href = el.absUrl("href");
             if (StringUtils.startsWith(href, "ftp:") || StringUtils.endsWith(href, ".rar")) {
-
-               // try {
-                //    bufferedWriter.write(href);
-                //    bufferedWriter.newLine();
-                //} catch (IOException e) {
-                //    e.printStackTrace();
-               // }
-
                 System.out.println(href);// 输出所有下下载地址
             } else {
                 if (needAddToTarget(href)) {
@@ -61,14 +50,7 @@ public class WebMagicTest implements PageProcessor {
             }
         }
 
-       // try {
-       //     bufferedWriter.flush();
-       // } catch (IOException e) {
-       //     e.printStackTrace();
-       // }
-
     }
-
 
     private boolean needAddToTarget(String url) {
         if (url.endsWith(".png") || url.endsWith(".jpg") || url.endsWith(".gif")) {

@@ -1,9 +1,9 @@
-package com.virjar.dungproxy.client;
+package com.virjar.dungproxy.client.samples.webmagic.dytt8;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 
+import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -34,6 +34,8 @@ public class WebMagicTest implements PageProcessor {
     }
 
     public static void main(String[] args) throws IOException {
+        ProxyConstant.configFileName ="proxyclient_dytt8.properties";//加载电影天堂的配置
+
         Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(30)
                 .addUrl("http://www.dytt8.net/index.html").addUrl("http://www.ygdy8.net/html/gndy/dyzz/index.html")
                 .addUrl("http://www.dytt8.net/html/gndy/index.html").run();
