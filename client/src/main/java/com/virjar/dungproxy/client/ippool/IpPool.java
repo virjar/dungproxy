@@ -102,7 +102,7 @@ public class IpPool {
         }
     }
 
-    public AvProxy bind(String host, String url, Object userID) {
+    public AvProxy bind(String host, String url) {
         if (!isRunning) {
             throw new PoolDestroyException();
         }
@@ -122,7 +122,7 @@ public class IpPool {
                 }
             }
         }
-        AvProxy bind = pool.get(host).bind(url, userID);
+        AvProxy bind = pool.get(host).bind(url);
         if (bind == null) {
             logger.warn("IP池中,域名:{} 暂时没有IP", host);
         }

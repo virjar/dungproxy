@@ -2,7 +2,6 @@ package com.virjar.dungproxy.client.ippool;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade;
@@ -40,8 +38,6 @@ public class DomainPool {
     private SmartProxyQueue smartProxyQueue = new SmartProxyQueue();
 
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
-
-    private Map<Object, AvProxy> bindMap = Maps.newConcurrentMap();
 
     private List<AvProxy> removedProxies = Lists.newArrayList();
 
@@ -81,7 +77,7 @@ public class DomainPool {
         return Lists.newArrayList(smartProxyQueue.values());
     }
 
-    public AvProxy bind(String url, Object userID) {
+    public AvProxy bind(String url) {
         if (testUrls.size() < 10) {
             testUrls.add(url);
         } else {
@@ -100,20 +96,7 @@ public class DomainPool {
                 }
                 return defaultProxyList.get(new Random().nextInt(defaultProxyList.size()));
             }
-
-            AvProxy hint;
-            if (userID == null) {
-                hint = smartProxyQueue.getAndAdjustPriority();
-            } else {
-                hint = smartProxyQueue.hint(userID.hashCode());
-            }
-            if (userID != null && hint != null) {
-                if (!hint.equals(bindMap.get(userID))) {
-                    // IP 绑定改变事件
-                }
-                bindMap.put(userID, hint);
-            }
-            return hint;
+            return smartProxyQueue.getAndAdjustPriority();
         } finally {
             readWriteLock.readLock().unlock();
         }

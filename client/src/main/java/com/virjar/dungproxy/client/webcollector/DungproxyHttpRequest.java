@@ -65,7 +65,7 @@ public class DungproxyHttpRequest extends HttpRequest {
                     con = (HttpURLConnection) url.openConnection(proxy);
                 } else {
                     if(needProxyStrategy.needProxy(CommonUtil.extractDomain(urlString))) {
-                        bind = ipPool.bind(CommonUtil.extractDomain(urlString), urlString, null);
+                        bind = ipPool.bind(CommonUtil.extractDomain(urlString), urlString);
                     }
                     if (bind != null) {
                         bind.recordUsage();

@@ -1,12 +1,16 @@
 package com.virjar.dungproxy.client.ippool;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.model.AvProxy;
 
@@ -25,7 +29,7 @@ public class SmartProxyQueue {
 
     // 效率不高,但是先用这个实现.我们使用两个数据结构来实现绑定IP和优先级IP两种方案
     private LinkedList<AvProxy> proxies = Lists.newLinkedList();
-    private TreeMap<Integer, AvProxy> consistentBuckets = new TreeMap<>();
+    private Set<AvProxy> consistentBuckets = Sets.newConcurrentHashSet();
 
     // 暂时封禁的容器,放到本容器的IP只是被暂时封禁,但是不会被下线
     private LinkedList<AvProxy> blockedProxies = Lists.newLinkedList();
@@ -52,7 +56,7 @@ public class SmartProxyQueue {
         mutex.lock();
         try {
             for (AvProxy avProxy : avProxies) {
-                if (consistentBuckets.containsKey(avProxies.hashCode())) {
+                if (consistentBuckets.contains(avProxy)) {
                     continue;
                 }
                 // Score score = avProxy.getScore();
@@ -70,7 +74,7 @@ public class SmartProxyQueue {
                 } else {
                     proxies.addLast(avProxy);// 新加入资源,需要放置到链表尾部
                 }
-                consistentBuckets.put(avProxy.hashCode(), avProxy);
+                consistentBuckets.add(avProxy);
             }
         } finally {
             mutex.unlock();
@@ -82,12 +86,12 @@ public class SmartProxyQueue {
         checkScore(avProxy.getAvgScore());
         mutex.lock();
         try {
-            if (consistentBuckets.containsKey(avProxy.hashCode())) {
+            if (consistentBuckets.contains(avProxy)) {
                 return;
             }
             int index = (int) (proxies.size() * (ratio + (1 - ratio) * (1 - avProxy.getAvgScore())));
             proxies.add(index, avProxy);
-            consistentBuckets.put(avProxy.hashCode(), avProxy);
+            consistentBuckets.add(avProxy);
         } finally {
             mutex.unlock();
         }
@@ -148,7 +152,7 @@ public class SmartProxyQueue {
     }
 
     public void adjustPriority(AvProxy avProxy) {
-        if (!consistentBuckets.containsKey(avProxy.hashCode())) {// 如果已经下线,则不进行优先级调整动作
+        if (!consistentBuckets.contains(avProxy)) {// 如果已经下线,则不进行优先级调整动作
             return;
         }
         mutex.lock();
@@ -156,7 +160,7 @@ public class SmartProxyQueue {
             if (!proxies.remove(avProxy)) {
                 blockedProxies.remove(avProxy);
             }
-            consistentBuckets.remove(avProxy.hashCode());
+            consistentBuckets.remove(avProxy);
             addWithScore(avProxy);
         } finally {
             mutex.unlock();
@@ -256,12 +260,14 @@ public class SmartProxyQueue {
         return proxies.size() + blockedProxies.size();
     }
 
+    @Deprecated
     public AvProxy hint(int hash) {
-        if (consistentBuckets.size() == 0) {
-            return null;
-        }
-        SortedMap<Integer, AvProxy> tmap = this.consistentBuckets.tailMap(hash);
-        return (tmap.isEmpty()) ? consistentBuckets.firstEntry().getValue() : tmap.get(tmap.firstKey());
+        /*
+         * if (consistentBuckets.size() == 0) { return null; } SortedMap<Integer, AvProxy> tmap =
+         * this.consistentBuckets.tailMap(hash); return (tmap.isEmpty()) ? consistentBuckets.firstEntry().getValue() :
+         * tmap.get(tmap.firstKey());
+         */
+        return null;
     }
 
     // 数据结构需要改造这个东西。。。我们需要一个高度灵活的优先级队列。但是不保证公平的优先级和绝对优先级。

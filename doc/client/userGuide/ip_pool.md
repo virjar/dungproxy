@@ -1,10 +1,11 @@
 #使用IpPoolAPI获取IP资源
 
 ### 获取IP
-获取一个IP的方式是这样的 ``IpPool.getInstance().bind(domain, accessUrl, user);`` 
+获取一个IP的方式是这样的 ``IpPool.getInstance().bind(domain, accessUrl);`` 
 - 第一个参数是域名,可以传递null,传递null提取accessUrl schema里面的host
 - 第二个参数是你当前需要访问的url, 可以为null,为null时domain不能为空
-- 第三个参数是当前那个用户再访问,可以为null。这个用户是逻辑上的,主要场景是存在多个账户登录同一个网站进行数据抓取,这个时候希望每个用户再每次请求的时候,尽量(通过一致性hash尽量包装)获取的是同一个IP。当然传入null代表随机绑定IP了。
+
+曾经有一个绑定用户的功能,使得同一个账户每次获取的IP相同,后来觉得是过度设计,因为对于抓取场景,切换IP是很普通的需求,而且貌似没有多少server会检查常用IP。就算有也是小众需求,本框架不必支持
 
 ### 记录IP使用
 每当使用IP的时候,需要记录一次IP使用,也就是将IP实例的使用次数加一,用于打分机制计算IP的使用分值,评估IP可用性
