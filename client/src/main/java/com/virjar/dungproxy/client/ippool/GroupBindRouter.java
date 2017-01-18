@@ -71,7 +71,8 @@ public class GroupBindRouter {
         if (s.isPresent()) {// 缓存有数据,且有路由规则
             String routedDomain = s.get();
             logger.info("域名:{} 的代理规则路由到:{}", similarDomain, routedDomain);
-            return routeDomain(routedDomain);
+            return routedDomain;
+            //return routeDomain(routedDomain);
         }
         return similarDomain;// 缓存有数据,但是没有找到路由规则
 
