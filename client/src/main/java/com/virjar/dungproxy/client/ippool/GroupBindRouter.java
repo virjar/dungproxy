@@ -36,7 +36,7 @@ public class GroupBindRouter {
 
         for (String similarDomain : Splitter.on(",").split(similarDomainList)) {
             if (similarDomain.equals(keyDomain)) {
-                continue;//否则会打印一个无效日志
+                continue;// 否则会打印一个无效日志,以及递归问题
             }
             routeRule.put(similarDomain, keyDomain);
         }
@@ -58,8 +58,8 @@ public class GroupBindRouter {
      * @return
      */
     public String routeDomain(String similarDomain) {
-        Optional<String> s = routeData.get(similarDomain);//从缓存中加载规则
-        if (s == null) {//缓存没有命中,建立缓存数据
+        Optional<String> s = routeData.get(similarDomain);// 从缓存中加载规则
+        if (s == null) {// 缓存没有命中,建立缓存数据
             synchronized (GroupBindRouter.class) {
                 s = routeData.get(similarDomain);
                 if (s == null) {
@@ -68,11 +68,12 @@ public class GroupBindRouter {
                 s = routeData.get(similarDomain);
             }
         }
-        if (s.isPresent()) {//缓存有数据,且有路由规则
-            logger.info("域名:{} 的代理规则路由到:{}", similarDomain, s.get());
-            return s.get();
+        if (s.isPresent()) {// 缓存有数据,且有路由规则
+            String routedDomain = s.get();
+            logger.info("域名:{} 的代理规则路由到:{}", similarDomain, routedDomain);
+            return routeDomain(routedDomain);
         }
-        return similarDomain;//缓存有数据,但是没有找到路由规则
+        return similarDomain;// 缓存有数据,但是没有找到路由规则
 
     }
 
@@ -86,7 +87,7 @@ public class GroupBindRouter {
                 return;
             }
         }
-        //所有规则都检查过,没有找到对应的路由规则
-        routeData.put(similarDomain, Optional.<String>absent());
+        // 所有规则都检查过,没有找到对应的路由规则
+        routeData.put(similarDomain, Optional.<String> absent());
     }
 }
