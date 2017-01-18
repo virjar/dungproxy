@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.virjar.dungproxy.client.util;
+package com.virjar.dungproxy.client.model;
+
+import com.virjar.dungproxy.client.model.IPAddress;
 
 /**
  * This class represents an IP Range, which are represented by an IP address and and a subnet mask. The standards

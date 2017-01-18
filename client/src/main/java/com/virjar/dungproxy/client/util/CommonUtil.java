@@ -2,14 +2,21 @@ package com.virjar.dungproxy.client.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * Created by virjar on 16/9/16.
@@ -19,7 +26,8 @@ public class CommonUtil {
     private static Pattern ipPattern = Pattern.compile(
             "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$");
 
-    private static Pattern ipAndPortPattern  = Pattern.compile("([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}:\\d{1,6}");
+    private static Pattern ipAndPortPattern = Pattern.compile(
+            "([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}:\\d{1,6}");
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     public static String extractDomain(String url) {
@@ -78,7 +86,38 @@ public class CommonUtil {
         return matcher.find();
     }
 
-    public static boolean isPlainProxyItem(String ipAndPort){
+    public static boolean isPlainProxyItem(String ipAndPort) {
         return ipAndPortPattern.matcher(ipAndPort).find();
+    }
+
+    public static String toString(java.util.Date date) {
+        if (date == null) {
+            return null;
+        }
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return format.format(date);
+    }
+
+    private static Date startTime;
+
+    public final static Date getStartTime() {
+        if (startTime == null) {
+            startTime = new Date(ManagementFactory.getRuntimeMXBean().getStartTime());
+        }
+        return startTime;
+    }
+
+    private static final List<Header> defaultHeaders = Lists.newArrayList();
+    static {
+        defaultHeaders.add(new BasicHeader("Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
+        // 这个默认会添加,值为 gzip, deflate
+        // defaultHeaders.add(new BasicHeader("Accept-Encoding", "gzip, deflate, sdch, br"));
+        defaultHeaders.add(new BasicHeader("Accept-Language", "en-US,en;q=0.8"));
+        defaultHeaders.add(new BasicHeader("Cache-Control", "max-age=0"));
+    }
+
+    public static List<Header> defaultHeader() {
+        return defaultHeaders;
     }
 }

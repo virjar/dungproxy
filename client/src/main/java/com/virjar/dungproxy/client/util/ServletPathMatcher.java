@@ -15,7 +15,7 @@
  */
 package com.virjar.dungproxy.client.util;
 
-public class ServletPathMatcher implements PatternMatcher {
+public class ServletPathMatcher  {
 
 	private final static ServletPathMatcher INSTANCE = new ServletPathMatcher();
 
@@ -30,7 +30,6 @@ public class ServletPathMatcher implements PatternMatcher {
 	 * </p>
 	 * <b>Notice</b>: *xxx* will match *xxxyyyy. endsWithMatch first.
 	 */
-	@Override
 	public boolean matches(String pattern, String source) {
 		if (pattern == null || source == null) {
 			return false;

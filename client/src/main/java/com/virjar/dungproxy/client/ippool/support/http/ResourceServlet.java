@@ -26,9 +26,9 @@ import javax.servlet.http.HttpSession;
 
 
 import com.google.common.collect.Lists;
-import com.virjar.dungproxy.client.util.IPAddress;
-import com.virjar.dungproxy.client.util.IPRange;
-import com.virjar.dungproxy.client.util.Utils;
+import com.virjar.dungproxy.client.model.IPAddress;
+import com.virjar.dungproxy.client.model.IPRange;
+import com.virjar.dungproxy.client.util.ResourceUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,7 +162,7 @@ public abstract class ResourceServlet extends HttpServlet {
             response.setContentType("text/html; charset=utf-8");
         }
         if (fileName.endsWith(".jpg")) {
-            byte[] bytes = Utils.readByteArrayFromResource(filePath);
+            byte[] bytes = ResourceUtil.readByteArrayFromResource(filePath);
             if (bytes != null) {
                 response.getOutputStream().write(bytes);
             }
@@ -170,7 +170,7 @@ public abstract class ResourceServlet extends HttpServlet {
             return;
         }
 
-        String text = Utils.readFromResource(filePath);
+        String text = ResourceUtil.readFromResource(filePath);
         if (text == null) {
             response.sendRedirect(uri + "/index.html");
             return;
