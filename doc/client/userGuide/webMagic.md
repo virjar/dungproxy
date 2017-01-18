@@ -16,6 +16,7 @@ webMagic是国内一个非常优秀的爬虫框架,代理在爬虫中也是经�
 - 进入认证页面(这种情况需要考虑是目标网站是否会解封IP。如果会,则应该使用useInterval功能控制IP使用频率,而非下线IP)
 - 进入错误页面:如返回百度首页数据等
 - 没有任何响应(服务器不返回任何数据,直接不处理请求。表现为HttpNotResponseException)
+- 抛出指定异常,类似上一条
 
 DungProxyDownloader支持对这类IP封禁执行IP下线功能的扩展。扩展方法参考sample``com.virjar.dungproxy.client.sample.WebMagicCustomOfflineProxyDownloader``
 
@@ -28,6 +29,11 @@ public class WebMagicCustomOfflineProxyDownloader extends DungProxyDownloader {
         }else{
             return StringUtils.containsIgnoreCase(page.getRawText(), "包含这个关键字,代表IP被封禁");
         }
+    }
+    @Override
+    protected boolean needOfflineProxy(IOException e) {
+        //return e instanceof SSLException;//如果异常类型是SSL,代表IP被封禁,你也可以不实现
+        return false;
     }
 }
 ```

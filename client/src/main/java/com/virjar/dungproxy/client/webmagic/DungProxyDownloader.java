@@ -112,6 +112,7 @@ public class DungProxyDownloader extends AbstractDownloader {
         logger.info("downloading page {}", request.getUrl());
         CloseableHttpResponse httpResponse = null;
         int statusCode = 0;
+        HttpClientContext httpClientContext = null;
         try {
             HttpHost proxyHost = null;
             Proxy proxy = null; // TODO
@@ -130,7 +131,7 @@ public class DungProxyDownloader extends AbstractDownloader {
             }
 
             HttpUriRequest httpUriRequest = getHttpUriRequest(request, site, headers, proxyHost);
-            HttpClientContext httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
+            httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
             httpResponse = getHttpClient(site, proxy).execute(httpUriRequest, httpClientContext);
             statusCode = httpResponse.getStatusLine().getStatusCode();
             request.putExtra(Request.STATUS_CODE, statusCode);
@@ -138,15 +139,21 @@ public class DungProxyDownloader extends AbstractDownloader {
                 Page page = handleResponse(request, charset, httpResponse, task);
                 if (needOfflineProxy(page)) {
                     PoolUtil.offline(httpClientContext);
+                    return addToCycleRetry(request, site);
                 }
                 onSuccess(request);
                 return page;
             } else {
                 PoolUtil.offline(httpClientContext);// webMagic对状态码的拦截可能出现在这里,所以也要在这里下线IP
                 logger.warn("get page {} error, status code {} ", request.getUrl(), statusCode);
-                return null;
+                return addToCycleRetry(request, site);
             }
         } catch (IOException e) {
+            if (needOfflineProxy(e)) {
+                logger.warn("发生异常:{},IP下线");
+                PoolUtil.offline(httpClientContext);//由IP异常导致,直接重试
+                return addToCycleRetry(request, site);
+            }
             if (isLastRetry(request, site)) {// 移动异常日志位置,只记录最终失败的。中途失败不算失败
                 logger.warn("download page {} error", request.getUrl(), e);
             }
@@ -207,6 +214,10 @@ public class DungProxyDownloader extends AbstractDownloader {
             return false;// 不知道状态码
         }
         return statusCode == 401 || statusCode == 403;// 401和403两个状态强制下线IP
+    }
+
+    protected boolean needOfflineProxy(IOException e) {
+        return false;
     }
 
     @Override
