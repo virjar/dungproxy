@@ -2,7 +2,7 @@ package com.mantou.proxyservice.proxeservice.proxyservice;
 
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.Response;
-import com.virjar.client.proxyclient.ProxyClient;
+import com.virjar.dungproxy.client.ningclient.proxyclient.ProxyClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;

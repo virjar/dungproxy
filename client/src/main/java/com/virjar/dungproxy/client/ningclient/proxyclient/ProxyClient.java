@@ -1,4 +1,4 @@
-package com.virjar.client.proxyclient;
+package com.virjar.dungproxy.client.ningclient.proxyclient;
 
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.Futures;
@@ -6,7 +6,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.ning.http.client.AsyncCompletionHandlerBase;
 import com.ning.http.client.AsyncHandler;
 import com.ning.http.client.Response;
-import com.virjar.client.http.HttpOption;
+import com.virjar.dungproxy.client.ningclient.http.HttpOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

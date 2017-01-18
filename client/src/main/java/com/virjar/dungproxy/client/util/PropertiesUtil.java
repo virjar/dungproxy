@@ -1,4 +1,4 @@
-package com.virjar.common.util;
+package com.virjar.dungproxy.client.util;
 
 /**
  * Description: 支持properties修改热加载

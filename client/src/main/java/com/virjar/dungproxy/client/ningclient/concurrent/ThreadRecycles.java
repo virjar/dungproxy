@@ -1,4 +1,4 @@
-package com.virjar.client.concurrent;
+package com.virjar.dungproxy.client.ningclient.concurrent;
 
 /**
  * Description: ThreadRecycles

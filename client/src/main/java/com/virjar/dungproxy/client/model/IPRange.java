@@ -1,21 +1,12 @@
 /*
- * Copyright 1999-2101 Alibaba Group Holding Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 1999-2101 Alibaba Group Holding Ltd. Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.virjar.dungproxy.client.model;
-
-import com.virjar.dungproxy.client.model.IPAddress;
 
 /**
  * This class represents an IP Range, which are represented by an IP address and and a subnet mask. The standards
@@ -24,6 +15,7 @@ import com.virjar.dungproxy.client.model.IPAddress;
  * specifying the network address 130.5.5.25 with a subnet mask of 255.255.255.0 can also be expressed as 130.5.5.25/24.
  * The prefix-length notation is more compact and easier to understand than writing out the mask in its traditional
  * dotted-decimal format.
+ * 
  * @author Marcel Dullaart
  * @version 1.0
  * @see IPAddress
@@ -31,15 +23,15 @@ import com.virjar.dungproxy.client.model.IPAddress;
 public class IPRange {
 
     /** IP address */
-    private IPAddress ipAddress             = null;
+    private IPAddress ipAddress = null;
 
     /** IP subnet mask */
-    private IPAddress ipSubnetMask          = null;
+    private IPAddress ipSubnetMask = null;
 
     /** extended network prefix */
-    private int       extendedNetworkPrefix = 0;
+    private int extendedNetworkPrefix = 0;
 
-    public IPRange(String range){
+    public IPRange(String range) {
         parseRange(range);
     }
 
@@ -78,7 +70,7 @@ public class IPRange {
      * Convert the IP Range into a string representation.
      * 
      * @return Return the string representation of the IP Address following the common format xxx.xxx.xxx.xxx/xx (IP
-     * address/extended network prefixs).
+     *         address/extended network prefixs).
      */
     public String toString() {
         return ipAddress.toString() + "/" + extendedNetworkPrefix;
@@ -135,7 +127,7 @@ public class IPRange {
      * 
      * @param mask Reference to the subnet mask IP number.
      * @return Return the extended network prefix. Return -1 if the specified mask cannot be converted into a extended
-     * prefix network.
+     *         prefix network.
      */
     private int computeNetworkPrefixFromMask(IPAddress mask) {
 
@@ -203,7 +195,7 @@ public class IPRange {
      * 
      * @param address The IP address to be tested.
      * @return Return <code>true</code> if the specified IP address is in the encapsulated IP range, otherwise return
-     * <code>false</code>.
+     *         <code>false</code>.
      */
     public boolean isIPAddressInRange(IPAddress address) {
         if (ipSubnetMask == null) {

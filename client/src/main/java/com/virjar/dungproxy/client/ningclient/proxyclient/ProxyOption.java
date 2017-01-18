@@ -1,7 +1,7 @@
-package com.virjar.client.proxyclient;
+package com.virjar.dungproxy.client.ningclient.proxyclient;
 
-import com.virjar.client.http.HttpOption;
-import com.virjar.common.util.PropertiesUtil;
+import com.virjar.dungproxy.client.ningclient.http.HttpOption;
+import com.virjar.dungproxy.client.util.PropertiesUtil;
 
 import java.util.Map;
 

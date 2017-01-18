@@ -1,4 +1,4 @@
-package com.virjar.client.http;
+package com.virjar.dungproxy.client.ningclient.http;
 
 /**
  * Description: GuavaListenableFuture

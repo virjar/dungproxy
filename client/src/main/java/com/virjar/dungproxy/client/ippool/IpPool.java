@@ -50,8 +50,11 @@ public class IpPool {
 
         feedBackThread = new FeedBackThread();
         freshResourceThread = new FreshResourceThread();
+        feedBackThread.setDaemon(true);
+        freshResourceThread.setDaemon(true);
         feedBackThread.start();
         freshResourceThread.start();
+
     }
 
     private static IpPool instance = new IpPool();
@@ -74,8 +77,9 @@ public class IpPool {
                     }
                 }));
         isRunning = false;
-        feedBackThread.interrupt();
-        freshResourceThread.interrupt();
+        // 设置为守护线程之后,不需要主动销毁线程
+        // feedBackThread.interrupt();
+        // freshResourceThread.interrupt();
     }
 
     public void unSerialize() {
@@ -110,7 +114,7 @@ public class IpPool {
 
         ProxyDomainStrategy needProxyStrategy = Context.getInstance().getNeedProxyStrategy();
         if (!needProxyStrategy.needProxy(host)) {
-            logger.info("域名:{}没有被代理",host);
+            logger.info("域名:{}没有被代理", host);
             return null;
         }
 

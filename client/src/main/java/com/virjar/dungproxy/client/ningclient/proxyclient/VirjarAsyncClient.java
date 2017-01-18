@@ -1,4 +1,4 @@
-package com.virjar.client.proxyclient;
+package com.virjar.dungproxy.client.ningclient.proxyclient;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
@@ -16,11 +16,11 @@ import com.ning.http.client.Response;
 import com.ning.http.client.multipart.StringPart;
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
 
-import com.virjar.client.concurrent.ManagedExecutors;
-import com.virjar.client.concurrent.NamedThreadFactory;
-import com.virjar.client.http.AsyncClientHandler;
-import com.virjar.client.http.GuavaListenableFuture;
-import com.virjar.client.http.HttpOption;
+import com.virjar.dungproxy.client.ningclient.concurrent.ManagedExecutors;
+import com.virjar.dungproxy.client.ningclient.concurrent.NamedThreadFactory;
+import com.virjar.dungproxy.client.ningclient.http.AsyncClientHandler;
+import com.virjar.dungproxy.client.ningclient.http.GuavaListenableFuture;
+import com.virjar.dungproxy.client.ningclient.http.HttpOption;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.slf4j.Logger;

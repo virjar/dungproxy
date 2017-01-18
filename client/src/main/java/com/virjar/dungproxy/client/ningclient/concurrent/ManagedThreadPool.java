@@ -1,7 +1,6 @@
-package com.virjar.client.concurrent;
+package com.virjar.dungproxy.client.ningclient.concurrent;
 
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
