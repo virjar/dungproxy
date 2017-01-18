@@ -133,13 +133,27 @@ public class DomainPool {
 
     /**
      * 当前IP池是否需要下载新的IP资源。
+     * 
      * @return 是否
      */
     public boolean needFresh() {
-        if( smartProxyQueue.availableSize() < coreSize){
+        if (smartProxyQueue.availableSize() < coreSize) {
             smartProxyQueue.recoveryBlockedProxy();
         }
-        return  smartProxyQueue.availableSize() < coreSize;
+        return smartProxyQueue.availableSize() < coreSize;
+    }
+
+    /**
+     * 快速刷新模型,当IP池IP容量严重不足的时候,进入快速刷新模式,这个时候每个域名不再有单线程限制,使得IP可以快速恢复
+     * 
+     * @return 是否启动快速刷新模式
+     */
+    private boolean needQuickRefresh() {
+        boolean ret = smartProxyQueue.availableSize() * 3 < coreSize;
+        if (ret) {
+            logger.warn("IP池{} IP数量严重不足,进入快速刷新模式,期待IP可以快速恢复", domain);
+        }
+        return ret;
     }
 
     public void feedBack() {
@@ -158,23 +172,32 @@ public class DomainPool {
         removedProxies.clear();
     }
 
+    /**
+     * 是一个耗时任务,上层调用需要自己把本动作放在一个线程,当然本方法线程安全
+     */
     public void refresh() {
         if (testUrls.size() == 0) {
             return;// 数据还没有进来,不refresh
         }
         if (isRefreshing.compareAndSet(false, true)) {
             try {
-                List<AvProxyVO> avProxies = resourceFacade.importProxy(domain,
-                        testUrls.get(random.nextInt(testUrls.size())), coreSize);
-                PreHeater preHeater = Context.getInstance().getPreHeater();
-                for (AvProxyVO avProxy : avProxies) {
-                    if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
-                        avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
-                        addAvailable(avProxy.toModel());
-                    }
-                }
-            }finally {
+                doRefresh();
+            } finally {
                 isRefreshing.set(false);
+            }
+        } else if (needQuickRefresh()) {
+            doRefresh();
+        }
+    }
+
+    private void doRefresh() {
+        List<AvProxyVO> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
+                coreSize);
+        PreHeater preHeater = Context.getInstance().getPreHeater();
+        for (AvProxyVO avProxy : avProxies) {
+            if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
+                avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
+                addAvailable(avProxy.toModel());
             }
         }
     }
