@@ -53,33 +53,9 @@ public class SmartProxyQueue {
      * @param avProxies
      */
     public void addAllProxy(Collection<AvProxy> avProxies) {
-        mutex.lock();
-        try {
-            for (AvProxy avProxy : avProxies) {
-                if (consistentBuckets.contains(avProxy)) {
-                    continue;
-                }
-                // Score score = avProxy.getScore();
-                if (avProxy.getAvgScore() < 0D || avProxy.getAvgScore() > 1D) {
-                    logger.warn("avProxy score is illegal , avgScore need between 0 and 1 ,real score is:{}",
-                            avProxy.getAvgScore());
-                    avProxy.setAvgScore(0.5D);// 数据损坏
-                }
-
-                if (proxies.size() == 0) {
-                    proxies.add(avProxy);
-                } else if (avProxy.getAvgScore() != 0.0) {// 考虑断点使用IP资源的时候。需要按照分值来插入
-                    int index = (int) (proxies.size() * (ratio + (1 - ratio) * (1 - avProxy.getAvgScore())));
-                    proxies.add(index, avProxy);
-                } else {
-                    proxies.addLast(avProxy);// 新加入资源,需要放置到链表尾部
-                }
-                consistentBuckets.add(avProxy);
-            }
-        } finally {
-            mutex.unlock();
+        for (AvProxy avProxy : avProxies) {
+            addWithScore(avProxy);// 直接按照分值插入,主要考IP池自动调整优先级,或者上层通过分值控制初始值,没必要把这个逻辑做得很复杂
         }
-
     }
 
     public void addWithScore(AvProxy avProxy) {
