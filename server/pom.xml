@@ -312,6 +312,11 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.4.Final</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/xml-apis/xml-apis -->
         <dependency>
             <groupId>xml-apis</groupId>
