@@ -45,8 +45,8 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
         if (request instanceof HttpRequestWrapper || request instanceof HttpGet) {
             accessUrl = HttpUriRequest.class.cast(request).getURI().toString();
         }
-        AvProxy bind;
-        bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
+
+        AvProxy bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
         if (bind == null || bind.isDisable()) {
             bind = IpPool.getInstance().bind(target.getHostName(), accessUrl);
         }

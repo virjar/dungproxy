@@ -174,7 +174,7 @@ public class SmartProxyQueue {
             if (!proxies.remove(avProxy)) {
                 blockedProxies.remove(avProxy);
             }
-            consistentBuckets.remove(avProxy.hashCode());
+            consistentBuckets.remove(avProxy);
         } finally {
             mutex.unlock();
         }

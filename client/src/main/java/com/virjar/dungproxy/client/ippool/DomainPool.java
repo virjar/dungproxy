@@ -89,7 +89,7 @@ public class DomainPool {
 
         readWriteLock.readLock().lock();
         try {
-            if (smartProxyQueue.availableSize() == 0) {
+            if (smartProxyQueue.availableSize() == 0) {// TODO 移除这个逻辑,统一服务也要参与竞争,也把它放到IP池里面
                 List<DefaultProxy> defaultProxyList = Context.getInstance().getDefaultProxyList();
                 if (defaultProxyList.size() == 0) {
                     return null;
