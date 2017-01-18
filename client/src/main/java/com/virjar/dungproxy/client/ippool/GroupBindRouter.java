@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 
@@ -15,7 +16,8 @@ import com.google.common.collect.Maps;
  */
 public class GroupBindRouter {
     private Logger logger = LoggerFactory.getLogger(GroupBindRouter.class);
-    private Map<String, String> routeData = Maps.newConcurrentMap();
+    private Map<String, Optional<String>> routeData = Maps.newConcurrentMap();
+    private Map<String, String> routeRule = Maps.newConcurrentMap();
 
     /**
      * domain:similarDomain1,similarDomain2,similarDomain3,similarDomain4...<br/>
@@ -33,7 +35,10 @@ public class GroupBindRouter {
         String similarDomainList = split[1];
 
         for (String similarDomain : Splitter.on(",").split(similarDomainList)) {
-            routeData.put(similarDomain, keyDomain);
+            if (similarDomain.equals(keyDomain)) {
+                continue;//否则会打印一个无效日志
+            }
+            routeRule.put(similarDomain, keyDomain);
         }
     }
 
@@ -41,19 +46,47 @@ public class GroupBindRouter {
         if (StringUtils.isEmpty(combinationRule)) {
             return;
         }
-        for (String rule : Splitter.on(";").split(combinationRule)
-                ) {
+        for (String rule : Splitter.on(";").split(combinationRule)) {
             buildRule(rule);
         }
     }
 
+    /**
+     * 支持通过正则的方式批量配置路由规则
+     *
+     * @param similarDomain 现在遇到的域名
+     * @return
+     */
     public String routeDomain(String similarDomain) {
-        String s = routeData.get(similarDomain);
-        if (s == null) {
-            return similarDomain;
-        } else {
-            logger.info("域名:{} 的代理规则路由到:{}", similarDomain, s);
-            return s;
+        Optional<String> s = routeData.get(similarDomain);//从缓存中加载规则
+        if (s == null) {//缓存没有命中,建立缓存数据
+            synchronized (GroupBindRouter.class) {
+                s = routeData.get(similarDomain);
+                if (s == null) {
+                    matchSimilarDomain(similarDomain);
+                }
+                s = routeData.get(similarDomain);
+            }
         }
+        if (s.isPresent()) {//缓存有数据,且有路由规则
+            logger.info("域名:{} 的代理规则路由到:{}", similarDomain, s.get());
+            return s.get();
+        }
+        return similarDomain;//缓存有数据,但是没有找到路由规则
+
+    }
+
+    /**
+     * @param similarDomain 当前遇到的域名
+     */
+    private void matchSimilarDomain(String similarDomain) {
+        for (String pattern : routeRule.keySet()) {
+            if (pattern.equals(similarDomain) || similarDomain.matches(pattern)) {
+                routeData.put(similarDomain, Optional.of(routeRule.get(pattern)));
+                return;
+            }
+        }
+        //所有规则都检查过,没有找到对应的路由规则
+        routeData.put(similarDomain, Optional.<String>absent());
     }
 }
