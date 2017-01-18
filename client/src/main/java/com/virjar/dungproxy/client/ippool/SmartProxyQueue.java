@@ -118,10 +118,11 @@ public class SmartProxyQueue {
                 return poll;
             }
         } finally {
+            mutex.unlock();
             if (hasBlock) {
                 recoveryBlockedProxy();
             }
-            mutex.unlock();
+
         }
     }
 
