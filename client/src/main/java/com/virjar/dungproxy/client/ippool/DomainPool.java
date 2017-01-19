@@ -3,7 +3,7 @@ package com.virjar.dungproxy.client.ippool;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -43,7 +43,7 @@ public class DomainPool {
 
     private static final Logger logger = LoggerFactory.getLogger(DomainPool.class);
 
-    private AtomicBoolean isRefreshing = new AtomicBoolean(false);
+    private AtomicInteger refreshTaskNumber = new AtomicInteger(0);
 
     public DomainPool(String domain, ResourceFacade resourceFacade) {
         this(domain, resourceFacade, null);
@@ -103,15 +103,15 @@ public class DomainPool {
     }
 
     private void refreshInNewThread() {
-        if (isRefreshing.get()) {
-            return;
-        }
-        new Thread() {
+
+        Thread thread = new Thread() {
             @Override
             public void run() {
                 refresh();
             }
-        }.start();
+        };
+        thread.setDaemon(true);
+        thread.start();
     }
 
     /**
@@ -131,12 +131,12 @@ public class DomainPool {
      * 
      * @return 是否启动快速刷新模式
      */
-    private boolean needQuickRefresh() {
-        boolean ret = smartProxyQueue.availableSize() * 3 < coreSize;
-        if (ret) {
-            logger.warn("IP池{} IP数量严重不足,进入快速刷新模式,期待IP可以快速恢复", domain);
+    private int expectedRefreshTaskNumber() {
+
+        if (smartProxyQueue.availableSize() >= coreSize) {
+            return 0;
         }
-        return ret;
+        return (coreSize - smartProxyQueue.availableSize()) * 10 / coreSize;
     }
 
     public void feedBack() {
@@ -162,14 +162,17 @@ public class DomainPool {
         if (testUrls.size() == 0) {
             return;// 数据还没有进来,不refresh
         }
-        if (isRefreshing.compareAndSet(false, true)) {
+        int expectedThreadNumber = expectedRefreshTaskNumber();
+        if (refreshTaskNumber.get() > expectedThreadNumber) {
+            return;
+        }
+
+        if (refreshTaskNumber.incrementAndGet() <= expectedThreadNumber) {
             try {
                 doRefresh();
             } finally {
-                isRefreshing.set(false);
+                refreshTaskNumber.decrementAndGet();
             }
-        } else if (needQuickRefresh()) {
-            doRefresh();
         }
     }
 
@@ -247,7 +250,7 @@ public class DomainPool {
         return smartProxyQueue;
     }
 
-    public boolean getIsRefreshing() {
-        return isRefreshing.get();
+    public boolean isRefreshing() {
+        return refreshTaskNumber.get() > 0;
     }
 }

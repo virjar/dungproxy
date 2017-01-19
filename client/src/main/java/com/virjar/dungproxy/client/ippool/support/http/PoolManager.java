@@ -55,7 +55,7 @@ public class PoolManager {
         DomainPool domainPool = ipPool.getPool().get(domain);
         ret.put("domain", domain);
         ret.put("coreSize", domainPool.getCoreSize());
-        ret.put("isRefreshing", domainPool.getIsRefreshing());
+        ret.put("isRefreshing", domainPool.isRefreshing());
         ret.put("site", domainPool.getSmartProxyQueue().allSize());
         // 容器相关信息
         SmartProxyQueue smartProxyQueue = domainPool.getSmartProxyQueue();
