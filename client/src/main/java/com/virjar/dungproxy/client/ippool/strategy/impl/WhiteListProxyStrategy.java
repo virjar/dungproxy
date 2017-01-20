@@ -2,6 +2,8 @@ package com.virjar.dungproxy.client.ippool.strategy.impl;
 
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.collect.Sets;
 import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
 
@@ -17,6 +19,10 @@ public class WhiteListProxyStrategy implements ProxyDomainStrategy {
     }
 
     public void addWhiteHost(String host) {
+        // check host pattern
+        if (StringUtils.contains(host, "http") || StringUtils.contains(host, ":") || StringUtils.contains(host, "/")) {
+            throw new IllegalArgumentException(host + " 不是一个合法域名,请注意填写的是域名,不是URL");
+        }
         whiteList.add(host);
     }
 
