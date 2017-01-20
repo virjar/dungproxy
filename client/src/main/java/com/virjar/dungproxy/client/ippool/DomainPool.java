@@ -127,16 +127,21 @@ public class DomainPool {
     }
 
     /**
-     * 快速刷新模型,当IP池IP容量严重不足的时候,进入快速刷新模式,这个时候每个域名不再有单线程限制,使得IP可以快速恢复
+     * 动态调整IP刷新线程数量
      * 
-     * @return 是否启动快速刷新模式
+     * @return 现在可以运行的线程数量
      */
     private int expectedRefreshTaskNumber() {
 
         if (smartProxyQueue.availableSize() >= coreSize) {
             return 0;
         }
-        return (coreSize - smartProxyQueue.availableSize()) * 10 / coreSize;
+        int threadNumber = (coreSize - smartProxyQueue.availableSize()) * 10 / coreSize;
+        if (threadNumber == 0) {
+            threadNumber = 1;
+        }
+        logger.info("IP池可用IP数量:{} 当前准备进行刷新工作的线程数量:{}", smartProxyQueue.availableSize(), threadNumber);
+        return threadNumber;
     }
 
     public void feedBack() {
@@ -184,6 +189,7 @@ public class DomainPool {
             if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
                 avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
                 addAvailable(avProxy.toModel());
+                logger.info("IP池当前可用IP数目:{}", smartProxyQueue.availableSize());
             }
         }
     }
