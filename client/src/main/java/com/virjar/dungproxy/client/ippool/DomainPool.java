@@ -169,12 +169,15 @@ public class DomainPool {
         }
         int expectedThreadNumber = expectedRefreshTaskNumber();
         if (refreshTaskNumber.get() > expectedThreadNumber) {
+            logger.info("当前刷新线程数:{} 大于调度线程数:{} 取消本次IP资源刷新任务", refreshTaskNumber.get(), expectedThreadNumber);
             return;
         }
 
         if (refreshTaskNumber.incrementAndGet() <= expectedThreadNumber) {
             try {
+                logger.info("IP资源刷新开始...");
                 doRefresh();
+                logger.info("IP资源刷新结束...");
             } finally {
                 refreshTaskNumber.decrementAndGet();
             }

@@ -1,42 +1,36 @@
 package com.virjar.dungproxy.client.ningclient.proxyclient;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadFactory;
+
+import javax.annotation.PreDestroy;
+
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.ning.http.client.AsyncCompletionHandler;
-import com.ning.http.client.AsyncCompletionHandlerBase;
-import com.ning.http.client.AsyncHandler;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.ProxyServer;
-import com.ning.http.client.Request;
-import com.ning.http.client.Response;
+import com.ning.http.client.*;
+import com.ning.http.client.AsyncHttpClientConfig.Builder;
 import com.ning.http.client.multipart.StringPart;
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
-
 import com.virjar.dungproxy.client.ningclient.concurrent.ManagedExecutors;
 import com.virjar.dungproxy.client.ningclient.concurrent.NamedThreadFactory;
 import com.virjar.dungproxy.client.ningclient.http.AsyncClientHandler;
 import com.virjar.dungproxy.client.ningclient.http.GuavaListenableFuture;
 import com.virjar.dungproxy.client.ningclient.http.HttpOption;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 //jdk1.7没有这个方法,编译不通过
 //import static com.sun.deploy.Environment.setUserAgent;
-
-import com.ning.http.client.AsyncHttpClientConfig.Builder;
-
-import javax.annotation.PreDestroy;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Description: AsyncClient

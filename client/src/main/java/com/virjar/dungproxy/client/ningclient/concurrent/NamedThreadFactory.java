@@ -29,6 +29,7 @@ public class NamedThreadFactory implements ThreadFactory {
         this.mGroup = s == null ? Thread.currentThread().getThreadGroup() : s.getThreadGroup();
     }
 
+    @Override
     public Thread newThread(Runnable runnable) {
         String name = this.mPrefix + this.mThreadNum.getAndIncrement();
         Thread ret = new Thread(this.mGroup, runnable, name, 0L);

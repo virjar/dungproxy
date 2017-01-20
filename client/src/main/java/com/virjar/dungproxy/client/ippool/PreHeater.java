@@ -82,6 +82,7 @@ public class PreHeater {
         if (!url.startsWith("http")) {
             url = "http://" + url;
         }
+        //TODO 中文路径和中文参数处理
         taskUrls.add(url);
         return this;
     }
