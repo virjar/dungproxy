@@ -144,14 +144,17 @@ public class DungProxyDownloader extends AbstractDownloader {
                 onSuccess(request);
                 return page;
             } else {
-                PoolUtil.offline(httpClientContext);// webMagic对状态码的拦截可能出现在这里,所以也要在这里下线IP
                 logger.warn("get page {} error, status code {} ", request.getUrl(), statusCode);
-                return addToCycleRetry(request, site);
+                if (needOfflineProxy(statusCode)) {
+                    PoolUtil.offline(httpClientContext);// webMagic对状态码的拦截可能出现在这里,所以也要在这里下线IP
+                    return addToCycleRetry(request, site);
+                }
+                return null;
             }
         } catch (IOException e) {
             if (needOfflineProxy(e)) {
                 logger.warn("发生异常:{},IP下线");
-                PoolUtil.offline(httpClientContext);//由IP异常导致,直接重试
+                PoolUtil.offline(httpClientContext);// 由IP异常导致,直接重试
                 return addToCycleRetry(request, site);
             }
             if (isLastRetry(request, site)) {// 移动异常日志位置,只记录最终失败的。中途失败不算失败
@@ -217,6 +220,10 @@ public class DungProxyDownloader extends AbstractDownloader {
     }
 
     protected boolean needOfflineProxy(IOException e) {
+        return false;
+    }
+
+    protected boolean needOfflineProxy(int status) {
         return false;
     }
 

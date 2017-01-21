@@ -2,7 +2,6 @@ package com.virjar.dungproxy.client.samples.webmagic.soso;
 
 import java.io.IOException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -30,7 +29,7 @@ public class WebMagicTest implements PageProcessor {
     }
 
     public static void main(String[] args) throws IOException {
-        Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(30)
+        Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(5)
                 .addUrl("https://www.so.com/s?q=%E8%8C%89%E8%8E%89&pn=9")
                 .addUrl("https://www.so.com/s?q=%E6%A0%80%E5%AD%90%E8%8A%B1&pn=9").start();
 
@@ -41,12 +40,9 @@ public class WebMagicTest implements PageProcessor {
         Elements a = page.getHtml().getDocument().getElementsByTag("a");
         for (Element el : a) {
             String href = el.absUrl("href");
-            if (StringUtils.startsWith(href, "ftp:") || StringUtils.endsWith(href, ".rar")) {
-                System.out.println(href);// 输出所有下下载地址
-            } else {
-                if (needAddToTarget(href)) {
-                    page.addTargetRequest(href);
-                }
+
+            if (needAddToTarget(href)) {
+                page.addTargetRequest(href);
             }
         }
 
@@ -56,8 +52,7 @@ public class WebMagicTest implements PageProcessor {
         if (url.endsWith(".png") || url.endsWith(".jpg") || url.endsWith(".gif")) {
             return false;
         }
-
-        return true;
+        return url.contains("www.so.com");
     }
 
     @Override

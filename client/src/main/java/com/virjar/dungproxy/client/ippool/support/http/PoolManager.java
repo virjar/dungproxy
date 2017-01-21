@@ -43,7 +43,7 @@ public class PoolManager {
             record.put("domain", entry.getKey());
             record.put("coreSize", String.valueOf(domainPool.getCoreSize()));
             record.put("size", String.valueOf(domainPool.getSmartProxyQueue().allSize()));
-            record.put("minSize", String.valueOf(domainPool.getMinSize()));
+            record.put("minSize", "本字段废弃");
             ret.add(record);
         }
         return ret;

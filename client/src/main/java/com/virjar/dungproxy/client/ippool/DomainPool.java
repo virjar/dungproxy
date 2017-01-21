@@ -3,6 +3,8 @@ package com.virjar.dungproxy.client.ippool;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -29,8 +31,6 @@ public class DomainPool {
     private ResourceFacade resourceFacade;
     // 系统稳定的时候需要保持的资源
     private int coreSize = 50;
-    // 系统可以运行的时候需要保持的资源数目,如果少于这个数据,系统将会延迟等待,直到资源load完成
-    private int minSize = 1;
     private List<String> testUrls = Lists.newArrayList();
 
     private Random random = new Random(System.currentTimeMillis());
@@ -40,6 +40,13 @@ public class DomainPool {
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
 
     private List<AvProxy> removedProxies = Lists.newArrayList();
+
+    // 备选的代理资源,他是通过IP下载器下载的的一批初始化IP,但是没有经过可用性测试
+    private ConcurrentLinkedQueue<AvProxyVO> candidateProxies = new ConcurrentLinkedQueue<>();
+
+    private AtomicBoolean isCandidateProxiesDownloading = new AtomicBoolean(false);
+
+    private volatile long lastIpImportTimeStamp = 0L;
 
     private static final Logger logger = LoggerFactory.getLogger(DomainPool.class);
 
@@ -84,7 +91,7 @@ public class DomainPool {
             testUrls.set(random.nextInt(10), url);
         }
         if (needFresh()) {
-            refreshInNewThread();// 在新线程刷新
+            refresh();// 在新线程刷新
         }
 
         readWriteLock.readLock().lock();
@@ -100,18 +107,6 @@ public class DomainPool {
         } finally {
             readWriteLock.readLock().unlock();
         }
-    }
-
-    private void refreshInNewThread() {
-
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                refresh();
-            }
-        };
-        thread.setDaemon(true);
-        thread.start();
     }
 
     /**
@@ -140,7 +135,7 @@ public class DomainPool {
         if (threadNumber == 0) {
             threadNumber = 1;
         }
-        logger.info("IP池可用IP数量:{} 当前准备进行刷新工作的线程数量:{}", smartProxyQueue.availableSize(), threadNumber);
+        // logger.info("IP池可用IP数量:{} 当前准备进行刷新工作的线程数量:{}", smartProxyQueue.availableSize(), threadNumber);
         return threadNumber;
     }
 
@@ -161,7 +156,8 @@ public class DomainPool {
     }
 
     /**
-     * 是一个耗时任务,上层调用需要自己把本动作放在一个线程,当然本方法线程安全
+     * 本方法会启动线程异步刷线,所以不需要自己建立线程环境了,他不会检查可用IP是否足量,但是如果IP本身量太大的话,本调用也几乎无效(会检查是否需要下载IP,这个检查会失败),
+     *
      */
     public void refresh() {
         if (testUrls.size() == 0) {
@@ -169,26 +165,59 @@ public class DomainPool {
         }
         int expectedThreadNumber = expectedRefreshTaskNumber();
         if (refreshTaskNumber.get() > expectedThreadNumber) {
-            logger.info("当前刷新线程数:{} 大于调度线程数:{} 取消本次IP资源刷新任务", refreshTaskNumber.get(), expectedThreadNumber);
+            // logger.info("当前刷新线程数:{} 大于调度线程数:{} 取消本次IP资源刷新任务", refreshTaskNumber.get(), expectedThreadNumber);
             return;
         }
 
         if (refreshTaskNumber.incrementAndGet() <= expectedThreadNumber) {
-            try {
-                logger.info("IP资源刷新开始...");
-                doRefresh();
-                logger.info("IP资源刷新结束...");
-            } finally {
-                refreshTaskNumber.decrementAndGet();
-            }
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        logger.info("IP资源刷新开始,当前刷新线程数量:{}...", refreshTaskNumber.get());
+                        doRefresh();
+                        logger.info("IP资源刷新结束...");
+                    } finally {
+                        refreshTaskNumber.decrementAndGet();
+                    }
+                }
+
+            };
+            thread.setDaemon(true);
+            thread.start();
         }
     }
 
+    private void checkAndExtendCandidateResource() {
+        // 两分钟内下载过IP,则取消IP下载,因为一次IP下载本身可能需要十几秒
+        if (System.currentTimeMillis() - lastIpImportTimeStamp < 120000) {
+            return;
+        }
+        // 候选IP足量,取消IP下载
+        if (candidateProxies.size() + smartProxyQueue.availableSize() > (coreSize * 1.5)) {
+            return;
+        }
+        // download new proxies
+        // 同一个时刻只能有一个线程进行IP下载
+        if (isCandidateProxiesDownloading.compareAndSet(false, true)) {
+            try {
+                List<AvProxyVO> avProxies = resourceFacade.importProxy(domain,
+                        testUrls.get(random.nextInt(testUrls.size())), coreSize);
+                logger.info("在线IP刷新,当前下载到的IP数目为:{}", avProxies.size());
+                candidateProxies.addAll(avProxies);
+            } finally {
+                lastIpImportTimeStamp = System.currentTimeMillis();
+                isCandidateProxiesDownloading.set(false);
+            }
+        }
+
+    }
+
     private void doRefresh() {
-        List<AvProxyVO> avProxies = resourceFacade.importProxy(domain, testUrls.get(random.nextInt(testUrls.size())),
-                coreSize);
+        checkAndExtendCandidateResource();
+        AvProxyVO avProxy;
         PreHeater preHeater = Context.getInstance().getPreHeater();
-        for (AvProxyVO avProxy : avProxies) {
+        while ((avProxy = candidateProxies.poll()) != null) {
             if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
                 avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
                 addAvailable(avProxy.toModel());
@@ -241,14 +270,6 @@ public class DomainPool {
 
     public void setCoreSize(int coreSize) {
         this.coreSize = coreSize;
-    }
-
-    public int getMinSize() {
-        return minSize;
-    }
-
-    public void setMinSize(int minSize) {
-        this.minSize = minSize;
     }
 
     public List<String> getTestUrls() {
