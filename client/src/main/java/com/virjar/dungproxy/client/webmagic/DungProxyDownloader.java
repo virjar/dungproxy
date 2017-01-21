@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -223,8 +224,8 @@ public class DungProxyDownloader extends AbstractDownloader {
         return false;
     }
 
-    protected boolean needOfflineProxy(int status) {
-        return false;
+    protected boolean needOfflineProxy(int statusCode) {
+        return statusCode == 401 || statusCode == 403;
     }
 
     @Override
@@ -307,11 +308,15 @@ public class DungProxyDownloader extends AbstractDownloader {
     }
 
     protected String getHtmlCharset(HttpResponse httpResponse, byte[] contentBytes) throws IOException {
-        String charset;
+        String charset = null;
         // charset
         // 1、encoding in http header Content-Type
-        String value = httpResponse.getEntity().getContentType().getValue();
-        charset = UrlUtils.getCharset(value);
+
+        Header contentType = httpResponse.getEntity().getContentType();
+        if (contentType != null) {// contentType可能为空
+            charset = UrlUtils.getCharset(contentType.getValue());
+        }
+
         if (StringUtils.isNotBlank(charset)) {
             logger.debug("Auto get charset: {}", charset);
             return charset;
