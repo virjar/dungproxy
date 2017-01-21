@@ -14,7 +14,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
 
 /**
  * Created by virjar on 17/1/14.<br/>
- * webMagic测试,使用webMagic爬取电影天堂的电影文件下载地址
+ * 360搜索的爬虫,是https的链接
  *
  */
 public class WebMagicTest implements PageProcessor {
