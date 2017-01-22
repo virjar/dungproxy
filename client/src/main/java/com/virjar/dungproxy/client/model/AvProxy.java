@@ -45,7 +45,8 @@ public class AvProxy {
     // 平均打分 需要归一化,在0-1的一个小数
     private double avgScore = 0;
 
-    private AtomicInteger sucessTimes = new AtomicInteger(0);
+    // 是否被分发出去
+    private boolean referFlag = false;
 
     public static boolean needRecordChange = true;
 
@@ -83,14 +84,11 @@ public class AvProxy {
     }
 
     public void recordFailed() {
-        Scoring scoring = Context.getInstance().getScoring();
-        if (sucessTimes.get() > 1) {
-            while (sucessTimes.getAndDecrement() > 1) {
-                avgScore = scoring.newAvgScore(this, Context.getInstance().getScoreFactory(), true);
-                // score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
-            }
+        if (!referFlag) {// 重复记录失败使用了
+            return;
         }
-        sucessTimes.set(0);
+        referFlag = false;
+        Scoring scoring = Context.getInstance().getScoring();
         avgScore = scoring.newAvgScore(this, Context.getInstance().getScoreFactory(), false);
         failedCount.incrementAndGet();
         if (Context.getInstance().getOffliner().needOffline(this)) {
@@ -104,15 +102,15 @@ public class AvProxy {
         domainPool.adjustPriority(this);
     }
 
+    /**
+     * 两次使用之间,如果没有发生过异常,那么认为使用成功了
+     */
     public void recordUsage() {
-        sucessTimes.incrementAndGet();
-        if (sucessTimes.get() > 1) {
-            while (sucessTimes.getAndDecrement() > 1) {
-                Scoring scoring = Context.getInstance().getScoring();
-                avgScore = scoring.newAvgScore(this, Context.getInstance().getScoreFactory(), true);
-                // score.setAvgScore(scoring.newAvgScore(score, Context.getInstance().getScoreFactory(), true));
-            }
+        if (referFlag) {// 被使用过,但是没有失败报告,认为上次使用成功,不考虑段时间并发问题导致的反馈不及时问题,那种场景会导致多记录一次成功
+            Scoring scoring = Context.getInstance().getScoring();
+            avgScore = scoring.newAvgScore(this, Context.getInstance().getScoreFactory(), true);
         }
+        referFlag = true;
         lastUsedTime = System.currentTimeMillis();
         referCount.incrementAndGet();
     }
