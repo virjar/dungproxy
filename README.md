@@ -18,7 +18,9 @@ qq 群,人肉文档支持😁
 > 569543649
 
 ## 案例
-[代理IP爬虫](http://proxy.scumall.com:8080/#/index) 我们通过代理访问封堵我们的代理资源发布网站,以及访问国外的代理IP网站
+[代理IP爬虫](http://114.215.144.211:8080/#/index) 我们通过代理访问封堵我们的代理资源发布网站,以及访问国外的代理IP网站
+和与webMagic集成
+![img](doc/pic/dungproxy_webmagic_test.png)
 
 ### serverList
 115.159.40.202 收集&分发
