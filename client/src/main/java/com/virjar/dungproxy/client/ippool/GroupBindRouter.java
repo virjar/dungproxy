@@ -64,8 +64,8 @@ public class GroupBindRouter {
                 s = routeData.get(similarDomain);
                 if (s == null) {
                     matchSimilarDomain(similarDomain);
+                    s = routeData.get(similarDomain);
                 }
-                s = routeData.get(similarDomain);
             }
         }
         if (s.isPresent()) {// 缓存有数据,且有路由规则

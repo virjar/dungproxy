@@ -20,7 +20,7 @@ public class WhiteListProxyStrategy implements ProxyDomainStrategy {
 
     public void addWhiteHost(String host) {
         // check host pattern
-        if (StringUtils.contains(host, "http") || StringUtils.contains(host, ":") || StringUtils.contains(host, "/")) {
+        if (StringUtils.startsWithIgnoreCase(host, "http") || StringUtils.contains(host, ":") || StringUtils.contains(host, "/")) {
             throw new IllegalArgumentException(host + " 不是一个合法域名,请注意填写的是域名,不是URL");
         }
         whiteList.add(host);
