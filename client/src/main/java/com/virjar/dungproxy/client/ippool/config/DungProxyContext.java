@@ -225,7 +225,7 @@ public class DungProxyContext {
             if (domainContext != null) {
                 return domainContext;
             }
-            domainConfig.put(domian, DomainContext.create(domian));
+            domainConfig.put(domian, DomainContext.create(domian).extendWithDungProxyContext(this));
             return domainConfig.get(domian);
         }
     }
@@ -247,7 +247,8 @@ public class DungProxyContext {
     }
 
     public DungProxyContext buildDefaultConfigFile() {
-        InputStream resourceAsStream = DungProxyContext.class.getResourceAsStream(ProxyConstant.configFileName);
+        InputStream resourceAsStream = DungProxyContext.class.getClassLoader()
+                .getResourceAsStream(ProxyConstant.configFileName);
         if (resourceAsStream == null) {
             logger.warn("没有找到配置文件:{},代理规则几乎不会生效", ProxyConstant.configFileName);
             return this;
@@ -282,6 +283,11 @@ public class DungProxyContext {
         // IP代理策略
         String proxyDomainStrategy = properties.getProperty(ProxyConstant.PROXY_DOMAIN_STRATEGY,
                 ProxyConstant.DEFAULT_DOMAIN_STRATEGY);
+        if ("WHITE_LIST".equalsIgnoreCase(proxyDomainStrategy)) {
+            proxyDomainStrategy = WhiteListProxyStrategy.class.getName();
+        } else if ("BLACK_LIST".equalsIgnoreCase(proxyDomainStrategy)) {
+            proxyDomainStrategy = BlackListProxyStrategy.class.getName();
+        }
         if (StringUtils.isNotEmpty(proxyDomainStrategy)) {
             needProxyStrategy = ObjectFactory.newInstance(proxyDomainStrategy);
             if (needProxyStrategy instanceof WhiteListProxyStrategy) {
