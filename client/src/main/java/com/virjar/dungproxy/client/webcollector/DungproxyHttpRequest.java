@@ -9,8 +9,6 @@ import java.net.Proxy;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
 
-import com.virjar.dungproxy.client.ippool.config.Context;
-import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
 import org.apache.commons.io.IOUtils;
 
 import com.virjar.dungproxy.client.ippool.IpPool;
@@ -28,8 +26,6 @@ public class DungproxyHttpRequest extends HttpRequest {
     // 父类的proxy对象子类没权限访问,所以这里单独维护
     protected Proxy proxy = null;
     protected IpPool ipPool = IpPool.getInstance();
-    protected ProxyDomainStrategy needProxyStrategy = Context.getInstance().getNeedProxyStrategy();
-
 
     public DungproxyHttpRequest(CrawlDatum crawlDatum) throws Exception {
         super(crawlDatum);
@@ -64,9 +60,7 @@ public class DungproxyHttpRequest extends HttpRequest {
                 if (proxy != null) {
                     con = (HttpURLConnection) url.openConnection(proxy);
                 } else {
-                    if(needProxyStrategy.needProxy(CommonUtil.extractDomain(urlString))) {
-                        bind = ipPool.bind(CommonUtil.extractDomain(urlString), urlString);
-                    }
+                    bind = ipPool.bind(CommonUtil.extractDomain(urlString), urlString);
                     if (bind != null) {
                         bind.recordUsage();
                         con = (HttpURLConnection) url.openConnection(

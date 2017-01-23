@@ -9,7 +9,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.DomainPool;
 import com.virjar.dungproxy.client.ippool.IpPool;
-import com.virjar.dungproxy.client.ippool.config.Context;
+import com.virjar.dungproxy.client.ippool.config.DomainContext;
+import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
+import com.virjar.dungproxy.client.ippool.strategy.Offline;
 import com.virjar.dungproxy.client.ippool.strategy.Scoring;
 
 /**
@@ -50,19 +52,32 @@ public class AvProxy {
 
     public static boolean needRecordChange = true;
 
-    public AvProxy() {
+    private DungProxyContext dungProxyContext;
+
+    private Scoring scoring;
+
+    private Offline offline;
+
+    private DomainContext domainContext;
+
+    public AvProxy(DomainContext domainContext) {
+        this.domainContext = domainContext;
+        this.dungProxyContext = domainContext.getDungProxyContext();
+        this.scoring = domainContext.getScoring();
+        this.offline = domainContext.getOffline();
         if (needRecordChange) {
             recordProxyChange();
         }
     }
 
-    public static void recordProxyChange() {
+
+    public void recordProxyChange() {
         if (proxyNumberChange.incrementAndGet() % 10 == 0) {// 序列化
             if (IpPool.getInstance() == null) {
                 return;// 说明是初始化的时候,在递归调用到这里了。放弃序列化
             }
-            Context.getInstance().getAvProxyDumper().serializeProxy(Maps.transformValues(
-                    IpPool.getInstance().getPoolInfo(), new Function<List<AvProxy>, List<AvProxyVO>>() {
+            dungProxyContext.getAvProxyDumper().serializeProxy(Maps.transformValues(IpPool.getInstance().getPoolInfo(),
+                    new Function<List<AvProxy>, List<AvProxyVO>>() {
                         @Override
                         public List<AvProxyVO> apply(List<AvProxy> input) {
                             return Lists.transform(input, new Function<AvProxy, AvProxyVO>() {
@@ -88,10 +103,9 @@ public class AvProxy {
             return;
         }
         referFlag = false;
-        Scoring scoring = Context.getInstance().getScoring();
-        avgScore = scoring.newAvgScore(this, Context.getInstance().getScoreFactory(), false);
+        avgScore = scoring.newAvgScore(this, domainContext.getScoreFactory(), false);
         failedCount.incrementAndGet();
-        if (Context.getInstance().getOffliner().needOffline(this)) {
+        if (offline.needOffline(this)) {
             offline();// 资源下线,下次将不会分配这个IP了
         } else {
             domainPool.adjustPriority(this);
@@ -107,8 +121,7 @@ public class AvProxy {
      */
     public void recordUsage() {
         if (referFlag) {// 被使用过,但是没有失败报告,认为上次使用成功,不考虑段时间并发问题导致的反馈不及时问题,那种场景会导致多记录一次成功
-            Scoring scoring = Context.getInstance().getScoring();
-            avgScore = scoring.newAvgScore(this, Context.getInstance().getScoreFactory(), true);
+            avgScore = scoring.newAvgScore(this, domainContext.getScoreFactory(), true);
         }
         referFlag = true;
         lastUsedTime = System.currentTimeMillis();
@@ -186,7 +199,7 @@ public class AvProxy {
 
     @Deprecated
     public AvProxy copy() {
-        AvProxy newProxy = new AvProxy();
+        AvProxy newProxy = new AvProxy(domainContext);
         newProxy.domainPool = domainPool;
         newProxy.disable = disable;
         newProxy.ip = ip;

@@ -12,16 +12,17 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.alibaba.fastjson.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.virjar.dungproxy.client.ippool.config.Context;
+import com.virjar.dungproxy.client.ippool.config.DomainContext;
+import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
@@ -48,6 +49,12 @@ public class PreHeater {
     private AtomicLong passedProxyNumber = new AtomicLong(0);
     private AtomicBoolean isRunning = new AtomicBoolean(false);
 
+    private DungProxyContext dungProxyContext;
+
+    public PreHeater(DungProxyContext dungProxyContext) {
+        this.dungProxyContext = dungProxyContext;
+    }
+
     /**
      * 提供一个主函数,用于在jar包调用preHeater模块,为数据真正可用做准备
      */
@@ -56,11 +63,7 @@ public class PreHeater {
     }
 
     public static void start() {
-        List<String> preHeaterTaskList = Context.getInstance().getPreHeaterTaskList();
-        PreHeater preHeater = new PreHeater();
-        for (String url : preHeaterTaskList) {
-            preHeater.addTask(url);
-        }
+        PreHeater preHeater = DungProxyContext.create().buildDefaultConfigFile().handleConfig().getPreHeater();
         preHeater.doPreHeat();
         preHeater.destroy();
     }
@@ -82,7 +85,7 @@ public class PreHeater {
         if (!url.startsWith("http")) {
             url = "http://" + url;
         }
-        //TODO 中文路径和中文参数处理
+        // TODO 中文路径和中文参数处理
         taskUrls.add(url);
         return this;
     }
@@ -99,10 +102,10 @@ public class PreHeater {
         logger.info("待测试任务:{}", JSONArray.toJSONString(taskUrls));
         Map<String, String> urlMap = transformDomainUrlMap(taskUrls);
         List<Future<Boolean>> futureList = Lists.newArrayList();
-        ResourceFacade resourceFacade = ObjectFactory.newInstance(Context.getInstance().getResourceFacade());
+        ResourceFacade resourceFacade = ObjectFactory.newInstance(dungProxyContext.getDefaultResourceFacade());// 这里使用全局IP下载器
         logger.info("下载可用IP...");
         List<AvProxyVO> candidateProxies = resourceFacade.allAvailable();
-        logger.info("总共下载到{}个IP资源",candidateProxies.size());
+        logger.info("总共下载到{}个IP资源", candidateProxies.size());
         // 加载历史数据
         for (Map.Entry<String, DomainPool> entry : stringDomainPoolMap.entrySet()) {
             if (!urlMap.containsKey(entry.getKey())) {
@@ -116,11 +119,12 @@ public class PreHeater {
         // 加载服务器新导入的资源
         for (AvProxyVO avProxy : candidateProxies) {
             for (String url : taskUrls) {
-                futureList.add(pool.submit(new UrlCheckTask(avProxy, url)));
+                futureList.add(pool.submit(new UrlCheckTask(
+                        dungProxyContext.genDomainContext(CommonUtil.extractDomain(url)), avProxy, url)));
             }
         }
         CommonUtil.waitAllFutures(futureList);
-        Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
+        dungProxyContext.getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
     }
 
     private Map<String, String> transformDomainUrlMap(Collection<String> testUrls) {
@@ -133,9 +137,9 @@ public class PreHeater {
 
     /**
      * 运行时使用,IP再可用之前,先经历本校验
-     * 
-     * @param avProxy 代理
-     * @param url 测试URL
+     *
+     * @param avProxy    代理
+     * @param url        测试URL
      * @param domainPool 成功后放入的
      */
     public void check4UrlAsync(AvProxy avProxy, String url, DomainPool domainPool) {
@@ -160,15 +164,21 @@ public class PreHeater {
         DomainPool domainPool;
 
         UrlCheckTask(AvProxyVO proxy, String url) {
-            this.proxy = proxy.toModel();// proxy.copy();
+            this.proxy = proxy.toModel(domainPool);// proxy.copy();
             this.url = url;
         }
 
         public UrlCheckTask(DomainPool domainPool, AvProxyVO proxy, String url) {
             this.domainPool = domainPool;
-            this.proxy = proxy.toModel();
+            this.proxy = proxy.toModel(domainPool);
             this.url = url;
         }
+
+        public UrlCheckTask(DomainContext domainPool, AvProxyVO proxy, String url) {
+            this.proxy = proxy.toModel(domainPool);
+            this.url = url;
+        }
+
 
         public UrlCheckTask(DomainPool domainPool, AvProxy avProxy, String url) {
             this.domainPool = domainPool;
@@ -181,6 +191,7 @@ public class PreHeater {
             this.url = url;
         }
 
+
         @Override
         public Boolean call() throws Exception {
             String domain = CommonUtil.extractDomain(url);
@@ -188,18 +199,17 @@ public class PreHeater {
                 domainPool = stringDomainPoolMap.get(domain);
             }
             if (domainPool == null) {
-                domainPool = new DomainPool(domain,
-                        ObjectFactory.<ResourceFacade> newInstance(Context.getInstance().getResourceFacade()));
+                domainPool = new DomainPool(domain, dungProxyContext.genDomainContext(domain));
                 stringDomainPoolMap.put(domain, domainPool);
             }
             proxy.setDomainPool(domainPool);
             if (IpAvValidator.available(proxy, url)) {
                 domainPool.addAvailable(Lists.newArrayList(proxy));
-                logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(AvProxyVO.fromModel(proxy)),
-                        url);
+                logger.info("preHeater available test passed for proxy:{} for url:{}",
+                        JSONObject.toJSONString(AvProxyVO.fromModel(proxy)), url);
 
-                if (passedProxyNumber.incrementAndGet() % Context.getInstance().getPreheatSerilizeStep() == 0) {// 预热的时候,每产生20个IP,就序列化一次数据。
-                    Context.getInstance().getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
+                if (passedProxyNumber.incrementAndGet() % dungProxyContext.getSerializeStep() == 0) {// 预热的时候,每产生20个IP,就序列化一次数据。
+                    dungProxyContext.getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
                 }
                 return true;
             } else {
@@ -220,25 +230,24 @@ public class PreHeater {
 
     private void unSerialize() {
         final Map<String, DomainPool> pool = Maps.newConcurrentMap();
-        Map<String, List<AvProxyVO>> stringListMap = Context.getInstance().getAvProxyDumper().unSerializeProxy();
+        Map<String, List<AvProxyVO>> stringListMap = dungProxyContext.getAvProxyDumper().unSerializeProxy();
         if (stringListMap == null) {
             return;
         }
-        String importer = Context.getInstance().getResourceFacade();
 
         for (final Map.Entry<String, List<AvProxyVO>> entry : stringListMap.entrySet()) {
             List<AvProxy> avProxies = Lists.transform(entry.getValue(), new Function<AvProxyVO, AvProxy>() {
                 @Override
                 public AvProxy apply(AvProxyVO input) {
-                    return input.toModel();
+                    return input.toModel(dungProxyContext.genDomainContext(entry.getKey()));
                 }
             });
 
             if (pool.containsKey(entry.getKey())) {
                 pool.get(entry.getKey()).addAvailable(avProxies);
             } else {
-                pool.put(entry.getKey(), new DomainPool(entry.getKey(),
-                        ObjectFactory.<ResourceFacade> newInstance(importer), avProxies));
+                pool.put(entry.getKey(),
+                        new DomainPool(entry.getKey(), dungProxyContext.genDomainContext(entry.getKey()), avProxies));
             }
         }
         stringDomainPoolMap = pool;

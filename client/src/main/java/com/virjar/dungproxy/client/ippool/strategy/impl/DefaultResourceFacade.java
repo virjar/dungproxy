@@ -2,7 +2,6 @@ package com.virjar.dungproxy.client.ippool.strategy.impl;
 
 import java.util.List;
 
-import com.virjar.dungproxy.client.ippool.config.Context;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -24,6 +23,7 @@ import com.virjar.dungproxy.client.model.FeedBackForm;
 public class DefaultResourceFacade implements ResourceFacade {
     private Logger logger = LoggerFactory.getLogger(DefaultResourceFacade.class);
     private String downloadSign = null;
+    private static String clientID = null;
 
     private static String avUrl = "http://proxy.scumall.com:8080/proxyipcenter/av";
     private static String feedBackUrl = "http://proxy.scumall.com:8080/proxyipcenter/feedBack";
@@ -41,21 +41,25 @@ public class DefaultResourceFacade implements ResourceFacade {
         DefaultResourceFacade.allAvUrl = allAvUrl;
     }
 
+    public static void setClientID(String clientID) {
+        DefaultResourceFacade.clientID = clientID;
+    }
+
     @Override
     public List<AvProxyVO> importProxy(String domain, String testUrl, Integer number) {
         if (number == null || number < 1) {
             number = 30;
         }
         List<NameValuePair> valuePairList = Lists.newArrayList();
-        if(StringUtils.isNotEmpty(Context.getInstance().getClientID())){
-            valuePairList.add(new BasicNameValuePair("clientID",Context.getInstance().getClientID()));
-        }else {
+        if (StringUtils.isNotEmpty(clientID)) {
+            valuePairList.add(new BasicNameValuePair("clientID", clientID));
+        } else {
             valuePairList.add(new BasicNameValuePair("usedSign", downloadSign));
         }
         valuePairList.add(new BasicNameValuePair("checkUrl", testUrl));
         valuePairList.add(new BasicNameValuePair("domain", domain));
         valuePairList.add(new BasicNameValuePair("num", String.valueOf(number)));
-        logger.info("默认IP下载器,IP下载URL:{}",avUrl);
+        logger.info("默认IP下载器,IP下载URL:{}", avUrl);
         String response = HttpInvoker.post(avUrl, valuePairList);
         if (StringUtils.isBlank(response)) {
             logger.error("can not get available ip resource from server: request body is {}",
@@ -87,7 +91,7 @@ public class DefaultResourceFacade implements ResourceFacade {
 
     @Override
     public List<AvProxyVO> allAvailable() {
-        logger.info("默认IP下载器,IP下载URL:{}",allAvUrl);
+        logger.info("默认IP下载器,IP下载URL:{}", allAvUrl);
         String response = HttpInvoker.get(allAvUrl);
         if (StringUtils.isBlank(response)) {
             logger.error("can not get available ip resource from server: ");

@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.model.AvProxy;
 
 /**
@@ -34,16 +33,12 @@ public class SmartProxyQueue {
     // 暂时封禁的容器,放到本容器的IP只是被暂时封禁,但是不会被下线
     private LinkedList<AvProxy> blockedProxies = Lists.newLinkedList();
 
-    public SmartProxyQueue() {
-        this(0.3);
-    }
-
-    public SmartProxyQueue(double ratio) {
+    public SmartProxyQueue(double ratio, long useInterval) {
         if (ratio < 0 || ratio > 1) {
             throw new IllegalStateException("ratio for SmartProxyQueue need between 0 and 1");
         }
         // 暂时不考虑多个domain的差异化配置
-        this.useInterval = Context.getInstance().getGlobalProxyUseInterval();
+        this.useInterval = useInterval;
         this.ratio = ratio;
     }
 

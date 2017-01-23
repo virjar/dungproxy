@@ -15,12 +15,11 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.virjar.dungproxy.client.ippool.config.Context;
+import com.virjar.dungproxy.client.ippool.config.DomainContext;
+import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
-import com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
-import com.virjar.dungproxy.client.model.DefaultProxy;
 
 /**
  * Created by virjar on 16/9/29.
@@ -35,7 +34,7 @@ public class DomainPool {
 
     private Random random = new Random(System.currentTimeMillis());
 
-    private SmartProxyQueue smartProxyQueue = new SmartProxyQueue();
+    private SmartProxyQueue smartProxyQueue;
 
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
 
@@ -52,24 +51,32 @@ public class DomainPool {
 
     private AtomicInteger refreshTaskNumber = new AtomicInteger(0);
 
-    public DomainPool(String domain, ResourceFacade resourceFacade) {
-        this(domain, resourceFacade, null);
+    private DomainContext domainContext;
+
+    private DungProxyContext dungProxyContext;
+
+    public DomainContext getDomainContext() {
+        return domainContext;
     }
 
-    public DomainPool(String domain, ResourceFacade resourceFacade, List<AvProxy> defaultProxy) {
+    public DomainPool(String domain, DomainContext domainContext) {
+        this(domain, domainContext, null);
+    }
+
+    public DomainPool(String domain, DomainContext domainContext, List<AvProxy> defaultProxy) {
         this.domain = domain;
-        this.resourceFacade = resourceFacade;
-        if (resourceFacade == null) {
-            this.resourceFacade = new DefaultResourceFacade();
-        }
+        this.resourceFacade = domainContext.getResourceFacade();
+        this.domainContext = domainContext;
+        dungProxyContext = domainContext.getDungProxyContext();
+        smartProxyQueue = new SmartProxyQueue(domainContext.getSmartProxyQueueRatio(), domainContext.getUseInterval());
         if (defaultProxy != null) {
             addAvailable(defaultProxy);
         }
     }
 
     public void addAvailable(Collection<AvProxy> avProxyList) {
-        for(AvProxy avProxy:avProxyList){
-            avProxy.setDomainPool(this);//注意考虑对象懒加载问题
+        for (AvProxy avProxy : avProxyList) {
+            avProxy.setDomainPool(this);// 注意考虑对象懒加载问题
             smartProxyQueue.addWithScore(avProxy);
         }
     }
@@ -95,13 +102,11 @@ public class DomainPool {
 
         readWriteLock.readLock().lock();
         try {
-            if (smartProxyQueue.availableSize() == 0) {// TODO 移除这个逻辑,统一服务也要参与竞争,也把它放到IP池里面
-                List<DefaultProxy> defaultProxyList = Context.getInstance().getDefaultProxyList();
-                if (defaultProxyList.size() == 0) {
-                    return null;
-                }
-                return defaultProxyList.get(new Random().nextInt(defaultProxyList.size()));
-            }
+            /*
+             * if (smartProxyQueue.availableSize() == 0) {// TODO 移除这个逻辑,统一服务也要参与竞争,也把它放到IP池里面 List<DefaultProxy>
+             * defaultProxyList = Context.getInstance().getDefaultProxyList(); if (defaultProxyList.size() == 0) {
+             * return null; } return defaultProxyList.get(new Random().nextInt(defaultProxyList.size())); }
+             */
             return smartProxyQueue.getAndAdjustPriority();
         } finally {
             readWriteLock.readLock().unlock();
@@ -215,11 +220,11 @@ public class DomainPool {
     private void doRefresh() {
         checkAndExtendCandidateResource();
         AvProxyVO avProxy;
-        PreHeater preHeater = Context.getInstance().getPreHeater();
+        PreHeater preHeater = dungProxyContext.getPreHeater();
         while ((avProxy = candidateProxies.poll()) != null) {
             if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
                 avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
-                addAvailable(avProxy.toModel());
+                addAvailable(avProxy.toModel(domainContext));
                 logger.info("IP池当前可用IP数目:{}", smartProxyQueue.availableSize());
             }
         }

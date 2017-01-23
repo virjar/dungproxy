@@ -1,5 +1,6 @@
 package com.virjar.dungproxy.client.ippool.support.http;
 
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import com.virjar.dungproxy.client.VERSION;
 import com.virjar.dungproxy.client.ippool.DomainPool;
 import com.virjar.dungproxy.client.ippool.IpPool;
 import com.virjar.dungproxy.client.ippool.SmartProxyQueue;
-import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.CommonUtil;
 
@@ -29,7 +29,12 @@ public class PoolManager {
         dataMap.put("JavaVersion", System.getProperty("java.version"));
         dataMap.put("JavaClassPath", System.getProperty("java.class.path"));
         dataMap.put("StartTime", CommonUtil.toString(CommonUtil.getStartTime()));
-        dataMap.put("configPath", Context.class.getClassLoader().getResource(ProxyConstant.configFileName).getFile());
+        URL resource = PoolManager.class.getClassLoader().getResource(ProxyConstant.configFileName);
+        if (resource != null) {
+            dataMap.put("configPath", resource.getFile());
+        } else {
+            dataMap.put("configPath", "not config ,ip pool not enable");
+        }
         dataMap.put("domainNum", ipPool.totalDomain());
         return dataMap;
     }

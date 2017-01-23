@@ -1,7 +1,9 @@
 package com.virjar.dungproxy.client.ippool.config;
 
 import com.google.common.base.Preconditions;
+import com.virjar.dungproxy.client.ippool.strategy.Offline;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
+import com.virjar.dungproxy.client.ippool.strategy.Scoring;
 
 /**
  * Created by virjar on 17/1/23.
@@ -9,10 +11,13 @@ import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 public class DomainContext {
     private DungProxyContext dungProxyContext;
     private ResourceFacade resourceFacade;
+    private Scoring scoring;
+    private Offline offline;
     private int coreSize;
     private double smartProxyQueueRatio;
     private long useInterval;
     private String domain;
+    private int scoreFactory;
 
     /**
      * 不允许包外访问
@@ -75,6 +80,33 @@ public class DomainContext {
         return new DomainContext(domain);
     }
 
+    public Offline getOffline() {
+        return offline;
+    }
+
+    public DomainContext setOffline(Offline offline) {
+        this.offline = offline;
+        return this;
+    }
+
+    public Scoring getScoring() {
+        return scoring;
+    }
+
+    public DomainContext setScoring(Scoring scoring) {
+        this.scoring = scoring;
+        return this;
+    }
+
+    public int getScoreFactory() {
+        return scoreFactory;
+    }
+
+    public DomainContext setScoreFactory(int scoreFactory) {
+        this.scoreFactory = scoreFactory;
+        return this;
+    }
+
     /**
      * 检查缺失配置项,如果有缺失,则添加默认策略
      * 
@@ -94,6 +126,14 @@ public class DomainContext {
         }
         if (resourceFacade == null) {
             resourceFacade = ObjectFactory.newInstance(dungProxyContext.getDefaultResourceFacade());
+        }
+
+        if(scoring == null){
+            scoring = ObjectFactory.newInstance(dungProxyContext.getDefaultScoring());
+        }
+
+        if(offline == null){
+            this.offline = ObjectFactory.newInstance(dungProxyContext.getDefaultOffliner());
         }
         return this;
     }

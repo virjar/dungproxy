@@ -1,5 +1,8 @@
 package com.virjar.dungproxy.client.model;
 
+import com.virjar.dungproxy.client.ippool.DomainPool;
+import com.virjar.dungproxy.client.ippool.config.DomainContext;
+
 /**
  * Created by virjar on 16/12/24. <br/>
  * 仅仅为了序列化和反序列化
@@ -70,8 +73,18 @@ public class AvProxyVO {
         this.referCount = referCount;
     }
 
-    public AvProxy toModel() {
-        AvProxy avProxy = new AvProxy();
+    public AvProxy toModel(DomainContext domainContext) {
+        AvProxy avProxy = new AvProxy(domainContext);
+        avProxy.setIp(ip);
+        avProxy.setPort(port);
+        avProxy.setAvgScore(avgScore);
+        avProxy.setReferCount(referCount);
+        avProxy.setFailedCount(failedCount);
+        return avProxy;
+    }
+
+    public AvProxy toModel(DomainPool domainPool) {
+        AvProxy avProxy = new AvProxy(domainPool.getDomainContext());
         avProxy.setIp(ip);
         avProxy.setPort(port);
         avProxy.setAvgScore(avgScore);

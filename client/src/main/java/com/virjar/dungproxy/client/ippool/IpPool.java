@@ -9,12 +9,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.virjar.dungproxy.client.ippool.config.Context;
 import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
-import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.ippool.exception.PoolDestroyException;
+import com.virjar.dungproxy.client.ippool.strategy.AvProxyDumper;
 import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
-import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.util.CommonUtil;
@@ -37,6 +35,10 @@ public class IpPool {
 
     private DungProxyContext dungProxyContext;
 
+    private AvProxyDumper avProxyDumper;
+
+    private ProxyDomainStrategy proxyDomainStrategy;
+
     private IpPool(DungProxyContext dungProxyContext) {
         this.dungProxyContext = dungProxyContext;
         init();
@@ -47,10 +49,10 @@ public class IpPool {
 
         // TODO
         groupBindRouter = dungProxyContext.getGroupBindRouter();
+        avProxyDumper = dungProxyContext.getAvProxyDumper();
+        proxyDomainStrategy = dungProxyContext.getNeedProxyStrategy();
         isRunning = true;
         unSerialize();
-
-        groupBindRouter.buildCombinationRule(Context.getInstance().getRuleRouter());
 
         // 反馈任务线程
         FeedBackThread feedBackThread = new FeedBackThread();
@@ -75,7 +77,7 @@ public class IpPool {
     }
 
     public void destroy() {
-        Context.getInstance().getAvProxyDumper()
+        avProxyDumper
                 .serializeProxy(Maps.transformValues(getPoolInfo(), new Function<List<AvProxy>, List<AvProxyVO>>() {
                     @Override
                     public List<AvProxyVO> apply(List<AvProxy> input) {
@@ -91,24 +93,23 @@ public class IpPool {
     }
 
     public void unSerialize() {
-        Map<String, List<AvProxyVO>> stringListMap = Context.getInstance().getAvProxyDumper().unSerializeProxy();
+        Map<String, List<AvProxyVO>> stringListMap = avProxyDumper.unSerializeProxy();
         if (stringListMap == null) {
             return;
         }
-        String importer = Context.getInstance().getResourceFacade();
-        for (Map.Entry<String, List<AvProxyVO>> entry : stringListMap.entrySet()) {
+        for (final Map.Entry<String, List<AvProxyVO>> entry : stringListMap.entrySet()) {
             List<AvProxy> proxies = Lists.transform(entry.getValue(), new Function<AvProxyVO, AvProxy>() {
 
                 @Override
                 public AvProxy apply(AvProxyVO input) {
-                    return input.toModel();
+                    return input.toModel(dungProxyContext.genDomainContext(entry.getKey()));
                 }
             });
             if (pool.containsKey(entry.getKey())) {
                 pool.get(entry.getKey()).addAvailable(proxies);
             } else {
                 pool.put(entry.getKey(),
-                        new DomainPool(entry.getKey(), ObjectFactory.<ResourceFacade> newInstance(importer)));
+                        new DomainPool(entry.getKey(), dungProxyContext.genDomainContext(entry.getKey())));
                 pool.get(entry.getKey()).addAvailable(proxies);
             }
         }
@@ -120,8 +121,7 @@ public class IpPool {
         }
         host = groupBindRouter.routeDomain(host);
 
-        ProxyDomainStrategy needProxyStrategy = Context.getInstance().getNeedProxyStrategy();
-        if (!needProxyStrategy.needProxy(host)) {
+        if (!proxyDomainStrategy.needProxy(host)) {
             logger.info("域名:{}没有被代理", host);
             return null;
         }
@@ -129,8 +129,7 @@ public class IpPool {
         if (!pool.containsKey(host)) {
             synchronized (this) {
                 if (!pool.containsKey(host)) {
-                    String importer = Context.getInstance().getResourceFacade();
-                    pool.put(host, new DomainPool(host, ObjectFactory.<ResourceFacade> newInstance(importer)));
+                    pool.put(host, new DomainPool(host, dungProxyContext.genDomainContext(host)));
                 }
             }
         }
@@ -155,7 +154,7 @@ public class IpPool {
         @Override
         public void run() {
             while (isRunning) {
-                CommonUtil.sleep(Context.getInstance().getFeedBackDuration());
+                CommonUtil.sleep(dungProxyContext.getFeedBackDuration());
                 for (DomainPool domainPool : pool.values()) {
                     try {
                         domainPool.feedBack();

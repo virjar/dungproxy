@@ -1,10 +1,15 @@
 package com.virjar.dungproxy.client.ippool.config;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
@@ -16,8 +21,7 @@ import com.virjar.dungproxy.client.ippool.strategy.impl.*;
 /**
  * Created by virjar on 17/1/23.<br/>
  * 适用在整个项目的上下文,将会取代 com.virjar.dungproxy.client.ippool.config.Context
- * 
- * @see Context
+ *
  */
 public class DungProxyContext {
     private AvProxyDumper avProxyDumper;
@@ -25,17 +29,21 @@ public class DungProxyContext {
     private String clientID;
     private GroupBindRouter groupBindRouter = new GroupBindRouter();
     private long feedBackDuration;
-    private PreHeater preHeater = new PreHeater();
+    private PreHeater preHeater = new PreHeater(this);
     private String serverBaseUrl;
     private long serializeStep;
 
+    // for domain
     private Class<? extends ResourceFacade> defaultResourceFacade;
     private Class<? extends Offline> defaultOffliner;
     private Class<? extends Scoring> defaultScoring;
     private int defaultCoreSize;
     private double defaultSmartProxyQueueRatio;
     private long defaultUseInterval;
+    private long defaultScoreFactory;
     private Map<String, DomainContext> domainConfig = Maps.newConcurrentMap();
+
+    private Logger logger = LoggerFactory.getLogger(DungProxyContext.class);
 
     /**
      * 加载全局的默认配置,统一加载后防止NPE
@@ -50,6 +58,7 @@ public class DungProxyContext {
         defaultCoreSize = 50;
         defaultSmartProxyQueueRatio = 0.3D;
         defaultUseInterval = 15000;// 默认IP15秒内不能重复使用
+        defaultScoreFactory = 15;
         serverBaseUrl = "http://proxy.scumall.com:8080";
         serializeStep = 30;
         handleConfig();
@@ -190,6 +199,37 @@ public class DungProxyContext {
         return this;
     }
 
+    public long getDefaultScoreFactory() {
+        return defaultScoreFactory;
+    }
+
+    public DungProxyContext setDefaultScoreFactory(long defaultScoreFactory) {
+        this.defaultScoreFactory = defaultScoreFactory;
+        return this;
+    }
+
+    /**
+     * 根据域名产生domain的schema
+     * 
+     * @param domian
+     * @return DomainContext
+     */
+    public DomainContext genDomainContext(String domian) {
+        DomainContext domainContext = domainConfig.get(domian);
+        if (domainContext != null) {
+            return domainContext;
+        }
+
+        synchronized (DungProxyContext.class) {
+            domainContext = domainConfig.get(domian);
+            if (domainContext != null) {
+                return domainContext;
+            }
+            domainConfig.put(domian, DomainContext.create(domian));
+            return domainConfig.get(domian);
+        }
+    }
+
     public static DungProxyContext create() {
         DungProxyContext context = new DungProxyContext();
         context.fillDefaultStrategy();
@@ -201,6 +241,24 @@ public class DungProxyContext {
             DefaultResourceFacade.setAllAvUrl(serverBaseUrl + "/proxyipcenter/allAv");
             DefaultResourceFacade.setAvUrl(serverBaseUrl + "/proxyipcenter/av");
             DefaultResourceFacade.setFeedBackUrl(serverBaseUrl + "/proxyipcenter/feedBack");
+            DefaultResourceFacade.setClientID(clientID);
+        }
+        return this;
+    }
+
+    public DungProxyContext buildDefaultConfigFile() {
+        InputStream resourceAsStream = DungProxyContext.class.getResourceAsStream(ProxyConstant.configFileName);
+        if (resourceAsStream == null) {
+            logger.warn("没有找到配置文件:{},代理规则几乎不会生效", ProxyConstant.configFileName);
+        }
+        Properties properties = new Properties();
+        try {
+            properties.load(resourceAsStream);
+            return buildWithProperties(properties);
+        } catch (IOException e) {
+            logger.error("config file load error for file:{}", ProxyConstant.configFileName, e);
+        } finally {
+            IOUtils.closeQuietly(resourceAsStream);
         }
         return this;
     }
