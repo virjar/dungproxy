@@ -31,6 +31,7 @@ import com.virjar.dungproxy.client.util.IpAvValidator;
 /**
  * client配置 Created by virjar on 16/9/30.
  */
+@Deprecated
 public class Context {
     // IP资源引入器 一般不需要修改
     private String resourceFacade;
@@ -70,7 +71,7 @@ public class Context {
 
     private int preheatSerilizeStep = 20;
 
-    private long globalProxyUseInterval = 10000L;//默认一个IP使用间隔不能小于10秒
+    private long globalProxyUseInterval = 10000L;// 默认一个IP使用间隔不能小于10秒
 
     // clientID 标识一组客户端,他们可能在一个集群里,clientID用来解决一个集群的不同节点IP不重复
     private String clientID;
@@ -152,7 +153,7 @@ public class Context {
                 } finally {
                     IOUtils.closeQuietly(is);
                 }
-            }else{
+            } else {
                 logger.warn("没有找到dungClient的配置文件,代理规则几乎不会生效");
             }
 
@@ -346,7 +347,7 @@ public class Context {
             // 全局的IP最小使用间隔
             context.globalProxyUseInterval = NumberUtils.toInt(proxyUseInterval, 0);
             if (context.globalProxyUseInterval <= 0) {
-                context.globalProxyUseInterval = 10000L;//默认IP使用间隔不能小于10秒
+                context.globalProxyUseInterval = 10000L;// 默认IP使用间隔不能小于10秒
             }
 
             // clientID

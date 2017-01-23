@@ -2,14 +2,18 @@ package com.virjar.dungproxy.client.ippool.strategy.impl;
 
 import java.util.Set;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by virjar on 16/9/30.
  */
 public class BlackListProxyStrategy implements ProxyDomainStrategy {
+    private Logger logger = LoggerFactory.getLogger(BlackListProxyStrategy.class);
     private Set<String> needIgnoreDomainList = Sets.newConcurrentHashSet();
 
     @Override
@@ -25,6 +29,15 @@ public class BlackListProxyStrategy implements ProxyDomainStrategy {
         needIgnoreDomainList.add(host);
     }
 
+    public void addAllHost(String configRule) {
+        if (StringUtils.isEmpty(configRule)) {
+            logger.warn("您选择了白名单代理策略,但是没有提供策略配置,代理池将不会代理任何请求");
+            // throw new IllegalArgumentException("您选择了白名单代理策略,但是没有提供策略配置");
+        }
+        for (String domain : Splitter.on(",").omitEmptyStrings().trimResults().split(configRule)) {
+            add2BlackList(domain);
+        }
+    }
     public void removeFromBackList(String host) {
         needIgnoreDomainList.remove(host);
     }

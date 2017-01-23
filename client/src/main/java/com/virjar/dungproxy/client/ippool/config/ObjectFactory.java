@@ -22,4 +22,22 @@ public class ObjectFactory {
             throw new ObjectCreateException("can not create instance for class " + className, e);
         }
     }
+
+    public static <T> T newInstance(Class<T> tClass) {
+        try {
+            return tClass.newInstance();
+        } catch (Exception e) {
+            logger.error("can not create instance for class :{}", tClass);
+            throw new ObjectCreateException("can not create instance for class " + tClass, e);
+        }
+    }
+
+    public static <T> Class<T> classForName(String className) {
+        try {
+            return (Class<T>) Class.forName(className);
+        } catch (Exception e) {
+            logger.error("can not create instance for class :{}", className);
+            throw new ObjectCreateException("can not create instance for class " + className, e);
+        }
+    }
 }

@@ -10,6 +10,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.Context;
+import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.ippool.exception.PoolDestroyException;
 import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
@@ -32,34 +33,45 @@ public class IpPool {
 
     private volatile boolean isRunning = false;
 
-    private GroupBindRouter groupBindRouter = new GroupBindRouter();
+    private GroupBindRouter groupBindRouter;
 
-    private IpPool() {
+    private DungProxyContext dungProxyContext;
+
+    private IpPool(DungProxyContext dungProxyContext) {
+        this.dungProxyContext = dungProxyContext;
         init();
     }
 
     private void init() {
+        // step 1 load all component
+
+        // TODO
+        groupBindRouter = dungProxyContext.getGroupBindRouter();
         isRunning = true;
         unSerialize();
 
         groupBindRouter.buildCombinationRule(Context.getInstance().getRuleRouter());
 
-        //反馈任务线程
+        // 反馈任务线程
         FeedBackThread feedBackThread = new FeedBackThread();
         feedBackThread.setDaemon(true);
         feedBackThread.start();
 
-        //资源刷新线程,当前本任务意义不大了,因为资源刷新都是在实时计算和异步启动
+        // 资源刷新线程,当前本任务意义不大了,因为资源刷新都是在实时计算和异步启动
         FreshResourceThread freshResourceThread = new FreshResourceThread();
         freshResourceThread.setDaemon(true);
         freshResourceThread.start();
 
     }
 
-    private static IpPool instance = new IpPool();
+    // private static IpPool instance = new IpPool();
 
     public static IpPool getInstance() {
-        return instance;
+        return IpPoolHolder.getIpPool();
+    }
+
+    public static IpPool create(DungProxyContext dungProxyContext) {
+        return new IpPool(dungProxyContext);
     }
 
     public void destroy() {
