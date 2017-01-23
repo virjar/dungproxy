@@ -250,6 +250,7 @@ public class DungProxyContext {
         InputStream resourceAsStream = DungProxyContext.class.getResourceAsStream(ProxyConstant.configFileName);
         if (resourceAsStream == null) {
             logger.warn("没有找到配置文件:{},代理规则几乎不会生效", ProxyConstant.configFileName);
+            return this;
         }
         Properties properties = new Properties();
         try {
