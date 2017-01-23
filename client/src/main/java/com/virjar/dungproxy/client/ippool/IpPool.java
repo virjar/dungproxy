@@ -32,10 +32,7 @@ public class IpPool {
 
     private volatile boolean isRunning = false;
 
-    private FeedBackThread feedBackThread;
-    private FreshResourceThread freshResourceThread;
-
-    private GroupBindRouter groupBindRouter;
+    private GroupBindRouter groupBindRouter = new GroupBindRouter();
 
     private IpPool() {
         init();
@@ -45,14 +42,16 @@ public class IpPool {
         isRunning = true;
         unSerialize();
 
-        groupBindRouter = new GroupBindRouter();
         groupBindRouter.buildCombinationRule(Context.getInstance().getRuleRouter());
 
-        feedBackThread = new FeedBackThread();
-        freshResourceThread = new FreshResourceThread();
+        //反馈任务线程
+        FeedBackThread feedBackThread = new FeedBackThread();
         feedBackThread.setDaemon(true);
-        freshResourceThread.setDaemon(true);
         feedBackThread.start();
+
+        //资源刷新线程,当前本任务意义不大了,因为资源刷新都是在实时计算和异步启动
+        FreshResourceThread freshResourceThread = new FreshResourceThread();
+        freshResourceThread.setDaemon(true);
         freshResourceThread.start();
 
     }
@@ -77,9 +76,6 @@ public class IpPool {
                     }
                 }));
         isRunning = false;
-        // 设置为守护线程之后,不需要主动销毁线程
-        // feedBackThread.interrupt();
-        // freshResourceThread.interrupt();
     }
 
     public void unSerialize() {
@@ -136,13 +132,8 @@ public class IpPool {
     public Map<String, List<AvProxy>> getPoolInfo() {
         return Maps.transformValues(pool, new Function<DomainPool, List<AvProxy>>() {
             @Override
-            public List<AvProxy> apply(DomainPool domainPool) {// copy 一份新数据出去,数据结构会给外部使用,随意暴露可能会导致数据错误
-                return domainPool.availableProxy();// 新设计,模型视图分离,不考虑copy数据问题
-
-                /*
-                 * return Lists.transform(domainPool.availableProxy(), new Function<AvProxy, AvProxy>() {
-                 * @Override public AvProxy apply(AvProxy input) { return input.copy(); } });
-                 */
+            public List<AvProxy> apply(DomainPool domainPool) {
+                return domainPool.availableProxy();
             }
         });
     }

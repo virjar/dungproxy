@@ -68,11 +68,10 @@ public class DomainPool {
     }
 
     public void addAvailable(Collection<AvProxy> avProxyList) {
-        List<AvProxy> newList = Lists.newArrayList(avProxyList);// 傻逼Collection可能是懒加载的。导致遍历的对象是新建的,操作不到
-        for (AvProxy avProxy : newList) {// 这里必须设置这个,然后才能真正放到资源池里面去
-            avProxy.setDomainPool(this);
+        for(AvProxy avProxy:avProxyList){
+            avProxy.setDomainPool(this);//注意考虑对象懒加载问题
+            smartProxyQueue.addWithScore(avProxy);
         }
-        smartProxyQueue.addAllProxy(newList);
     }
 
     public void addAvailable(AvProxy avProxy) {
