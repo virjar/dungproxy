@@ -13,7 +13,7 @@ public class IpPoolHolder {
         if (ipPool == null) {
             synchronized (IpPoolHolder.class) {
                 if (ipPool == null) {
-                    ipPool = IpPool.create(DungProxyContext.create());
+                    ipPool = IpPool.create(DungProxyContext.create().buildDefaultConfigFile().handleConfig());
                 }
             }
         }
