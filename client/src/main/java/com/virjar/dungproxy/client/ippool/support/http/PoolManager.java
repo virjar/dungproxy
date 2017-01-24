@@ -29,7 +29,7 @@ public class PoolManager {
         dataMap.put("JavaVersion", System.getProperty("java.version"));
         dataMap.put("JavaClassPath", System.getProperty("java.class.path"));
         dataMap.put("StartTime", CommonUtil.toString(CommonUtil.getStartTime()));
-        URL resource = PoolManager.class.getClassLoader().getResource(ProxyConstant.configFileName);
+        URL resource = PoolManager.class.getClassLoader().getResource(ProxyConstant.CLIENT_CONFIG_FILE_NAME);
         if (resource != null) {
             dataMap.put("configPath", resource.getFile());
         } else {
