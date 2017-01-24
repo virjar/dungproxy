@@ -311,10 +311,11 @@ public class DungProxyContext {
         String avDumper = properties.getProperty(ProxyConstant.PROXY_SERIALIZER);
         if (StringUtils.isNotEmpty(avDumper)) {
             avProxyDumper = ObjectFactory.newInstance(avDumper);
-            String defaultAvDumpeFileName = properties.getProperty(ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE);
-            if (StringUtils.isNotEmpty(defaultAvDumpeFileName)) {
-                avProxyDumper.setDumpFileName(defaultAvDumpeFileName);
-            }
+
+        }
+        String defaultAvDumpeFileName = properties.getProperty(ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE);
+        if (StringUtils.isNotEmpty(defaultAvDumpeFileName)) {
+            avProxyDumper.setDumpFileName(defaultAvDumpeFileName);
         }
 
         // TODO

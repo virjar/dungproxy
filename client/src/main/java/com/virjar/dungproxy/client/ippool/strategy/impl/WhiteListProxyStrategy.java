@@ -34,6 +34,7 @@ public class WhiteListProxyStrategy implements ProxyDomainStrategy {
     public void addAllHost(String configRule) {
         if (StringUtils.isEmpty(configRule)) {
             logger.warn("您选择了白名单代理策略,但是没有提供策略配置,代理池将不会代理任何请求");
+            return;
             // throw new IllegalArgumentException("您选择了白名单代理策略,但是没有提供策略配置");
         }
         for (String domain : Splitter.on(",").omitEmptyStrings().trimResults().split(configRule)) {

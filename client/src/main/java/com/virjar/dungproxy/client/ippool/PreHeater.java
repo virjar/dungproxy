@@ -62,6 +62,9 @@ public class PreHeater {
         start();
     }
 
+    /**
+     * 老代码兼容,设计所以改成静态方法
+     */
     public static void start() {
         PreHeater preHeater = DungProxyContext.create().buildDefaultConfigFile().handleConfig().getPreHeater();
         preHeater.doPreHeat();
@@ -138,8 +141,8 @@ public class PreHeater {
     /**
      * 运行时使用,IP再可用之前,先经历本校验
      *
-     * @param avProxy    代理
-     * @param url        测试URL
+     * @param avProxy 代理
+     * @param url 测试URL
      * @param domainPool 成功后放入的
      */
     public void check4UrlAsync(AvProxy avProxy, String url, DomainPool domainPool) {
@@ -179,7 +182,6 @@ public class PreHeater {
             this.url = url;
         }
 
-
         public UrlCheckTask(DomainPool domainPool, AvProxy avProxy, String url) {
             this.domainPool = domainPool;
             this.proxy = avProxy;
@@ -190,7 +192,6 @@ public class PreHeater {
             this.proxy = avProxy;// proxy.copy();
             this.url = url;
         }
-
 
         @Override
         public Boolean call() throws Exception {
