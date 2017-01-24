@@ -34,7 +34,7 @@ public class WebMagicTest implements PageProcessor {
     }
 
     public static void main(String[] args) throws IOException {
-        ProxyConstant.configFileName ="proxyclient_dytt8.properties";//加载电影天堂的配置
+        ProxyConstant.CLIENT_CONFIG_FILE_NAME ="proxyclient_dytt8.properties";//加载电影天堂的配置
 
         Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(30)
                 .addUrl("http://www.dytt8.net/index.html").addUrl("http://www.ygdy8.net/html/gndy/dyzz/index.html")

@@ -248,9 +248,9 @@ public class DungProxyContext {
 
     public DungProxyContext buildDefaultConfigFile() {
         InputStream resourceAsStream = DungProxyContext.class.getClassLoader()
-                .getResourceAsStream(ProxyConstant.configFileName);
+                .getResourceAsStream(ProxyConstant.CLIENT_CONFIG_FILE_NAME);
         if (resourceAsStream == null) {
-            logger.warn("没有找到配置文件:{},代理规则几乎不会生效", ProxyConstant.configFileName);
+            logger.warn("没有找到配置文件:{},代理规则几乎不会生效", ProxyConstant.CLIENT_CONFIG_FILE_NAME);
             return this;
         }
         Properties properties = new Properties();
@@ -258,7 +258,7 @@ public class DungProxyContext {
             properties.load(resourceAsStream);
             return buildWithProperties(properties);
         } catch (IOException e) {
-            logger.error("config file load error for file:{}", ProxyConstant.configFileName, e);
+            logger.error("config file load error for file:{}", ProxyConstant.CLIENT_CONFIG_FILE_NAME, e);
         } finally {
             IOUtils.closeQuietly(resourceAsStream);
         }
