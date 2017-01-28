@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.httpclient.HttpInvoker;
+import com.virjar.dungproxy.client.httpclient.NameValuePairBuilder;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.model.FeedBackForm;
@@ -50,15 +50,16 @@ public class DefaultResourceFacade implements ResourceFacade {
         if (number == null || number < 1) {
             number = 30;
         }
-        List<NameValuePair> valuePairList = Lists.newArrayList();
+        NameValuePairBuilder nameValuePairBuilder = NameValuePairBuilder.create();
         if (StringUtils.isNotEmpty(clientID)) {
-            valuePairList.add(new BasicNameValuePair("clientID", clientID));
+            nameValuePairBuilder.addParam("clientID", clientID);
         } else {
-            valuePairList.add(new BasicNameValuePair("usedSign", downloadSign));
+            nameValuePairBuilder.addParam("usedSign", downloadSign);
         }
-        valuePairList.add(new BasicNameValuePair("checkUrl", testUrl));
-        valuePairList.add(new BasicNameValuePair("domain", domain));
-        valuePairList.add(new BasicNameValuePair("num", String.valueOf(number)));
+        nameValuePairBuilder.addParam("checkUrl", testUrl).addParam("domain", domain).addParam("num",
+                String.valueOf(number));
+        List<NameValuePair> valuePairList = nameValuePairBuilder.build();
+
         logger.info("默认IP下载器,IP下载URL:{}", avUrl);
         String response = HttpInvoker.post(avUrl, valuePairList);
         if (StringUtils.isBlank(response)) {

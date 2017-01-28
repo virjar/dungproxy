@@ -73,6 +73,7 @@ public class IpPool {
     }
 
     public static IpPool create(DungProxyContext dungProxyContext) {
+        dungProxyContext.handleConfig();
         return new IpPool(dungProxyContext);
     }
 
