@@ -30,7 +30,7 @@ com.virjar.dungproxy.client.ippool.strategy.Scoring 确定如何为IP打分
 
 ### 通过代码设置扩展
 
-##DungProxy在最简化使用模式下,默认走配置文件,但是为了提供更加良好的扩展性。DungProxy还支持通过代码的方式定制策略。同时,当前配置文件的方式在DungProxy内部也是转化为对应代码API调用。所以代码调用将会比配置文件的方式灵活,部分配置只支持了代码的方式。DungProxy通过代码定制策略的入口如下:
+DungProxy在最简化使用模式下,默认走配置文件,但是为了提供更加良好的扩展性。DungProxy还支持通过代码的方式定制策略。同时,当前配置文件的方式在DungProxy内部也是转化为对应代码API调用。所以代码调用将会比配置文件的方式灵活,部分配置只支持了代码的方式。DungProxy通过代码定制策略的入口如下:
 1. 获取DungProxyContext
    DungProxyContext是IpPool的一个上下文,默认情况IpPool是一个单例的,但是你也可以通过多个DungProxyContext产生多个IpPool实例,虽然我觉得这样意义不大。因为DungProxy本身就设计为支持多域名多规则的线程安全工具。
    调用``com.virjar.dungproxy.client.ippool.config.DungProxyContext.create``就可以获取一个DungProxyContext的对象了,此时的Context是一个填入了默认策略的上下文对象,您可以对他进行进行进行定制,可定制项包括了IP池全局策略和某个域名的策略。具体可以定制的内容请看到API或者参考配置文件说明。
