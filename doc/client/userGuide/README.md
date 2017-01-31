@@ -10,6 +10,8 @@ client其实是一个独立的项目,他专注于本地代理IP池的管理。�
 
 ## [集成IP池到httpclient](httpclient.md) (可选)
 
+## [异步HttpClient支持](ningHttpClient.md)(可选)
+
 ## [使用已经集成好代理池的httpclient(CrawlerHttpClient)](crawler_httpclient.md)(可选)
 
 ## [使用webMagic](webMagic.md)(适合WebMagic爬虫用户)
