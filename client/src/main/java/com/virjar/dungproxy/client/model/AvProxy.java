@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.http.Header;
+import org.apache.http.NameValuePair;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -29,6 +32,15 @@ public class AvProxy {
 
     // 端口号
     private Integer port;
+
+    // 用户名,如果本IP需要登录认证
+    private String username;
+
+    // 密码,如果本IP需要登录认证
+    private String password;
+
+    // 有些代理是通过请求头进行认证的
+    private List<Header> authenticationHeaders = Lists.newArrayList();
 
     private boolean isInit = true;
 
@@ -70,9 +82,8 @@ public class AvProxy {
         }
     }
 
-
     public void recordProxyChange() {
-        if (proxyNumberChange.incrementAndGet() % 10 == 0) {// 序列化
+        if (proxyNumberChange.incrementAndGet() % 40 == 0) {// 序列化
             if (IpPool.getInstance() == null) {
                 return;// 说明是初始化的时候,在递归调用到这里了。放弃序列化
             }
@@ -187,6 +198,30 @@ public class AvProxy {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public List<Header> getAuthenticationHeaders() {
+        return authenticationHeaders;
+    }
+
+    public void setAuthenticationHeaders(List<Header> authenticationHeaders) {
+        this.authenticationHeaders = authenticationHeaders;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public DomainPool getDomainPool() {

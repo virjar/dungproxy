@@ -1,12 +1,19 @@
 package com.virjar.dungproxy.client.httpclient.conn;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.SchemePortResolver;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
@@ -55,6 +62,25 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
             bind.recordUsage();
             // 将绑定IP放置到context,用于后置拦截器统计这个IP的使用情况
             context.setAttribute(ProxyConstant.USED_PROXY_KEY, bind);
+
+            // 如果代理有认证头部,则注入认证头部
+            if (bind.getAuthenticationHeaders() != null) {
+                for (Header header : bind.getAuthenticationHeaders()) {
+                    request.addHeader(header);
+                }
+            }
+
+            // 注入用户名密码
+            if (StringUtils.isNotEmpty(bind.getUsername()) && StringUtils.isNotEmpty(bind.getPassword())) {
+                HttpClientContext httpClientContext = HttpClientContext.adapt(context);
+                CredentialsProvider credsProvider = httpClientContext.getCredentialsProvider();
+                if (credsProvider == null) {
+                    credsProvider = new BasicCredentialsProvider();
+                    httpClientContext.setCredentialsProvider(credsProvider);
+                }
+                credsProvider.setCredentials(new AuthScope(target),
+                        new UsernamePasswordCredentials(bind.getUsername(), bind.getPassword()));
+            }
             return new HttpHost(bind.getIp(), bind.getPort());
         }
 

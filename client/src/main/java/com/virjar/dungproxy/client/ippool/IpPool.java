@@ -52,7 +52,12 @@ public class IpPool {
         avProxyDumper = dungProxyContext.getAvProxyDumper();
         proxyDomainStrategy = dungProxyContext.getNeedProxyStrategy();
         isRunning = true;
-        unSerialize();
+        AvProxy.needRecordChange = false;// 设定标记位,取消序列化增量计数
+        try {
+            unSerialize();
+        } finally {
+            AvProxy.needRecordChange = true;
+        }
 
         // 反馈任务线程
         FeedBackThread feedBackThread = new FeedBackThread();

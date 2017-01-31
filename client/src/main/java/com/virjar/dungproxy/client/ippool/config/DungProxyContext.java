@@ -2,8 +2,10 @@ package com.virjar.dungproxy.client.ippool.config;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,15 +14,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.virjar.dungproxy.client.ippool.GroupBindRouter;
 import com.virjar.dungproxy.client.ippool.PreHeater;
 import com.virjar.dungproxy.client.ippool.strategy.*;
 import com.virjar.dungproxy.client.ippool.strategy.impl.*;
+import com.virjar.dungproxy.client.model.AvProxyVO;
 
 /**
  * Created by virjar on 17/1/23.<br/>
- * 适用在整个项目的上下文,将会取代 com.virjar.dungproxy.client.ippool.config.Context
+ * 适用在整个项目的上下文
  *
  */
 public class DungProxyContext {
@@ -42,6 +47,9 @@ public class DungProxyContext {
     private long defaultUseInterval;
     private long defaultScoreFactory;
     private Map<String, DomainContext> domainConfig = Maps.newConcurrentMap();
+
+    // 这个需要考虑并发安全吗?
+    private Set<AvProxyVO> cloudProxySet = Sets.newConcurrentHashSet();
 
     private Logger logger = LoggerFactory.getLogger(DungProxyContext.class);
 
@@ -206,6 +214,15 @@ public class DungProxyContext {
     public DungProxyContext setDefaultScoreFactory(long defaultScoreFactory) {
         this.defaultScoreFactory = defaultScoreFactory;
         return this;
+    }
+
+    public DungProxyContext addCloudProxy(AvProxyVO cloudProxy) {
+        this.cloudProxySet.add(cloudProxy);
+        return this;
+    }
+
+    public Collection<AvProxyVO> getCloudProxies() {
+        return Lists.newArrayList(cloudProxySet);// copy 新数据到外部
     }
 
     /**
