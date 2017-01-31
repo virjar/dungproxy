@@ -47,17 +47,12 @@ public class IpPool {
     private void init() {
         // step 1 load all component
 
-        // TODO
         groupBindRouter = dungProxyContext.getGroupBindRouter();
         avProxyDumper = dungProxyContext.getAvProxyDumper();
         proxyDomainStrategy = dungProxyContext.getNeedProxyStrategy();
         isRunning = true;
-        AvProxy.needRecordChange = false;// 设定标记位,取消序列化增量计数
-        try {
-            unSerialize();
-        } finally {
-            AvProxy.needRecordChange = true;
-        }
+
+        unSerialize();
 
         // 反馈任务线程
         FeedBackThread feedBackThread = new FeedBackThread();
@@ -99,25 +94,30 @@ public class IpPool {
     }
 
     public void unSerialize() {
-        Map<String, List<AvProxyVO>> stringListMap = avProxyDumper.unSerializeProxy();
-        if (stringListMap == null) {
-            return;
-        }
-        for (final Map.Entry<String, List<AvProxyVO>> entry : stringListMap.entrySet()) {
-            List<AvProxy> proxies = Lists.transform(entry.getValue(), new Function<AvProxyVO, AvProxy>() {
-
-                @Override
-                public AvProxy apply(AvProxyVO input) {
-                    return input.toModel(dungProxyContext.genDomainContext(entry.getKey()));
-                }
-            });
-            if (pool.containsKey(entry.getKey())) {
-                pool.get(entry.getKey()).addAvailable(proxies);
-            } else {
-                pool.put(entry.getKey(),
-                        new DomainPool(entry.getKey(), dungProxyContext.genDomainContext(entry.getKey())));
-                pool.get(entry.getKey()).addAvailable(proxies);
+        AvProxy.needRecordChange = false;// 设定标记位,取消序列化增量计数
+        try {
+            Map<String, List<AvProxyVO>> stringListMap = avProxyDumper.unSerializeProxy();
+            if (stringListMap == null) {
+                return;
             }
+            for (final Map.Entry<String, List<AvProxyVO>> entry : stringListMap.entrySet()) {
+                List<AvProxy> proxies = Lists.transform(entry.getValue(), new Function<AvProxyVO, AvProxy>() {
+
+                    @Override
+                    public AvProxy apply(AvProxyVO input) {
+                        return input.toModel(dungProxyContext.genDomainContext(entry.getKey()));
+                    }
+                });
+                if (pool.containsKey(entry.getKey())) {
+                    pool.get(entry.getKey()).addAvailable(proxies);
+                } else {
+                    pool.put(entry.getKey(),
+                            new DomainPool(entry.getKey(), dungProxyContext.genDomainContext(entry.getKey())));
+                    pool.get(entry.getKey()).addAvailable(proxies);
+                }
+            }
+        } finally {
+            AvProxy.needRecordChange = true;
         }
     }
 

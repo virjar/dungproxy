@@ -57,33 +57,34 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
         if (bind == null || bind.isDisable()) {
             bind = IpPool.getInstance().bind(target.getHostName(), accessUrl);
         }
-        if (bind != null) {
-            logger.info("{} 当前使用IP为:{}:{}", target.getHostName(), bind.getIp(), bind.getPort());
-            bind.recordUsage();
-            // 将绑定IP放置到context,用于后置拦截器统计这个IP的使用情况
-            context.setAttribute(ProxyConstant.USED_PROXY_KEY, bind);
 
-            // 如果代理有认证头部,则注入认证头部
-            if (bind.getAuthenticationHeaders() != null) {
-                for (Header header : bind.getAuthenticationHeaders()) {
-                    request.addHeader(header);
-                }
-            }
-
-            // 注入用户名密码
-            if (StringUtils.isNotEmpty(bind.getUsername()) && StringUtils.isNotEmpty(bind.getPassword())) {
-                HttpClientContext httpClientContext = HttpClientContext.adapt(context);
-                CredentialsProvider credsProvider = httpClientContext.getCredentialsProvider();
-                if (credsProvider == null) {
-                    credsProvider = new BasicCredentialsProvider();
-                    httpClientContext.setCredentialsProvider(credsProvider);
-                }
-                credsProvider.setCredentials(new AuthScope(target),
-                        new UsernamePasswordCredentials(bind.getUsername(), bind.getPassword()));
-            }
-            return new HttpHost(bind.getIp(), bind.getPort());
+        if (bind == null) {
+            return super.determineProxy(target, request, context);
         }
 
-        return super.determineProxy(target, request, context);
+        logger.info("{} 当前使用IP为:{}:{}", target.getHostName(), bind.getIp(), bind.getPort());
+        bind.recordUsage();
+        // 将绑定IP放置到context,用于后置拦截器统计这个IP的使用情况
+        context.setAttribute(ProxyConstant.USED_PROXY_KEY, bind);
+
+        // 如果代理有认证头部,则注入认证头部
+        if (bind.getAuthenticationHeaders() != null) {
+            for (Header header : bind.getAuthenticationHeaders()) {
+                request.addHeader(header);
+            }
+        }
+
+        // 注入用户名密码
+        if (StringUtils.isNotEmpty(bind.getUsername()) && StringUtils.isNotEmpty(bind.getPassword())) {
+            HttpClientContext httpClientContext = HttpClientContext.adapt(context);
+            CredentialsProvider credsProvider = httpClientContext.getCredentialsProvider();
+            if (credsProvider == null) {
+                credsProvider = new BasicCredentialsProvider();
+                httpClientContext.setCredentialsProvider(credsProvider);
+            }
+            credsProvider.setCredentials(new AuthScope(target),
+                    new UsernamePasswordCredentials(bind.getUsername(), bind.getPassword()));
+        }
+        return new HttpHost(bind.getIp(), bind.getPort());
     }
 }
