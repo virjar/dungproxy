@@ -335,8 +335,6 @@ public class DungProxyContext {
             avProxyDumper.setDumpFileName(defaultAvDumpeFileName);
         }
 
-        // TODO
-        // defaultProxyList = properties.getProperty(ProxyConstant.DEFAULT_PROXY_LIST);
 
         String preHeaterTaskList = properties.getProperty(ProxyConstant.PREHEATER_TASK_LIST);
         if (StringUtils.isNotEmpty(preHeaterTaskList)) {

@@ -2,6 +2,7 @@ package com.virjar.dungproxy.client.model;
 
 import java.util.List;
 
+import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 
 import com.google.common.collect.Lists;
@@ -40,7 +41,7 @@ public class AvProxyVO {
     private String password;
 
     // 有些代理是通过请求头进行认证的
-    private List<NameValuePair> authenticationHeaders = Lists.newArrayList();
+    private List<Header> authenticationHeaders = Lists.newArrayList();
 
     public Boolean getCloud() {
         return cloud;
@@ -66,11 +67,11 @@ public class AvProxyVO {
         this.username = username;
     }
 
-    public List<NameValuePair> getAuthenticationHeaders() {
+    public List<Header> getAuthenticationHeaders() {
         return Lists.newArrayList(authenticationHeaders);
     }
 
-    public void setAuthenticationHeaders(List<NameValuePair> authenticationHeaders) {
+    public void setAuthenticationHeaders(List<Header> authenticationHeaders) {
         this.authenticationHeaders = authenticationHeaders;
     }
 
