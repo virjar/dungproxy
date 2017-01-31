@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.virjar.dungproxy.client.ippool.IpPool;
+import com.virjar.dungproxy.client.ippool.IpPoolHolder;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.model.AvProxy;
 
@@ -31,11 +32,21 @@ import com.virjar.dungproxy.client.model.AvProxy;
  */
 public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProxyBindRoutPlanner.class);
+
+    private IpPool ipPool;
+
     public ProxyBindRoutPlanner() {
-        super(null);
+        this((IpPool) null);
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(ProxyBindRoutPlanner.class);
+    public ProxyBindRoutPlanner(IpPool ipPool) {
+        super(null);
+        if (ipPool == null) {
+            ipPool = IpPoolHolder.getIpPool();
+        }
+        this.ipPool = ipPool;
+    }
 
     /**
      * @param schemePortResolver schema解析器,可以传空,这个时候将会使用默认
@@ -55,7 +66,7 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
         AvProxy bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
         if (bind == null || bind.isDisable()) {
-            bind = IpPool.getInstance().bind(target.getHostName(), accessUrl);
+            bind = ipPool.bind(target.getHostName(), accessUrl);
         }
 
         if (bind == null) {
@@ -82,6 +93,7 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
                 credsProvider = new BasicCredentialsProvider();
                 httpClientContext.setCredentialsProvider(credsProvider);
             }
+            // TODO 确定这个是在httpclient全局还是本次请求,如果是在全局的话,需要考虑并发了
             credsProvider.setCredentials(new AuthScope(target),
                     new UsernamePasswordCredentials(bind.getUsername(), bind.getPassword()));
         }

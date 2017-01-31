@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.Header;
-import org.apache.http.NameValuePair;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -62,6 +61,7 @@ public class AvProxy {
     // 是否被分发出去
     private boolean referFlag = false;
 
+    // TODO 移到context里面
     public static boolean needRecordChange = true;
 
     private DungProxyContext dungProxyContext;
