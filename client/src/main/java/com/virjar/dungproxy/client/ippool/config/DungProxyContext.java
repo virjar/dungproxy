@@ -45,7 +45,7 @@ public class DungProxyContext {
     private int defaultCoreSize;
     private double defaultSmartProxyQueueRatio;
     private long defaultUseInterval;
-    private long defaultScoreFactory;
+    private int defaultScoreFactory;
     private Map<String, DomainContext> domainConfig = Maps.newConcurrentMap();
 
     // 这个需要考虑并发安全吗?
@@ -207,11 +207,11 @@ public class DungProxyContext {
         return this;
     }
 
-    public long getDefaultScoreFactory() {
+    public int getDefaultScoreFactory() {
         return defaultScoreFactory;
     }
 
-    public DungProxyContext setDefaultScoreFactory(long defaultScoreFactory) {
+    public DungProxyContext setDefaultScoreFactory(int defaultScoreFactory) {
         this.defaultScoreFactory = defaultScoreFactory;
         return this;
     }

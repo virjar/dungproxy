@@ -37,15 +37,7 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
     private IpPool ipPool;
 
     public ProxyBindRoutPlanner() {
-        this((IpPool) null);
-    }
-
-    public ProxyBindRoutPlanner(IpPool ipPool) {
-        super(null);
-        if (ipPool == null) {
-            ipPool = IpPoolHolder.getIpPool();
-        }
-        this.ipPool = ipPool;
+        this(null, null);
     }
 
     /**
@@ -53,7 +45,19 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
      *            {org.apache.http.impl.conn.DefaultSchemePortResolver#INSTANCE}
      */
     public ProxyBindRoutPlanner(SchemePortResolver schemePortResolver) {
+        this(schemePortResolver, null);
+    }
+
+    /**
+     * @param schemePortResolver schema解析器,可以传空,这个时候将会使用默认
+     *            {org.apache.http.impl.conn.DefaultSchemePortResolver#INSTANCE}
+     */
+    public ProxyBindRoutPlanner(SchemePortResolver schemePortResolver, IpPool ipPool) {
         super(schemePortResolver);
+        if (ipPool == null) {
+            ipPool = IpPoolHolder.getIpPool();
+        }
+        this.ipPool = ipPool;
     }
 
     @Override

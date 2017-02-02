@@ -83,7 +83,7 @@ public class AvProxy {
     }
 
     public void recordProxyChange() {
-        if (proxyNumberChange.incrementAndGet() % 40 == 0) {// 序列化
+        if (proxyNumberChange.incrementAndGet() % 10 == 0) {// 每当有10个IP加入或者下线,则进行一次序列化
             if (IpPool.getInstance() == null) {
                 return;// 说明是初始化的时候,在递归调用到这里了。放弃序列化
             }

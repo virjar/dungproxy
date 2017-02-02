@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,6 +158,9 @@ public class PreHeater {
         try {
             return new UrlCheckTask(domainPool, avProxy, url).call();
         } catch (Exception e) {
+            if(e instanceof NullPointerException){
+                e.printStackTrace();
+            }
             return false;
         }
     }
@@ -231,6 +235,7 @@ public class PreHeater {
 
     private void unSerialize() {
         final Map<String, DomainPool> pool = Maps.newConcurrentMap();
+        stringDomainPoolMap = pool;
         Map<String, List<AvProxyVO>> stringListMap = dungProxyContext.getAvProxyDumper().unSerializeProxy();
         if (stringListMap == null) {
             return;

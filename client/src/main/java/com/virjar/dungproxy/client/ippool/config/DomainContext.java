@@ -135,6 +135,10 @@ public class DomainContext {
         if(offline == null){
             this.offline = ObjectFactory.newInstance(dungProxyContext.getDefaultOffliner());
         }
+
+        if(this.scoreFactory<=0){
+            this.scoreFactory = dungProxyContext.getDefaultScoreFactory();
+        }
         return this;
     }
 }
