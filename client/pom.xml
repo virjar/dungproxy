@@ -3,7 +3,7 @@
     <parent>
         <artifactId>dungproxy</artifactId>
         <groupId>com.virjar</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -11,62 +11,56 @@
     <packaging>jar</packaging>
 
     <name>client</name>
-    <url>http://maven.apache.org</url>
-    <build>
+    <description>proxy ip resource pool</description>
+    <url>https://github.com/virjar/dungproxy</url>
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>appassembler-maven-plugin</artifactId>
-                <version>1.1.1</version>
-                <configuration>
-                    <repositoryLayout>flat</repositoryLayout>
-                    <repositoryName>lib</repositoryName>
-                    <configurationSourceDirectory>src/main/resources/preHeaterConfig</configurationSourceDirectory>
-                    <!-- Set the target configuration directory to be used in the bin scripts -->
-                    <configurationDirectory>conf</configurationDirectory>
-                    <!-- Copy the contents from "/src/main/config" to the target configuration
-                        directory in the assembled application -->
-                    <copyConfigurationDirectory>true</copyConfigurationDirectory>
-                    <!-- Include the target configuration directory in the beginning of
-                        the classpath declaration in the bin scripts -->
-                    <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
-                    <!-- prefix all bin files with "mycompany" -->
-                    <!--<binPrefix>startup</binPrefix>-->
-                    <!-- set alternative assemble directory -->
-                    <assembleDirectory>${project.build.directory}/dungclient</assembleDirectory>
-                    <!-- Extra JVM arguments that will be included in the bin scripts -->
-                    <extraJvmArguments>-Xms768m -Xmx768m -XX:PermSize=128m
-                        -XX:MaxPermSize=256m -XX:NewSize=192m -XX:MaxNewSize=384m
-                    </extraJvmArguments>
-                    <binFileExtensions>
-                        <unix>.sh</unix>
-                    </binFileExtensions>
-                    <!-- Generate bin scripts for windows and unix pr default -->
-                    <platforms>
-                        <platform>windows</platform>
-                        <platform>unix</platform>
-                    </platforms>
-                    <programs>
-                        <program>
-                            <mainClass>com.virjar.dungproxy.client.ippool.PreHeater</mainClass>
-                            <name>preHeater</name>
-                        </program>
-                    </programs>
-                </configuration>
-            </plugin>
+    <developers>
+        <developer>
+            <name>weijia.deng</name>
+            <email>virjar@virjar.com</email>
+            <roles>
+                <role>>Lead Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+        <developer>
+            <name>lingtong.fu</name>
+            <email>471163887@qq.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
 
-        </plugins>
-    </build>
+    <scm>
+        <connection>
+            scm:git:https://github.com/virjar/dungproxy.git
+        </connection>
+        <developerConnection>
+            scm:git:https://github.com/virjar/dungproxy.git
+        </developerConnection>
+        <url>https://github.com/virjar/dungproxy</url>
+        <tag>v${project.version}</tag>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <name>Maven Central Staging Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -256,6 +250,61 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <!-- 构建预热脚本 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>1.1.1</version>
+                <configuration>
+                    <repositoryLayout>flat</repositoryLayout>
+                    <repositoryName>lib</repositoryName>
+                    <configurationSourceDirectory>src/main/resources/preHeaterConfig</configurationSourceDirectory>
+                    <!-- Set the target configuration directory to be used in the bin scripts -->
+                    <configurationDirectory>conf</configurationDirectory>
+                    <!-- Copy the contents from "/src/main/config" to the target configuration
+                        directory in the assembled application -->
+                    <copyConfigurationDirectory>true</copyConfigurationDirectory>
+                    <!-- Include the target configuration directory in the beginning of
+                        the classpath declaration in the bin scripts -->
+                    <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+                    <!-- prefix all bin files with "mycompany" -->
+                    <!--<binPrefix>startup</binPrefix>-->
+                    <!-- set alternative assemble directory -->
+                    <assembleDirectory>${project.build.directory}/dungclient</assembleDirectory>
+                    <!-- Extra JVM arguments that will be included in the bin scripts -->
+                    <extraJvmArguments>-Xms768m -Xmx768m -XX:PermSize=128m
+                        -XX:MaxPermSize=256m -XX:NewSize=192m -XX:MaxNewSize=384m
+                    </extraJvmArguments>
+                    <binFileExtensions>
+                        <unix>.sh</unix>
+                    </binFileExtensions>
+                    <!-- Generate bin scripts for windows and unix pr default -->
+                    <platforms>
+                        <platform>windows</platform>
+                        <platform>unix</platform>
+                    </platforms>
+                    <programs>
+                        <program>
+                            <mainClass>com.virjar.dungproxy.client.ippool.PreHeater</mainClass>
+                            <name>preHeater</name>
+                        </program>
+                    </programs>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
     <profiles>
         <profile>
             <id>default</id>
@@ -301,6 +350,68 @@
                                 <phase>package</phase>
                                 <goals>
                                     <goal>shade</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!--不知道干嘛的,发布需要,先抄过来 -->
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.3</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <!-- 生成doc,发布需要 -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- 将source打包,发布需要 -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- 签名,发布需要 -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
                                 </goals>
                             </execution>
                         </executions>
