@@ -23,16 +23,21 @@ qq 群,人肉文档支持😁
 ##快速开始
 ```
 // Step1 代理策略,确定那些请求将会被代理池代理
+// Step1 代理策略,确定那些请求将会被代理池代理
 WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
 whiteListProxyStrategy.addAllHost("www.baidu.com");
 
-// Step2 创建并定制代理规则,这里是用户需要重点关注的地方
-DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy);
+//确定缓存文件位置,如果没有预热,可以不指定
+JSONFileAvProxyDumper jsonFileAvProxyDumper = new JSONFileAvProxyDumper();
+jsonFileAvProxyDumper.setDumpFileName("/path to file name");
+// Step2 创建并定制代理规则
+DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy)
+        .setAvProxyDumper(jsonFileAvProxyDumper);
 
-// Step3 使用代理规则初始化默认IP池,他使用了一个存在于静态空间的IP池实例
+// Step3 使用代理规则初始化默认IP池
 IpPoolHolder.init(dungProxyContext);
 
-// step 4 将代理池注册到httpclient(两个为httpclient做的适配插件),ProxyBindRoutPlanner如果不传入IP池,则使用静态IP池对象
+// step 4 将代理池注册到httpclient(两个为httpclient做的适配插件)
 HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 httpClientBuilder.setRetryHandler(new DunProxyHttpRequestRetryHandler(null))
         .setRoutePlanner(new ProxyBindRoutPlanner());
@@ -43,6 +48,8 @@ CloseableHttpResponse response = closeableHttpClient.execute(httpGet);
 
 String string = IOUtils.toString(response.getEntity().getContent());
 System.out.println(string);
+
+
 ```
 
 ### serverList
