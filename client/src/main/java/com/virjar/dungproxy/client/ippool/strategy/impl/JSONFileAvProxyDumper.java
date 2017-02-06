@@ -35,7 +35,9 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
 
     @Override
     public void serializeProxy(Map<String, List<AvProxyVO>> data) {
-
+        if(data == null || data.size() ==0){
+            return;
+        }
         BufferedWriter bufferedWriter = null;
         if (serializing.compareAndSet(false, true)) {// 不允许并发的序列化,无意义
             try {
