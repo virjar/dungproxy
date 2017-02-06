@@ -462,12 +462,6 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     }
 
     private List<NameValuePair> convert(Map<String, String> params) {
-        NameValuePairBuilder nameValuePairBuilder = NameValuePairBuilder.create();
-        if (params != null && params.size() > 0) {
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                nameValuePairBuilder.addParam(entry.getKey(), entry.getValue());
-            }
-        }
-        return nameValuePairBuilder.build();
+        return NameValuePairBuilder.create().addParams(params).build();
     }
 }
