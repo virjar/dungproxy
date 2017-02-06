@@ -31,7 +31,7 @@ public class HeaderBuilder {
     }
 
     /**
-     * 提交表单数据大的时候,需要添加这个头部
+     * 提交表单数据的时候,需要添加这个头部
      * 
      * @return HeaderBuilder
      */

@@ -23,6 +23,10 @@ public class NameValuePairBuilder {
         return this;
     }
 
+    public NameValuePairBuilder addParam(String name) {
+        return addParam(name, "");
+    }
+
     public List<NameValuePair> build() {
         return params;
     }
