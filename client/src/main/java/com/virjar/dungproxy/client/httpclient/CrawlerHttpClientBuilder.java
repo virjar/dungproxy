@@ -56,7 +56,6 @@ import org.apache.http.util.TextUtils;
 
 import com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner;
 import com.virjar.dungproxy.client.httpclient.execchain.RetryExec;
-import com.virjar.dungproxy.client.util.CommonUtil;
 
 /**
  * Created by virjar on 16/9/19.
@@ -937,7 +936,7 @@ public class CrawlerHttpClientBuilder {
             }
             Collection<? extends Header> defaultHeaders = this.defaultHeaders;
             if (defaultHeaders == null) {
-                defaultHeaders = CommonUtil.defaultHeader();
+                defaultHeaders = HeaderBuilder.create().defaultCommonHeader().buildList();// CommonUtil.defaultHeader();
             }
             b.addAll(new RequestDefaultHeaders(defaultHeaders), new RequestContent(), new RequestTargetHost(),
                     new RequestClientConnControl(), new RequestUserAgent(userAgentCopy),

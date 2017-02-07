@@ -23,7 +23,7 @@ public class HeaderBuilder {
         headerList.add(new BasicHeader("Accept",
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
         headerList.add(new BasicHeader("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"));
-        headerList.add(new BasicHeader("Accept-Encoding", "gzip, deflate"));
+        // headerList.add(new BasicHeader("Accept-Encoding", "gzip, deflate"));
         headerList.add(new BasicHeader("Connection", "keep-alive"));
         headerList.add(new BasicHeader("Cache-Control", "no-cache"));
         headerList.add(new BasicHeader("Pragma", "no-cache"));

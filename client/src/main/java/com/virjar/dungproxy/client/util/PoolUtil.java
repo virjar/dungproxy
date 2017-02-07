@@ -49,13 +49,13 @@ public class PoolUtil {
      * 适用场景,多个僵尸账户登录目标网站爬取各自所见数据。要求各个用户cookie空间独立, 要求各个账户每次IP保持相同<br/>
      * 注意,IP池根据用户ID的hash值做一致性哈希绑定,请注意userID对象的hashCode函数是否会被均匀散列
      *
-     * @deprecated  本功能过度设计,IP和用户的绑定对于大多数抓去场景来说是不必要的,所以废弃这个功能
+     * @deprecated 本功能过度设计,IP和用户的绑定对于大多数抓去场景来说是不必要的,所以废弃这个功能
      * @param httpClientContext http的上下文
      * @param userId 代表用户信息的对象
      */
     @Deprecated
     public static void bindUserKey(HttpClientContext httpClientContext, Object userId) {
-       // httpClientContext.setAttribute(ProxyConstant.USER_KEY, userId);
+        throw new UnsupportedOperationException("废弃一致性hash绑定的支持,用户如果需要实现,自己上层维护,IP池IP变化太快,不容易维护");
     }
 
     public static AvProxy getBindProxy(HttpClientContext httpClientContext) {
