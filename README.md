@@ -20,9 +20,17 @@ qq 群,人肉文档支持😁
 ## 案例
 [代理IP爬虫](http://114.215.144.211:8080/#/index) 我们通过代理访问封堵我们的代理资源发布网站,以及访问国外的代理IP网站
 
-##快速开始
+##maven坐标
 ```
-// Step1 代理策略,确定那些请求将会被代理池代理
+<dependency>
+    <groupId>com.virjar</groupId>
+    <artifactId>dungproxy-client</artifactId>
+    <version>0.0.1</version>
+</dependency>
+```
+##快速开始
+
+```
 // Step1 代理策略,确定那些请求将会被代理池代理
 WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
 whiteListProxyStrategy.addAllHost("www.baidu.com");
