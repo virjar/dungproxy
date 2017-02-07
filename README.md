@@ -15,24 +15,37 @@ DungProxy是一个代理IP服务,他包括一个代理IP资源server端和一系
 请注意,在没有遇到封IP的情况下,不要尝试使用本工具。使用代理的效果肯定比不上不使用代理
 
 qq 群,人肉文档支持😁 
-> 569543649
+> 569543649(暗号：DungProxy)
 
 ## 案例
 [代理IP爬虫](http://114.215.144.211:8080/#/index) 我们通过代理访问封堵我们的代理资源发布网站,以及访问国外的代理IP网站
 
+##maven坐标
+```
+<dependency>
+    <groupId>com.virjar</groupId>
+    <artifactId>dungproxy-client</artifactId>
+    <version>0.0.1</version>
+</dependency>
+```
 ##快速开始
+
 ```
 // Step1 代理策略,确定那些请求将会被代理池代理
 WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
 whiteListProxyStrategy.addAllHost("www.baidu.com");
 
-// Step2 创建并定制代理规则,这里是用户需要重点关注的地方
-DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy);
+//确定缓存文件位置,如果没有预热,可以不指定
+JSONFileAvProxyDumper jsonFileAvProxyDumper = new JSONFileAvProxyDumper();
+jsonFileAvProxyDumper.setDumpFileName("/path to file name");
+// Step2 创建并定制代理规则
+DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy)
+        .setAvProxyDumper(jsonFileAvProxyDumper);
 
-// Step3 使用代理规则初始化默认IP池,他使用了一个存在于静态空间的IP池实例
+// Step3 使用代理规则初始化默认IP池
 IpPoolHolder.init(dungProxyContext);
 
-// step 4 将代理池注册到httpclient(两个为httpclient做的适配插件),ProxyBindRoutPlanner如果不传入IP池,则使用静态IP池对象
+// step 4 将代理池注册到httpclient(两个为httpclient做的适配插件)
 HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 httpClientBuilder.setRetryHandler(new DunProxyHttpRequestRetryHandler(null))
         .setRoutePlanner(new ProxyBindRoutPlanner());
@@ -43,6 +56,8 @@ CloseableHttpResponse response = closeableHttpClient.execute(httpGet);
 
 String string = IOUtils.toString(response.getEntity().getContent());
 System.out.println(string);
+
+
 ```
 
 ### serverList

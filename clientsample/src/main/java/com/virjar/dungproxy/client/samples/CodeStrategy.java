@@ -12,6 +12,7 @@ import com.virjar.dungproxy.client.httpclient.DunProxyHttpRequestRetryHandler;
 import com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner;
 import com.virjar.dungproxy.client.ippool.IpPoolHolder;
 import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
+import com.virjar.dungproxy.client.ippool.strategy.impl.JSONFileAvProxyDumper;
 import com.virjar.dungproxy.client.ippool.strategy.impl.WhiteListProxyStrategy;
 
 /**
@@ -23,8 +24,12 @@ public class CodeStrategy {
         WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
         whiteListProxyStrategy.addAllHost("www.baidu.com");
 
+        //确定缓存文件位置,如果没有预热,可以不指定
+        JSONFileAvProxyDumper jsonFileAvProxyDumper = new JSONFileAvProxyDumper();
+        jsonFileAvProxyDumper.setDumpFileName("/path to file name");
         // Step2 创建并定制代理规则
-        DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy);
+        DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy)
+                .setAvProxyDumper(jsonFileAvProxyDumper);
 
         // Step3 使用代理规则初始化默认IP池
         IpPoolHolder.init(dungProxyContext);
