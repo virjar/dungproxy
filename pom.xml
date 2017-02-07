@@ -6,13 +6,16 @@
     <groupId>com.virjar</groupId>
     <artifactId>dungproxy</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
+    <name>dungproxy</name>
     <modules>
         <!-- 发布的时候,只发布client,注释调另外两个module -->
         <!--
         <module>server</module>
          <module>clientsample</module>
          -->
+        <module>server</module>
+        <module>clientsample</module>
         <module>client</module>
 
     </modules>
