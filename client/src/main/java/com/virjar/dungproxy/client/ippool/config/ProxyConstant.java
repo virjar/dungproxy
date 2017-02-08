@@ -4,32 +4,25 @@ package com.virjar.dungproxy.client.ippool.config;
  * Created by virjar on 16/9/30. 全局配置项
  */
 public class ProxyConstant {
-    public static final String PROXY_CONFIG_KEY = "VIRJAR_PROXY_CONFIG";
-    public static final String USER_ENV_CONTAINER_KEY = "VIARJAR_USER_ENV_CONTANNER_KEY";
     public static final String USED_PROXY_KEY = "USED_PROXY_KEY";
-    public static final String SERVER_ADDRESS = "http://proxy.scumall.com:8080";
 
     // config 文件默认配置key值
-    public static final String RESOURCE_FACADE = "proxyclient.resouce.resourceFacade";
-    public static final String DEFAULT_RESOURCE_FACADE = "com.virjar.dungproxy.client.ippool.strategy.impl.DefaultResourceFacade";
-    public static final String PROXY_DOMAIN_STRATEGY = "proxyclient.proxyDomainStrategy";
-    public static final String DEFAULT_DOMAIN_STRATEGY = "WHITE_LIST";
-    public static final String BLACK_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.backList";
-    public static final String WHITE_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.whiteList";
-    public static final String FEEDBACK_DURATION = "proxyclient.feedback.duration";
-    public static final String DEFAULT_PROXY_LIST = "proxyclient.defaultProxyList";
-    public static final String DEFAULT_RESOURCE_SERVER_ADDRESS = "proxyclient.resource.defaultResourceServerAddress";
+    static final String RESOURCE_FACADE = "proxyclient.resouce.resourceFacade";
+    static final String PROXY_DOMAIN_STRATEGY = "proxyclient.proxyDomainStrategy";
+    static final String DEFAULT_DOMAIN_STRATEGY = "WHITE_LIST";
+    static final String WHITE_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.whiteList";
+    static final String FEEDBACK_DURATION = "proxyclient.feedback.duration";
+    static final String DEFAULT_RESOURCE_SERVER_ADDRESS = "proxyclient.resource.defaultResourceServerAddress";
 
-    public static final String PROXY_USE_INTERVAL = "proxyclient.proxyUseIntervalMillis";
-    public static final String CLIENT_ID = "proxyclient.clientID";
-    public static final String PROXY_DOMAIN_STRATEGY_ROUTE = "proxyclient.proxyDomainStrategy.group";
+    static final String PROXY_USE_INTERVAL = "proxyclient.proxyUseIntervalMillis";
+    static final String CLIENT_ID = "proxyclient.clientID";
+    static final String PROXY_DOMAIN_STRATEGY_ROUTE = "proxyclient.proxyDomainStrategy.group";
 
-    public static final String PREHEATER_TASK_LIST = "proxyclient.preHeater.testList";
-    public static final String PREHEAT_SERIALIZE_STEP = "proxyclient.preHeater.serialize.step";
-    public static  String CLIENT_CONFIG_FILE_NAME = "proxyclient.properties";
-    public static final String PROXY_SERIALIZER = "proxyclient.serialize.serializer";
-    public static final String DEFAULT_PROXY_SERIALIZER = "com.virjar.dungproxy.client.ippool.strategy.impl.JSONFileAvProxyDumper";
-    public static final String DEFAULT_PROXY_SERALIZER_FILE = "proxyclient.DefaultAvProxyDumper.dumpFileName";
+    static final String PREHEATER_TASK_LIST = "proxyclient.preHeater.testList";
+    static final String PREHEAT_SERIALIZE_STEP = "proxyclient.preHeater.serialize.step";
+    public static String CLIENT_CONFIG_FILE_NAME = "proxyclient.properties";
+    static final String PROXY_SERIALIZER = "proxyclient.serialize.serializer";
+    static final String DEFAULT_PROXY_SERALIZER_FILE = "proxyclient.DefaultAvProxyDumper.dumpFileName";
 
     public static final String DEFAULT_PROXY_SERALIZER_FILE_VALUE = "availableProxy.json";
     // socket超时时间
@@ -39,5 +32,4 @@ public class ProxyConstant {
     // 连接池分配连接超时时间,一般用处不大
     public static final int REQUEST_TIMEOUT = 30000;
     public static final int SOCKETSO_TIMEOUT = 15000;
-    public static final int DEFAULT_PREHEATER_SERILIZE_STEP = 20;
 }

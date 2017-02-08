@@ -20,6 +20,7 @@ import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
+import com.virjar.dungproxy.client.util.IpAvValidator;
 
 /**
  * Created by virjar on 16/9/29.
@@ -72,6 +73,11 @@ public class DomainPool {
         if (defaultProxy != null) {
             addAvailable(defaultProxy);
         }
+
+        // for cloud proxy
+        for (AvProxyVO cloudProxy : domainContext.getDungProxyContext().getCloudProxies()) {
+            addAvailable(cloudProxy.toModel(this));
+        }
     }
 
     public void addAvailable(Collection<AvProxy> avProxyList) {
@@ -102,11 +108,6 @@ public class DomainPool {
 
         readWriteLock.readLock().lock();
         try {
-            /*
-             * if (smartProxyQueue.availableSize() == 0) {// TODO 移除这个逻辑,统一服务也要参与竞争,也把它放到IP池里面 List<DefaultProxy>
-             * defaultProxyList = Context.getInstance().getDefaultProxyList(); if (defaultProxyList.size() == 0) {
-             * return null; } return defaultProxyList.get(new Random().nextInt(defaultProxyList.size())); }
-             */
             return smartProxyQueue.getAndAdjustPriority();
         } finally {
             readWriteLock.readLock().unlock();
@@ -220,9 +221,9 @@ public class DomainPool {
     private void doRefresh() {
         checkAndExtendCandidateResource();
         AvProxyVO avProxy;
-        PreHeater preHeater = dungProxyContext.getPreHeater();
+        // PreHeater preHeater = dungProxyContext.getPreHeater();
         while ((avProxy = candidateProxies.poll()) != null) {
-            if (preHeater.check4UrlSync(avProxy, testUrls.get(random.nextInt(testUrls.size())), this)) {
+            if (IpAvValidator.available(avProxy, testUrls.get(random.nextInt(testUrls.size())))) {
                 avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
                 addAvailable(avProxy.toModel(domainContext));
                 logger.info("IP池当前可用IP数目:{}", smartProxyQueue.availableSize());

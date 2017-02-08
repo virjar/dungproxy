@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.virjar</groupId>
         <artifactId>dungproxy</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2</version>
     </parent>
     <artifactId>proxyipcenter-sever</artifactId>
     <packaging>war</packaging>
@@ -499,7 +499,7 @@
         <dependency>
             <groupId>com.virjar</groupId>
             <artifactId>dungproxy-client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
@@ -603,29 +603,4 @@
             </plugin>
         </plugins>
     </build>
-    <repositories>
-        <repository>
-            <id>people.apache.snapshots</id>
-            <url>http://repository.apache.org/content/groups/snapshots-group/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>apache.snapshots</id>
-            <name>Apache Snapshots</name>
-            <url>http://repository.apache.org/content/groups/snapshots-group/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 </project>

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Enumeration;
 
+import com.virjar.dungproxy.client.model.AvProxyVO;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.slf4j.Logger;
@@ -47,6 +48,15 @@ public class IpAvValidator {
             logger.error("choose NetworkInterface\n" + getNetworkInterface());
         }
 
+    }
+
+    public static boolean available(AvProxyVO avProxy, String testUrl) {
+        for (int i = 0; i < 3; i++) {
+            if (HttpInvoker.getStatus(testUrl, avProxy.getIp(), avProxy.getPort()) == 200) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean available(AvProxy avProxy, String testUrl) {

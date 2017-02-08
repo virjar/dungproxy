@@ -30,12 +30,19 @@ com.virjar.dungproxy.client.ippool.strategy.Scoring 确定如何为IP打分
 
 ### 通过代码设置扩展
 
-正常情况下,调用IpPool实例的时候,就会进行各种规则加载初始化动作,这个时候就会去找默认配置文件了,所以需要在自动初始化动作之前调用手动调用初始化动作
-方法路径是:``com.virjar.dungproxy.client.ippool.config.Context.initEnv``,他是一个静态方法:
-如:
-```
-        Context.ConfigBuilder configBuilder = Context.ConfigBuilder.create()
-                .setAvDumper("我的序列化实现")
-                .setResouceFace("我的资源引入实现");
-        Context.initEnv(configBuilder);
-```
+DungProxy在最简化使用模式下,默认走配置文件,但是为了提供更加良好的扩展性。DungProxy还支持通过代码的方式定制策略。同时,当前配置文件的方式在DungProxy内部也是转化为对应代码API调用。所以代码调用将会比配置文件的方式灵活,部分配置只支持了代码的方式。DungProxy通过代码定制策略的入口如下:
+1. 获取DungProxyContext
+   DungProxyContext是IpPool的一个上下文,默认情况IpPool是一个单例的,但是你也可以通过多个DungProxyContext产生多个IpPool实例,虽然我觉得这样意义不大。因为DungProxy本身就设计为支持多域名多规则的线程安全工具。
+   调用``com.virjar.dungproxy.client.ippool.config.DungProxyContext.create``就可以获取一个DungProxyContext的对象了,此时的Context是一个填入了默认策略的上下文对象,您可以对他进行进行进行定制,可定制项包括了IP池全局策略和某个域名的策略。具体可以定制的内容请看到API或者参考配置文件说明。
+2. 获取DomainContext
+   DomainContext是针对于某个域名的差异化配置,如可以配置不同域名下IP池的容量大小,确定每个IP的最小使用时间间隔等。当你没有定义这些规则的时候,将会继承获取DungProxyContext的对应配置,如果获取DungProxyContext也没有定义,则走获取DungProxyContext的默认规则。
+   DomainContext不允许直接创建,需要由DungProxyContext产生,因为他必须建立和DungProxyContext的联系,链接逻辑在DungProxyContext的创建方法中``com.virjar.dungproxy.client.ippool.config.DungProxyContext.genDomainContext``
+   同样的,拿到DomainContext之后就可以对他进行定制了,定制完成后不需要保存对象,因为他已经存在DungProxyContext里面了
+   
+##由DungProxyContext产生IPPool对象
+调用方法``com.virjar.dungproxy.client.ippool.IpPool.create`` 传递DungProxyContext到create方法即可
+
+##构造默认IpPool
+IpPool存在一个默认的实例,并且是单例静态的,因为作者希望IP池的使用足够简单,甚至可以简单到当成静态方法调用。IpPool的默认实例存放在``com.virjar.dungproxy.client.ippool.IpPoolHolder``,他是一个懒汉式,在调用``com.virjar.dungproxy.client.ippool.IpPoolHolder.getIpPool``的时候将会检查默认实例是否加载,并且尝试加载。所以这个时候如果初始化IP池,将会根据默认规则读取配置文件。
+为了支持将包含自定义规则的上下文注入默认IPPool,IpPoolHolder提供了另一个静态方法``com.virjar.dungproxy.client.ippool.IpPoolHolder.init``,传递DungProxyContext,则会使用传入的上下文初始化默认IPPool,但是需要注意执行本逻辑之前,没有直接或者间接的调用getIpPool方法,否则会导致默认规则加载。
+

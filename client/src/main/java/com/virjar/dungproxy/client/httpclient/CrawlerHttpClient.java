@@ -36,7 +36,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.execchain.ClientExecChain;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpParamsNames;
 import org.apache.http.protocol.BasicHttpContext;
@@ -45,7 +44,6 @@ import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.CharsetDetector;
 
@@ -464,12 +462,6 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     }
 
     private List<NameValuePair> convert(Map<String, String> params) {
-        List<NameValuePair> nameValuePairs = Lists.newArrayList();
-        if (params != null && params.size() > 0) {
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-            }
-        }
-        return nameValuePairs;
+        return NameValuePairBuilder.create().addParams(params).build();
     }
 }

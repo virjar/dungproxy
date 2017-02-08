@@ -34,7 +34,7 @@ public class WebMagicTest implements PageProcessor {
     public static void main(String[] args) throws IOException {
 
 
-        Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(5)
+        Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(50)
                 .addUrl("https://www.so.com/s?q=%E8%8C%89%E8%8E%89&pn=9")
                 .addUrl("https://www.so.com/s?q=%E6%A0%80%E5%AD%90%E8%8A%B1&pn=9").start();
 

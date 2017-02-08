@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,9 @@ public class PreHeater {
         start();
     }
 
+    /**
+     * 老代码兼容,设计所以改成静态方法
+     */
     public static void start() {
         PreHeater preHeater = DungProxyContext.create().buildDefaultConfigFile().handleConfig().getPreHeater();
         preHeater.doPreHeat();
@@ -138,8 +142,8 @@ public class PreHeater {
     /**
      * 运行时使用,IP再可用之前,先经历本校验
      *
-     * @param avProxy    代理
-     * @param url        测试URL
+     * @param avProxy 代理
+     * @param url 测试URL
      * @param domainPool 成功后放入的
      */
     public void check4UrlAsync(AvProxy avProxy, String url, DomainPool domainPool) {
@@ -154,6 +158,9 @@ public class PreHeater {
         try {
             return new UrlCheckTask(domainPool, avProxy, url).call();
         } catch (Exception e) {
+            if(e instanceof NullPointerException){
+                e.printStackTrace();
+            }
             return false;
         }
     }
@@ -179,7 +186,6 @@ public class PreHeater {
             this.url = url;
         }
 
-
         public UrlCheckTask(DomainPool domainPool, AvProxy avProxy, String url) {
             this.domainPool = domainPool;
             this.proxy = avProxy;
@@ -190,7 +196,6 @@ public class PreHeater {
             this.proxy = avProxy;// proxy.copy();
             this.url = url;
         }
-
 
         @Override
         public Boolean call() throws Exception {
@@ -230,6 +235,7 @@ public class PreHeater {
 
     private void unSerialize() {
         final Map<String, DomainPool> pool = Maps.newConcurrentMap();
+        stringDomainPoolMap = pool;
         Map<String, List<AvProxyVO>> stringListMap = dungProxyContext.getAvProxyDumper().unSerializeProxy();
         if (stringListMap == null) {
             return;

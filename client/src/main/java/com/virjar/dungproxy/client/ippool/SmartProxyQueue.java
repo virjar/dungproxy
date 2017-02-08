@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.model.CloudProxy;
 
 /**
  * 智能的代理管理容器。他是单独为代理IP这种打分模型设计的容器<br/>
@@ -78,7 +79,8 @@ public class SmartProxyQueue {
                 if (poll == null) {
                     return null;
                 }
-                if (System.currentTimeMillis() - poll.getLastUsedTime() < useInterval) {
+                if (!(poll instanceof CloudProxy)// 云代理不根据使用间隔进行封禁,因为他的后端应该存在大量IP
+                        && System.currentTimeMillis() - poll.getLastUsedTime() < useInterval) {
                     hasBlock = true;
                     blockedProxies.add(poll);// 使用频率太高,放到备用资源池
                     logger.info("IP:{}使用小于规定时间间隔{}秒,暂时封禁", poll.getIp(), (useInterval / 1000));

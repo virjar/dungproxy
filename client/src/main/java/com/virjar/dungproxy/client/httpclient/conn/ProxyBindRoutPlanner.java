@@ -1,18 +1,26 @@
 package com.virjar.dungproxy.client.httpclient.conn;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.SchemePortResolver;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.virjar.dungproxy.client.ippool.IpPool;
+import com.virjar.dungproxy.client.ippool.IpPoolHolder;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.model.AvProxy;
 
@@ -24,18 +32,32 @@ import com.virjar.dungproxy.client.model.AvProxy;
  */
 public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
-    public ProxyBindRoutPlanner() {
-        super(null);
-    }
-
     private static final Logger logger = LoggerFactory.getLogger(ProxyBindRoutPlanner.class);
+
+    private IpPool ipPool;
+
+    public ProxyBindRoutPlanner() {
+        this(null, null);
+    }
 
     /**
      * @param schemePortResolver schema解析器,可以传空,这个时候将会使用默认
      *            {org.apache.http.impl.conn.DefaultSchemePortResolver#INSTANCE}
      */
     public ProxyBindRoutPlanner(SchemePortResolver schemePortResolver) {
+        this(schemePortResolver, null);
+    }
+
+    /**
+     * @param schemePortResolver schema解析器,可以传空,这个时候将会使用默认
+     *            {org.apache.http.impl.conn.DefaultSchemePortResolver#INSTANCE}
+     */
+    public ProxyBindRoutPlanner(SchemePortResolver schemePortResolver, IpPool ipPool) {
         super(schemePortResolver);
+        if (ipPool == null) {
+            ipPool = IpPoolHolder.getIpPool();
+        }
+        this.ipPool = ipPool;
     }
 
     @Override
@@ -48,16 +70,37 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
         AvProxy bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
         if (bind == null || bind.isDisable()) {
-            bind = IpPool.getInstance().bind(target.getHostName(), accessUrl);
-        }
-        if (bind != null) {
-            logger.info("{} 当前使用IP为:{}:{}", target.getHostName(), bind.getIp(), bind.getPort());
-            bind.recordUsage();
-            // 将绑定IP放置到context,用于后置拦截器统计这个IP的使用情况
-            context.setAttribute(ProxyConstant.USED_PROXY_KEY, bind);
-            return new HttpHost(bind.getIp(), bind.getPort());
+            bind = ipPool.bind(target.getHostName(), accessUrl);
         }
 
-        return super.determineProxy(target, request, context);
+        if (bind == null) {
+            return super.determineProxy(target, request, context);
+        }
+
+        logger.info("{} 当前使用IP为:{}:{}", target.getHostName(), bind.getIp(), bind.getPort());
+        bind.recordUsage();
+        // 将绑定IP放置到context,用于后置拦截器统计这个IP的使用情况
+        context.setAttribute(ProxyConstant.USED_PROXY_KEY, bind);
+
+        // 如果代理有认证头部,则注入认证头部
+        if (bind.getAuthenticationHeaders() != null) {
+            for (Header header : bind.getAuthenticationHeaders()) {
+                request.addHeader(header);
+            }
+        }
+
+        // 注入用户名密码
+        if (StringUtils.isNotEmpty(bind.getUsername()) && StringUtils.isNotEmpty(bind.getPassword())) {
+            HttpClientContext httpClientContext = HttpClientContext.adapt(context);
+            CredentialsProvider credsProvider = httpClientContext.getCredentialsProvider();
+            if (credsProvider == null) {
+                credsProvider = new BasicCredentialsProvider();
+                httpClientContext.setCredentialsProvider(credsProvider);
+            }
+            // TODO 确定这个是在httpclient全局还是本次请求,如果是在全局的话,需要考虑并发了
+            credsProvider.setCredentials(new AuthScope(target),
+                    new UsernamePasswordCredentials(bind.getUsername(), bind.getPassword()));
+        }
+        return new HttpHost(bind.getIp(), bind.getPort());
     }
 }

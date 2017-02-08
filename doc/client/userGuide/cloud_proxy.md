@@ -9,3 +9,5 @@
 proxyclient.defaultProxyList=proxy.scumall.com:8081
 ```
 可以配置多个,多个逗号分割
+
+当前统一代理服务(云代理)的功能暂停支持,因为他没有在生产环境中测试过。后续版本再增加

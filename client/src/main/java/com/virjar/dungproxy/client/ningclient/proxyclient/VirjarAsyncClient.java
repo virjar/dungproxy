@@ -25,12 +25,13 @@ import com.ning.http.client.multipart.StringPart;
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig;
 import com.virjar.dungproxy.client.ningclient.concurrent.ManagedExecutors;
 import com.virjar.dungproxy.client.ningclient.concurrent.NamedThreadFactory;
+import com.virjar.dungproxy.client.ningclient.conn.DungProxyAsyncHttpProvider;
 import com.virjar.dungproxy.client.ningclient.http.AsyncClientHandler;
 import com.virjar.dungproxy.client.ningclient.http.GuavaListenableFuture;
 import com.virjar.dungproxy.client.ningclient.http.HttpOption;
 
-//jdk1.7没有这个方法,编译不通过
-//import static com.sun.deploy.Environment.setUserAgent;
+// jdk1.7没有这个方法,编译不通过
+// import static com.sun.deploy.Environment.setUserAgent;
 
 /**
  * Description: AsyncClient
@@ -59,7 +60,7 @@ public class VirjarAsyncClient {
         // request conf
         setConnectionTimeoutInMs(1000);
         setRequestTimeoutInMs(60000);
-       // setUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) Chrome/27.0.1453.94 Safari/537.36 hc/8.0.1");
+        // setUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) Chrome/27.0.1453.94 Safari/537.36 hc/8.0.1");
 
     }
 
@@ -73,12 +74,12 @@ public class VirjarAsyncClient {
         AsyncHttpClient.BoundRequestBuilder builder = getClient().prepareGet(url);
 
         if (option != null) {
-            //设置header
+            // 设置header
             for (Map.Entry<String, String> entry : option.getHeaders().entrySet()) {
                 builder.addHeader(entry.getKey(), entry.getValue());
             }
 
-            //设置代理
+            // 设置代理
             if (option.getProxy() != null) {
                 builder.setProxyServer(option.getProxy());
             }
@@ -93,7 +94,8 @@ public class VirjarAsyncClient {
         return new GuavaListenableFuture<T>(getClient().executeRequest(request, new AsyncClientHandler<T>(handler)));
     }
 
-    private <T> ListenableFuture<T> privatePost(final String url, HttpOption option, AsyncHandler<T> handler) throws IOException {
+    private <T> ListenableFuture<T> privatePost(final String url, HttpOption option, AsyncHandler<T> handler)
+            throws IOException {
         AsyncHttpClient.BoundRequestBuilder builder = getClient().preparePost(url);
         if (option != null) {
             Map<String, String> postFormData = option.getPostFormData();
@@ -126,7 +128,8 @@ public class VirjarAsyncClient {
         return new GuavaListenableFuture<T>(getClient().executeRequest(request, new AsyncClientHandler<T>(handler)));
     }
 
-    <T> ListenableFuture<T> privatePost(final String url, Map<String, String> params, HttpOption option, String charset, AsyncHandler<T> handler) throws IOException {
+    <T> ListenableFuture<T> privatePost(final String url, Map<String, String> params, HttpOption option, String charset,
+            AsyncHandler<T> handler) throws IOException {
         AsyncHttpClient.BoundRequestBuilder builder = getClient().preparePost(url);
         for (Map.Entry<String, String> entry : params.entrySet()) {
             StringPart part = new StringPart(entry.getKey(), entry.getValue(), null, Charset.forName(charset));
@@ -134,12 +137,12 @@ public class VirjarAsyncClient {
         }
 
         if (option != null) {
-            //设置header
+            // 设置header
             for (Map.Entry<String, String> entry : option.getHeaders().entrySet()) {
                 builder.addHeader(entry.getKey(), entry.getValue());
             }
 
-            //设置代理
+            // 设置代理
             if (option.getProxy() != null) {
                 builder.setProxyServer(option.getProxy());
             }
@@ -156,8 +159,8 @@ public class VirjarAsyncClient {
         return privateGet(url, null, handler);
     }
 
-
-    public <T> ListenableFuture<T> get(final String url, HttpOption option, AsyncHandler<T> handler) throws IOException {
+    public <T> ListenableFuture<T> get(final String url, HttpOption option, AsyncHandler<T> handler)
+            throws IOException {
         return privateGet(url, option, handler);
     }
 
@@ -192,7 +195,7 @@ public class VirjarAsyncClient {
         return get(url, option);
     }
 
-    //返回值见Futures.successfulAsList的注释
+    // 返回值见Futures.successfulAsList的注释
     public <T> ListenableFuture<List<T>> get(final Map<String, AsyncHandler<T>> urlAndHandlers) {
         ListenableFuture<T>[] futures = new ListenableFuture[urlAndHandlers.size()];
         int index = 0;
@@ -281,18 +284,21 @@ public class VirjarAsyncClient {
         }
     });
 
-    private static final Supplier<NioClientSocketChannelFactory> CHANNEL_FACTORY = Suppliers.memoize(new Supplier<NioClientSocketChannelFactory>() {
-        @Override
-        public NioClientSocketChannelFactory get() {
-            return new NioClientSocketChannelFactory(ManagedExecutors.getExecutor(), ManagedExecutors.getExecutor(), Runtime.getRuntime().availableProcessors());
-        }
-    });
+    private static final Supplier<NioClientSocketChannelFactory> CHANNEL_FACTORY = Suppliers
+            .memoize(new Supplier<NioClientSocketChannelFactory>() {
+                @Override
+                public NioClientSocketChannelFactory get() {
+                    return new NioClientSocketChannelFactory(ManagedExecutors.getExecutor(),
+                            ManagedExecutors.getExecutor(), Runtime.getRuntime().availableProcessors());
+                }
+            });
 
     private final Supplier<AsyncHttpClient> lazyClient = Suppliers.memoize(new Supplier<AsyncHttpClient>() {
 
         @Override
         public AsyncHttpClient get() {
-            builder.setExecutorService(ManagedExecutors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2, fact));
+            builder.setExecutorService(
+                    ManagedExecutors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2, fact));
             NettyAsyncHttpProviderConfig providerConfig = new NettyAsyncHttpProviderConfig();
             providerConfig.setNettyTimer(TIMER.get());
             if (shareExecutor) {
@@ -300,7 +306,8 @@ public class VirjarAsyncClient {
                 providerConfig.setSocketChannelFactory(CHANNEL_FACTORY.get());
             }
             builder.setAsyncHttpClientProviderConfig(providerConfig);
-            return new AsyncHttpClient(builder.build());
+            AsyncHttpClientConfig clientConfig = builder.build();
+            return new AsyncHttpClient(new DungProxyAsyncHttpProvider(null, clientConfig), clientConfig);
         }
     });
 

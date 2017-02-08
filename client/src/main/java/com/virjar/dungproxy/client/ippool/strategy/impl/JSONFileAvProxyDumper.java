@@ -35,7 +35,9 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
 
     @Override
     public void serializeProxy(Map<String, List<AvProxyVO>> data) {
-
+        if(data == null || data.size() ==0){
+            return;
+        }
         BufferedWriter bufferedWriter = null;
         if (serializing.compareAndSet(false, true)) {// 不允许并发的序列化,无意义
             try {
@@ -95,14 +97,19 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
      * @return 调整后的文件路径
      */
     private String trimFileName() {
-        if (StringUtils.isEmpty(dumpFileName)) {
-            dumpFileName = ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE_VALUE;
+        try {
+            if (StringUtils.isEmpty(dumpFileName)) {
+                dumpFileName = ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE_VALUE;
+            }
+            if (dumpFileName.startsWith("/") || dumpFileName.charAt(1) == ':') {
+                return dumpFileName;
+            }
+            String classPath = JSONFileAvProxyDumper.class.getResource("/").getFile();
+            dumpFileName = new File(classPath, dumpFileName).getAbsolutePath();
+        } finally {
+            logger.info("json序列化器,文件路径为:{}", dumpFileName);
         }
-        if (dumpFileName.startsWith("/") || dumpFileName.charAt(1) == ':') {
-            return dumpFileName;
-        }
-        String classPath = JSONFileAvProxyDumper.class.getResource("/").getFile();
-        return new File(classPath, dumpFileName).getAbsolutePath();
+        return dumpFileName;
     }
 
     @Override

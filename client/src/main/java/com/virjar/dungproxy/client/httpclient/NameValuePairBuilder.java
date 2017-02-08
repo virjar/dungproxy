@@ -1,6 +1,8 @@
 package com.virjar.dungproxy.client.httpclient;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -20,6 +22,22 @@ public class NameValuePairBuilder {
 
     public NameValuePairBuilder addParam(String name, String value) {
         params.add(new BasicNameValuePair(name, value));
+        return this;
+    }
+
+    public NameValuePairBuilder addParam(String name) {
+        return addParam(name, "");
+    }
+
+    public NameValuePairBuilder addParams(Map<String, String> params) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            addParam(entry.getKey(), entry.getValue());
+        }
+        return this;
+    }
+
+    public NameValuePairBuilder addParams(Collection<NameValuePair> params) {
+        this.params.addAll(params);
         return this;
     }
 
