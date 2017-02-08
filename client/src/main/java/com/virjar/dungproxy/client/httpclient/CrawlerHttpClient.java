@@ -337,6 +337,35 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
     }
 
+    public byte[] getEntity(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort, HttpClientContext httpClientContext) {
+        if (params != null && params.size() > 0) {
+            url = url + "?" + URLEncodedUtils.format(params, "utf-8");
+        }
+        HttpGet httpGet = new HttpGet(url);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
+                .setConnectTimeout(ProxyConstant.CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(ProxyConstant.REQUEST_TIMEOUT).setRedirectsEnabled(true)
+                .setCircularRedirectsAllowed(true);
+        if (StringUtils.isNotEmpty(proxyIp)) {
+            builder.setProxy(new HttpHost(proxyIp, proxyPort));
+        }
+        httpGet.setConfig(builder.build());
+
+        if (headers != null && headers.length > 0) {
+            httpGet.setHeaders(headers);
+        }
+        try {
+            return EntityUtils.toByteArray(execute(httpGet, httpClientContext).getEntity());
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public byte[] getEntity(String url) {
+        return getEntity(url, null, null, null, null, 0, null);
+    }
+
     public String post(String url, String entity, Charset charset, Header[] headers, String proxyIp, int proxyPort) {
         return post(url, new StringEntity(entity, ContentType.TEXT_PLAIN), charset, headers, proxyIp, proxyPort, null);
     }
