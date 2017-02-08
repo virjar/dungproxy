@@ -211,22 +211,21 @@ public class DungProxyContext {
     /**
      * 根据域名产生domain的schema
      * 
-     * @param domian
      * @return DomainContext
      */
-    public DomainContext genDomainContext(String domian) {
-        DomainContext domainContext = domainConfig.get(domian);
+    public DomainContext genDomainContext(String domain) {
+        DomainContext domainContext = domainConfig.get(domain);
         if (domainContext != null) {
             return domainContext;
         }
 
         synchronized (DungProxyContext.class) {
-            domainContext = domainConfig.get(domian);
+            domainContext = domainConfig.get(domain);
             if (domainContext != null) {
                 return domainContext;
             }
-            domainConfig.put(domian, DomainContext.create(domian).extendWithDungProxyContext(this));
-            return domainConfig.get(domian);
+            domainConfig.put(domain, DomainContext.create(domain).extendWithDungProxyContext(this));
+            return domainConfig.get(domain);
         }
     }
 
