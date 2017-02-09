@@ -214,8 +214,9 @@ public class SmartProxyQueue {
         public void remove() {
             if (firstCollection) {
                 activedProxies.remove();
+            } else {
+                blockedProxiesIterator.remove();
             }
-            blockedProxiesIterator.remove();
         }
     }
 

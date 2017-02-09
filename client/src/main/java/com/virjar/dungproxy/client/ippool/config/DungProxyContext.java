@@ -288,9 +288,9 @@ public class DungProxyContext {
         }
 
         // IP下载策略
-        String resouceFace = properties.getProperty(ProxyConstant.RESOURCE_FACADE);
-        if (StringUtils.isNotEmpty(resouceFace)) {
-            defaultResourceFacade = ObjectFactory.classForName(resouceFace);
+        String resourceFace = properties.getProperty(ProxyConstant.RESOURCE_FACADE);
+        if (StringUtils.isNotEmpty(resourceFace)) {
+            defaultResourceFacade = ObjectFactory.classForName(resourceFace);
             String defaultResourceServerAddress = properties.getProperty(ProxyConstant.DEFAULT_RESOURCE_SERVER_ADDRESS);
             if (StringUtils.isNotEmpty(defaultResourceServerAddress)) {
                 serverBaseUrl = defaultResourceServerAddress;
@@ -320,7 +320,7 @@ public class DungProxyContext {
 
         // 反馈时间
         String feedBackDurationProperties = properties.getProperty(ProxyConstant.FEEDBACK_DURATION);
-        if (StringUtils.isNoneEmpty(feedBackDurationProperties)) {
+        if (StringUtils.isNotEmpty(feedBackDurationProperties)) {
             feedBackDuration = NumberUtils.toLong(feedBackDurationProperties, 1200000);
         }
 
