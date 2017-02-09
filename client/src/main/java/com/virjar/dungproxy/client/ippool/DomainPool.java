@@ -6,8 +6,6 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.config.DomainContext;
-import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
@@ -37,8 +34,6 @@ public class DomainPool {
 
     private SmartProxyQueue smartProxyQueue;
 
-    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
-
     private List<AvProxy> removedProxies = Lists.newArrayList();
 
     // 备选的代理资源,他是通过IP下载器下载的的一批初始化IP,但是没有经过可用性测试
@@ -54,8 +49,6 @@ public class DomainPool {
 
     private DomainContext domainContext;
 
-    private DungProxyContext dungProxyContext;
-
     public DomainContext getDomainContext() {
         return domainContext;
     }
@@ -68,7 +61,6 @@ public class DomainPool {
         this.domain = domain;
         this.resourceFacade = domainContext.getResourceFacade();
         this.domainContext = domainContext;
-        dungProxyContext = domainContext.getDungProxyContext();
         smartProxyQueue = new SmartProxyQueue(domainContext.getSmartProxyQueueRatio(), domainContext.getUseInterval());
         if (defaultProxy != null) {
             addAvailable(defaultProxy);
@@ -105,13 +97,7 @@ public class DomainPool {
         if (needFresh()) {
             refresh();// 在新线程刷新
         }
-
-        readWriteLock.readLock().lock();
-        try {
-            return smartProxyQueue.getAndAdjustPriority();
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        return smartProxyQueue.getAndAdjustPriority();
     }
 
     /**
