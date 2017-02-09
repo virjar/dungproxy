@@ -8,7 +8,6 @@ import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
  */
 public class PreHeatertest {
     public static void main(String[] args) {
-        ProxyConstant.CLIENT_CONFIG_FILE_NAME ="proxyclient_dytt8.properties";//加载电影天堂的配置
         PreHeater.start();
     }
 }
