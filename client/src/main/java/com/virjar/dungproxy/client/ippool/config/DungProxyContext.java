@@ -26,7 +26,6 @@ import com.virjar.dungproxy.client.model.AvProxyVO;
 /**
  * Created by virjar on 17/1/23.<br/>
  * 适用在整个项目的上下文
- *
  */
 public class DungProxyContext {
     private AvProxyDumper avProxyDumper;
@@ -77,7 +76,7 @@ public class DungProxyContext {
     }
 
     public DungProxyContext setAvProxyDumper(AvProxyDumper avProxyDumper) {
-        this.avProxyDumper = avProxyDumper;
+        this.avProxyDumper = new AvProxyDumperWrapper(avProxyDumper);
         return this;
     }
 
@@ -227,7 +226,7 @@ public class DungProxyContext {
 
     /**
      * 根据域名产生domain的schema
-     * 
+     *
      * @param domian
      * @return DomainContext
      */
@@ -333,7 +332,8 @@ public class DungProxyContext {
         // 序列化接口
         String avDumper = properties.getProperty(ProxyConstant.PROXY_SERIALIZER);
         if (StringUtils.isNotEmpty(avDumper)) {
-            avProxyDumper = ObjectFactory.newInstance(avDumper);
+            AvProxyDumper tempDumper = ObjectFactory.newInstance(avDumper);
+            setAvProxyDumper(tempDumper);//对他做一层保证,防止空序列化
 
         }
         String defaultAvDumpeFileName = properties.getProperty(ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE);

@@ -12,7 +12,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.virjar.dungproxy.client.ippool.config.DomainContext;
 import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
@@ -76,7 +74,12 @@ public class PreHeater {
         if (hasInit.compareAndSet(false, true)) {
             pool = Executors.newFixedThreadPool(threadNumber);
             isRunning.set(true);
-            unSerialize();
+            AvProxy.needRecordChange = false;
+            try {
+                unSerialize();
+            } finally {
+                AvProxy.needRecordChange = true;
+            }
         }
     }
 
@@ -116,15 +119,14 @@ public class PreHeater {
                 continue;
             }
             for (AvProxy avProxy : entry.getValue().availableProxy()) {
-                futureList.add(pool.submit(new UrlCheckTask(avProxy, urlMap.get(entry.getKey()))));
+                futureList.add(pool.submit(new UrlCheckTask(AvProxyVO.fromModel(avProxy), urlMap.get(entry.getKey()))));
             }
         }
 
         // 加载服务器新导入的资源
         for (AvProxyVO avProxy : candidateProxies) {
             for (String url : taskUrls) {
-                futureList.add(pool.submit(new UrlCheckTask(
-                        dungProxyContext.genDomainContext(CommonUtil.extractDomain(url)), avProxy, url)));
+                futureList.add(pool.submit(new UrlCheckTask(avProxy, url)));
             }
         }
         CommonUtil.waitAllFutures(futureList);
@@ -139,86 +141,38 @@ public class PreHeater {
         return ret;
     }
 
-    /**
-     * 运行时使用,IP再可用之前,先经历本校验
-     *
-     * @param avProxy 代理
-     * @param url 测试URL
-     * @param domainPool 成功后放入的
-     */
-    public void check4UrlAsync(AvProxy avProxy, String url, DomainPool domainPool) {
-        if (!hasInit.get()) {
-            init();
-        }
-        pool.submit(new UrlCheckTask(domainPool, avProxy, url));
-
-    }
-
-    public boolean check4UrlSync(AvProxyVO avProxy, String url, DomainPool domainPool) {
-        try {
-            return new UrlCheckTask(domainPool, avProxy, url).call();
-        } catch (Exception e) {
-            if(e instanceof NullPointerException){
-                e.printStackTrace();
-            }
-            return false;
-        }
-    }
-
     private class UrlCheckTask implements Callable<Boolean> {
         String url;
-        AvProxy proxy;
-        DomainPool domainPool;
+        AvProxyVO proxy;
 
         UrlCheckTask(AvProxyVO proxy, String url) {
-            this.proxy = proxy.toModel(domainPool);// proxy.copy();
-            this.url = url;
-        }
-
-        public UrlCheckTask(DomainPool domainPool, AvProxyVO proxy, String url) {
-            this.domainPool = domainPool;
-            this.proxy = proxy.toModel(domainPool);
-            this.url = url;
-        }
-
-        public UrlCheckTask(DomainContext domainPool, AvProxyVO proxy, String url) {
-            this.proxy = proxy.toModel(domainPool);
-            this.url = url;
-        }
-
-        public UrlCheckTask(DomainPool domainPool, AvProxy avProxy, String url) {
-            this.domainPool = domainPool;
-            this.proxy = avProxy;
-            this.url = url;
-        }
-
-        public UrlCheckTask(AvProxy avProxy, String url) {
-            this.proxy = avProxy;// proxy.copy();
+            this.proxy = proxy;
             this.url = url;
         }
 
         @Override
         public Boolean call() throws Exception {
             String domain = CommonUtil.extractDomain(url);
+            DomainPool domainPool = stringDomainPoolMap.get(domain);
             if (domainPool == null) {
-                domainPool = stringDomainPoolMap.get(domain);
+                synchronized (UrlCheckTask.class) {
+                    domainPool = stringDomainPoolMap.get(domain);
+                    if (domainPool == null) {
+                        domainPool = new DomainPool(domain, dungProxyContext.genDomainContext(domain));
+                        stringDomainPoolMap.put(domain, domainPool);
+                    }
+                }
             }
-            if (domainPool == null) {
-                domainPool = new DomainPool(domain, dungProxyContext.genDomainContext(domain));
-                stringDomainPoolMap.put(domain, domainPool);
-            }
-            proxy.setDomainPool(domainPool);
             if (IpAvValidator.available(proxy, url)) {
-                domainPool.addAvailable(Lists.newArrayList(proxy));
-                logger.info("preHeater available test passed for proxy:{} for url:{}",
-                        JSONObject.toJSONString(AvProxyVO.fromModel(proxy)), url);
+                domainPool.addAvailable(proxy.toModel(domainPool));
+                logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(proxy),
+                        url);
 
                 if (passedProxyNumber.incrementAndGet() % dungProxyContext.getSerializeStep() == 0) {// 预热的时候,每产生20个IP,就序列化一次数据。
                     dungProxyContext.getAvProxyDumper().serializeProxy(getPoolInfo(stringDomainPoolMap));
                 }
                 return true;
             } else {
-                proxy.offline();
                 return false;
 
             }
