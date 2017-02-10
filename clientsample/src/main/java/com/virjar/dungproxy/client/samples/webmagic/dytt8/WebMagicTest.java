@@ -37,7 +37,7 @@ public class WebMagicTest implements PageProcessor {
     }
 
     public static void main(String[] args) throws IOException {
-        //以下是通过代码配置规则的方案
+        //以下是通过代码配置规则的方案,如果不使用配置文件,则可以解开注释,通过代码的方式
         /*
         WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
         whiteListProxyStrategy.addAllHost("www.dytt8.net,www.ygdy8.net");
