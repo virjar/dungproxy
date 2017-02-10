@@ -1,10 +1,7 @@
 
 package com.virjar.dungproxy.client.ippool;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -118,8 +115,11 @@ public class PreHeater {
             if (!urlMap.containsKey(entry.getKey())) {
                 continue;
             }
-            for (AvProxy avProxy : entry.getValue().availableProxy()) {
+            Iterator<AvProxy> iterator = entry.getValue().availableProxy().iterator();
+            while (iterator.hasNext()) {
+                AvProxy avProxy = iterator.next();
                 futureList.add(pool.submit(new UrlCheckTask(AvProxyVO.fromModel(avProxy), urlMap.get(entry.getKey()))));
+                iterator.remove();
             }
         }
 
