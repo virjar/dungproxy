@@ -7,6 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.virjar.dungproxy.client.ippool.IpPoolHolder;
+import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
+import com.virjar.dungproxy.client.ippool.strategy.impl.WhiteListProxyStrategy;
 import com.virjar.dungproxy.client.webmagic.DungProxyDownloader;
 
 import us.codecraft.webmagic.Page;
@@ -34,6 +37,18 @@ public class WebMagicTest implements PageProcessor {
     }
 
     public static void main(String[] args) throws IOException {
+        //以下是通过代码配置规则的方案
+        /*
+        WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
+        whiteListProxyStrategy.addAllHost("www.dytt8.net,www.ygdy8.net");
+
+        // Step2 创建并定制代理规则
+        DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy);
+
+        // Step3 使用代理规则初始化默认IP池
+        IpPoolHolder.init(dungProxyContext);
+        */
+
         Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(30)
                 .addUrl("http://www.dytt8.net/index.html").addUrl("http://www.ygdy8.net/html/gndy/dyzz/index.html")
                 .addUrl("http://www.dytt8.net/html/gndy/index.html").run();
