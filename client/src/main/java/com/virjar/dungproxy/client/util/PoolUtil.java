@@ -61,4 +61,25 @@ public class PoolUtil {
     public static AvProxy getBindProxy(HttpClientContext httpClientContext) {
         return httpClientContext.getAttribute(ProxyConstant.USED_PROXY_KEY, AvProxy.class);
     }
+
+    /**
+     * 禁止 com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner 插件使用dungproxy
+     * 
+     * @see com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner
+     */
+    public static void disableDungProxy(HttpClientContext httpClientContext) {
+        httpClientContext.setAttribute(ProxyConstant.DISABLE_DUNGPROXY_KEY, Boolean.TRUE);
+    }
+
+    /**
+     * dungProxy是否启用
+     * 
+     * @param httpClientContext
+     * @return
+     */
+    public static boolean isDungProxyEnabled(HttpClientContext httpClientContext) {
+        Object attribute = httpClientContext.getAttribute(ProxyConstant.DISABLE_DUNGPROXY_KEY);
+        return attribute == null || !Boolean.TRUE.equals(attribute);
+    }
+
 }

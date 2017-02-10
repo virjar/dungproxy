@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,7 @@ import com.virjar.dungproxy.client.httpclient.NameValuePairBuilder;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.model.FeedBackForm;
+import com.virjar.dungproxy.client.util.PoolUtil;
 
 /**
  * Created by virjar on 16/9/29.
@@ -61,7 +63,10 @@ public class DefaultResourceFacade implements ResourceFacade {
         List<NameValuePair> valuePairList = nameValuePairBuilder.build();
 
         logger.info("默认IP下载器,IP下载URL:{}", avUrl);
-        String response = HttpInvoker.post(avUrl, valuePairList);
+        HttpClientContext httpClientContext = HttpClientContext.create();
+        PoolUtil.disableDungProxy(httpClientContext);
+        String response = HttpInvoker.post(avUrl, valuePairList, httpClientContext);
+
         if (StringUtils.isBlank(response)) {
             logger.error("can not get available ip resource from server: request body is {}",
                     JSONObject.toJSONString(valuePairList));
@@ -93,7 +98,9 @@ public class DefaultResourceFacade implements ResourceFacade {
     @Override
     public List<AvProxyVO> allAvailable() {
         logger.info("默认IP下载器,IP下载URL:{}", allAvUrl);
-        String response = HttpInvoker.get(allAvUrl);
+        HttpClientContext httpClientContext = HttpClientContext.create();
+        PoolUtil.disableDungProxy(httpClientContext);
+        String response = HttpInvoker.get(allAvUrl, httpClientContext);
         if (StringUtils.isBlank(response)) {
             logger.error("can not get available ip resource from server: ");
             return Lists.newArrayList();

@@ -191,6 +191,19 @@ public class HttpInvoker {
         return crawlerHttpClient.post(url, params, headers);
     }
 
+    public static String post(String url, List<NameValuePair> params, HttpClientContext httpClientContext) {
+        return crawlerHttpClient.post(url, params, httpClientContext);
+    }
+
+    public static byte[] getEntity(String url) {
+        return crawlerHttpClient.getEntity(url);
+    }
+
+    public static byte[] getEntity(String url, List<NameValuePair> params, Charset charset, Header[] headers,
+            String proxyIp, int proxyPort, HttpClientContext httpClientContext) {
+        return crawlerHttpClient.getEntity(url, params, charset, headers, proxyIp, proxyPort, httpClientContext);
+    }
+
     public static String post(String url, Map<String, String> params, HttpClientContext httpClientContext) {
         return crawlerHttpClient.post(url, params, httpClientContext);
     }

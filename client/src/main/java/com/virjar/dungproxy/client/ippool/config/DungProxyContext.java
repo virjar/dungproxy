@@ -58,7 +58,7 @@ public class DungProxyContext {
      */
     private void fillDefaultStrategy() {
         avProxyDumper = new JSONFileAvProxyDumper();
-        needProxyStrategy = new WhiteListProxyStrategy();
+        needProxyStrategy = new ProxyAllStrategy();// new WhiteListProxyStrategy();
         feedBackDuration = 1200000;// 20分钟一次 反馈
         defaultResourceFacade = DefaultResourceFacade.class;
         defaultOffliner = DefaultOffliner.class;
@@ -298,24 +298,30 @@ public class DungProxyContext {
         }
 
         // IP代理策略
-        String proxyDomainStrategy = properties.getProperty(ProxyConstant.PROXY_DOMAIN_STRATEGY,
-                ProxyConstant.DEFAULT_DOMAIN_STRATEGY);
+        String proxyDomainStrategy = properties.getProperty(ProxyConstant.PROXY_DOMAIN_STRATEGY);
+        if (StringUtils.isEmpty(proxyDomainStrategy)) {// 如果没有明确配置代理策略,则以黑白名单key值为主
+            if (properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY) != null) {
+                proxyDomainStrategy = WhiteListProxyStrategy.class.getName();
+            } else if (properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY) != null) {
+                proxyDomainStrategy = BlackListProxyStrategy.class.getName();
+            } else {// 如果都没有,则默认代理所有请求
+                proxyDomainStrategy = ProxyAllStrategy.class.getName();
+            }
+        }
         if ("WHITE_LIST".equalsIgnoreCase(proxyDomainStrategy)) {
             proxyDomainStrategy = WhiteListProxyStrategy.class.getName();
         } else if ("BLACK_LIST".equalsIgnoreCase(proxyDomainStrategy)) {
             proxyDomainStrategy = BlackListProxyStrategy.class.getName();
         }
-        if (StringUtils.isNotEmpty(proxyDomainStrategy)) {
-            needProxyStrategy = ObjectFactory.newInstance(proxyDomainStrategy);
-            if (needProxyStrategy instanceof WhiteListProxyStrategy) {
-                WhiteListProxyStrategy whiteListProxyStrategy = (WhiteListProxyStrategy) needProxyStrategy;
-                String whiteListProperty = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
-                whiteListProxyStrategy.addAllHost(whiteListProperty);
-            } else if (needProxyStrategy instanceof BlackListProxyStrategy) {
-                BlackListProxyStrategy blackListProxyStrategy = (BlackListProxyStrategy) needProxyStrategy;
-                String proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
-                blackListProxyStrategy.addAllHost(proxyDomainStrategyWhiteList);
-            }
+        needProxyStrategy = ObjectFactory.newInstance(proxyDomainStrategy);
+        if (needProxyStrategy instanceof WhiteListProxyStrategy) {
+            WhiteListProxyStrategy whiteListProxyStrategy = (WhiteListProxyStrategy) needProxyStrategy;
+            String whiteListProperty = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
+            whiteListProxyStrategy.addAllHost(whiteListProperty);
+        } else if (needProxyStrategy instanceof BlackListProxyStrategy) {
+            BlackListProxyStrategy blackListProxyStrategy = (BlackListProxyStrategy) needProxyStrategy;
+            String proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
+            blackListProxyStrategy.addAllHost(proxyDomainStrategyWhiteList);
         }
 
         // 反馈时间
@@ -334,7 +340,6 @@ public class DungProxyContext {
         if (StringUtils.isNotEmpty(defaultAvDumpeFileName)) {
             avProxyDumper.setDumpFileName(defaultAvDumpeFileName);
         }
-
 
         String preHeaterTaskList = properties.getProperty(ProxyConstant.PREHEATER_TASK_LIST);
         if (StringUtils.isNotEmpty(preHeaterTaskList)) {
