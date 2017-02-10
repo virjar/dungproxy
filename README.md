@@ -25,27 +25,12 @@ qq 群,人肉文档支持😁
 <dependency>
     <groupId>com.virjar</groupId>
     <artifactId>dungproxy-client</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 ##快速开始
 
 ```
-// Step1 代理策略,确定那些请求将会被代理池代理
-WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
-whiteListProxyStrategy.addAllHost("www.baidu.com");
-
-//确定缓存文件位置,如果没有预热,可以不指定
-JSONFileAvProxyDumper jsonFileAvProxyDumper = new JSONFileAvProxyDumper();
-jsonFileAvProxyDumper.setDumpFileName("/path to file name");
-// Step2 创建并定制代理规则
-DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy)
-        .setAvProxyDumper(jsonFileAvProxyDumper);
-
-// Step3 使用代理规则初始化默认IP池
-IpPoolHolder.init(dungProxyContext);
-
-// step 4 将代理池注册到httpclient(两个为httpclient做的适配插件)
 HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 httpClientBuilder.setRetryHandler(new DunProxyHttpRequestRetryHandler(null))
         .setRoutePlanner(new ProxyBindRoutPlanner());

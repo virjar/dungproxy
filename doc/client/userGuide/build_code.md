@@ -10,7 +10,7 @@ client已经发布在maven,maven坐标是
 <dependency>
     <groupId>com.virjar</groupId>
     <artifactId>dungproxy-client</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 如果你是maven项目,添加此依赖即可
