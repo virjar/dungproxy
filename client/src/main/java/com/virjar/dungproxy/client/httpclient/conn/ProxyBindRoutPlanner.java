@@ -104,7 +104,7 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
                 httpClientContext.setCredentialsProvider(credsProvider);
             }
             // TODO 确定这个是在httpclient全局还是本次请求,如果是在全局的话,需要考虑并发了
-            credsProvider.setCredentials(new AuthScope(target),
+            credsProvider.setCredentials(AuthScope.ANY,
                     new UsernamePasswordCredentials(bind.getUsername(), bind.getPassword()));
         }
         return new HttpHost(bind.getIp(), bind.getPort());

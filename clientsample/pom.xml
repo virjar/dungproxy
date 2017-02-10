@@ -8,7 +8,7 @@
         <version>0.0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
+    <version>${parent.version}</version>
     <artifactId>dungclient-sample</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>com.virjar</groupId>
             <artifactId>dungproxy-client</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${parent.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
