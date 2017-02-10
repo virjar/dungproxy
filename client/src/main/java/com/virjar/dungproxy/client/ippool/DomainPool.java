@@ -6,8 +6,6 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +14,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.config.DomainContext;
-import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
+import com.virjar.dungproxy.client.model.CloudProxy;
 import com.virjar.dungproxy.client.util.IpAvValidator;
 
 /**
@@ -37,8 +35,6 @@ public class DomainPool {
 
     private SmartProxyQueue smartProxyQueue;
 
-    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
-
     private List<AvProxy> removedProxies = Lists.newArrayList();
 
     // 备选的代理资源,他是通过IP下载器下载的的一批初始化IP,但是没有经过可用性测试
@@ -54,8 +50,6 @@ public class DomainPool {
 
     private DomainContext domainContext;
 
-    private DungProxyContext dungProxyContext;
-
     public DomainContext getDomainContext() {
         return domainContext;
     }
@@ -68,7 +62,6 @@ public class DomainPool {
         this.domain = domain;
         this.resourceFacade = domainContext.getResourceFacade();
         this.domainContext = domainContext;
-        dungProxyContext = domainContext.getDungProxyContext();
         smartProxyQueue = new SmartProxyQueue(domainContext.getSmartProxyQueueRatio(), domainContext.getUseInterval());
         if (defaultProxy != null) {
             addAvailable(defaultProxy);
@@ -76,7 +69,16 @@ public class DomainPool {
 
         // for cloud proxy
         for (AvProxyVO cloudProxy : domainContext.getDungProxyContext().getCloudProxies()) {
-            addAvailable(cloudProxy.toModel(this));
+            if (cloudProxy.getCloudCopyNumber() == null || cloudProxy.getCloudCopyNumber() < 1
+                    || !cloudProxy.getCloud()) {
+                addAvailable(cloudProxy.toModel(this));
+            } else {
+                for (int i = 0; i < cloudProxy.getCloudCopyNumber(); i++) {
+                    CloudProxy avProxy = (CloudProxy) cloudProxy.toModel(this);
+                    avProxy.setOffset(i);
+                    addAvailable(avProxy);
+                }
+            }
         }
     }
 
@@ -105,18 +107,12 @@ public class DomainPool {
         if (needFresh()) {
             refresh();// 在新线程刷新
         }
-
-        readWriteLock.readLock().lock();
-        try {
-            return smartProxyQueue.getAndAdjustPriority();
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        return smartProxyQueue.getAndAdjustPriority();
     }
 
     /**
      * 当前IP池是否需要下载新的IP资源。
-     * 
+     *
      * @return 是否
      */
     public boolean needFresh() {
@@ -128,7 +124,7 @@ public class DomainPool {
 
     /**
      * 动态调整IP刷新线程数量
-     * 
+     *
      * @return 现在可以运行的线程数量
      */
     private int expectedRefreshTaskNumber() {
@@ -162,7 +158,6 @@ public class DomainPool {
 
     /**
      * 本方法会启动线程异步刷线,所以不需要自己建立线程环境了,他不会检查可用IP是否足量,但是如果IP本身量太大的话,本调用也几乎无效(会检查是否需要下载IP,这个检查会失败),
-     *
      */
     public void refresh() {
         if (testUrls.size() == 0) {

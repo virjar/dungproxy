@@ -60,9 +60,9 @@ public class IpPool {
         feedBackThread.start();
 
         // 资源刷新线程,当前本任务意义不大了,因为资源刷新都是在实时计算和异步启动
-        FreshResourceThread freshResourceThread = new FreshResourceThread();
-        freshResourceThread.setDaemon(true);
-        freshResourceThread.start();
+        // FreshResourceThread freshResourceThread = new FreshResourceThread();
+        // freshResourceThread.setDaemon(true);
+        // freshResourceThread.start();
 
     }
 

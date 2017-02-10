@@ -23,6 +23,7 @@ import com.virjar.dungproxy.client.ippool.IpPool;
 import com.virjar.dungproxy.client.ippool.IpPoolHolder;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.model.AvProxy;
+import com.virjar.dungproxy.client.util.PoolUtil;
 
 /**
  * 如果是和原生httpclient集成,必须将她放置到httpclientBuilder中,如果使用我们默认提供的,则无需设置,他将会自动植入<br/>
@@ -62,19 +63,24 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
     @Override
     protected HttpHost determineProxy(HttpHost target, HttpRequest request, HttpContext context) throws HttpException {
+        HttpClientContext httpClientContext = HttpClientContext.adapt(context);
 
+        AvProxy bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
         String accessUrl = null;
         if (request instanceof HttpRequestWrapper || request instanceof HttpGet) {
             accessUrl = HttpUriRequest.class.cast(request).getURI().toString();
         }
+        if (!PoolUtil.isDungProxyEnabled(httpClientContext)) {
+            logger.info("{}不会被代理", accessUrl);
+            return null;
+        }
 
-        AvProxy bind = (AvProxy) context.getAttribute(ProxyConstant.USED_PROXY_KEY);
         if (bind == null || bind.isDisable()) {
             bind = ipPool.bind(target.getHostName(), accessUrl);
         }
 
         if (bind == null) {
-            return super.determineProxy(target, request, context);
+            return null;
         }
 
         logger.info("{} 当前使用IP为:{}:{}", target.getHostName(), bind.getIp(), bind.getPort());
@@ -91,14 +97,14 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
         // 注入用户名密码
         if (StringUtils.isNotEmpty(bind.getUsername()) && StringUtils.isNotEmpty(bind.getPassword())) {
-            HttpClientContext httpClientContext = HttpClientContext.adapt(context);
+
             CredentialsProvider credsProvider = httpClientContext.getCredentialsProvider();
             if (credsProvider == null) {
                 credsProvider = new BasicCredentialsProvider();
                 httpClientContext.setCredentialsProvider(credsProvider);
             }
             // TODO 确定这个是在httpclient全局还是本次请求,如果是在全局的话,需要考虑并发了
-            credsProvider.setCredentials(new AuthScope(target),
+            credsProvider.setCredentials(AuthScope.ANY,
                     new UsernamePasswordCredentials(bind.getUsername(), bind.getPassword()));
         }
         return new HttpHost(bind.getIp(), bind.getPort());
