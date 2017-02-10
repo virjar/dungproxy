@@ -17,6 +17,7 @@ import com.virjar.dungproxy.client.ippool.config.DomainContext;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
+import com.virjar.dungproxy.client.model.CloudProxy;
 import com.virjar.dungproxy.client.util.IpAvValidator;
 
 /**
@@ -68,7 +69,16 @@ public class DomainPool {
 
         // for cloud proxy
         for (AvProxyVO cloudProxy : domainContext.getDungProxyContext().getCloudProxies()) {
-            addAvailable(cloudProxy.toModel(this));
+            if (cloudProxy.getCloudCopyNumber() == null || cloudProxy.getCloudCopyNumber() < 1
+                    || !cloudProxy.getCloud()) {
+                addAvailable(cloudProxy.toModel(this));
+            } else {
+                for (int i = 0; i < cloudProxy.getCloudCopyNumber(); i++) {
+                    CloudProxy avProxy = (CloudProxy) cloudProxy.toModel(this);
+                    avProxy.setOffset(i);
+                    addAvailable(avProxy);
+                }
+            }
         }
     }
 
@@ -102,7 +112,7 @@ public class DomainPool {
 
     /**
      * 当前IP池是否需要下载新的IP资源。
-     * 
+     *
      * @return 是否
      */
     public boolean needFresh() {
@@ -114,7 +124,7 @@ public class DomainPool {
 
     /**
      * 动态调整IP刷新线程数量
-     * 
+     *
      * @return 现在可以运行的线程数量
      */
     private int expectedRefreshTaskNumber() {
@@ -148,7 +158,6 @@ public class DomainPool {
 
     /**
      * 本方法会启动线程异步刷线,所以不需要自己建立线程环境了,他不会检查可用IP是否足量,但是如果IP本身量太大的话,本调用也几乎无效(会检查是否需要下载IP,这个检查会失败),
-     *
      */
     public void refresh() {
         if (testUrls.size() == 0) {
