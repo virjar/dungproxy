@@ -42,6 +42,6 @@ public class NameValuePairBuilder {
     }
 
     public List<NameValuePair> build() {
-        return params;
+        return Lists.newArrayList(params);
     }
 }
