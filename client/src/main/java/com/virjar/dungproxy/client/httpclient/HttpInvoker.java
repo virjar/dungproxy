@@ -12,11 +12,15 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 
+import com.virjar.dungproxy.client.httpclient.cookie.BarrierCookieStore;
+import com.virjar.dungproxy.client.httpclient.cookie.CookieStoreGenerator;
+import com.virjar.dungproxy.client.httpclient.cookie.MultiUserCookieStore;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 
 /**
@@ -56,7 +60,13 @@ public class HttpInvoker {
 
         crawlerHttpClient = CrawlerHttpClientBuilder.create().setMaxConnTotal(1000).setMaxConnPerRoute(50)
                 .setDefaultSocketConfig(socketConfig).setSSLSocketFactory(sslConnectionSocketFactory)
-                .setRedirectStrategy(new LaxRedirectStrategy()).setDefaultCookieStore(new BarrierCookieStore()).build();
+                .setRedirectStrategy(new LaxRedirectStrategy())
+                .setDefaultCookieStore(new MultiUserCookieStore(new CookieStoreGenerator() {
+                    @Override
+                    public CookieStore generate() {
+                        return new BarrierCookieStore();
+                    }
+                })).build();
     }
 
     public static String postJSON(String url, Object entity, Header[] headers) {
