@@ -31,13 +31,9 @@ public class PlainTextFileAvProxyDumper implements AvProxyDumper {
 	private Logger logger = LoggerFactory.getLogger(PlainTextFileAvProxyDumper.class);
 	private String dumpFileName;
 
-	public PlainTextFileAvProxyDumper() {
-		// TODO Auto-generated constructor stub
-	}
 
 	@Override
 	public void setDumpFileName(String dumpFileName) {
-		// TODO Auto-generated method stub
 		this.dumpFileName = dumpFileName;
 	}
 

@@ -107,7 +107,7 @@ public class DomainPool {
         if (needFresh()) {
             refresh();// 在新线程刷新
         }
-        return smartProxyQueue.getAndAdjustPriority();
+        return smartProxyQueue.getAndAdjustPriority((smartProxyQueue.availableSize() / (double) coreSize) < 0.3);
     }
 
     /**

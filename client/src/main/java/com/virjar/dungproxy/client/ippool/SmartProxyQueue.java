@@ -69,7 +69,12 @@ public class SmartProxyQueue {
 
     }
 
-    public AvProxy getAndAdjustPriority() {
+    /**
+     *
+     * @param adjustTail 是否调整到队列尾部,这个时候使用的是整体空间的轮询模型,而不是局部轮询。主要适用IP数量较少的时候,全部轮询
+     * @return
+     */
+    public AvProxy getAndAdjustPriority(boolean adjustTail) {
         mutex.lock();
         boolean hasBlock = false;
         try {
@@ -87,7 +92,10 @@ public class SmartProxyQueue {
                     logger.info("IP:{}使用小于规定时间间隔{}秒,暂时封禁", poll.getIp(), (useInterval / 1000));
                     continue;
                 }
-                int index = (int) (proxies.size() * ratio);
+                int index = proxies.size() - 1;
+                if (!adjustTail) {
+                    index = (int) (proxies.size() * ratio);
+                }
                 proxies.add(index, poll);
                 return poll;
             }
