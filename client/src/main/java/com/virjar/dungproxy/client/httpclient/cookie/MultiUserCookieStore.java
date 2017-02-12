@@ -29,7 +29,7 @@ public class MultiUserCookieStore implements CookieStore {
         if (cookieStoreGenerator == null) {
             cookieStoreGenerator = new CookieStoreGenerator() {
                 @Override
-                public CookieStore generate() {
+                public CookieStore generate(String user) {
                     return new BasicCookieStore();
                 }
             };
@@ -57,19 +57,19 @@ public class MultiUserCookieStore implements CookieStore {
         clear(null);
     }
 
-    public void addCookie(Cookie cookie, Object user) {
+    public void addCookie(Cookie cookie, String user) {
         createOrGetCookieStore(user).addCookie(cookie);
     }
 
-    public List<Cookie> getCookies(Object user) {
+    public List<Cookie> getCookies(String user) {
         return createOrGetCookieStore(user).getCookies();
     }
 
-    public boolean clearExpired(Date date, Object user) {
+    public boolean clearExpired(Date date, String user) {
         return createOrGetCookieStore(user).clearExpired(date);
     }
 
-    public void clear(Object user) {
+    public void clear(String user) {
         createOrGetCookieStore(user).clear();
     }
 
@@ -79,7 +79,7 @@ public class MultiUserCookieStore implements CookieStore {
         }
     }
 
-    private CookieStore createOrGetCookieStore(Object user) {
+    private CookieStore createOrGetCookieStore(String user) {
         if (user == null) {
             user = DEFAULT_USER;
         }
@@ -88,7 +88,7 @@ public class MultiUserCookieStore implements CookieStore {
             synchronized (MultiUserCookieStore.class) {
                 cookieStore = cookieStores.get(user);
                 if (cookieStore == null) {
-                    cookieStores.put(user, cookieStoreGenerator.generate());
+                    cookieStores.put(user, cookieStoreGenerator.generate(user));
                     cookieStore = cookieStores.get(user);
                 }
             }

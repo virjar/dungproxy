@@ -6,5 +6,5 @@ import org.apache.http.client.CookieStore;
  * Created by virjar on 17/2/11.
  */
 public interface CookieStoreGenerator {
-    CookieStore generate();
+    CookieStore generate(String user);
 }

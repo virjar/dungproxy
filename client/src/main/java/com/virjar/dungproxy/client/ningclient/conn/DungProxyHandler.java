@@ -11,11 +11,11 @@ import com.virjar.dungproxy.client.model.AvProxy;
 /**
  * Created by virjar on 17/1/31.
  */
-public class ExceptionListenHandler<T> implements AsyncHandler<T> {
+public class DungProxyHandler<T> implements AsyncHandler<T> {
     private AvProxy avProxy;// 绑定在这次请求的代理实例
     private AsyncHandler<T> delegate;
 
-    public ExceptionListenHandler(AvProxy avProxy, AsyncHandler<T> delegate) {
+    public DungProxyHandler(AvProxy avProxy, AsyncHandler<T> delegate) {
         this.avProxy = avProxy;
         this.delegate = delegate;
     }

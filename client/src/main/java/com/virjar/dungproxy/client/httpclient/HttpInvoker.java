@@ -63,7 +63,7 @@ public class HttpInvoker {
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .setDefaultCookieStore(new MultiUserCookieStore(new CookieStoreGenerator() {
                     @Override
-                    public CookieStore generate() {
+                    public CookieStore generate(String user) {
                         return new BarrierCookieStore();
                     }
                 })).build();

@@ -128,7 +128,8 @@ public class DungProxyRequestAddCookies implements HttpRequestInterceptor {
         if (cookieStore instanceof MultiUserCookieStore
                 && clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY) != null) {
             MultiUserCookieStore multiUserCookieStore = (MultiUserCookieStore) cookieStore;
-            cookies = multiUserCookieStore.getCookies(clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY));
+            cookies = multiUserCookieStore
+                    .getCookies(clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY).toString());
         } else {
             cookies = cookieStore.getCookies();
         }

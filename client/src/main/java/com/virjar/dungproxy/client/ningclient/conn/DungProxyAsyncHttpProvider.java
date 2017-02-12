@@ -48,8 +48,8 @@ public class DungProxyAsyncHttpProvider implements AsyncHttpProvider {
         if (request.getProxyServer() == null) {// 在这里绑定IP池
             AvProxy proxy = ipPool.bind(uri.getHost(), uri.toUrl());
             if (proxy != null) {
-                return delegate.execute(new ExceptionListenRequest(request, proxy),
-                        new ExceptionListenHandler<>(proxy, handler));
+                return delegate.execute(new DungProxyRequest(request, proxy),
+                        new DungProxyHandler<>(proxy, handler));
             }
         }
         return delegate.execute(request, handler);

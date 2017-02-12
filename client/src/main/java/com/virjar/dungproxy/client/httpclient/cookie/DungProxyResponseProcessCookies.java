@@ -72,7 +72,8 @@ public class DungProxyResponseProcessCookies implements HttpResponseInterceptor 
         if (cookieStore instanceof MultiUserCookieStore
                 && clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY) != null) {
             MultiUserCookieStore multiUserCookieStore = (MultiUserCookieStore) cookieStore;
-            multiUserCookieStore.addCookie(cookie, clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY));
+            multiUserCookieStore.addCookie(cookie,
+                    clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY).toString());
         } else {
             cookieStore.addCookie(cookie);
         }

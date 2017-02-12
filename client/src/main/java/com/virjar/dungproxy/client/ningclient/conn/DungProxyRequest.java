@@ -18,12 +18,12 @@ import com.virjar.dungproxy.client.model.AvProxy;
 /**
  * Created by virjar on 17/1/31.
  */
-public class ExceptionListenRequest implements Request {
-    private Logger logger = LoggerFactory.getLogger(ExceptionListenRequest.class);
+public class DungProxyRequest implements Request {
+    private Logger logger = LoggerFactory.getLogger(DungProxyRequest.class);
     private Request delegate;
     private AvProxy avProxy;
 
-    public ExceptionListenRequest(Request delegate, AvProxy avProxy) {
+    public DungProxyRequest(Request delegate, AvProxy avProxy) {
         this.delegate = delegate;
         this.avProxy = avProxy;
     }
