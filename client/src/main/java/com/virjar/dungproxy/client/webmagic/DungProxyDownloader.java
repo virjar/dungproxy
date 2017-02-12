@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.PoolUtil;
 import com.virjar.dungproxy.client.util.ReflectUtil;
 
@@ -133,6 +134,11 @@ public class DungProxyDownloader extends AbstractDownloader {
 
             HttpUriRequest httpUriRequest = getHttpUriRequest(request, site, headers, proxyHost);
             httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
+            // 扩展功能,支持多用户隔离,默认使用的是crawlerHttpClient,crawlerHttpClient默认则使用multiUserCookieStore
+            if (request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY) != null) {
+                PoolUtil.bindUserKey(httpClientContext, request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY).toString());
+            }
+
             httpResponse = getHttpClient(site, proxy).execute(httpUriRequest, httpClientContext);
             statusCode = httpResponse.getStatusLine().getStatusCode();
             request.putExtra(Request.STATUS_CODE, statusCode);
