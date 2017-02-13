@@ -14,6 +14,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
+import com.virjar.dungproxy.client.util.CommonUtil;
 
 /**
  * Response interceptor that populates the current {@link CookieStore} with data contained in response cookies received
@@ -69,11 +70,10 @@ public class DungProxyResponseProcessCookies implements HttpResponseInterceptor 
     }
 
     private void addCookie(CookieStore cookieStore, Cookie cookie, HttpClientContext clientContext) {
-        if (cookieStore instanceof MultiUserCookieStore
-                && clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY) != null) {
+        if (cookieStore instanceof MultiUserCookieStore) {
             MultiUserCookieStore multiUserCookieStore = (MultiUserCookieStore) cookieStore;
             multiUserCookieStore.addCookie(cookie,
-                    clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY).toString());
+                    CommonUtil.safeToString(clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY)));
         } else {
             cookieStore.addCookie(cookie);
         }

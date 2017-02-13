@@ -11,12 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created by virjar on 16/9/16.
@@ -83,7 +79,7 @@ public class CommonUtil {
         }
 
         Matcher matcher = ipPattern.matcher(ipAddress);
-        return matcher.find();
+        return matcher.matches();
     }
 
     public static boolean isPlainProxyItem(String ipAndPort) {
@@ -107,17 +103,10 @@ public class CommonUtil {
         return startTime;
     }
 
-    private static final List<Header> defaultHeaders = Lists.newArrayList();
-    static {
-        defaultHeaders.add(new BasicHeader("Accept",
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
-        // 这个默认会添加,值为 gzip, deflate
-        // defaultHeaders.add(new BasicHeader("Accept-Encoding", "gzip, deflate, sdch, br"));
-        defaultHeaders.add(new BasicHeader("Accept-Language", "en-US,en;q=0.8"));
-        defaultHeaders.add(new BasicHeader("Cache-Control", "max-age=0"));
-    }
-
-    public static List<Header> defaultHeader() {
-        return defaultHeaders;
+    public static String safeToString(Object object) {
+        if (object == null) {
+            return null;
+        }
+        return object.toString();
     }
 }

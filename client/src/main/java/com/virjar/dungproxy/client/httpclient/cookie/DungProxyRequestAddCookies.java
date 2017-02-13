@@ -27,6 +27,7 @@ import org.apache.http.util.Args;
 import org.apache.http.util.TextUtils;
 
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
+import com.virjar.dungproxy.client.util.CommonUtil;
 
 /**
  * Request interceptor that matches cookies available in the current {@link CookieStore} to the request being executed
@@ -125,11 +126,10 @@ public class DungProxyRequestAddCookies implements HttpRequestInterceptor {
         // Get all cookies available in the HTTP state
 
         final List<Cookie> cookies;// 修改了这里,实现用户隔离
-        if (cookieStore instanceof MultiUserCookieStore
-                && clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY) != null) {
+        if (cookieStore instanceof MultiUserCookieStore) {
             MultiUserCookieStore multiUserCookieStore = (MultiUserCookieStore) cookieStore;
             cookies = multiUserCookieStore
-                    .getCookies(clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY).toString());
+                    .getCookies(CommonUtil.safeToString(clientContext.getAttribute(ProxyConstant.DUNGPROXY_USER_KEY)));
         } else {
             cookies = cookieStore.getCookies();
         }
