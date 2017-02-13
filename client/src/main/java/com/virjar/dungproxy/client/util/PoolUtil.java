@@ -27,6 +27,10 @@ public class PoolUtil {
         }
     }
 
+    /**
+     * 下线绑定在当前httpClient里面的IP
+     * @param httpClientContext httpClientContext
+     */
     public static void offline(HttpClientContext httpClientContext) {
         if (httpClientContext == null) {
             return;
@@ -40,6 +44,9 @@ public class PoolUtil {
         }
     }
 
+    /**
+     * 清除IP和当前httpClientContext的绑定关系,这个不会导致IP下线
+     */
     public static void cleanProxy(HttpClientContext httpClientContext) {
         httpClientContext.removeAttribute(ProxyConstant.USED_PROXY_KEY);
     }
@@ -56,6 +63,11 @@ public class PoolUtil {
         httpClientContext.setAttribute(ProxyConstant.DUNGPROXY_USER_KEY, userId);
     }
 
+    /**
+     * 获取绑定在当前httpClientContext里面的IP
+     * @param httpClientContext
+     * @return IP实例
+     */
     public static AvProxy getBindProxy(HttpClientContext httpClientContext) {
         return httpClientContext.getAttribute(ProxyConstant.USED_PROXY_KEY, AvProxy.class);
     }

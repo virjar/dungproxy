@@ -21,6 +21,17 @@ public class MultiUserCookieStore implements CookieStore {
 
     private CookieStoreGenerator cookieStoreGenerator;
 
+    private static final MultiUserCookieStore defaultMultiUserCookieStore = new MultiUserCookieStore();
+
+    /**
+     * 获取一个默认的多用户空间cookieStore,默认cookieStore线程安全,在不同用户之前独立(可以在多个用户并发读写,因为他们本身不冲突)
+     * 使用时可以注册默认MultiUserCookieStore到所有httpclient,这样就可以在全局共享cookie空间
+     * @return
+     */
+    public static MultiUserCookieStore getDefaultMultiUserCookieStore() {
+        return defaultMultiUserCookieStore;
+    }
+
     public MultiUserCookieStore() {
         this(null);
     }

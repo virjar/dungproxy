@@ -6,6 +6,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import com.virjar.dungproxy.client.httpclient.CrawlerHttpClient;
+import com.virjar.dungproxy.client.httpclient.cookie.MultiUserCookieStore;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -188,7 +189,7 @@ public class DungProxyHttpClientGenerator {
     }
 
     private void generateCookie(CrawlerHttpClientBuilder httpClientBuilder, Site site) {
-        CookieStore cookieStore = new BasicCookieStore();
+        CookieStore cookieStore = MultiUserCookieStore.getDefaultMultiUserCookieStore();
         for (Map.Entry<String, String> cookieEntry : site.getCookies().entrySet()) {
             BasicClientCookie cookie = new BasicClientCookie(cookieEntry.getKey(), cookieEntry.getValue());
             cookie.setDomain(site.getDomain());

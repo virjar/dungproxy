@@ -32,9 +32,10 @@ import com.virjar.dungproxy.client.util.CommonUtil;
 /**
  * Request interceptor that matches cookies available in the current {@link CookieStore} to the request being executed
  * and generates corresponding {@code Cookie} request headers.<br/>
- * 修改自cookie拦截器,如果是在原生httpclient里面继承,则需要禁止cookie功能,然后手动添加这个拦截器。CrawlerHttpClient则是默认使用这个cookie拦截器了
+ * 修改自cookie拦截器,如果是在原生httpclient里面集成,则需要禁止cookie功能,然后手动添加这个拦截器。CrawlerHttpClient则是默认使用这个cookie拦截器了
  *
- * @since 4.0
+ * @since 0.0.4
+ * @see org.apache.http.client.protocol.RequestAddCookies
  */
 @Immutable
 public class DungProxyRequestAddCookies implements HttpRequestInterceptor {

@@ -97,13 +97,8 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
         // 注入用户名密码
         if (StringUtils.isNotEmpty(bind.getUsername()) && StringUtils.isNotEmpty(bind.getPassword())) {
-
-            CredentialsProvider credsProvider = httpClientContext.getCredentialsProvider();
-            if (credsProvider == null) {
-                credsProvider = new BasicCredentialsProvider();
-                httpClientContext.setCredentialsProvider(credsProvider);
-            }
-            // TODO 确定这个是在httpclient全局还是本次请求,如果是在全局的话,需要考虑并发了
+            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            httpClientContext.setCredentialsProvider(credsProvider);// 强行覆盖,避免并发问题
             credsProvider.setCredentials(AuthScope.ANY,
                     new UsernamePasswordCredentials(bind.getUsername(), bind.getPassword()));
         }
