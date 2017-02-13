@@ -12,7 +12,7 @@ import com.virjar.dungproxy.client.model.AvProxyVO;
  * 联合资源导入器,同时支持导入自定义IP源和dungServer的数据源
  */
 public class CombineIpSource implements ResourceFacade {
-    List<ResourceFacade> delegate = Lists.newArrayList(new CombineIpSource(), new DefaultResourceFacade());
+    List<ResourceFacade> delegate = Lists.newArrayList(new CustomIPSource(), new DefaultResourceFacade());
 
     @Override
     public List<AvProxyVO> importProxy(String domain, String testUrl, Integer number) {
