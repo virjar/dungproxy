@@ -19,7 +19,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -30,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.virjar.dungproxy.client.httpclient.CrawlerHttpClient;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.PoolUtil;
 import com.virjar.dungproxy.client.util.ReflectUtil;
@@ -72,17 +72,24 @@ public class DungProxyDownloader extends AbstractDownloader {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Map<String, CloseableHttpClient> httpClients = new HashMap<String, CloseableHttpClient>();
+    private final Map<String, CrawlerHttpClient> httpClients = new HashMap<>();
 
     // 自动代理替换了这里
     private DungProxyHttpClientGenerator httpClientGenerator = new DungProxyHttpClientGenerator();
 
-    private CloseableHttpClient getHttpClient(Site site, Proxy proxy) {
+    /**
+     * 设置为public,这样用户就可以获取到原生httpclient,虽然打破了封装,但是用户确实有这样的需求
+     * 
+     * @param site site
+     * @param proxy proxy
+     * @return CrawlerHttpClient,本身继承自CloseableHttpClient,兼容CloseableHttpClient所有方法
+     */
+    public CrawlerHttpClient getHttpClient(Site site, Proxy proxy) {
         if (site == null) {
             return httpClientGenerator.getClient(null, proxy);
         }
         String domain = site.getDomain();
-        CloseableHttpClient httpClient = httpClients.get(domain);
+        CrawlerHttpClient httpClient = httpClients.get(domain);
         if (httpClient == null) {
             synchronized (this) {
                 httpClient = httpClients.get(domain);

@@ -5,6 +5,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
+import com.virjar.dungproxy.client.httpclient.CrawlerHttpClient;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -74,7 +75,7 @@ public class DungProxyHttpClientGenerator {
         return this;
     }
 
-    public CloseableHttpClient getClient(Site site, Proxy proxy) {
+    public CrawlerHttpClient getClient(Site site, Proxy proxy) {
         return generateClient(site, proxy);
     }
 
@@ -113,7 +114,7 @@ public class DungProxyHttpClientGenerator {
         }
     }
 
-    private CloseableHttpClient generateClient(Site site, Proxy proxy) {
+    private CrawlerHttpClient generateClient(Site site, Proxy proxy) {
 
         // 这里替换成我们的,才能方便的使用dungProxy的IP池
         CrawlerHttpClientBuilder httpClientBuilder = CrawlerHttpClientBuilder.create();
