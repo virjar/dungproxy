@@ -97,6 +97,10 @@ public class HttpInvoker {
         return crawlerHttpClient.get(url, headers);
     }
 
+    public static String get(String url, Header[] headers, HttpClientContext httpClientContext) {
+        return crawlerHttpClient.get(url, headers, httpClientContext);
+    }
+
     public static String get(String url, Header[] headers, String proxyIp, int proxyPort) {
         return crawlerHttpClient.get(url, headers, proxyIp, proxyPort);
     }
