@@ -1,5 +1,6 @@
 package com.virjar.dungproxy.client.model;
 
+import com.google.common.base.Objects;
 import com.virjar.dungproxy.client.ippool.config.DomainContext;
 
 /**
@@ -38,19 +39,13 @@ public class CloudProxy extends AvProxy {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        if (!super.equals(o))
-            return false;
-
-        CloudProxy that = (CloudProxy) o;
-
-        return offset == that.offset;
-
+        CloudProxy other = (CloudProxy) o;
+        return Objects.equal(this.offset, other.offset) && Objects.equal(this.getUsername(), other.getUsername())
+                && super.equals(o);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + offset;
-        return result;
+        return Objects.hashCode(offset, getUsername(), getIp(), getPort());
     }
 }
