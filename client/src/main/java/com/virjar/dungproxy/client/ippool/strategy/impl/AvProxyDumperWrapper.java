@@ -4,7 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.strategy.AvProxyDumper;
 import com.virjar.dungproxy.client.model.AvProxyVO;
 
@@ -37,7 +42,18 @@ public class AvProxyDumperWrapper implements AvProxyDumper {
         }
         if (isDumpring.compareAndSet(false, true)) {
             try {
-                delegate.serializeProxy(data);
+                delegate.serializeProxy(Maps.transformValues(data, new Function<List<AvProxyVO>, List<AvProxyVO>>() {
+                    @Override
+                    public List<AvProxyVO> apply(List<AvProxyVO> input) {
+                        // 注意Lists.newArrayList将会打断懒加载链条,如果有多个过滤条件,请在Lists.newArrayList之前完成
+                        return Lists.newArrayList(Iterables.filter(input, new Predicate<AvProxyVO>() {
+                            @Override
+                            public boolean apply(AvProxyVO input) {
+                                return !input.getCloud();// 过滤云代理,云代理不参与序列化
+                            }
+                        }));
+                    }
+                }));
             } finally {
                 isDumpring.set(false);
             }
