@@ -13,6 +13,7 @@ import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.exception.PoolDestroyException;
 import com.virjar.dungproxy.client.ippool.strategy.AvProxyDumper;
 import com.virjar.dungproxy.client.ippool.strategy.ProxyDomainStrategy;
+import com.virjar.dungproxy.client.ippool.strategy.impl.ProxyAllStrategy;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.util.CommonUtil;
@@ -46,8 +47,13 @@ public class IpPool {
 
     private void init() {
         // step 1 load all component
-
         groupBindRouter = dungProxyContext.getGroupBindRouter();
+
+        // 这是一个特殊逻辑,默认代理池只维护一个domain,在用户遇到需要爬取不同网站,切不通网站的代理IP需要区分的时候,针对于不通domain做配置的时候,才会取消这个特性
+        if (proxyDomainStrategy instanceof ProxyAllStrategy && groupBindRouter.ruleSize() == 0) {
+            groupBindRouter.buildRule("www.virjar.com:.*");
+        }
+
         avProxyDumper = dungProxyContext.getAvProxyDumper();
         proxyDomainStrategy = dungProxyContext.getNeedProxyStrategy();
         isRunning = true;
@@ -64,6 +70,15 @@ public class IpPool {
         // freshResourceThread.setDaemon(true);
         // freshResourceThread.start();
 
+        // 如果系统执行结束,用户没有手动调用destroy,则由hook尝试自动调用,进行内存数据的dump
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (isRunning) {
+                    IpPool.this.destroy();
+                }
+            }
+        });
     }
 
     // private static IpPool instance = new IpPool();
@@ -78,6 +93,7 @@ public class IpPool {
     }
 
     public void destroy() {
+        isRunning = false;
         avProxyDumper
                 .serializeProxy(Maps.transformValues(getPoolInfo(), new Function<List<AvProxy>, List<AvProxyVO>>() {
                     @Override
@@ -90,7 +106,6 @@ public class IpPool {
                         });
                     }
                 }));
-        isRunning = false;
     }
 
     public void unSerialize() {

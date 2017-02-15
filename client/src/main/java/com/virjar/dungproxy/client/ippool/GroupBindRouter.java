@@ -19,6 +19,10 @@ public class GroupBindRouter {
     private Map<String, Optional<String>> routeData = Maps.newConcurrentMap();
     private Map<String, String> routeRule = Maps.newConcurrentMap();
 
+    public GroupBindRouter() {
+        //buildRule("www.virjar.com:*");// 默认增加一个全部路由的策略,没有配置的
+    }
+
     /**
      * domain:similarDomain1,similarDomain2,similarDomain3,similarDomain4...<br/>
      * 加载路由规则
@@ -72,7 +76,7 @@ public class GroupBindRouter {
             String routedDomain = s.get();
             logger.info("域名:{} 的代理规则路由到:{}", similarDomain, routedDomain);
             return routedDomain;
-            //return routeDomain(routedDomain);
+            // return routeDomain(routedDomain);
         }
         return similarDomain;// 缓存有数据,但是没有找到路由规则
 
@@ -90,5 +94,9 @@ public class GroupBindRouter {
         }
         // 所有规则都检查过,没有找到对应的路由规则
         routeData.put(similarDomain, Optional.<String> absent());
+    }
+
+    public int ruleSize(){
+        return routeRule.size();
     }
 }
