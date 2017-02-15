@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,6 +21,7 @@ import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.model.CloudProxy;
+import com.virjar.dungproxy.client.ningclient.concurrent.NamedThreadFactory;
 import com.virjar.dungproxy.client.util.IpAvValidator;
 
 /**
@@ -47,6 +51,14 @@ public class DomainPool {
     private static final Logger logger = LoggerFactory.getLogger(DomainPool.class);
 
     private AtomicInteger refreshTaskNumber = new AtomicInteger(0);
+
+    /**
+     * 刷新任务线程池,5个活跃线程,最多25个线程,5分钟内如果有空转,则对线程资源进行回收,超过25个线程放到队列里面执行,discardPolicy永远不会触发<br/>
+     * 如果一个系统变成了需要25个线程来刷新IP资源,那么基本也不能做爬虫了。线程池是静态的,所有域名IP池的刷新任务使用同一个刷新线程池。线程池里面的线程都是守护线程,主线程(用户线程)结束后刷新任务立即结束
+     */
+    private static ThreadPoolExecutor threadPool = new ThreadPoolExecutor(5, 25, 5, TimeUnit.MINUTES,
+            new LinkedBlockingDeque<Runnable>(), new NamedThreadFactory("ip-refresh"),
+            new ThreadPoolExecutor.DiscardPolicy());
 
     private DomainContext domainContext;
 
@@ -107,7 +119,7 @@ public class DomainPool {
         if (needFresh()) {
             refresh();// 在新线程刷新
         }
-        //当只有两个IP轮询的时候,放弃局部轮询,而是采用全部轮询的方式
+        // 当只有两个IP轮询的时候,放弃局部轮询,而是采用全部轮询的方式
         return smartProxyQueue
                 .getAndAdjustPriority((smartProxyQueue.availableSize() * smartProxyQueue.getRatio()) <= 2);
     }
@@ -172,21 +184,21 @@ public class DomainPool {
         }
 
         if (refreshTaskNumber.incrementAndGet() <= expectedThreadNumber) {
-            Thread thread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        logger.info("IP资源刷新开始,当前刷新线程数量:{}...", refreshTaskNumber.get());
-                        doRefresh();
-                        logger.info("IP资源刷新结束...");
-                    } finally {
-                        refreshTaskNumber.decrementAndGet();
-                    }
-                }
+            threadPool.execute(new RefreshThread());
+        }
+    }
 
-            };
-            thread.setDaemon(true);
-            thread.start();
+    private class RefreshThread implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                logger.info("IP资源刷新开始,当前刷新线程数量:{}...", refreshTaskNumber.get());
+                doRefresh();
+                logger.info("IP资源刷新结束...");
+            } finally {
+                refreshTaskNumber.decrementAndGet();
+            }
         }
     }
 
