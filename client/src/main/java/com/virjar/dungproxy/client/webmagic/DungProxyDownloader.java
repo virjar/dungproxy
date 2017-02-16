@@ -47,7 +47,17 @@ import us.codecraft.webmagic.utils.UrlUtils;
 /**
  * The http downloader based on HttpClient.
  *
- * * 为webMagic实现的downloader,如果有其他定制需求,参考本类实现即可<br/>
+ * 为webMagic实现的downloader,如果有其他定制需求,参考本类实现即可<br/>
+ * <br/>
+ * 本类现在加入了很多新特性,不过使用方式和webmagic原生仍然兼容,如果是webmagic项目且需要定制downloader,建议在本类基础上做修改。
+ * <ul>
+ * <li>代理IP池特性(对接dungprxoy)</li>
+ * <li>代理IP上下线特性</li>
+ * <li>webmagic版本兼容(因为相对于webmagic,本类使用属于外来者,其代码逻辑不能跟随webmagic版本变动而变动)</li>
+ * <li>放开downloader获取原生httpclient的口子,getHttpClient变成public方法,方便使用者模拟登录</li>
+ * <li>多用户在线支持,使用multiUserCookieStore,天生支持多个用户并发的登录爬取数据</li>
+ * <li>用户URL关系维护,他会自动纪录产生的新URL是那个user爬取到的,而且下次调度到一个新URL的时候,会自动获取到新URL是那个账户爬取到的,然后使用对应账户的cookie信息</li>
+ * </ul>
  *
  * <pre>
  * public static void main(String[] args) {
@@ -65,7 +75,7 @@ import us.codecraft.webmagic.utils.UrlUtils;
  *
  * @author code4crafter@gmail.com <br>
  * @author virjar
- * @since 0.0.0
+ * @since 0.0.1
  */
 @ThreadSafe
 public class DungProxyDownloader extends AbstractDownloader {
@@ -296,7 +306,7 @@ public class DungProxyDownloader extends AbstractDownloader {
     protected Page handleResponse(Request request, String charset, HttpResponse httpResponse, Task task)
             throws IOException {
         String content = getContent(charset, httpResponse);
-        Page page = new Page();
+        Page page = new UserSessionPage();
         page.setRawText(content);
         page.setUrl(new PlainText(request.getUrl()));
         page.setRequest(request);

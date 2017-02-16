@@ -335,7 +335,7 @@ public class DungProxyContext {
         String avDumper = properties.getProperty(ProxyConstant.PROXY_SERIALIZER);
         if (StringUtils.isNotEmpty(avDumper)) {
             AvProxyDumper tempDumper = ObjectFactory.newInstance(avDumper);
-            setAvProxyDumper(tempDumper);// 对他做一层保证,防止空序列化
+            setAvProxyDumper(tempDumper);// 对他做一层包装,防止空序列化
 
         }
         String defaultAvDumpeFileName = properties.getProperty(ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE);
