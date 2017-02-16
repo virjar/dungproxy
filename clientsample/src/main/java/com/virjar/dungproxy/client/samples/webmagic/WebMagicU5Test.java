@@ -32,7 +32,10 @@ public class WebMagicU5Test implements PageProcessor {
 
     public static void main(String[] args) throws IOException {
 
-        DungProxyContext dungProxyContext = DungProxyContext.create().setDefaultResourceFacade(U5IpSource.class); // Step3
+        DungProxyContext dungProxyContext = DungProxyContext.create()
+                .buildDefaultConfigFile()//加这样一句
+                .setDefaultCoreSize(1)
+                .setDefaultResourceFacade(U5IpSource.class); // Step3
         // Step 3 使用代理规则构造默认IP池
         IpPoolHolder.init(dungProxyContext);
 

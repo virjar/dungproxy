@@ -249,6 +249,8 @@ public class DungProxyContext {
     public static DungProxyContext create() {
         DungProxyContext context = new DungProxyContext();
         context.fillDefaultStrategy();
+        context.buildDefaultConfigFile();
+        context.handleConfig();
         return context;
     }
 
@@ -266,7 +268,7 @@ public class DungProxyContext {
         InputStream resourceAsStream = DungProxyContext.class.getClassLoader()
                 .getResourceAsStream(ProxyConstant.CLIENT_CONFIG_FILE_NAME);
         if (resourceAsStream == null) {
-            logger.warn("没有找到配置文件:{},代理规则几乎不会生效", ProxyConstant.CLIENT_CONFIG_FILE_NAME);
+            logger.warn("没有找到配置文件:{},代理规则可以通过代码来控制", ProxyConstant.CLIENT_CONFIG_FILE_NAME);
             return this;
         }
         Properties properties = new Properties();
@@ -290,10 +292,10 @@ public class DungProxyContext {
         String resourceFace = properties.getProperty(ProxyConstant.RESOURCE_FACADE);
         if (StringUtils.isNotEmpty(resourceFace)) {
             defaultResourceFacade = ObjectFactory.classForName(resourceFace);
-            String defaultResourceServerAddress = properties.getProperty(ProxyConstant.DEFAULT_RESOURCE_SERVER_ADDRESS);
-            if (StringUtils.isNotEmpty(defaultResourceServerAddress)) {
-                serverBaseUrl = defaultResourceServerAddress;
-            }
+        }
+        String defaultResourceServerAddress = properties.getProperty(ProxyConstant.DEFAULT_RESOURCE_SERVER_ADDRESS);
+        if (StringUtils.isNotEmpty(defaultResourceServerAddress)) {
+            serverBaseUrl = defaultResourceServerAddress;
         }
 
         // IP代理策略
@@ -333,7 +335,7 @@ public class DungProxyContext {
         String avDumper = properties.getProperty(ProxyConstant.PROXY_SERIALIZER);
         if (StringUtils.isNotEmpty(avDumper)) {
             AvProxyDumper tempDumper = ObjectFactory.newInstance(avDumper);
-            setAvProxyDumper(tempDumper);//对他做一层保证,防止空序列化
+            setAvProxyDumper(tempDumper);// 对他做一层保证,防止空序列化
 
         }
         String defaultAvDumpeFileName = properties.getProperty(ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE);
