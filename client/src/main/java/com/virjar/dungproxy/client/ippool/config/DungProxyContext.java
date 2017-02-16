@@ -36,6 +36,7 @@ public class DungProxyContext {
     private PreHeater preHeater = new PreHeater(this);
     private String serverBaseUrl;
     private long serializeStep;
+    private boolean poolEnabled;
 
     // for domain
     private Class<? extends ResourceFacade> defaultResourceFacade;
@@ -68,6 +69,7 @@ public class DungProxyContext {
         defaultScoreFactory = 15;
         serverBaseUrl = "http://proxy.scumall.com:8080";
         serializeStep = 30;
+        poolEnabled = true;
         handleConfig();
     }
 
@@ -77,6 +79,15 @@ public class DungProxyContext {
 
     public DungProxyContext setAvProxyDumper(AvProxyDumper avProxyDumper) {
         this.avProxyDumper = new AvProxyDumperWrapper(avProxyDumper);
+        return this;
+    }
+
+    public boolean isPoolEnabled() {
+        return poolEnabled;
+    }
+
+    public DungProxyContext setPoolEnabled(boolean poolEnabled) {
+        this.poolEnabled = poolEnabled;
         return this;
     }
 

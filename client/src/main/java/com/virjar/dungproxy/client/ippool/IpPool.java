@@ -137,6 +137,9 @@ public class IpPool {
     }
 
     public AvProxy bind(String host, String url) {
+        if (!dungProxyContext.isPoolEnabled()) {
+            return null;// 关闭了全局的代理池功能
+        }
         if (!isRunning) {
             throw new PoolDestroyException();
         }
