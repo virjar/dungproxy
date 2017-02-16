@@ -112,86 +112,105 @@ bogon:proxyipcenter virjar$
 ### 编译包含预热器的java脚本
 预热器的编译,仅仅是在maven的jar包外部做了保证,将配置文件、lib库提取到统一的地方,同时产生跨平台的脚本,用来管理各个配置文件,lib库的关系,并且提供启动预热器的入口。
 预热器编译使用了maven插件,方式如下:
-在`` client ``中执行命令 ``mvn clean package appassembler:assemble``
+在`` client ``中执行命令 ``mvn clean package appassembler:assemble -Passemble -Dmaven.test.skip=true``
  ```
- bogon:client virjar$ mvn clean package appassembler:assemble -Dmaven.test.skip=true
- [INFO] Scanning for projects...
- [INFO]                                                                         
- [INFO] ------------------------------------------------------------------------
- [INFO] Building client 0.0.1-SNAPSHOT
- [INFO] ------------------------------------------------------------------------
- [INFO] 
- [INFO] --- maven-clean-plugin:2.4.1:clean (default-clean) @ dungproxy-client ---
- [INFO] Deleting /Users/virjar/git/proxyipcenter/client/target
- [INFO] 
- [INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ dungproxy-client ---
- [debug] execute contextualize
- [INFO] Using 'UTF-8' encoding to copy filtered resources.
- [INFO] Copying 27 resources
- [INFO] 
- [INFO] --- maven-compiler-plugin:3.5.1:compile (default-compile) @ dungproxy-client ---
- [INFO] Changes detected - recompiling the module!
- [INFO] Compiling 78 source files to /Users/virjar/git/proxyipcenter/client/target/classes
- [INFO] /Users/virjar/git/proxyipcenter/client/src/main/java/com/virjar/dungproxy/client/httpclient/CrawlerHttpClient.java: 某些输入文件使用或覆盖了已过时的 API。
- [INFO] /Users/virjar/git/proxyipcenter/client/src/main/java/com/virjar/dungproxy/client/httpclient/CrawlerHttpClient.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
- [INFO] /Users/virjar/git/proxyipcenter/client/src/main/java/com/virjar/client/proxyclient/VirjarAsyncClient.java: 某些输入文件使用了未经检查或不安全的操作。
- [INFO] /Users/virjar/git/proxyipcenter/client/src/main/java/com/virjar/client/proxyclient/VirjarAsyncClient.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
- [INFO] 
- [INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ dungproxy-client ---
- [debug] execute contextualize
- [INFO] Using 'UTF-8' encoding to copy filtered resources.
- [INFO] Copying 2 resources
- [INFO] 
- [INFO] --- maven-compiler-plugin:3.5.1:testCompile (default-testCompile) @ dungproxy-client ---
- [INFO] Not compiling test sources
- [INFO] 
- [INFO] --- maven-surefire-plugin:2.10:test (default-test) @ dungproxy-client ---
- [INFO] Tests are skipped.
- [INFO] 
- [INFO] --- maven-jar-plugin:2.3.2:jar (default-jar) @ dungproxy-client ---
- [INFO] Building jar: /Users/virjar/git/proxyipcenter/client/target/dungproxy-client-0.0.1-SNAPSHOT.jar
- [INFO] 
- [INFO] --- appassembler-maven-plugin:1.1.1:assemble (default-cli) @ dungproxy-client ---
- [INFO] Installing /Users/virjar/.m2/repository/org/slf4j/slf4j-api/1.7.12/slf4j-api-1.7.12.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/slf4j-api-1.7.12.jar
- [INFO] Installing /Users/virjar/.m2/repository/io/netty/netty-all/4.1.4.Final/netty-all-4.1.4.Final.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/netty-all-4.1.4.Final.jar
- [INFO] Installing /Users/virjar/.m2/repository/com/ning/async-http-client/1.9.39/async-http-client-1.9.39.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/async-http-client-1.9.39.jar
- [INFO] Installing /Users/virjar/.m2/repository/io/netty/netty/3.10.5.Final/netty-3.10.5.Final.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/netty-3.10.5.Final.jar
- [INFO] Installing /Users/virjar/.m2/repository/com/google/guava/guava/19.0/guava-19.0.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/guava-19.0.jar
- [INFO] Installing /Users/virjar/.m2/repository/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/commons-lang3-3.4.jar
- [INFO] Installing /Users/virjar/.m2/repository/org/apache/httpcomponents/httpclient/4.4.1/httpclient-4.4.1.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/httpclient-4.4.1.jar
- [INFO] Installing /Users/virjar/.m2/repository/org/apache/httpcomponents/httpcore/4.4.1/httpcore-4.4.1.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/httpcore-4.4.1.jar
- [INFO] Installing /Users/virjar/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/commons-logging-1.2.jar
- [INFO] Installing /Users/virjar/.m2/repository/commons-codec/commons-codec/1.9/commons-codec-1.9.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/commons-codec-1.9.jar
- [INFO] Installing /Users/virjar/.m2/repository/com/alibaba/fastjson/1.1.31/fastjson-1.1.31.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/fastjson-1.1.31.jar
- [INFO] Installing /Users/virjar/.m2/repository/commons-io/commons-io/2.4/commons-io-2.4.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/commons-io-2.4.jar
- [INFO] Installing /Users/virjar/.m2/repository/ch/qos/logback/logback-classic/1.1.3/logback-classic-1.1.3.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/logback-classic-1.1.3.jar
- [INFO] Installing /Users/virjar/.m2/repository/ch/qos/logback/logback-core/1.1.3/logback-core-1.1.3.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/logback-core-1.1.3.jar
- [INFO] Installing /Users/virjar/.m2/repository/org/slf4j/jcl-over-slf4j/1.7.12/jcl-over-slf4j-1.7.12.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/jcl-over-slf4j-1.7.12.jar
- [INFO] Installing /Users/virjar/.m2/repository/org/slf4j/jul-to-slf4j/1.7.12/jul-to-slf4j-1.7.12.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/jul-to-slf4j-1.7.12.jar
- [INFO] Installing /Users/virjar/.m2/repository/org/slf4j/log4j-over-slf4j/1.7.12/log4j-over-slf4j-1.7.12.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/log4j-over-slf4j-1.7.12.jar
- [INFO] Installing /Users/virjar/git/proxyipcenter/client/target/dungproxy-client-0.0.1-SNAPSHOT.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/dungproxy-client-0.0.1-SNAPSHOT.jar
- [INFO] ------------------------------------------------------------------------
- [INFO] BUILD SUCCESS
- [INFO] ------------------------------------------------------------------------
- [INFO] Total time: 5.090s
- [INFO] Finished at: Sat Dec 17 23:04:55 CST 2016
- [INFO] Final Memory: 19M/226M
- [INFO] ------------------------------------------------------------------------
- bogon:client virjar$ 
+dengweijiadeMacBook-Pro:client virjar$ mvn clean package appassembler:assemble -Passemble -Dmaven.test.skip=true
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building client 0.0.4-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.4.1:clean (default-clean) @ dungproxy-client ---
+[INFO] Deleting /Users/virjar/git/proxyipcenter/client/target
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ dungproxy-client ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 34 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.5.1:compile (default-compile) @ dungproxy-client ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 80 source files to /Users/virjar/git/proxyipcenter/client/target/classes
+[INFO] /Users/virjar/git/proxyipcenter/client/src/main/java/com/virjar/dungproxy/client/httpclient/CrawlerHttpClient.java: 某些输入文件使用或覆盖了已过时的 API。
+[INFO] /Users/virjar/git/proxyipcenter/client/src/main/java/com/virjar/dungproxy/client/httpclient/CrawlerHttpClient.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] /Users/virjar/git/proxyipcenter/client/src/main/java/com/virjar/dungproxy/client/ningclient/proxyclient/VirjarAsyncClient.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /Users/virjar/git/proxyipcenter/client/src/main/java/com/virjar/dungproxy/client/ningclient/proxyclient/VirjarAsyncClient.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ dungproxy-client ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /Users/virjar/git/proxyipcenter/client/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.5.1:testCompile (default-testCompile) @ dungproxy-client ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.10:test (default-test) @ dungproxy-client ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.3.2:jar (default-jar) @ dungproxy-client ---
+[INFO] Building jar: /Users/virjar/git/proxyipcenter/client/target/dungproxy-client-0.0.4-SNAPSHOT.jar
+[INFO] 
+[INFO] --- appassembler-maven-plugin:1.1.1:assemble (default-cli) @ dungproxy-client ---
+[INFO] Installing /Users/virjar/.m2/repository/org/slf4j/slf4j-api/1.7.12/slf4j-api-1.7.12.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/slf4j-api-1.7.12.jar
+[INFO] Installing /Users/virjar/.m2/repository/com/ning/async-http-client/1.9.39/async-http-client-1.9.39.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/async-http-client-1.9.39.jar
+[INFO] Installing /Users/virjar/.m2/repository/io/netty/netty/3.10.5.Final/netty-3.10.5.Final.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/netty-3.10.5.Final.jar
+[INFO] Installing /Users/virjar/.m2/repository/com/google/guava/guava/19.0/guava-19.0.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/guava-19.0.jar
+[INFO] Installing /Users/virjar/.m2/repository/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/commons-lang3-3.4.jar
+[INFO] Installing /Users/virjar/.m2/repository/org/apache/httpcomponents/httpclient/4.4.1/httpclient-4.4.1.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/httpclient-4.4.1.jar
+[INFO] Installing /Users/virjar/.m2/repository/org/apache/httpcomponents/httpcore/4.4.1/httpcore-4.4.1.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/httpcore-4.4.1.jar
+[INFO] Installing /Users/virjar/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/commons-logging-1.2.jar
+[INFO] Installing /Users/virjar/.m2/repository/commons-codec/commons-codec/1.9/commons-codec-1.9.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/commons-codec-1.9.jar
+[INFO] Installing /Users/virjar/.m2/repository/com/alibaba/fastjson/1.1.31/fastjson-1.1.31.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/fastjson-1.1.31.jar
+[INFO] Installing /Users/virjar/.m2/repository/commons-io/commons-io/2.4/commons-io-2.4.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/commons-io-2.4.jar
+[INFO] Installing /Users/virjar/.m2/repository/org/jsoup/jsoup/1.9.2/jsoup-1.9.2.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/jsoup-1.9.2.jar
+[INFO] Installing /Users/virjar/.m2/repository/ch/qos/logback/logback-classic/1.1.3/logback-classic-1.1.3.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/logback-classic-1.1.3.jar
+[INFO] Installing /Users/virjar/.m2/repository/ch/qos/logback/logback-core/1.1.3/logback-core-1.1.3.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/logback-core-1.1.3.jar
+[INFO] Installing /Users/virjar/.m2/repository/org/slf4j/jcl-over-slf4j/1.7.12/jcl-over-slf4j-1.7.12.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/jcl-over-slf4j-1.7.12.jar
+[INFO] Installing /Users/virjar/.m2/repository/org/slf4j/jul-to-slf4j/1.7.12/jul-to-slf4j-1.7.12.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/jul-to-slf4j-1.7.12.jar
+[INFO] Installing /Users/virjar/.m2/repository/org/slf4j/log4j-over-slf4j/1.7.12/log4j-over-slf4j-1.7.12.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/log4j-over-slf4j-1.7.12.jar
+[INFO] Installing /Users/virjar/git/proxyipcenter/client/target/dungproxy-client-0.0.4-SNAPSHOT.jar to /Users/virjar/git/proxyipcenter/client/target/dungclient/lib/dungproxy-client-0.0.4-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 5.491s
+[INFO] Finished at: Thu Feb 16 14:12:07 CST 2017
+[INFO] Final Memory: 18M/232M
+[INFO] ------------------------------------------------------------------------
+dengweijiadeMacBook-Pro:client virjar$ 
  ```
  编译好在target目录将会产生一个dunclient的目录,这个目录这是可以执行离线预热任务的脚本目录
  ```
- bogon:client virjar$ cd target/
- bogon:target virjar$ ls
- classes					dungproxy-client-0.0.1-SNAPSHOT.jar	maven-archiver				test-classes
- dungclient				generated-sources			maven-status
- bogon:target virjar$ cd dungclient/
- bogon:dungclient virjar$ ls -al
- total 0
- drwxr-xr-x   5 virjar  staff  170 12 17 23:04 .
- drwxr-xr-x   9 virjar  staff  306 12 17 23:04 ..
- drwxr-xr-x   4 virjar  staff  136 12 17 23:04 bin
- drwxr-xr-x   4 virjar  staff  136 12 17 23:04 conf
- drwxr-xr-x  21 virjar  staff  714 12 17 23:04 lib
- bogon:dungclient virjar$ 
+ dengweijiadeMacBook-Pro:client virjar$ cd target/dungclient/
+ dengweijiadeMacBook-Pro:dungclient virjar$ ls
+ bin	conf	lib
+ dengweijiadeMacBook-Pro:dungclient virjar$ tree
+ .
+ |____bin
+ | |____preHeater.bat
+ | |____preHeater.sh
+ |____conf
+ | |____logback.xml
+ | |____proxyclient.properties
+ |____lib
+ | |____async-http-client-1.9.39.jar
+ | |____commons-codec-1.9.jar
+ | |____commons-io-2.4.jar
+ | |____commons-lang3-3.4.jar
+ | |____commons-logging-1.2.jar
+ | |____dungproxy-client-0.0.4-SNAPSHOT.jar
+ | |____fastjson-1.1.31.jar
+ | |____guava-19.0.jar
+ | |____httpclient-4.4.1.jar
+ | |____httpcore-4.4.1.jar
+ | |____jcl-over-slf4j-1.7.12.jar
+ | |____jsoup-1.9.2.jar
+ | |____jul-to-slf4j-1.7.12.jar
+ | |____log4j-over-slf4j-1.7.12.jar
+ | |____logback-classic-1.1.3.jar
+ | |____logback-core-1.1.3.jar
+ | |____maven-metadata-appassembler.xml
+ | |____netty-3.10.5.Final.jar
+ | |____slf4j-api-1.7.12.jar
+ dengweijiadeMacBook-Pro:dungclient virjar$ 
  ```
