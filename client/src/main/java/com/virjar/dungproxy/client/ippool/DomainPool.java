@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,11 +112,14 @@ public class DomainPool {
     }
 
     public AvProxy bind(String url) {
-        if (testUrls.size() < 10) {
-            testUrls.add(url);
-        } else {
-            testUrls.set(random.nextInt(10), url);
+        if (StringUtils.isNotEmpty(url)) {// post的话,URL不会传递下来
+            if (testUrls.size() < 10) {
+                testUrls.add(url);
+            } else {
+                testUrls.set(random.nextInt(10), url);
+            }
         }
+
         if (needFresh()) {
             refresh();// 在新线程刷新
         }
