@@ -230,4 +230,17 @@ public class HttpInvoker {
             int proxyPort) {
         return crawlerHttpClient.postJSON(url, entity, charset, headers, proxyIp, proxyPort);
     }
+
+    public static String post(String url, Map<String, String> params, Header[] headers, String proxyIp, int proxyPort) {
+        return crawlerHttpClient.post(url, params, headers, proxyIp, proxyPort);
+    }
+
+    public static String post(String url, List<NameValuePair> params, Header[] headers, String proxyIp, int proxyPort) {
+        return crawlerHttpClient.post(url, params, headers, proxyIp, proxyPort);
+    }
+
+    public static String post(String url, List<NameValuePair> params, Header[] headers,
+            HttpClientContext httpClientContext) {
+        return crawlerHttpClient.post(url, params, headers, httpClientContext);
+    }
 }

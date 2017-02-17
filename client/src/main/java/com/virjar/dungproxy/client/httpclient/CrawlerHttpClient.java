@@ -415,6 +415,11 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
                 httpClientContext);
     }
 
+    public String post(String url, List<NameValuePair> params, Header[] headers, HttpClientContext httpClientContext) {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, headers, null, -1,
+                httpClientContext);
+    }
+
     public String post(String url, Map<String, String> params, HttpClientContext httpClientContext) {
         return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, null, null, -1,
                 httpClientContext);
@@ -438,6 +443,16 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             int proxyPort) {
         return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), charset, headers, proxyIp,
                 proxyPort, null);
+    }
+
+    public String post(String url, Map<String, String> params, Header[] headers, String proxyIp, int proxyPort) {
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, headers, proxyIp,
+                proxyPort, null);
+    }
+
+    public String post(String url, List<NameValuePair> params, Header[] headers, String proxyIp, int proxyPort) {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, headers, proxyIp, proxyPort,
+                null);
     }
 
     public String post(String url, HttpEntity entity, Charset charset, Header[] headers, String proxyIp, int proxyPort,

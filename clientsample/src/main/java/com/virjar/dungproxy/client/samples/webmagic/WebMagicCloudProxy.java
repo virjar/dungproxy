@@ -50,6 +50,7 @@ public class WebMagicCloudProxy implements PageProcessor {
         avProxyVO.setUsername("H402MPRHB15K37YD");//代理帐户
         avProxyVO.setPassword("601AE248E2ABE744");//代理密码
 
+        //备注,现在云代理账户失效了,所以这个爬虫跑不起来,因为三次请求都是返回402
 
         // Step2 创建并定制代理规则 DungProxyContext
         DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy).addCloudProxy(avProxyVO); // Step3

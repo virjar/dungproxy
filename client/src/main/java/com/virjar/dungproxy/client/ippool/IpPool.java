@@ -48,14 +48,16 @@ public class IpPool {
     private void init() {
         // step 1 load all component
         groupBindRouter = dungProxyContext.getGroupBindRouter();
+        proxyDomainStrategy = dungProxyContext.getNeedProxyStrategy();
+        avProxyDumper = dungProxyContext.getAvProxyDumper();
 
         // 这是一个特殊逻辑,默认代理池只维护一个domain,在用户遇到需要爬取不同网站,切不通网站的代理IP需要区分的时候,针对于不通domain做配置的时候,才会取消这个特性
         if (proxyDomainStrategy instanceof ProxyAllStrategy && groupBindRouter.ruleSize() == 0) {
             groupBindRouter.buildRule("www.virjar.com:.*");
         }
 
-        avProxyDumper = dungProxyContext.getAvProxyDumper();
-        proxyDomainStrategy = dungProxyContext.getNeedProxyStrategy();
+
+
         isRunning = true;
 
         unSerialize();

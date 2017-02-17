@@ -38,16 +38,17 @@ public class WebMagicTest implements PageProcessor {
 
     public static void main(String[] args) throws IOException {
         //以下是通过代码配置规则的方案,如果不使用配置文件,则可以解开注释,通过代码的方式
-        /*
+
+
         WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
         whiteListProxyStrategy.addAllHost("www.dytt8.net,www.ygdy8.net");
 
         // Step2 创建并定制代理规则
-        DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy);
+        DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy).setPoolEnabled(false);
 
         // Step3 使用代理规则初始化默认IP池
         IpPoolHolder.init(dungProxyContext);
-        */
+
 
         Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(30)
                 .addUrl("http://www.dytt8.net/index.html").addUrl("http://www.ygdy8.net/html/gndy/dyzz/index.html")
