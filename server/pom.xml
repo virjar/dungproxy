@@ -566,6 +566,12 @@
                 <deploy.type>skye</deploy.type>
             </properties>
         </profile>
+        <profile>
+            <id>renzhe</id>
+            <properties>
+                <deploy.type>renzhe</deploy.type>
+            </properties>
+        </profile>
     </profiles>
     <build>
         <finalName>proxyipcenter</finalName>
