@@ -14,6 +14,8 @@
         <module>server</module>
          <module>clientsample</module>
          -->
+        <module>server</module>
+        <module>clientsample</module>
         <module>client</module>
 
     </modules>
