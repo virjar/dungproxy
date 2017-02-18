@@ -7,6 +7,6 @@ dungclient所有jar包在client/dungclient/lib,拷贝所有jar包到你的lib下
 <dependency>
     <groupId>com.virjar</groupId>
     <artifactId>dungproxy-client</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
 </dependency>
 ```
