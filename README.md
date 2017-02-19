@@ -55,3 +55,7 @@ System.out.println(string);
 - 邓维佳 virjar@virjar.com
 - 符灵通 
 - 韦轩 805366180@qq.com
+
+### 项目主页
+- oshina http://git.oschina.net/virjar/proxyipcenter
+- github https://github.com/virjar/dungproxy
