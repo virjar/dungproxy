@@ -96,6 +96,9 @@ public class SmartProxyQueue {
                 if (!adjustTail) {
                     index = (int) (proxies.size() * ratio);
                 }
+                if (index < 0) {
+                    index = 0;
+                }
                 proxies.add(index, poll);
                 return poll;
             }
