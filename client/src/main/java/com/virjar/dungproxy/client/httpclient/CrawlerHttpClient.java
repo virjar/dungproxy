@@ -316,6 +316,10 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         return get(url, params, charset, headers, proxyIp, proxyPort, null);
     }
 
+    public String get(String url, List<NameValuePair> params, Header[] headers, HttpClientContext httpClientContext) {
+        return get(url, params, null, headers, null, 0, httpClientContext);
+    }
+
     public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
             int proxyPort, HttpClientContext httpClientContext) {
         if (params != null && params.size() > 0) {

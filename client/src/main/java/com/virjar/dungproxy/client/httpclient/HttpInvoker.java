@@ -243,4 +243,9 @@ public class HttpInvoker {
             HttpClientContext httpClientContext) {
         return crawlerHttpClient.post(url, params, headers, httpClientContext);
     }
+
+    public static String get(String url, List<NameValuePair> params, Header[] headers,
+            HttpClientContext httpClientContext) {
+        return crawlerHttpClient.get(url, params, headers, httpClientContext);
+    }
 }
