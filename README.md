@@ -73,4 +73,4 @@ System.out.println(string);
 
 本次测试相关源码:[SuccessRateTest.java](./clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/successrate/SuccessRateTest.java),[SuccessRateTestDownloader.java](./clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/successrate/SuccessRateTestDownloader.java)
 
-平常使用的时候,一般会增加重试,这样成功率会更高
+平常使用的时候,一般会增加重试,这样成功率会更高。需要注意的是,因为使用的是自动预热模式,刚开始二十分钟左右IP不足,大量使用的是本地IP,半个小时之后IP才基本稳定
