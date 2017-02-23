@@ -74,3 +74,10 @@ System.out.println(string);
 本次测试相关源码:[SuccessRateTest.java](./clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/successrate/SuccessRateTest.java),[SuccessRateTestDownloader.java](./clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/successrate/SuccessRateTestDownloader.java)
 
 平常使用的时候,一般会增加重试,这样成功率会更高。需要注意的是,因为使用的是自动预热模式,刚开始二十分钟左右IP不足,大量使用的是本地IP,半个小时之后IP才基本稳定
+
+
+## TODO
+- 扩充服务器IP源
+- IP自定义检查策略扩展点(强状态关联的请求不能随意作为检查链接,否则多为forbidden响应)
+- 排查IP刷新线程在IP严重不足的时候,线程数量不能达到峰值的原因
+- 排查IP单次下载量不能跟随coreSize变动而变动的原因(是否是coreSize注入失败)
