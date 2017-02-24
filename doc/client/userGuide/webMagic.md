@@ -45,6 +45,10 @@ dungProxy对此做了兼容方案,使用DungProxyDownloader可以同时支持0.5
 
 另外注意,本项目本身专注代理IP池的管理。webMagic本身也有代理池的概念。如果使用了webMagic的代理池的同时使用DungProxy,那么DungProxy将不会生效。任何时刻,只有WebMagic定义了,那么已webMagic为主
 
+### webMagic多用户登录
+定制的downloader(DungProxyDownloader)默认使用MultiUserCookieStore,天然支持多用户同时在线了。MultiUserCookieStore本身使用分段锁的概念,多个用户在并发上也不会存在锁竞争问题。如何使webMagic支持多用户登录,参考[demo](http://git.oschina.net/virjar/proxyipcenter/tree/master/clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/MultiUserLoginTest.java)
+demo看起来有点复杂,其实不复杂,因为他有登录逻辑、登录失效重新登录逻辑、调度器重写等等、证明dungproxy在多用户维护上面没有cookie紊乱。实际上在使用的时候,只需要做到登录之后再添加种子,且将用户绑定再种子上面。之后dungProxy的机制就会自动维护这些URL属于那个用户了(当然登录的时候也需要给httpclient指定当前使用的那个用户,httpclient负责cookie的种植,没有告诉httpclient的话,httpclient也不知道把cookie种植到那个账户下面)。
+对了,用户标示只能是字符串。不要放对象,否则出问题别怪我😄
 
 ### webMagic注意事项
 - 调整timeOut,webMagic的默认超时时间是5秒,这个对于使用代理对的场景来说是不合适的。建议调整到20秒以上
@@ -61,5 +65,5 @@ dungProxy对此做了兼容方案,使用DungProxyDownloader可以同时支持0.5
             .setTimeOut(30000)//在使用代理的情况下,这个需要设置,可以考虑调大线程数目
             .setSleepTime(0)//使用代理了之后,代理会通过切换IP来防止反扒。同时,使用代理本身qps降低了,所以这个可以小一些
             .setCycleRetryTimes(3)//这个重试会换IP重试,是setRetryTimes的上一层的重试,不要怕三次重试解决一切问题。。
-            .setUseGzip(true);//注意调整超时时间
+            .setUseGzip(true);
 ```

@@ -3,7 +3,7 @@
     <parent>
         <artifactId>dungproxy</artifactId>
         <groupId>com.virjar</groupId>
-        <version>0.0.2</version>
+        <version>0.0.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -75,16 +75,7 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.1.3</version>
-        </dependency>
+
         <dependency>
             <groupId>com.ning</groupId>
             <artifactId>async-http-client</artifactId>
@@ -251,6 +242,21 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>logback.xml</exclude>
+                    <exclude>proxyclient.properties</exclude>
+                    <exclude>proxyclient_all.properties</exclude>
+                    <exclude>proxyclient_minimal.properties</exclude>
+                    <exclude>proxyclient_preheater.properties</exclude>
+                    <!-- 下面两个文件专门为预热器离线预热所用 -->
+                    <exclude>preHeaterConfig/logback.xml</exclude>
+                    <exclude>preHeaterConfig/proxyclient.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -306,28 +312,36 @@
         </plugins>
     </build>
     <profiles>
+        <!-- 在打包预热脚本的时候,才启用这个,他会额外增量日志相关框架,但是在API里面,本身不依赖真实的日志实现-->
         <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources</directory>
-                        <excludes>
-                            <exclude>logback.xml</exclude>
-                            <exclude>proxyclient.properties</exclude>
-                            <exclude>proxyclient_all.properties</exclude>
-                            <exclude>proxyclient_minimal.properties</exclude>
-                            <exclude>proxyclient_preheater.properties</exclude>
-                            <!-- 下面两个文件专门为预热器离线预热所用 -->
-                            <exclude>preHeaterConfig/logback.xml</exclude>
-                            <exclude>preHeaterConfig/proxyclient.properties</exclude>
-                        </excludes>
-                    </resource>
-                </resources>
-            </build>
+            <id>assemble</id>
+            <dependencies>
+                <dependency>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                    <version>1.1.3</version>
+                </dependency>
+                <dependency>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                    <version>1.1.3</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                    <version>${slf4j.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jul-to-slf4j</artifactId>
+                    <version>${slf4j.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                    <version>${slf4j.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
         <!--  for黄承开 需要all in one 的工具,但是all in one 不建议作为依赖包使用在生成环境,所以主要方式还是打包成单独jar包-->
         <profile>

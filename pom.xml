@@ -6,7 +6,7 @@
     <groupId>com.virjar</groupId>
     <artifactId>dungproxy</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.2</version>
+    <version>0.0.4</version>
     <name>dungproxy</name>
     <modules>
         <!-- 发布的时候,只发布client,注释调另外两个module -->
@@ -73,7 +73,7 @@
             <id>release</id>
             <build>
                 <plugins>
-                    <!--不知道干嘛的,发布需要,先抄过来 -->
+                    <!--发布到中央仓库的stating,等待中央仓库检查发布合法性后才会同步到正式环境-->
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>

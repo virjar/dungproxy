@@ -4,11 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +18,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.config.DomainContext;
-import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
+import com.virjar.dungproxy.client.model.CloudProxy;
+import com.virjar.dungproxy.client.ningclient.concurrent.NamedThreadFactory;
 import com.virjar.dungproxy.client.util.IpAvValidator;
 
 /**
@@ -37,8 +40,6 @@ public class DomainPool {
 
     private SmartProxyQueue smartProxyQueue;
 
-    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(false);
-
     private List<AvProxy> removedProxies = Lists.newArrayList();
 
     // 备选的代理资源,他是通过IP下载器下载的的一批初始化IP,但是没有经过可用性测试
@@ -52,9 +53,15 @@ public class DomainPool {
 
     private AtomicInteger refreshTaskNumber = new AtomicInteger(0);
 
-    private DomainContext domainContext;
+    /**
+     * 刷新任务线程池,5个活跃线程,最多25个线程,5分钟内如果有空转,则对线程资源进行回收,超过25个线程放到队列里面执行,discardPolicy永远不会触发<br/>
+     * 如果一个系统变成了需要25个线程来刷新IP资源,那么基本也不能做爬虫了。线程池是静态的,所有域名IP池的刷新任务使用同一个刷新线程池。线程池里面的线程都是守护线程,主线程(用户线程)结束后刷新任务立即结束
+     */
+    private static ThreadPoolExecutor threadPool = new ThreadPoolExecutor(5, 25, 5, TimeUnit.MINUTES,
+            new LinkedBlockingDeque<Runnable>(), new NamedThreadFactory("ip-refresh"),
+            new ThreadPoolExecutor.DiscardPolicy());
 
-    private DungProxyContext dungProxyContext;
+    private DomainContext domainContext;
 
     public DomainContext getDomainContext() {
         return domainContext;
@@ -68,7 +75,6 @@ public class DomainPool {
         this.domain = domain;
         this.resourceFacade = domainContext.getResourceFacade();
         this.domainContext = domainContext;
-        dungProxyContext = domainContext.getDungProxyContext();
         smartProxyQueue = new SmartProxyQueue(domainContext.getSmartProxyQueueRatio(), domainContext.getUseInterval());
         if (defaultProxy != null) {
             addAvailable(defaultProxy);
@@ -76,7 +82,16 @@ public class DomainPool {
 
         // for cloud proxy
         for (AvProxyVO cloudProxy : domainContext.getDungProxyContext().getCloudProxies()) {
-            addAvailable(cloudProxy.toModel(this));
+            if (cloudProxy.getCloudCopyNumber() == null || cloudProxy.getCloudCopyNumber() < 1
+                    || !cloudProxy.getCloud()) {
+                addAvailable(cloudProxy.toModel(this));
+            } else {
+                for (int i = 0; i < cloudProxy.getCloudCopyNumber(); i++) {
+                    CloudProxy avProxy = (CloudProxy) cloudProxy.toModel(this);
+                    avProxy.setOffset(i);
+                    addAvailable(avProxy);
+                }
+            }
         }
     }
 
@@ -97,26 +112,25 @@ public class DomainPool {
     }
 
     public AvProxy bind(String url) {
-        if (testUrls.size() < 10) {
-            testUrls.add(url);
-        } else {
-            testUrls.set(random.nextInt(10), url);
+        if (StringUtils.isNotEmpty(url)) {// post的话,URL不会传递下来
+            if (testUrls.size() < 10) {
+                testUrls.add(url);
+            } else {
+                testUrls.set(random.nextInt(10), url);
+            }
         }
+
         if (needFresh()) {
             refresh();// 在新线程刷新
         }
-
-        readWriteLock.readLock().lock();
-        try {
-            return smartProxyQueue.getAndAdjustPriority();
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        // 当只有两个IP轮询的时候,放弃局部轮询,而是采用全部轮询的方式
+        return smartProxyQueue
+                .getAndAdjustPriority((smartProxyQueue.availableSize() * smartProxyQueue.getRatio()) <= 2);
     }
 
     /**
      * 当前IP池是否需要下载新的IP资源。
-     * 
+     *
      * @return 是否
      */
     public boolean needFresh() {
@@ -128,7 +142,7 @@ public class DomainPool {
 
     /**
      * 动态调整IP刷新线程数量
-     * 
+     *
      * @return 现在可以运行的线程数量
      */
     private int expectedRefreshTaskNumber() {
@@ -162,7 +176,6 @@ public class DomainPool {
 
     /**
      * 本方法会启动线程异步刷线,所以不需要自己建立线程环境了,他不会检查可用IP是否足量,但是如果IP本身量太大的话,本调用也几乎无效(会检查是否需要下载IP,这个检查会失败),
-     *
      */
     public void refresh() {
         if (testUrls.size() == 0) {
@@ -175,21 +188,21 @@ public class DomainPool {
         }
 
         if (refreshTaskNumber.incrementAndGet() <= expectedThreadNumber) {
-            Thread thread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        logger.info("IP资源刷新开始,当前刷新线程数量:{}...", refreshTaskNumber.get());
-                        doRefresh();
-                        logger.info("IP资源刷新结束...");
-                    } finally {
-                        refreshTaskNumber.decrementAndGet();
-                    }
-                }
+            threadPool.execute(new RefreshThread());
+        }
+    }
 
-            };
-            thread.setDaemon(true);
-            thread.start();
+    private class RefreshThread implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                logger.info("IP资源刷新开始,当前刷新线程数量:{}...", refreshTaskNumber.get());
+                doRefresh();
+                logger.info("IP资源刷新结束...");
+            } finally {
+                refreshTaskNumber.decrementAndGet();
+            }
         }
     }
 

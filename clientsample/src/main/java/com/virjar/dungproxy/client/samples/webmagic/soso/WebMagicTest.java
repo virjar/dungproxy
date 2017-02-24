@@ -2,6 +2,7 @@ package com.virjar.dungproxy.client.samples.webmagic.soso;
 
 import java.io.IOException;
 
+import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.ReflectUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.jsoup.nodes.Element;
@@ -32,6 +33,7 @@ public class WebMagicTest implements PageProcessor {
     }
 
     public static void main(String[] args) throws IOException {
+        ProxyConstant.CLIENT_CONFIG_FILE_NAME ="proxyclient_soso.properties";//加载360的配置
 
 
         Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(50)

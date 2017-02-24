@@ -19,7 +19,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -30,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.virjar.dungproxy.client.httpclient.CrawlerHttpClient;
+import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.PoolUtil;
 import com.virjar.dungproxy.client.util.ReflectUtil;
 
@@ -46,7 +47,17 @@ import us.codecraft.webmagic.utils.UrlUtils;
 /**
  * The http downloader based on HttpClient.
  *
- * * 为webMagic实现的downloader,如果有其他定制需求,参考本类实现即可<br/>
+ * 为webMagic实现的downloader,如果有其他定制需求,参考本类实现即可<br/>
+ * <br/>
+ * 本类现在加入了很多新特性,不过使用方式和webmagic原生仍然兼容,如果是webmagic项目且需要定制downloader,建议在本类基础上做修改。
+ * <ul>
+ * <li>代理IP池特性(对接dungprxoy)</li>
+ * <li>代理IP上下线特性</li>
+ * <li>webmagic版本兼容(因为相对于webmagic,本类使用属于外来者,其代码逻辑不能跟随webmagic版本变动而变动)</li>
+ * <li>放开downloader获取原生httpclient的口子,getHttpClient变成public方法,方便使用者模拟登录</li>
+ * <li>多用户在线支持,使用multiUserCookieStore,天生支持多个用户并发的登录爬取数据</li>
+ * <li>用户URL关系维护,他会自动纪录产生的新URL是那个user爬取到的,而且下次调度到一个新URL的时候,会自动获取到新URL是那个账户爬取到的,然后使用对应账户的cookie信息</li>
+ * </ul>
  *
  * <pre>
  * public static void main(String[] args) {
@@ -64,24 +75,31 @@ import us.codecraft.webmagic.utils.UrlUtils;
  *
  * @author code4crafter@gmail.com <br>
  * @author virjar
- * @since 0.0.0
+ * @since 0.0.1
  */
 @ThreadSafe
 public class DungProxyDownloader extends AbstractDownloader {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Map<String, CloseableHttpClient> httpClients = new HashMap<String, CloseableHttpClient>();
+    private final Map<String, CrawlerHttpClient> httpClients = new HashMap<>();
 
     // 自动代理替换了这里
     private DungProxyHttpClientGenerator httpClientGenerator = new DungProxyHttpClientGenerator();
 
-    private CloseableHttpClient getHttpClient(Site site, Proxy proxy) {
+    /**
+     * 设置为public,这样用户就可以获取到原生httpclient,虽然打破了封装,但是用户确实有这样的需求
+     * 
+     * @param site site
+     * @param proxy proxy
+     * @return CrawlerHttpClient,本身继承自CloseableHttpClient,兼容CloseableHttpClient所有方法
+     */
+    public CrawlerHttpClient getHttpClient(Site site, Proxy proxy) {
         if (site == null) {
             return httpClientGenerator.getClient(null, proxy);
         }
         String domain = site.getDomain();
-        CloseableHttpClient httpClient = httpClients.get(domain);
+        CrawlerHttpClient httpClient = httpClients.get(domain);
         if (httpClient == null) {
             synchronized (this) {
                 httpClient = httpClients.get(domain);
@@ -133,6 +151,11 @@ public class DungProxyDownloader extends AbstractDownloader {
 
             HttpUriRequest httpUriRequest = getHttpUriRequest(request, site, headers, proxyHost);
             httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
+            // 扩展功能,支持多用户隔离,默认使用的是crawlerHttpClient,crawlerHttpClient默认则使用multiUserCookieStore
+            if (request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY) != null) {
+                PoolUtil.bindUserKey(httpClientContext, request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY).toString());
+            }
+
             httpResponse = getHttpClient(site, proxy).execute(httpUriRequest, httpClientContext);
             statusCode = httpResponse.getStatusLine().getStatusCode();
             request.putExtra(Request.STATUS_CODE, statusCode);
@@ -283,7 +306,7 @@ public class DungProxyDownloader extends AbstractDownloader {
     protected Page handleResponse(Request request, String charset, HttpResponse httpResponse, Task task)
             throws IOException {
         String content = getContent(charset, httpResponse);
-        Page page = new Page();
+        Page page = new UserSessionPage();
         page.setRawText(content);
         page.setUrl(new PlainText(request.getUrl()));
         page.setRequest(request);

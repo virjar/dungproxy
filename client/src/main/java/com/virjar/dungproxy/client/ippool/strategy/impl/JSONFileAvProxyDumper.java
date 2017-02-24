@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,31 +30,26 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
     private Logger logger = LoggerFactory.getLogger(JSONFileAvProxyDumper.class);
     private String dumpFileName;
 
-    private AtomicBoolean serializing = new AtomicBoolean(false);
-
     @Override
     public void serializeProxy(Map<String, List<AvProxyVO>> data) {
-        if(data == null || data.size() ==0){
+        if (data == null || data.size() == 0) {
             return;
         }
         BufferedWriter bufferedWriter = null;
-        if (serializing.compareAndSet(false, true)) {// 不允许并发的序列化,无意义
-            try {
-                bufferedWriter = Files.newWriter(new File(CommonUtil.ensurePathExist(trimFileName())),
-                        Charset.defaultCharset());
-                String s = JSONObject.toJSONString(data);
-                if (StringUtils.isEmpty(s)) {
-                    logger.warn("序列化的时候,数据损坏,放弃序列化");
-                } else {
-                    bufferedWriter.write(s);
-                }
-
-            } catch (IOException e) {// 发生异常打印日志,但是不抛异常,因为不会影响正常逻辑
-                logger.error("error when serialize proxy data", e);
-            } finally {
-                serializing.set(false);
-                IOUtils.closeQuietly(bufferedWriter);
+        try {
+            bufferedWriter = Files.newWriter(new File(CommonUtil.ensurePathExist(trimFileName())),
+                    Charset.defaultCharset());
+            String s = JSONObject.toJSONString(data);
+            if (StringUtils.isEmpty(s)) {
+                logger.warn("序列化的时候,数据损坏,放弃序列化");
+            } else {
+                bufferedWriter.write(s);
             }
+
+        } catch (IOException e) {// 发生异常打印日志,但是不抛异常,因为不会影响正常逻辑
+            logger.error("error when serialize proxy data", e);
+        } finally {
+            IOUtils.closeQuietly(bufferedWriter);
         }
     }
 

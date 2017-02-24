@@ -55,8 +55,10 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
 
 import com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner;
+import com.virjar.dungproxy.client.httpclient.cookie.DungProxyRequestAddCookies;
+import com.virjar.dungproxy.client.httpclient.cookie.DungProxyResponseProcessCookies;
+import com.virjar.dungproxy.client.httpclient.cookie.MultiUserCookieStore;
 import com.virjar.dungproxy.client.httpclient.execchain.RetryExec;
-import com.virjar.dungproxy.client.util.CommonUtil;
 
 /**
  * Created by virjar on 16/9/19.
@@ -113,6 +115,8 @@ public class CrawlerHttpClientBuilder {
     private boolean cookieManagementDisabled;
     private boolean authCachingDisabled;
     private boolean connectionStateDisabled;
+
+    private boolean multiUserCookieSpaceEnable = true;
 
     private int maxConnTotal = 0;
     private int maxConnPerRoute = 0;
@@ -476,6 +480,11 @@ public class CrawlerHttpClientBuilder {
      */
     public final CrawlerHttpClientBuilder disableCookieManagement() {
         this.cookieManagementDisabled = true;
+        return this;
+    }
+
+    public final CrawlerHttpClientBuilder disableMultiUserCookieSpace() {
+        this.multiUserCookieSpaceEnable = false;
         return this;
     }
 
@@ -937,13 +946,17 @@ public class CrawlerHttpClientBuilder {
             }
             Collection<? extends Header> defaultHeaders = this.defaultHeaders;
             if (defaultHeaders == null) {
-                defaultHeaders = CommonUtil.defaultHeader();
+                defaultHeaders = HeaderBuilder.create().defaultCommonHeader().buildList();// CommonUtil.defaultHeader();
             }
             b.addAll(new RequestDefaultHeaders(defaultHeaders), new RequestContent(), new RequestTargetHost(),
                     new RequestClientConnControl(), new RequestUserAgent(userAgentCopy),
                     new org.apache.http.client.protocol.RequestExpectContinue());
-            if (!cookieManagementDisabled) {
-                b.add(new RequestAddCookies());
+            if (multiUserCookieSpaceEnable) {
+                b.add(new DungProxyRequestAddCookies());
+            } else {
+                if (!cookieManagementDisabled) {
+                    b.add(new RequestAddCookies());
+                }
             }
             if (!contentCompressionDisabled) {
                 if (contentDecoderMap != null) {
@@ -957,8 +970,12 @@ public class CrawlerHttpClientBuilder {
             if (!authCachingDisabled) {
                 b.add(new RequestAuthCache());
             }
-            if (!cookieManagementDisabled) {
-                b.add(new ResponseProcessCookies());
+            if (multiUserCookieSpaceEnable) {
+                b.add(new DungProxyResponseProcessCookies());
+            } else {
+                if (!cookieManagementDisabled) {
+                    b.add(new ResponseProcessCookies());
+                }
             }
             if (!contentCompressionDisabled) {
                 if (contentDecoderMap != null) {
@@ -1055,7 +1072,11 @@ public class CrawlerHttpClientBuilder {
 
         CookieStore defaultCookieStore = this.cookieStore;
         if (defaultCookieStore == null) {
-            defaultCookieStore = new BasicCookieStore();
+            if (multiUserCookieSpaceEnable) {
+                defaultCookieStore = new MultiUserCookieStore();
+            } else {
+                defaultCookieStore = new BasicCookieStore();
+            }
         }
 
         CredentialsProvider defaultCredentialsProvider = this.credentialsProvider;

@@ -238,6 +238,10 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         return get(url, params, charset, headers, null, -1);
     }
 
+    public String get(String url, Header[] headers, HttpClientContext httpClientContext) {
+        return get(url, null, null, headers, null, 0, httpClientContext);
+    }
+
     public String get(String url, Header[] headers, String proxyIp, int proxyPort) {
         return get(url, (List<NameValuePair>) null, null, headers, proxyIp, proxyPort);
     }
@@ -337,6 +341,35 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
     }
 
+    public byte[] getEntity(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
+            int proxyPort, HttpClientContext httpClientContext) {
+        if (params != null && params.size() > 0) {
+            url = url + "?" + URLEncodedUtils.format(params, "utf-8");
+        }
+        HttpGet httpGet = new HttpGet(url);
+        RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
+                .setConnectTimeout(ProxyConstant.CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(ProxyConstant.REQUEST_TIMEOUT).setRedirectsEnabled(true)
+                .setCircularRedirectsAllowed(true);
+        if (StringUtils.isNotEmpty(proxyIp)) {
+            builder.setProxy(new HttpHost(proxyIp, proxyPort));
+        }
+        httpGet.setConfig(builder.build());
+
+        if (headers != null && headers.length > 0) {
+            httpGet.setHeaders(headers);
+        }
+        try {
+            return EntityUtils.toByteArray(execute(httpGet, httpClientContext).getEntity());
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public byte[] getEntity(String url) {
+        return getEntity(url, null, null, null, null, 0, null);
+    }
+
     public String post(String url, String entity, Charset charset, Header[] headers, String proxyIp, int proxyPort) {
         return post(url, new StringEntity(entity, ContentType.TEXT_PLAIN), charset, headers, proxyIp, proxyPort, null);
     }
@@ -382,6 +415,11 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
                 httpClientContext);
     }
 
+    public String post(String url, List<NameValuePair> params, Header[] headers, HttpClientContext httpClientContext) {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, headers, null, -1,
+                httpClientContext);
+    }
+
     public String post(String url, Map<String, String> params, HttpClientContext httpClientContext) {
         return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, null, null, -1,
                 httpClientContext);
@@ -405,6 +443,16 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             int proxyPort) {
         return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), charset, headers, proxyIp,
                 proxyPort, null);
+    }
+
+    public String post(String url, Map<String, String> params, Header[] headers, String proxyIp, int proxyPort) {
+        return post(url, new UrlEncodedFormEntity(convert(params), Charset.defaultCharset()), null, headers, proxyIp,
+                proxyPort, null);
+    }
+
+    public String post(String url, List<NameValuePair> params, Header[] headers, String proxyIp, int proxyPort) {
+        return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, headers, proxyIp, proxyPort,
+                null);
     }
 
     public String post(String url, HttpEntity entity, Charset charset, Header[] headers, String proxyIp, int proxyPort,

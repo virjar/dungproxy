@@ -3,11 +3,13 @@ package com.virjar.dungproxy.client.samples.webmagic.dytt8;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
-import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.virjar.dungproxy.client.ippool.IpPoolHolder;
+import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
+import com.virjar.dungproxy.client.ippool.strategy.impl.WhiteListProxyStrategy;
 import com.virjar.dungproxy.client.webmagic.DungProxyDownloader;
 
 import us.codecraft.webmagic.Page;
@@ -22,19 +24,31 @@ import us.codecraft.webmagic.processor.PageProcessor;
  */
 public class WebMagicTest implements PageProcessor {
     private Site site = Site.me()// .setHttpProxy(new HttpHost("127.0.0.1",8888))
-            .setRetryTimes(3) // 就我的经验,这个重试一般用处不大
+            .setRetryTimes(3) // 就我的经验,这个重试一般用处不大,他是httpclient内部重试
             .setTimeOut(30000)// 在使用代理的情况下,这个需要设置,可以考虑调大线程数目
             .setSleepTime(0)// 使用代理了之后,代理会通过切换IP来防止反扒。同时,使用代理本身qps降低了,所以这个可以小一些
             .setCycleRetryTimes(3)// 这个重试会换IP重试,是setRetryTimes的上一层的重试,不要怕三次重试解决一切问题。。
-            .setUseGzip(true);// 注意调整超时时间
+            .setUseGzip(true);
 
-    private BufferedWriter bufferedWriter;// = new BufferedWriter(new FileWriter("/Users/virjar/Desktop/moveLinksNew.txt"));
+    private BufferedWriter bufferedWriter;// = new BufferedWriter(new
+                                          // FileWriter("/Users/virjar/Desktop/moveLinksNew.txt"));
 
     public WebMagicTest() throws IOException {
     }
 
     public static void main(String[] args) throws IOException {
-        ProxyConstant.CLIENT_CONFIG_FILE_NAME ="proxyclient_dytt8.properties";//加载电影天堂的配置
+        //以下是通过代码配置规则的方案,如果不使用配置文件,则可以解开注释,通过代码的方式
+
+
+        WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
+        whiteListProxyStrategy.addAllHost("www.dytt8.net,www.ygdy8.net");
+
+        // Step2 创建并定制代理规则
+        DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy).setPoolEnabled(false);
+
+        // Step3 使用代理规则初始化默认IP池
+        IpPoolHolder.init(dungProxyContext);
+
 
         Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(30)
                 .addUrl("http://www.dytt8.net/index.html").addUrl("http://www.ygdy8.net/html/gndy/dyzz/index.html")
@@ -49,12 +63,12 @@ public class WebMagicTest implements PageProcessor {
             String href = el.absUrl("href");
             if (StringUtils.startsWith(href, "ftp:") || StringUtils.endsWith(href, ".rar")) {
 
-               // try {
-                //    bufferedWriter.write(href);
-                //    bufferedWriter.newLine();
-                //} catch (IOException e) {
-                //    e.printStackTrace();
-               // }
+                // try {
+                // bufferedWriter.write(href);
+                // bufferedWriter.newLine();
+                // } catch (IOException e) {
+                // e.printStackTrace();
+                // }
 
                 System.out.println(href);// 输出所有下下载地址
             } else {
@@ -64,14 +78,13 @@ public class WebMagicTest implements PageProcessor {
             }
         }
 
-       // try {
-       //     bufferedWriter.flush();
-       // } catch (IOException e) {
-       //     e.printStackTrace();
-       // }
+        // try {
+        // bufferedWriter.flush();
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // }
 
     }
-
 
     private boolean needAddToTarget(String url) {
         if (url.endsWith(".png") || url.endsWith(".jpg") || url.endsWith(".gif")) {

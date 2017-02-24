@@ -3,7 +3,6 @@ package com.virjar.dungproxy.client.model;
 import java.util.List;
 
 import org.apache.http.Header;
-import org.apache.http.NameValuePair;
 
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.DomainPool;
@@ -33,6 +32,11 @@ public class AvProxyVO {
 
     // 是否是云代理,云代理将会参与使用竞争,但是不会下线,云代理本身后面存在一个IP池,做数据转发
     private Boolean cloud;
+
+    /**
+     * 云代理允许存在副本,这样实际上一个云代理可以持有多条通道。有些云代理供应商对客户的使用有并发限制,这个特性就是在这里控制
+     */
+    private Integer cloudCopyNumber;
 
     // 用户名,如果本IP需要登录认证
     private String username;
@@ -123,6 +127,14 @@ public class AvProxyVO {
         this.referCount = referCount;
     }
 
+    public Integer getCloudCopyNumber() {
+        return cloudCopyNumber;
+    }
+
+    public void setCloudCopyNumber(Integer cloudCopyNumber) {
+        this.cloudCopyNumber = cloudCopyNumber;
+    }
+
     public AvProxy toModel(DomainContext domainContext) {
         AvProxy avProxy;
         if (cloud != null && cloud) {
@@ -152,9 +164,7 @@ public class AvProxyVO {
         avProxyVO.setFailedCount(avProxy.getFailedCount());
         avProxyVO.setReferCount(avProxy.getReferCount());
         avProxyVO.setAvgScore(avProxy.getAvgScore());
-        if (avProxy.getDomainPool() != null) {// 今后的domainPool永远不能为null
-            avProxyVO.setDomain(avProxy.getDomainPool().getDomain());
-        }
+        avProxyVO.setDomain(avProxy.getDomainPool().getDomain());
         avProxyVO.setCloud(avProxy instanceof CloudProxy);
 
         avProxyVO.setAuthenticationHeaders(avProxy.getAuthenticationHeaders());

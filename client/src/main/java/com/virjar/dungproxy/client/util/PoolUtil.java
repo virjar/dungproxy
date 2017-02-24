@@ -27,6 +27,10 @@ public class PoolUtil {
         }
     }
 
+    /**
+     * 下线绑定在当前httpClient里面的IP
+     * @param httpClientContext httpClientContext
+     */
     public static void offline(HttpClientContext httpClientContext) {
         if (httpClientContext == null) {
             return;
@@ -40,25 +44,52 @@ public class PoolUtil {
         }
     }
 
+    /**
+     * 清除IP和当前httpClientContext的绑定关系,这个不会导致IP下线
+     */
     public static void cleanProxy(HttpClientContext httpClientContext) {
         httpClientContext.removeAttribute(ProxyConstant.USED_PROXY_KEY);
     }
 
     /**
-     * 将任意一个代表user的对象绑定到http上下文,只要经过此步骤,对应user基本每次都会被绑定到同一个IP上面。<br/>
-     * 适用场景,多个僵尸账户登录目标网站爬取各自所见数据。要求各个用户cookie空间独立, 要求各个账户每次IP保持相同<br/>
-     * 注意,IP池根据用户ID的hash值做一致性哈希绑定,请注意userID对象的hashCode函数是否会被均匀散列
+     * 将任意一个代表user的对象绑定到http上下文,只要经过此步骤,执行过这个步骤之后,这个用户的cookie空间隔离(当然需要httpclient本身构建的时候的组建注册配合),
+     * crawlerHttpClient本身则是支持这个功能的
      *
-     * @deprecated  本功能过度设计,IP和用户的绑定对于大多数抓去场景来说是不必要的,所以废弃这个功能
      * @param httpClientContext http的上下文
      * @param userId 代表用户信息的对象
      */
-    @Deprecated
-    public static void bindUserKey(HttpClientContext httpClientContext, Object userId) {
-       // httpClientContext.setAttribute(ProxyConstant.USER_KEY, userId);
+    public static void bindUserKey(HttpClientContext httpClientContext, String userId) {
+        // throw new UnsupportedOperationException("废弃一致性hash绑定的支持,用户如果需要实现,自己上层维护,IP池IP变化太快,不容易维护");
+        httpClientContext.setAttribute(ProxyConstant.DUNGPROXY_USER_KEY, userId);
     }
 
+    /**
+     * 获取绑定在当前httpClientContext里面的IP
+     * @param httpClientContext
+     * @return IP实例
+     */
     public static AvProxy getBindProxy(HttpClientContext httpClientContext) {
         return httpClientContext.getAttribute(ProxyConstant.USED_PROXY_KEY, AvProxy.class);
     }
+
+    /**
+     * 禁止 com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner 插件使用dungproxy
+     * 
+     * @see com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner
+     */
+    public static void disableDungProxy(HttpClientContext httpClientContext) {
+        httpClientContext.setAttribute(ProxyConstant.DISABLE_DUNGPROXY_KEY, Boolean.TRUE);
+    }
+
+    /**
+     * dungProxy是否启用
+     * 
+     * @param httpClientContext
+     * @return
+     */
+    public static boolean isDungProxyEnabled(HttpClientContext httpClientContext) {
+        Object attribute = httpClientContext.getAttribute(ProxyConstant.DISABLE_DUNGPROXY_KEY);
+        return attribute == null || !Boolean.TRUE.equals(attribute);
+    }
+
 }

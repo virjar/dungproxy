@@ -5,6 +5,15 @@ package com.virjar.dungproxy.client.ippool.config;
  */
 public class ProxyConstant {
     public static final String USED_PROXY_KEY = "USED_PROXY_KEY";
+    /**
+     * 在httpclient里面,如果存在这个key值为true,则取消代理
+     */
+    public static final String DISABLE_DUNGPROXY_KEY = "DISABLE_DUNGPROXY_KEY";
+
+    /**
+     * 用户的key值,在httpclientContext里面,同这个key值确定是那个用户在访问,以实现用户隔离
+     */
+    public static final String DUNGPROXY_USER_KEY = "DUNGPROXY_USER_KEY";
 
     // config 文件默认配置key值
     static final String RESOURCE_FACADE = "proxyclient.resouce.resourceFacade";

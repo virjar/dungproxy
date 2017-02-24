@@ -1,4 +1,4 @@
-package com.virjar.dungproxy.client.httpclient;
+package com.virjar.dungproxy.client.httpclient.cookie;
 
 import java.io.Serializable;
 import java.util.*;

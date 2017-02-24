@@ -12,11 +12,15 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 
+import com.virjar.dungproxy.client.httpclient.cookie.BarrierCookieStore;
+import com.virjar.dungproxy.client.httpclient.cookie.CookieStoreGenerator;
+import com.virjar.dungproxy.client.httpclient.cookie.MultiUserCookieStore;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 
 /**
@@ -56,7 +60,13 @@ public class HttpInvoker {
 
         crawlerHttpClient = CrawlerHttpClientBuilder.create().setMaxConnTotal(1000).setMaxConnPerRoute(50)
                 .setDefaultSocketConfig(socketConfig).setSSLSocketFactory(sslConnectionSocketFactory)
-                .setRedirectStrategy(new LaxRedirectStrategy()).setDefaultCookieStore(new BarrierCookieStore()).build();
+                .setRedirectStrategy(new LaxRedirectStrategy())
+                .setDefaultCookieStore(new MultiUserCookieStore(new CookieStoreGenerator() {
+                    @Override
+                    public CookieStore generate(String user) {
+                        return new BarrierCookieStore();
+                    }
+                })).build();
     }
 
     public static String postJSON(String url, Object entity, Header[] headers) {
@@ -85,6 +95,10 @@ public class HttpInvoker {
 
     public static String get(String url, Header[] headers) {
         return crawlerHttpClient.get(url, headers);
+    }
+
+    public static String get(String url, Header[] headers, HttpClientContext httpClientContext) {
+        return crawlerHttpClient.get(url, headers, httpClientContext);
     }
 
     public static String get(String url, Header[] headers, String proxyIp, int proxyPort) {
@@ -191,6 +205,19 @@ public class HttpInvoker {
         return crawlerHttpClient.post(url, params, headers);
     }
 
+    public static String post(String url, List<NameValuePair> params, HttpClientContext httpClientContext) {
+        return crawlerHttpClient.post(url, params, httpClientContext);
+    }
+
+    public static byte[] getEntity(String url) {
+        return crawlerHttpClient.getEntity(url);
+    }
+
+    public static byte[] getEntity(String url, List<NameValuePair> params, Charset charset, Header[] headers,
+            String proxyIp, int proxyPort, HttpClientContext httpClientContext) {
+        return crawlerHttpClient.getEntity(url, params, charset, headers, proxyIp, proxyPort, httpClientContext);
+    }
+
     public static String post(String url, Map<String, String> params, HttpClientContext httpClientContext) {
         return crawlerHttpClient.post(url, params, httpClientContext);
     }
@@ -202,5 +229,18 @@ public class HttpInvoker {
     public static String postJSON(String url, Object entity, Charset charset, Header[] headers, String proxyIp,
             int proxyPort) {
         return crawlerHttpClient.postJSON(url, entity, charset, headers, proxyIp, proxyPort);
+    }
+
+    public static String post(String url, Map<String, String> params, Header[] headers, String proxyIp, int proxyPort) {
+        return crawlerHttpClient.post(url, params, headers, proxyIp, proxyPort);
+    }
+
+    public static String post(String url, List<NameValuePair> params, Header[] headers, String proxyIp, int proxyPort) {
+        return crawlerHttpClient.post(url, params, headers, proxyIp, proxyPort);
+    }
+
+    public static String post(String url, List<NameValuePair> params, Header[] headers,
+            HttpClientContext httpClientContext) {
+        return crawlerHttpClient.post(url, params, headers, httpClientContext);
     }
 }

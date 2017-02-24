@@ -37,6 +37,7 @@ public class DungProxyContext {
     private PreHeater preHeater = new PreHeater(this);
     private String serverBaseUrl;
     private long serializeStep;
+    private boolean poolEnabled;
 
     // for domain
     private Class<? extends ResourceFacade> defaultResourceFacade;
@@ -58,7 +59,7 @@ public class DungProxyContext {
      */
     private void fillDefaultStrategy() {
         avProxyDumper = new JSONFileAvProxyDumper();
-        needProxyStrategy = new WhiteListProxyStrategy();
+        needProxyStrategy = new ProxyAllStrategy();// new WhiteListProxyStrategy();
         feedBackDuration = 1200000;// 20分钟一次 反馈
         defaultResourceFacade = DefaultResourceFacade.class;
         defaultOffliner = DefaultOffliner.class;
@@ -69,6 +70,7 @@ public class DungProxyContext {
         defaultScoreFactory = 15;
         serverBaseUrl = "http://proxy.scumall.com:8080";
         serializeStep = 30;
+        poolEnabled = true;
         handleConfig();
     }
 
@@ -77,7 +79,16 @@ public class DungProxyContext {
     }
 
     public DungProxyContext setAvProxyDumper(AvProxyDumper avProxyDumper) {
-        this.avProxyDumper = avProxyDumper;
+        this.avProxyDumper = new AvProxyDumperWrapper(avProxyDumper);
+        return this;
+    }
+
+    public boolean isPoolEnabled() {
+        return poolEnabled;
+    }
+
+    public DungProxyContext setPoolEnabled(boolean poolEnabled) {
+        this.poolEnabled = poolEnabled;
         return this;
     }
 
@@ -227,7 +238,7 @@ public class DungProxyContext {
 
     /**
      * 根据域名产生domain的schema
-     * 
+     *
      * @return DomainContext
      */
     public DomainContext genDomainContext(String domain) {
@@ -249,6 +260,8 @@ public class DungProxyContext {
     public static DungProxyContext create() {
         DungProxyContext context = new DungProxyContext();
         context.fillDefaultStrategy();
+        context.buildDefaultConfigFile();
+        context.handleConfig();
         return context;
     }
 
@@ -266,7 +279,7 @@ public class DungProxyContext {
         InputStream resourceAsStream = DungProxyContext.class.getClassLoader()
                 .getResourceAsStream(ProxyConstant.CLIENT_CONFIG_FILE_NAME);
         if (resourceAsStream == null) {
-            logger.warn("没有找到配置文件:{},代理规则几乎不会生效", ProxyConstant.CLIENT_CONFIG_FILE_NAME);
+            logger.warn("没有找到配置文件:{},代理规则可以通过代码来控制", ProxyConstant.CLIENT_CONFIG_FILE_NAME);
             return this;
         }
         Properties properties = new Properties();
@@ -287,34 +300,40 @@ public class DungProxyContext {
         }
 
         // IP下载策略
-        String resouceFace = properties.getProperty(ProxyConstant.RESOURCE_FACADE);
-        if (StringUtils.isNotEmpty(resouceFace)) {
-            defaultResourceFacade = ObjectFactory.classForName(resouceFace);
-            String defaultResourceServerAddress = properties.getProperty(ProxyConstant.DEFAULT_RESOURCE_SERVER_ADDRESS);
-            if (StringUtils.isNotEmpty(defaultResourceServerAddress)) {
-                serverBaseUrl = defaultResourceServerAddress;
-            }
+        String resourceFace = properties.getProperty(ProxyConstant.RESOURCE_FACADE);
+        if (StringUtils.isNotEmpty(resourceFace)) {
+            defaultResourceFacade = ObjectFactory.classForName(resourceFace);
+        }
+        String defaultResourceServerAddress = properties.getProperty(ProxyConstant.DEFAULT_RESOURCE_SERVER_ADDRESS);
+        if (StringUtils.isNotEmpty(defaultResourceServerAddress)) {
+            serverBaseUrl = defaultResourceServerAddress;
         }
 
         // IP代理策略
-        String proxyDomainStrategy = properties.getProperty(ProxyConstant.PROXY_DOMAIN_STRATEGY,
-                ProxyConstant.DEFAULT_DOMAIN_STRATEGY);
+        String proxyDomainStrategy = properties.getProperty(ProxyConstant.PROXY_DOMAIN_STRATEGY);
+        if (StringUtils.isEmpty(proxyDomainStrategy)) {// 如果没有明确配置代理策略,则以黑白名单key值为主
+            if (properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY) != null) {
+                proxyDomainStrategy = WhiteListProxyStrategy.class.getName();
+            } else if (properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY) != null) {
+                proxyDomainStrategy = BlackListProxyStrategy.class.getName();
+            } else {// 如果都没有,则默认代理所有请求
+                proxyDomainStrategy = ProxyAllStrategy.class.getName();
+            }
+        }
         if ("WHITE_LIST".equalsIgnoreCase(proxyDomainStrategy)) {
             proxyDomainStrategy = WhiteListProxyStrategy.class.getName();
         } else if ("BLACK_LIST".equalsIgnoreCase(proxyDomainStrategy)) {
             proxyDomainStrategy = BlackListProxyStrategy.class.getName();
         }
-        if (StringUtils.isNotEmpty(proxyDomainStrategy)) {
-            needProxyStrategy = ObjectFactory.newInstance(proxyDomainStrategy);
-            if (needProxyStrategy instanceof WhiteListProxyStrategy) {
-                WhiteListProxyStrategy whiteListProxyStrategy = (WhiteListProxyStrategy) needProxyStrategy;
-                String whiteListProperty = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
-                whiteListProxyStrategy.addAllHost(whiteListProperty);
-            } else if (needProxyStrategy instanceof BlackListProxyStrategy) {
-                BlackListProxyStrategy blackListProxyStrategy = (BlackListProxyStrategy) needProxyStrategy;
-                String proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
-                blackListProxyStrategy.addAllHost(proxyDomainStrategyWhiteList);
-            }
+        needProxyStrategy = ObjectFactory.newInstance(proxyDomainStrategy);
+        if (needProxyStrategy instanceof WhiteListProxyStrategy) {
+            WhiteListProxyStrategy whiteListProxyStrategy = (WhiteListProxyStrategy) needProxyStrategy;
+            String whiteListProperty = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
+            whiteListProxyStrategy.addAllHost(whiteListProperty);
+        } else if (needProxyStrategy instanceof BlackListProxyStrategy) {
+            BlackListProxyStrategy blackListProxyStrategy = (BlackListProxyStrategy) needProxyStrategy;
+            String proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
+            blackListProxyStrategy.addAllHost(proxyDomainStrategyWhiteList);
         }
 
         // 反馈时间
@@ -326,14 +345,14 @@ public class DungProxyContext {
         // 序列化接口
         String avDumper = properties.getProperty(ProxyConstant.PROXY_SERIALIZER);
         if (StringUtils.isNotEmpty(avDumper)) {
-            avProxyDumper = ObjectFactory.newInstance(avDumper);
+            AvProxyDumper tempDumper = ObjectFactory.newInstance(avDumper);
+            setAvProxyDumper(tempDumper);// 对他做一层包装,防止空序列化
 
         }
         String defaultAvDumpeFileName = properties.getProperty(ProxyConstant.DEFAULT_PROXY_SERALIZER_FILE);
         if (StringUtils.isNotEmpty(defaultAvDumpeFileName)) {
             avProxyDumper.setDumpFileName(defaultAvDumpeFileName);
         }
-
 
         String preHeaterTaskList = properties.getProperty(ProxyConstant.PREHEATER_TASK_LIST);
         if (StringUtils.isNotEmpty(preHeaterTaskList)) {
