@@ -84,3 +84,4 @@ System.out.println(string);
 - 云代理按domain区分(请求少,目标在国外,IP总量少且不活跃导致IP池空,可以通过单独设置云代理的方式来规避。当然爬虫应该不会有这个需求)
 - 云代理partner关系维护,支持partner统一限流和封禁
 - 云代理强制下线支持(提供新的入口API)
+- 网页编码自动探测逻辑，部分网页探测失败告警 case： http://www.smzdm.com/p/6962092，本case编码是正确的，但是dungProxy解析不正确
