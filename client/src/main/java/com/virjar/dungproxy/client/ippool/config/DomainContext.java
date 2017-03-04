@@ -2,6 +2,7 @@ package com.virjar.dungproxy.client.ippool.config;
 
 import com.google.common.base.Preconditions;
 import com.virjar.dungproxy.client.ippool.strategy.Offline;
+import com.virjar.dungproxy.client.ippool.strategy.ProxyChecker;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.ippool.strategy.Scoring;
 
@@ -13,6 +14,7 @@ public class DomainContext {
     private ResourceFacade resourceFacade;
     private Scoring scoring;
     private Offline offline;
+    private ProxyChecker proxyChecker;
     private int coreSize;
     private double smartProxyQueueRatio;
     private long useInterval;
@@ -107,6 +109,15 @@ public class DomainContext {
         return this;
     }
 
+    public ProxyChecker getProxyChecker() {
+        return proxyChecker;
+    }
+
+    public DomainContext setProxyChecker(ProxyChecker proxyChecker) {
+        this.proxyChecker = proxyChecker;
+        return this;
+    }
+
     /**
      * 检查缺失配置项,如果有缺失,则添加默认策略
      * 
@@ -128,16 +139,19 @@ public class DomainContext {
             resourceFacade = ObjectFactory.newInstance(dungProxyContext.getDefaultResourceFacade());
         }
 
-        if(scoring == null){
+        if (scoring == null) {
             scoring = ObjectFactory.newInstance(dungProxyContext.getDefaultScoring());
         }
 
-        if(offline == null){
+        if (offline == null) {
             this.offline = ObjectFactory.newInstance(dungProxyContext.getDefaultOffliner());
         }
 
-        if(this.scoreFactory<=0){
+        if (this.scoreFactory <= 0) {
             this.scoreFactory = dungProxyContext.getDefaultScoreFactory();
+        }
+        if (proxyChecker == null) {
+            this.proxyChecker = ObjectFactory.newInstance(dungProxyContext.getDefaultProxyChecker());
         }
         return this;
     }

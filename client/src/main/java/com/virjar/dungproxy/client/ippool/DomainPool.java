@@ -23,7 +23,6 @@ import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.model.CloudProxy;
 import com.virjar.dungproxy.client.ningclient.concurrent.NamedThreadFactory;
-import com.virjar.dungproxy.client.util.IpAvValidator;
 
 /**
  * Created by virjar on 16/9/29.
@@ -236,7 +235,7 @@ public class DomainPool {
         AvProxyVO avProxy;
         // PreHeater preHeater = dungProxyContext.getPreHeater();
         while ((avProxy = candidateProxies.poll()) != null) {
-            if (IpAvValidator.available(avProxy, testUrls.get(random.nextInt(testUrls.size())))) {
+            if (domainContext.getProxyChecker().available(avProxy, testUrls.get(random.nextInt(testUrls.size())))) {
                 avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
                 addAvailable(avProxy.toModel(domainContext));
                 logger.info("IP池当前可用IP数目:{}", smartProxyQueue.availableSize());
