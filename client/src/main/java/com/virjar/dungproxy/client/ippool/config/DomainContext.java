@@ -1,11 +1,13 @@
 package com.virjar.dungproxy.client.ippool.config;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.strategy.Offline;
 import com.virjar.dungproxy.client.ippool.strategy.ProxyChecker;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.ippool.strategy.Scoring;
-
+import com.virjar.dungproxy.client.model.AvProxyVO;
+import java.util.List;
 /**
  * Created by virjar on 17/1/23.
  */
@@ -20,7 +22,7 @@ public class DomainContext {
     private long useInterval;
     private String domain;
     private int scoreFactory;
-
+    private List<AvProxyVO> defaultProxy;
     /**
      * 不允许包外访问
      */
@@ -121,6 +123,15 @@ public class DomainContext {
         return this;
     }
 
+    public List<AvProxyVO> getDefaultProxy() {
+        return defaultProxy;
+    }
+
+    public DomainContext setDefaultProxy(List<AvProxyVO> defaultProxy) {
+        this.defaultProxy = defaultProxy;
+        return this;
+    }
+
     /**
      * 检查缺失配置项,如果有缺失,则添加默认策略
      * 
@@ -155,6 +166,9 @@ public class DomainContext {
         }
         if (proxyChecker == null) {
             this.proxyChecker = ObjectFactory.newInstance(dungProxyContext.getDefaultProxyChecker());
+        }
+        if(defaultProxy == null){
+            this.defaultProxy = Lists.newArrayList();
         }
         return this;
     }

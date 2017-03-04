@@ -139,12 +139,16 @@ public class AvProxy {
         referCount.incrementAndGet();
     }
 
-    public void offline() {
+    public void offline(boolean force){
         if (needRecordChange) {
             recordProxyChange();
         }
         disable = true;
         domainPool.offline(this);
+    }
+
+    public void offline() {
+        offline(false);
     }
 
     public long getLastUsedTime() {

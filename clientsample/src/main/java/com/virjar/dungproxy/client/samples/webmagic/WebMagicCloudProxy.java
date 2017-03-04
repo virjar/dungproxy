@@ -44,7 +44,7 @@ public class WebMagicCloudProxy implements PageProcessor {
         avProxyVO.setIp("proxy.abuyun.com");//阿布云服务器地址
         avProxyVO.setPort(9010);//阿布云服务器端口
         avProxyVO.setCloud(true);//标示这个代理是云代理
-        avProxyVO.setCloudCopyNumber(4);//个人阿布云账户是支持4个并发,使用者填写各自的并发数目
+        avProxyVO.setPartnerSize(4);//个人阿布云账户是支持4个并发,使用者填写各自的并发数目
         //如果是通过头部认证的方式,则如下添加
         //avProxyVO.setAuthenticationHeaders(HeaderBuilder.create().withHeader("Proxy-Authorization", "token").buildList());
         avProxyVO.setUsername("H402MPRHB15K37YD");//代理帐户

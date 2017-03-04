@@ -21,7 +21,6 @@ import com.virjar.dungproxy.client.ippool.config.DomainContext;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
-import com.virjar.dungproxy.client.model.CloudProxy;
 import com.virjar.dungproxy.client.ningclient.concurrent.NamedThreadFactory;
 
 /**
@@ -67,28 +66,32 @@ public class DomainPool {
     }
 
     public DomainPool(String domain, DomainContext domainContext) {
-        this(domain, domainContext, null);
-    }
-
-    public DomainPool(String domain, DomainContext domainContext, List<AvProxy> defaultProxy) {
         this.domain = domain;
         this.resourceFacade = domainContext.getResourceFacade();
         this.domainContext = domainContext;
         this.coreSize = domainContext.getCoreSize();
         smartProxyQueue = new SmartProxyQueue(domainContext.getSmartProxyQueueRatio(), domainContext.getUseInterval());
-        if (defaultProxy != null) {
-            addAvailable(defaultProxy);
-        }
 
-        // for cloud proxy
+        // 全局默认代理 cloud proxy
         for (AvProxyVO cloudProxy : domainContext.getDungProxyContext().getCloudProxies()) {
-            if (cloudProxy.getCloudCopyNumber() == null || cloudProxy.getCloudCopyNumber() < 1
-                    || !cloudProxy.getCloud()) {
+            if (cloudProxy.getPartnerSize() == null || cloudProxy.getPartnerSize() < 1 || !cloudProxy.getCloud()) {
                 addAvailable(cloudProxy.toModel(this));
             } else {
-                for (int i = 0; i < cloudProxy.getCloudCopyNumber(); i++) {
-                    CloudProxy avProxy = (CloudProxy) cloudProxy.toModel(this);
-                    avProxy.setOffset(i);
+                List<? extends AvProxy> avProxies = cloudProxy.toPartnerModels(domainContext);
+                for (AvProxy avProxy : avProxies) {
+                    addAvailable(avProxy);
+                }
+            }
+        }
+
+        // domain区分的局部默认代理
+        for (AvProxyVO defaultProxy : domainContext.getDefaultProxy()) {
+            if (defaultProxy.getPartnerSize() == null || defaultProxy.getPartnerSize() < 1
+                    || !defaultProxy.getCloud()) {
+                addAvailable(defaultProxy.toModel(this));
+            } else {
+                List<? extends AvProxy> avProxies = defaultProxy.toPartnerModels(domainContext);
+                for (AvProxy avProxy : avProxies) {
                     addAvailable(avProxy);
                 }
             }
