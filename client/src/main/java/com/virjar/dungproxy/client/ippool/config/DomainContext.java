@@ -33,6 +33,7 @@ public class DomainContext {
     }
 
     public DomainContext setCoreSize(int coreSize) {
+        Preconditions.checkArgument(coreSize > 0, "domain pool core size must greater zero");
         this.coreSize = coreSize;
         return this;
     }
@@ -69,6 +70,7 @@ public class DomainContext {
     }
 
     public DomainContext setUseInterval(long useInterval) {
+        Preconditions.checkArgument(useInterval > 0,"useInterval must greater zero");
         this.useInterval = useInterval;
         return this;
     }
@@ -105,6 +107,7 @@ public class DomainContext {
     }
 
     public DomainContext setScoreFactory(int scoreFactory) {
+        Preconditions.checkArgument(scoreFactory>0,"scoreFactory must greater than zero");
         this.scoreFactory = scoreFactory;
         return this;
     }

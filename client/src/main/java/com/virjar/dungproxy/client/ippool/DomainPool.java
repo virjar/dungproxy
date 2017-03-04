@@ -74,6 +74,7 @@ public class DomainPool {
         this.domain = domain;
         this.resourceFacade = domainContext.getResourceFacade();
         this.domainContext = domainContext;
+        this.coreSize = domainContext.getCoreSize();
         smartProxyQueue = new SmartProxyQueue(domainContext.getSmartProxyQueueRatio(), domainContext.getUseInterval());
         if (defaultProxy != null) {
             addAvailable(defaultProxy);
