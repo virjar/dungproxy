@@ -203,12 +203,11 @@ public class PreHeater {
                 }
             });
 
-            if (pool.containsKey(entry.getKey())) {
-                pool.get(entry.getKey()).addAvailable(avProxies);
-            } else {
+            if (!pool.containsKey(entry.getKey())) {
                 pool.put(entry.getKey(),
-                        new DomainPool(entry.getKey(), dungProxyContext.genDomainContext(entry.getKey()), avProxies));
+                        new DomainPool(entry.getKey(), dungProxyContext.genDomainContext(entry.getKey())));
             }
+            pool.get(entry.getKey()).addAvailable(avProxies);
         }
         stringDomainPoolMap = pool;
     }
