@@ -140,6 +140,9 @@ public class AvProxy {
     }
 
     public void offline(boolean force){
+        if(!force){
+            return;//只有force的时候才真正下线
+        }
         if (needRecordChange) {
             recordProxyChange();
         }
@@ -148,7 +151,7 @@ public class AvProxy {
     }
 
     public void offline() {
-        offline(false);
+        offline(true);
     }
 
     public long getLastUsedTime() {
