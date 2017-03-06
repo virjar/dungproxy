@@ -38,6 +38,7 @@ public class HeaderBuilder {
     public HeaderBuilder withFormData() {
         removeHeader("Content-Type");
         headerList.add(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+        headerList.add(new BasicHeader("X-Requested-With","XMLHttpRequest"));
         return this;
     }
 
