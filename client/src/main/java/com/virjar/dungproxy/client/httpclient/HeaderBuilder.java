@@ -38,8 +38,22 @@ public class HeaderBuilder {
     public HeaderBuilder withFormData() {
         removeHeader("Content-Type");
         headerList.add(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
-        headerList.add(new BasicHeader("X-Requested-With","XMLHttpRequest"));
         return this;
+    }
+
+    /**
+     * ajax的话,是通过XMLHttpRequest发出请求的
+     * 
+     * @return HeaderBuilder
+     */
+    public HeaderBuilder withAjaxRequest() {
+        removeHeader("X-Requested-With");
+        headerList.add(new BasicHeader("X-Requested-With", "XMLHttpRequest"));
+        return this;
+    }
+
+    public HeaderBuilder withAjaxForm() {
+        return withFormData().withAjaxRequest();
     }
 
     public HeaderBuilder withUA(String userAgent) {
