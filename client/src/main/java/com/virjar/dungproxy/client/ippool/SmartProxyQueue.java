@@ -92,12 +92,9 @@ public class SmartProxyQueue {
                     logger.info("IP:{}使用小于规定时间间隔{}秒,暂时封禁", poll.getIp(), (useInterval / 1000));
                     continue;
                 }
-                int index = proxies.size() - 1;
+                int index = proxies.size();
                 if (!adjustTail) {
                     index = (int) (proxies.size() * ratio);
-                }
-                if (index < 0) {
-                    index = 0;
                 }
                 proxies.add(index, poll);
                 return poll;
