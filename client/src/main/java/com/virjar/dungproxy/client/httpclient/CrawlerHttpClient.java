@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +45,7 @@ import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.CharsetDetector;
 
@@ -63,12 +65,14 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     private final CredentialsProvider credentialsProvider;
     private final RequestConfig defaultConfig;
     private final List<Closeable> closeables;
+    private ConcurrentMap<String, Charset> charsetCache = Maps.newConcurrentMap();
+    private boolean charsetCacheEnable = true;
 
     CrawlerHttpClient(final ClientExecChain execChain, final HttpClientConnectionManager connManager,
             final HttpRoutePlanner routePlanner, final Lookup<CookieSpecProvider> cookieSpecRegistry,
             final Lookup<AuthSchemeProvider> authSchemeRegistry, final CookieStore cookieStore,
             final CredentialsProvider credentialsProvider, final RequestConfig defaultConfig,
-            final List<Closeable> closeables) {
+            final List<Closeable> closeables, final boolean charsetCacheEnable) {
         super();
         Args.notNull(execChain, "HTTP client exec chain");
         Args.notNull(connManager, "HTTP connection manager");
@@ -82,6 +86,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         this.credentialsProvider = credentialsProvider;
         this.defaultConfig = defaultConfig;
         this.closeables = closeables;
+        this.charsetCacheEnable = charsetCacheEnable;
     }
 
     private HttpRoute determineRoute(final HttpHost target, final HttpRequest request, final HttpContext context)
@@ -339,7 +344,8 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             httpGet.setHeaders(headers);
         }
         try {
-            return decodeHttpResponse(execute(httpGet, httpClientContext), charset);
+            return decodeHttpResponse(execute(httpGet, httpClientContext), charset,
+                    httpGet.getURI().getScheme() + httpGet.getURI().getHost());
         } catch (IOException e) {
             return null;
         }
@@ -477,17 +483,21 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
         httpPost.setEntity(entity);
         try {
-            return decodeHttpResponse(execute(httpPost, httpClientContext), charset);
+            return decodeHttpResponse(execute(httpPost, httpClientContext), charset,
+                    httpPost.getURI().getScheme() + httpPost.getURI().getHost());
         } catch (IOException e) {
             return null;
         }
 
     }
 
-    private String decodeHttpResponse(CloseableHttpResponse response, Charset charset) throws IOException {
+    private String decodeHttpResponse(CloseableHttpResponse response, Charset charset, String host) throws IOException {
         byte[] bytes = EntityUtils.toByteArray(response.getEntity());
         String charsetStr = null;
         try {
+            if (charset == null && charsetCacheEnable) {
+                charset = charsetCache.get(host);
+            }
             if (charset == null) {
                 Header contentType = response.getFirstHeader("Content-Type");
                 if (contentType != null) {
