@@ -491,33 +491,42 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
     }
 
-    private String decodeHttpResponse(CloseableHttpResponse response, Charset charset, String host) throws IOException {
+    private String decodeHttpResponse(CloseableHttpResponse response, Charset charset, String hostKey)
+            throws IOException {
         byte[] bytes = EntityUtils.toByteArray(response.getEntity());
         String charsetStr = null;
         try {
             if (charset == null && charsetCacheEnable) {
-                charset = charsetCache.get(host);
+                charset = charsetCache.get(hostKey);
             }
             if (charset == null) {
                 Header contentType = response.getFirstHeader("Content-Type");
                 if (contentType != null) {
                     charsetStr = CharsetDetector.detectHeader(contentType);
                     if (charsetStr != null) {
-                        charset = Charset.forName(charsetStr);
+                        charset = Charset.forName(charsetStr.trim());
                     }
                 }
             }
             if (charset == null) {
                 charsetStr = CharsetDetector.detectHtmlContent(bytes);
                 if (charsetStr != null) {
-                    charset = Charset.forName(charsetStr);
+                    charset = Charset.forName(charsetStr.trim());
                 }
             }
+
+            if (charset != null && charsetCacheEnable) {
+                charsetCache.putIfAbsent(hostKey, charset);
+            }
+
             if (charset == null) {
                 charset = Charset.defaultCharset();
             }
         } catch (java.nio.charset.IllegalCharsetNameException e) {
             log.warn("字符集" + charsetStr + "不能识别", e);
+            charset = Charset.defaultCharset();
+        } catch (java.nio.charset.UnsupportedCharsetException ue) {
+            log.warn("字符集" + charsetStr + "不能识别", ue);
             charset = Charset.defaultCharset();
         }
         return new String(bytes, charset);
