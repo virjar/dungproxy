@@ -85,5 +85,5 @@ System.out.println(string);
 - 云代理partner关系维护,支持partner统一限流和封禁 部分完成
 - 云代理强制下线支持(提供新的入口API) 已完成
 - 网页编码自动探测逻辑，部分网页探测失败告警 case： http://www.smzdm.com/p/6962092 ，本case编码是正确的，但是dungProxy解析不正确 已完成,有优化空间
-- 编码探测缓存,对于指定网站的请求,一般来说编码都是一致的,考虑增加字符集探测缓存模块。开启本模块后,字符集就直接走映射表
-- EntityUtil.consume关闭失败,ContentLength和预期不一致,本问题不是dungproxy本身责任,不过依然可以追查一下是否会关闭连接资源
+- 编码探测缓存,对于指定网站的请求,一般来说编码都是一致的,考虑增加字符集探测缓存模块。开启本模块后,字符集就直接走映射表 完成
+- EntityUtil.consume关闭失败,ContentLength和预期不一致,本问题不是dungproxy本身责任,不过依然可以追查一下是否会关闭连接资源 完成

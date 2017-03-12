@@ -16,6 +16,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -132,6 +133,7 @@ public class DungProxyDownloader extends AbstractDownloader {
         CloseableHttpResponse httpResponse = null;
         int statusCode = 0;
         HttpClientContext httpClientContext = null;
+        HttpUriRequest httpUriRequest = null;
         try {
             HttpHost proxyHost = null;
             Proxy proxy = null; // TODO
@@ -149,13 +151,13 @@ public class DungProxyDownloader extends AbstractDownloader {
                 proxyHost = site.getHttpProxy();
             }
 
-            HttpUriRequest httpUriRequest = getHttpUriRequest(request, site, headers, proxyHost);
+            httpUriRequest = getHttpUriRequest(request, site, headers, proxyHost);
             httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
             // 扩展功能,支持多用户隔离,默认使用的是crawlerHttpClient,crawlerHttpClient默认则使用multiUserCookieStore
             if (request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY) != null) {
                 PoolUtil.bindUserKey(httpClientContext, request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY).toString());
             }
-
+            httpUriRequest.abort();
             httpResponse = getHttpClient(site, proxy).execute(httpUriRequest, httpClientContext);
             statusCode = httpResponse.getStatusLine().getStatusCode();
             request.putExtra(Request.STATUS_CODE, statusCode);
@@ -196,6 +198,11 @@ public class DungProxyDownloader extends AbstractDownloader {
                         (Integer) request.getExtra(Request.STATUS_CODE));
             }
             try {
+                // 先释放链接,在consume,consume本身会释放链接,但是可能提前抛错导致链接释放失败
+                if (httpUriRequest != null && httpUriRequest instanceof HttpRequestBase) {
+                    ((HttpRequestBase) (httpUriRequest)).releaseConnection();
+                }
+
                 if (httpResponse != null) {
                     // ensure the connection is released back to pool
                     EntityUtils.consume(httpResponse.getEntity());
