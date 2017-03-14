@@ -38,7 +38,7 @@ public class GroupBindRouter {
         String keyDomain = split[0];
         String similarDomainList = split[1];
 
-        for (String similarDomain : Splitter.on(",").split(similarDomainList)) {
+        for (String similarDomain : Splitter.on(",").trimResults().split(similarDomainList)) {
             if (similarDomain.equals(keyDomain)) {
                 continue;// 否则会打印一个无效日志,以及递归问题
             }
