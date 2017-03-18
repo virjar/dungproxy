@@ -17,6 +17,15 @@ public class WhiteListProxyStrategy implements ProxyDomainStrategy {
     private Logger logger = LoggerFactory.getLogger(WhiteListProxyStrategy.class);
     private Set<String> whiteList = Sets.newConcurrentHashSet();
 
+    public WhiteListProxyStrategy() {
+    }
+
+    public WhiteListProxyStrategy(String whiteList) {
+        if (StringUtils.isNotEmpty(whiteList)) {
+            this.whiteList.addAll(Splitter.on(";").omitEmptyStrings().trimResults().splitToList(whiteList));
+        }
+    }
+
     @Override
     public boolean needProxy(String host) {
         return whiteList.contains(host);

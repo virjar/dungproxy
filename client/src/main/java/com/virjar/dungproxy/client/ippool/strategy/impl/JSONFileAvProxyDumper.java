@@ -30,6 +30,18 @@ public class JSONFileAvProxyDumper implements AvProxyDumper {
     private Logger logger = LoggerFactory.getLogger(JSONFileAvProxyDumper.class);
     private String dumpFileName;
 
+    public JSONFileAvProxyDumper() {
+    }
+
+    /**
+     * 增加这个方法,方便实际调用
+     * 
+     * @param dumpFileName 序列化文件名
+     */
+    public JSONFileAvProxyDumper(String dumpFileName) {
+        this.dumpFileName = dumpFileName;
+    }
+
     @Override
     public void serializeProxy(Map<String, List<AvProxyVO>> data) {
         if (data == null || data.size() == 0) {
