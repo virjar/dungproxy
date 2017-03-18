@@ -153,6 +153,9 @@ public class PreHeater {
         @Override
         public Boolean call() throws Exception {
             String domain = CommonUtil.extractDomain(url);
+            // 路由一波,保证和api规则一直
+            domain = dungProxyContext.getGroupBindRouter().routeDomain(domain);
+
             DomainPool domainPool = stringDomainPoolMap.get(domain);
             if (domainPool == null) {
                 synchronized (UrlCheckTask.class) {

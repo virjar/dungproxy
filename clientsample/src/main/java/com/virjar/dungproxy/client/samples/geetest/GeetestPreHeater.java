@@ -24,7 +24,7 @@ import com.virjar.dungproxy.client.model.AvProxyVO;
 
 /**
  * Created by virjar on 17/3/18. <br/>
- * 用来产生滑块验证码所需要的代理
+ * 用来产生滑块验证码所需要的代理,可参考本人项目实现滑块破解 <a href="http://gitlab.scumall.com/jike/geetes_demo">滑块验证码破解支持</a>scumall是我创办的小公司
  */
 public class GeetestPreHeater {
     public static void main(String[] args) {
