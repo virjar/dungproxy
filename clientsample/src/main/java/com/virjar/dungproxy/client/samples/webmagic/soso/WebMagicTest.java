@@ -38,7 +38,9 @@ public class WebMagicTest implements PageProcessor {
 
         Spider.create(new WebMagicTest()).setDownloader(new DungProxyDownloader()).thread(50)
                 .addUrl("https://www.so.com/s?q=%E8%8C%89%E8%8E%89&pn=9")
-                .addUrl("https://www.so.com/s?q=%E6%A0%80%E5%AD%90%E8%8A%B1&pn=9").start();
+                .addUrl("https://www.so.com/s?q=%E6%A0%80%E5%AD%90%E8%8A%B1&pn=9")
+                //.addUrl("https://www.so.com/s?q=%E6%A0%80%E5%AD%90%E8%8A%B1%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%BC%80&src=related_b&psid=28c3e715ecee86edbeea8aa97b2a2e28&eci=a9364e20c02845b2&nlpv=rel_b##more")
+                .start();
 
     }
 

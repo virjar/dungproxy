@@ -56,8 +56,6 @@ public class IpPool {
             groupBindRouter.buildRule("www.virjar.com:.*");
         }
 
-
-
         isRunning = true;
 
         unSerialize();
@@ -143,7 +141,7 @@ public class IpPool {
             return null;// 关闭了全局的代理池功能
         }
         if (!isRunning) {
-            throw new PoolDestroyException();
+            throw new PoolDestroyException("IP池已经被销毁,不能提供IP服务");
         }
         host = groupBindRouter.routeDomain(host);
 

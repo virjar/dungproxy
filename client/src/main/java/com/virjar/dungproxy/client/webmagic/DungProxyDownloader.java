@@ -16,7 +16,6 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -90,10 +89,10 @@ public class DungProxyDownloader extends AbstractDownloader {
 
     /**
      * 设置为public,这样用户就可以获取到原生httpclient,虽然打破了封装,但是用户确实有这样的需求
-     * 
+     *
      * @param site site
      * @param proxy proxy
-     * @return CrawlerHttpClient,本身继承自CloseableHttpClient,兼容CloseableHttpClient所有方法
+     * @return CrawlerHttpClient, 本身继承自CloseableHttpClient, 兼容CloseableHttpClient所有方法
      */
     public CrawlerHttpClient getHttpClient(Site site, Proxy proxy) {
         if (site == null) {
@@ -157,7 +156,7 @@ public class DungProxyDownloader extends AbstractDownloader {
             if (request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY) != null) {
                 PoolUtil.bindUserKey(httpClientContext, request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY).toString());
             }
-            httpUriRequest.abort();
+
             httpResponse = getHttpClient(site, proxy).execute(httpUriRequest, httpClientContext);
             statusCode = httpResponse.getStatusLine().getStatusCode();
             request.putExtra(Request.STATUS_CODE, statusCode);
@@ -199,8 +198,12 @@ public class DungProxyDownloader extends AbstractDownloader {
             }
             try {
                 // 先释放链接,在consume,consume本身会释放链接,但是可能提前抛错导致链接释放失败
-                if (httpUriRequest != null && httpUriRequest instanceof HttpRequestBase) {
-                    ((HttpRequestBase) (httpUriRequest)).releaseConnection();
+                if (httpUriRequest != null) {
+                    try {
+                        httpUriRequest.abort();
+                    } catch (UnsupportedOperationException unsupportedOperationException) {
+                        logger.error("can not abort connection", unsupportedOperationException);
+                    }
                 }
 
                 if (httpResponse != null) {
