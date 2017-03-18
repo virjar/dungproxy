@@ -43,6 +43,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
+import org.mozilla.universalchardet.UniversalDetector;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
@@ -515,6 +516,18 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
                 }
             }
 
+            if (charset == null) {
+                // 二进制检查,
+                UniversalDetector detector = new UniversalDetector(null);
+                detector.handleData(bytes, 0, bytes.length);//这里可能非常消耗性能,所以考虑是否默认开启缓存
+                detector.dataEnd();
+                String encoding = detector.getDetectedCharset();
+                if (encoding != null) {
+                    charset = Charset.forName(encoding);
+                }
+                detector.reset();
+            }
+
             if (charset != null && charsetCacheEnable) {
                 charsetCache.putIfAbsent(hostKey, charset);
             }
@@ -522,6 +535,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             if (charset == null) {
                 charset = Charset.defaultCharset();
             }
+
         } catch (java.nio.charset.IllegalCharsetNameException e) {
             log.warn("字符集" + charsetStr + "不能识别", e);
             charset = Charset.defaultCharset();
