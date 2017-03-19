@@ -25,7 +25,7 @@ qq 群,人肉文档支持😁
 <dependency>
     <groupId>com.virjar</groupId>
     <artifactId>dungproxy-client</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
 </dependency>
 ```
 ##快速开始
