@@ -18,7 +18,7 @@ import com.virjar.dungproxy.server.entity.Proxy;
 /**
  * Created by virjar on 17/3/19.
  */
-@Component
+//@Component
 public class KuaiDailiCollector extends NewCollector {
     private ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
     private Invocable invo = (Invocable) engine
