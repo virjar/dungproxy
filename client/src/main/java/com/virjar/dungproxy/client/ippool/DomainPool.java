@@ -242,7 +242,7 @@ public class DomainPool {
             if (domainContext.getProxyChecker().available(avProxy, testUrls.get(random.nextInt(testUrls.size())))) {
                 avProxy.setAvgScore(0.5);// 设置默认值。让他处于次级缓存的中间。
                 addAvailable(avProxy.toModel(domainContext));
-                logger.info("IP池当前可用IP数目:{}", smartProxyQueue.availableSize());
+                logger.info("IP池{}当前可用IP数目:{}", domain, smartProxyQueue.availableSize());
             }
         }
     }
