@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<handmapers>
+    <maper>
+        <website>http://www.kuaidaili.com/</website>
+        <fetcher>/fetcher/www_kuaidaili_com.xml</fetcher>
+        <batchsize>600</batchsize>
+        <hierate>10m</hierate>
+        <wildcardgenerator>http://www.kuaidaili.com/proxylist/#{autoincreament}/
+        </wildcardgenerator>
+        <enable>true</enable>
+        <successKey>表中响应速度是中国测速服务器的测试数据</successKey>
+    </maper>
+</handmapers>

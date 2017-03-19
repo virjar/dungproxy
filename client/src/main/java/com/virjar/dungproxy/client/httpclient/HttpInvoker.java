@@ -30,6 +30,10 @@ import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 public class HttpInvoker {
     private static CrawlerHttpClient crawlerHttpClient;
     static {
+        crawlerHttpClient = buildDefault();
+    }
+
+    public static CrawlerHttpClient buildDefault() {
         SocketConfig socketConfig = SocketConfig.custom().setSoKeepAlive(true).setSoLinger(-1).setSoReuseAddress(false)
                 .setSoTimeout(ProxyConstant.SOCKETSO_TIMEOUT).setTcpNoDelay(true).build();
         X509TrustManager x509mgr = new X509TrustManager() {
@@ -58,7 +62,7 @@ public class HttpInvoker {
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
                 SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
-        crawlerHttpClient = CrawlerHttpClientBuilder.create().setMaxConnTotal(1000).setMaxConnPerRoute(50)
+        return CrawlerHttpClientBuilder.create().setMaxConnTotal(1000).setMaxConnPerRoute(50)
                 .setDefaultSocketConfig(socketConfig).setSSLSocketFactory(sslConnectionSocketFactory)
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .setDefaultCookieStore(new MultiUserCookieStore(new CookieStoreGenerator() {
