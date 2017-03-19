@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -61,7 +62,7 @@ public class SuccessRateTestDownloader extends AbstractDownloader {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Map<String, CrawlerHttpClient> httpClients = new HashMap<>();
+    private final Map<String, CrawlerHttpClient> httpClients = Maps.newHashMap();//直接new在1.5以下会出问题,在1.7会有波浪线提示
 
     private ConcurrentLinkedDeque<Double> concurrentLinkedDeque = new ConcurrentLinkedDeque<>();
 
