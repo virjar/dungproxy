@@ -1,10 +1,12 @@
-package com.virjar.dungproxy.client.webmagic;
+package com.virjar.dungproxy.client.samples.webmagic.successrate;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +14,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -33,6 +34,8 @@ import com.virjar.dungproxy.client.httpclient.CrawlerHttpClient;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.PoolUtil;
 import com.virjar.dungproxy.client.util.ReflectUtil;
+import com.virjar.dungproxy.client.webmagic.DungProxyHttpClientGenerator;
+import com.virjar.dungproxy.client.webmagic.UserSessionPage;
 
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -45,54 +48,49 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import us.codecraft.webmagic.utils.UrlUtils;
 
 /**
- * The http downloader based on HttpClient.
- *
- * 为webMagic实现的downloader,如果有其他定制需求,参考本类实现即可<br/>
- * <br/>
- * 本类现在加入了很多新特性,不过使用方式和webmagic原生仍然兼容,如果是webmagic项目且需要定制downloader,建议在本类基础上做修改。
- * <ul>
- * <li>代理IP池特性(对接dungprxoy)</li>
- * <li>代理IP上下线特性</li>
- * <li>webmagic版本兼容(因为相对于webmagic,本类使用属于外来者,其代码逻辑不能跟随webmagic版本变动而变动)</li>
- * <li>放开downloader获取原生httpclient的口子,getHttpClient变成public方法,方便使用者模拟登录</li>
- * <li>多用户在线支持,使用multiUserCookieStore,天生支持多个用户并发的登录爬取数据</li>
- * <li>用户URL关系维护,他会自动纪录产生的新URL是那个user爬取到的,而且下次调度到一个新URL的时候,会自动获取到新URL是那个账户爬取到的,然后使用对应账户的cookie信息</li>
- * </ul>
- *
- * <pre>
- * public static void main(String[] args) {
- *     Spider.create(new GithubRepoPageProcessor()).addUrl("https://github.com/code4craft")
- *             .setDownloader(new DungProxyDownloader()).thread(5).run();
- * }
- * </pre>
- *
- * <pre>
- *     如果自己实现代理池到httpclient的织入:
- *    CloseableHttpClient closeableHttpClient =
- *          HttpClientBuilder.create().setRetryHandler(new DunProxyHttpRequestRetryHandler())
- *          .setRoutePlanner(new ProxyBindRoutPlanner()).build();
- * </pre>
- *
- * @author code4crafter@gmail.com <br>
- * @author virjar
- * @since 0.0.1
+ * Created by virjar on 17/2/22.
  */
-@ThreadSafe
-public class DungProxyDownloader extends AbstractDownloader {
+public class SuccessRateTestDownloader extends AbstractDownloader {
+
+    private AtomicLong totalTimes = new AtomicLong(0);
+
+    // 计算最近一百次的使失败率
+    private static final int ratio = 100;
+
+    private double successRate = 0.0;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Map<String, CrawlerHttpClient> httpClients = new HashMap<>();
 
+    private ConcurrentLinkedDeque<Double> concurrentLinkedDeque = new ConcurrentLinkedDeque<>();
+
     // 自动代理替换了这里
     private DungProxyHttpClientGenerator httpClientGenerator = new DungProxyHttpClientGenerator();
+
+    public SuccessRateTestDownloader() {
+        // 在点击关闭程序的时候,再次输出所有的失败率报告
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                StringBuilder sb = new StringBuilder("整体的失败率变化为:");
+                Double d;
+                while ((d = concurrentLinkedDeque.poll()) != null) {
+                    sb.append(d);
+                    sb.append(",");
+                }
+                System.out.println(sb.toString());
+
+            }
+        });
+    }
 
     /**
      * 设置为public,这样用户就可以获取到原生httpclient,虽然打破了封装,但是用户确实有这样的需求
      *
      * @param site site
      * @param proxy proxy
-     * @return CrawlerHttpClient, 本身继承自CloseableHttpClient, 兼容CloseableHttpClient所有方法
+     * @return CrawlerHttpClient,本身继承自CloseableHttpClient,兼容CloseableHttpClient所有方法
      */
     public CrawlerHttpClient getHttpClient(Site site, Proxy proxy) {
         if (site == null) {
@@ -132,7 +130,7 @@ public class DungProxyDownloader extends AbstractDownloader {
         CloseableHttpResponse httpResponse = null;
         int statusCode = 0;
         HttpClientContext httpClientContext = null;
-        HttpUriRequest httpUriRequest = null;
+        boolean isSuccess = true;
         try {
             HttpHost proxyHost = null;
             Proxy proxy = null; // TODO
@@ -150,11 +148,17 @@ public class DungProxyDownloader extends AbstractDownloader {
                 proxyHost = site.getHttpProxy();
             }
 
-            httpUriRequest = getHttpUriRequest(request, site, headers, proxyHost);
+            HttpUriRequest httpUriRequest = getHttpUriRequest(request, site, headers, proxyHost);
             httpClientContext = HttpClientContext.adapt(new BasicHttpContext());
             // 扩展功能,支持多用户隔离,默认使用的是crawlerHttpClient,crawlerHttpClient默认则使用multiUserCookieStore
             if (request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY) != null) {
                 PoolUtil.bindUserKey(httpClientContext, request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY).toString());
+            }
+
+            if (totalTimes.getAndIncrement() % ratio == 0) {
+                // 采样
+                System.out.println("当前失败率为:" + successRate);
+                concurrentLinkedDeque.addLast(successRate);
             }
 
             httpResponse = getHttpClient(site, proxy).execute(httpUriRequest, httpClientContext);
@@ -177,6 +181,7 @@ public class DungProxyDownloader extends AbstractDownloader {
                 return null;
             }
         } catch (IOException e) {
+            isSuccess = false;
             if (needOfflineProxy(e)) {
                 logger.warn("发生异常:{},IP下线");
                 PoolUtil.offline(httpClientContext);// 由IP异常导致,直接重试
@@ -191,21 +196,15 @@ public class DungProxyDownloader extends AbstractDownloader {
             onError(request);
             return null;
         } finally {
+            synchronized (SuccessRateTestDownloader.class) {//算错了,算成成功率率
+                successRate = (successRate * (ratio - 1) + (isSuccess ? 1 : 0)) / ratio;
+            }
             request.putExtra(Request.STATUS_CODE, statusCode);
             if (site != null && site.getHttpProxyPool() != null && site.getHttpProxyPool().isEnable()) {
                 site.returnHttpProxyToPool((HttpHost) request.getExtra(Request.PROXY),
                         (Integer) request.getExtra(Request.STATUS_CODE));
             }
             try {
-                // 先释放链接,在consume,consume本身会释放链接,但是可能提前抛错导致链接释放失败
-                if (httpUriRequest != null) {
-                    try {
-                        httpUriRequest.abort();
-                    } catch (UnsupportedOperationException unsupportedOperationException) {
-                        logger.error("can not abort connection", unsupportedOperationException);
-                    }
-                }
-
                 if (httpResponse != null) {
                     // ensure the connection is released back to pool
                     EntityUtils.consume(httpResponse.getEntity());
@@ -218,7 +217,7 @@ public class DungProxyDownloader extends AbstractDownloader {
 
     /**
      * 判断当前请求是不是最后的重试,流程等同于 addToCycleRetry
-     * 
+     *
      * @see us.codecraft.webmagic.downloader.AbstractDownloader#addToCycleRetry(us.codecraft.webmagic.Request,
      *      us.codecraft.webmagic.Site)
      * @param request request
@@ -241,7 +240,7 @@ public class DungProxyDownloader extends AbstractDownloader {
 
     /**
      * 默认封禁403和401两个状态码的IP
-     * 
+     *
      * @param page 爬取结果
      * @return 是否需要封禁这个IP
      */

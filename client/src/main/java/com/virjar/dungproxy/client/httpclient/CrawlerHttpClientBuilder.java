@@ -118,6 +118,8 @@ public class CrawlerHttpClientBuilder {
 
     private boolean multiUserCookieSpaceEnable = true;
 
+    private boolean charsetCacheEnable = true;
+
     private int maxConnTotal = 0;
     private int maxConnPerRoute = 0;
 
@@ -702,6 +704,18 @@ public class CrawlerHttpClientBuilder {
     }
 
     /**
+     * 开启或者关闭字符集缓存。字符集缓存是根据domain来区分的,开启本模块需要考虑是网站是否所有字符集编码一致<br/>
+     * 当字符集编码一致,但是字符集标记不符合标准,字符集探测走二进制编码探测逻辑的时候,开启缓存将会极大提升性能
+     * 
+     * @param charsetCacheEnable 是否开启字符集缓存
+     * @since 0.0.5
+     */
+    public final CrawlerHttpClientBuilder setCharsetCacheEnable(boolean charsetCacheEnable) {
+        this.charsetCacheEnable = charsetCacheEnable;
+        return this;
+    }
+
+    /**
      * Makes this instance of HttpClient proactively evict idle connections from the connection pool using a background
      * thread.
      * <p>
@@ -1121,7 +1135,8 @@ public class CrawlerHttpClientBuilder {
 
         return new CrawlerHttpClient(execChain, connManagerCopy, routePlannerCopy, cookieSpecRegistryCopy,
                 authSchemeRegistryCopy, defaultCookieStore, defaultCredentialsProvider,
-                defaultRequestConfig != null ? defaultRequestConfig : RequestConfig.DEFAULT, closeablesCopy);
+                defaultRequestConfig != null ? defaultRequestConfig : RequestConfig.DEFAULT, closeablesCopy,
+                charsetCacheEnable);
     }
 
 }

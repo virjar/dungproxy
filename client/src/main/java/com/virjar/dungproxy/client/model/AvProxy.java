@@ -139,12 +139,19 @@ public class AvProxy {
         referCount.incrementAndGet();
     }
 
-    public void offline() {
+    public void offline(boolean force){
+        if(!force){
+            return;//只有force的时候才真正下线
+        }
         if (needRecordChange) {
             recordProxyChange();
         }
         disable = true;
         domainPool.offline(this);
+    }
+
+    public void offline() {
+        offline(true);
     }
 
     public long getLastUsedTime() {

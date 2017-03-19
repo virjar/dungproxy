@@ -20,11 +20,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import com.virjar.dungproxy.client.ippool.config.ObjectFactory;
+import com.virjar.dungproxy.client.ippool.strategy.ProxyChecker;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
 import com.virjar.dungproxy.client.model.AvProxy;
 import com.virjar.dungproxy.client.model.AvProxyVO;
 import com.virjar.dungproxy.client.util.CommonUtil;
-import com.virjar.dungproxy.client.util.IpAvValidator;
 
 /**
  * Description: 初始化时加载Proxy 定时收集Proxy<br/>
@@ -153,6 +153,9 @@ public class PreHeater {
         @Override
         public Boolean call() throws Exception {
             String domain = CommonUtil.extractDomain(url);
+            // 路由一波,保证和api规则一直
+            domain = dungProxyContext.getGroupBindRouter().routeDomain(domain);
+
             DomainPool domainPool = stringDomainPoolMap.get(domain);
             if (domainPool == null) {
                 synchronized (UrlCheckTask.class) {
@@ -163,7 +166,8 @@ public class PreHeater {
                     }
                 }
             }
-            if (IpAvValidator.available(proxy, url)) {
+            ProxyChecker proxyChecker = dungProxyContext.genDomainContext(domain).getProxyChecker();
+            if (proxyChecker.available(proxy, url)) {
                 domainPool.addAvailable(proxy.toModel(domainPool));
                 logger.info("preHeater available test passed for proxy:{} for url:{}", JSONObject.toJSONString(proxy),
                         url);
@@ -203,12 +207,11 @@ public class PreHeater {
                 }
             });
 
-            if (pool.containsKey(entry.getKey())) {
-                pool.get(entry.getKey()).addAvailable(avProxies);
-            } else {
+            if (!pool.containsKey(entry.getKey())) {
                 pool.put(entry.getKey(),
-                        new DomainPool(entry.getKey(), dungProxyContext.genDomainContext(entry.getKey()), avProxies));
+                        new DomainPool(entry.getKey(), dungProxyContext.genDomainContext(entry.getKey())));
             }
+            pool.get(entry.getKey()).addAvailable(avProxies);
         }
         stringDomainPoolMap = pool;
     }

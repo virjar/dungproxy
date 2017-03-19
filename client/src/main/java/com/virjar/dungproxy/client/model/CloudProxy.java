@@ -1,5 +1,7 @@
 package com.virjar.dungproxy.client.model;
 
+import java.util.List;
+
 import com.google.common.base.Objects;
 import com.virjar.dungproxy.client.ippool.config.DomainContext;
 
@@ -25,12 +27,32 @@ public class CloudProxy extends AvProxy {
         super(domainContext);
     }
 
+    private List<CloudProxy> partners;
+
+    public List<CloudProxy> getPartners() {
+        return partners;
+    }
+
+    public void setPartners(List<CloudProxy> partners) {
+        this.partners = partners;
+    }
+
     /**
      * 统一代理服务不走普通下线策略逻辑,因为她的失败不能表示统一代理服务器不可用。而可能是统一代理服务的上游挂了 另外,统一代理服务目前没有自动上线逻辑
      */
     @Override
-    public void offline() {
-        // 不下线
+    public void offline(boolean force) {
+        if (isDisable()) {
+            return;
+        }
+        super.offline(force);
+        for (CloudProxy cloudProxy : partners) {
+            if (cloudProxy == this) {
+                continue;
+            }
+            cloudProxy.offline(force);
+        }
+
     }
 
     @Override

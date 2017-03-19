@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.virjar</groupId>
         <artifactId>dungproxy</artifactId>
-        <version>0.0.4</version>
+        <version>0.0.5</version>
     </parent>
     <artifactId>proxyipcenter-sever</artifactId>
     <packaging>war</packaging>

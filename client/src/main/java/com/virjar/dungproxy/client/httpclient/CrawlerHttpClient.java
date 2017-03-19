@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -42,8 +43,10 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
+import org.mozilla.universalchardet.UniversalDetector;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.CharsetDetector;
 
@@ -63,12 +66,14 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     private final CredentialsProvider credentialsProvider;
     private final RequestConfig defaultConfig;
     private final List<Closeable> closeables;
+    private ConcurrentMap<String, Charset> charsetCache = Maps.newConcurrentMap();
+    private boolean charsetCacheEnable = true;
 
     CrawlerHttpClient(final ClientExecChain execChain, final HttpClientConnectionManager connManager,
             final HttpRoutePlanner routePlanner, final Lookup<CookieSpecProvider> cookieSpecRegistry,
             final Lookup<AuthSchemeProvider> authSchemeRegistry, final CookieStore cookieStore,
             final CredentialsProvider credentialsProvider, final RequestConfig defaultConfig,
-            final List<Closeable> closeables) {
+            final List<Closeable> closeables, final boolean charsetCacheEnable) {
         super();
         Args.notNull(execChain, "HTTP client exec chain");
         Args.notNull(connManager, "HTTP connection manager");
@@ -82,6 +87,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         this.credentialsProvider = credentialsProvider;
         this.defaultConfig = defaultConfig;
         this.closeables = closeables;
+        this.charsetCacheEnable = charsetCacheEnable;
     }
 
     private HttpRoute determineRoute(final HttpHost target, final HttpRequest request, final HttpContext context)
@@ -316,6 +322,10 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         return get(url, params, charset, headers, proxyIp, proxyPort, null);
     }
 
+    public String get(String url, List<NameValuePair> params, Header[] headers, HttpClientContext httpClientContext) {
+        return get(url, params, null, headers, null, 0, httpClientContext);
+    }
+
     public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
             int proxyPort, HttpClientContext httpClientContext) {
         if (params != null && params.size() > 0) {
@@ -335,7 +345,8 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             httpGet.setHeaders(headers);
         }
         try {
-            return decodeHttpResponse(execute(httpGet, httpClientContext), charset);
+            return decodeHttpResponse(execute(httpGet, httpClientContext), charset,
+                    httpGet.getURI().getScheme() + httpGet.getURI().getHost());
         } catch (IOException e) {
             return null;
         }
@@ -473,37 +484,63 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
         httpPost.setEntity(entity);
         try {
-            return decodeHttpResponse(execute(httpPost, httpClientContext), charset);
+            return decodeHttpResponse(execute(httpPost, httpClientContext), charset,
+                    httpPost.getURI().getScheme() + httpPost.getURI().getHost());
         } catch (IOException e) {
             return null;
         }
 
     }
 
-    private String decodeHttpResponse(CloseableHttpResponse response, Charset charset) throws IOException {
+    private String decodeHttpResponse(CloseableHttpResponse response, Charset charset, String hostKey)
+            throws IOException {
         byte[] bytes = EntityUtils.toByteArray(response.getEntity());
         String charsetStr = null;
         try {
+            if (charset == null && charsetCacheEnable) {
+                charset = charsetCache.get(hostKey);
+            }
             if (charset == null) {
                 Header contentType = response.getFirstHeader("Content-Type");
                 if (contentType != null) {
                     charsetStr = CharsetDetector.detectHeader(contentType);
                     if (charsetStr != null) {
-                        charset = Charset.forName(charsetStr);
+                        charset = Charset.forName(charsetStr.trim());
                     }
                 }
             }
             if (charset == null) {
                 charsetStr = CharsetDetector.detectHtmlContent(bytes);
                 if (charsetStr != null) {
-                    charset = Charset.forName(charsetStr);
+                    charset = Charset.forName(charsetStr.trim());
                 }
             }
+
+            if (charset == null) {
+                // 二进制检查,
+                UniversalDetector detector = new UniversalDetector(null);
+                detector.handleData(bytes, 0, bytes.length);//这里可能非常消耗性能,所以考虑是否默认开启缓存
+                detector.dataEnd();
+                String encoding = detector.getDetectedCharset();
+                if (encoding != null) {
+                    charset = Charset.forName(encoding);
+                }
+                detector.reset();
+            }
+
+            if (charset != null && charsetCacheEnable) {
+                charsetCache.putIfAbsent(hostKey, charset);
+            }
+
             if (charset == null) {
                 charset = Charset.defaultCharset();
             }
+
         } catch (java.nio.charset.IllegalCharsetNameException e) {
             log.warn("字符集" + charsetStr + "不能识别", e);
+            charset = Charset.defaultCharset();
+        } catch (java.nio.charset.UnsupportedCharsetException ue) {
+            log.warn("字符集" + charsetStr + "不能识别", ue);
             charset = Charset.defaultCharset();
         }
         return new String(bytes, charset);

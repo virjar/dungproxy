@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
  * nameValuePair可以保证参数序列化顺序,同时允许key相同(传递到服务器可以将多个key相同的数据转化为数组,根据nameValuePair的顺序)
  */
 public class NameValuePairBuilder {
-    private List<NameValuePair> params = Lists.newArrayList();
+    private List<NameValuePair> params = Lists.newLinkedList();
 
     public static NameValuePairBuilder create() {
         return new NameValuePairBuilder();

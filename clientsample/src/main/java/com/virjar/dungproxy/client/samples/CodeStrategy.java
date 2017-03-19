@@ -22,15 +22,16 @@ public class CodeStrategy {
     public static void main(String[] args) throws IOException {
         // Step1 代理策略,确定那些请求将会被代理池代理
         WhiteListProxyStrategy whiteListProxyStrategy = new WhiteListProxyStrategy();
-        whiteListProxyStrategy.addAllHost("www.baidu.com");
+        whiteListProxyStrategy.addAllHost("58.com");
 
         //确定缓存文件位置,如果没有预热,可以不指定
         JSONFileAvProxyDumper jsonFileAvProxyDumper = new JSONFileAvProxyDumper();
-        jsonFileAvProxyDumper.setDumpFileName("/path to file name");
+        jsonFileAvProxyDumper.setDumpFileName("你的IP文件位置");
         // Step2 创建并定制代理规则
         DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy)
                 .setAvProxyDumper(jsonFileAvProxyDumper);
 
+        dungProxyContext.getGroupBindRouter().buildCombinationRule("58.com:.*58.com");
         // Step3 使用代理规则初始化默认IP池
         IpPoolHolder.init(dungProxyContext);
 

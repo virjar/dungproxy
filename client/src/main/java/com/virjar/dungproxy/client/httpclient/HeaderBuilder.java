@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
  * Created by virjar on 17/1/23.
  */
 public class HeaderBuilder {
-    private List<Header> headerList = Lists.newArrayList();
+    private List<Header> headerList = Lists.newLinkedList();
 
     public static HeaderBuilder create() {
         return new HeaderBuilder();
@@ -39,6 +39,21 @@ public class HeaderBuilder {
         removeHeader("Content-Type");
         headerList.add(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
         return this;
+    }
+
+    /**
+     * ajax的话,是通过XMLHttpRequest发出请求的
+     * 
+     * @return HeaderBuilder
+     */
+    public HeaderBuilder withAjaxRequest() {
+        removeHeader("X-Requested-With");
+        headerList.add(new BasicHeader("X-Requested-With", "XMLHttpRequest"));
+        return this;
+    }
+
+    public HeaderBuilder withAjaxForm() {
+        return withFormData().withAjaxRequest();
     }
 
     public HeaderBuilder withUA(String userAgent) {
@@ -180,8 +195,8 @@ public class HeaderBuilder {
         return builder.toString();
     }
 
-    private static List<String> chromeVersions = Lists.newArrayList();
-    private static List<String> firfoxVersions = Lists.newArrayList();
+    private static List<String> chromeVersions = Lists.newArrayListWithCapacity(75);
+    private static List<String> firfoxVersions = Lists.newArrayListWithCapacity(610);
     static {
         chromeVersions.add("55.0.2883.95");
         chromeVersions.add("52.0.2743.116");

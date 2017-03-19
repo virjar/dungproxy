@@ -9,7 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 
 /**
- * 探测字符集 Created by virjar on 16/9/20.
+ * 探测字符集 Created by virjar on 16/9/20.<br/>
+ * TODO 用lex重构,用来保证高性能
  */
 public class CharsetDetector {
     /**
@@ -152,7 +153,13 @@ public class CharsetDetector {
         }
         contentType = contentType.substring(charset + 7).trim();
         if (contentType.startsWith("=")) {
-            return contentType.substring(1);
+            contentType =  contentType.substring(1);
+        }
+        int separator = contentType.indexOf(";");
+        if(separator<0){
+            return contentType;
+        }else{
+            contentType = contentType.substring(0,contentType.length() -1);
         }
         return contentType;
     }

@@ -43,6 +43,7 @@ public class DungProxyContext {
     private Class<? extends ResourceFacade> defaultResourceFacade;
     private Class<? extends Offline> defaultOffliner;
     private Class<? extends Scoring> defaultScoring;
+    private Class<? extends ProxyChecker> defaultProxyChecker;
     private int defaultCoreSize;
     private double defaultSmartProxyQueueRatio;
     private long defaultUseInterval;
@@ -64,6 +65,7 @@ public class DungProxyContext {
         defaultResourceFacade = DefaultResourceFacade.class;
         defaultOffliner = DefaultOffliner.class;
         defaultScoring = DefaultScoring.class;
+        defaultProxyChecker = DefaultProxyChecker.class;
         defaultCoreSize = 50;
         defaultSmartProxyQueueRatio = 0.3D;
         defaultUseInterval = 15000;// 默认IP15秒内不能重复使用
@@ -160,6 +162,7 @@ public class DungProxyContext {
 
     public DungProxyContext addDomainConfig(DomainContext domainConfig) {
         this.domainConfig.put(domainConfig.getDomain(), domainConfig);
+        domainConfig.setDungProxyContext(this);
         domainConfig.extendWithDungProxyContext(this);
         return this;
     }
@@ -224,6 +227,15 @@ public class DungProxyContext {
 
     public DungProxyContext setDefaultScoreFactory(int defaultScoreFactory) {
         this.defaultScoreFactory = defaultScoreFactory;
+        return this;
+    }
+
+    public Class<? extends ProxyChecker> getDefaultProxyChecker() {
+        return defaultProxyChecker;
+    }
+
+    public DungProxyContext setDefaultProxyChecker(Class<? extends ProxyChecker> defaultProxyChecker) {
+        this.defaultProxyChecker = defaultProxyChecker;
         return this;
     }
 

@@ -36,7 +36,7 @@ public class AvProxyVO {
     /**
      * 云代理允许存在副本,这样实际上一个云代理可以持有多条通道。有些云代理供应商对客户的使用有并发限制,这个特性就是在这里控制
      */
-    private Integer cloudCopyNumber;
+    private Integer partnerSize;
 
     // 用户名,如果本IP需要登录认证
     private String username;
@@ -127,12 +127,12 @@ public class AvProxyVO {
         this.referCount = referCount;
     }
 
-    public Integer getCloudCopyNumber() {
-        return cloudCopyNumber;
+    public Integer getPartnerSize() {
+        return partnerSize;
     }
 
-    public void setCloudCopyNumber(Integer cloudCopyNumber) {
-        this.cloudCopyNumber = cloudCopyNumber;
+    public void setPartnerSize(Integer partnerSize) {
+        this.partnerSize = partnerSize;
     }
 
     public AvProxy toModel(DomainContext domainContext) {
@@ -151,6 +151,21 @@ public class AvProxyVO {
         avProxy.setPassword(password);
         avProxy.setAuthenticationHeaders(getAuthenticationHeaders());
         return avProxy;
+    }
+
+    public List<? extends AvProxy> toPartnerModels(DomainContext domainContext) {
+        if (cloud == null || !cloud) {
+            return Lists.newArrayList(toModel(domainContext));
+        }
+        List<CloudProxy> cloudProxies = Lists.newArrayList();
+        for (int i = 0; i < partnerSize; i++) {
+            CloudProxy cloudProxy = (CloudProxy) toModel(domainContext);
+            cloudProxy.setPartners(cloudProxies);
+            cloudProxy.setOffset(i);
+            cloudProxies.add(cloudProxy);
+
+        }
+        return cloudProxies;
     }
 
     public AvProxy toModel(DomainPool domainPool) {
