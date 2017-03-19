@@ -2,13 +2,11 @@ package com.virjar.dungproxy.client.samples.webmagic.successrate;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -30,6 +28,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.virjar.dungproxy.client.httpclient.CrawlerHttpClient;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
@@ -62,14 +62,15 @@ public class SuccessRateTestDownloader extends AbstractDownloader {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Map<String, CrawlerHttpClient> httpClients = Maps.newHashMap();//直接new在1.5以下会出问题,在1.7会有波浪线提示
+    private final Map<String, CrawlerHttpClient> httpClients = Maps.newHashMap();// 直接new在1.5以下会出问题,在1.7会有波浪线提示
 
-    private ConcurrentLinkedDeque<Double> concurrentLinkedDeque = new ConcurrentLinkedDeque<>();
+    private ConcurrentLinkedQueue<Double> concurrentLinkedDeque = Queues.<Double> newConcurrentLinkedQueue();
 
     // 自动代理替换了这里
     private DungProxyHttpClientGenerator httpClientGenerator = new DungProxyHttpClientGenerator();
 
     public SuccessRateTestDownloader() {
+
         // 在点击关闭程序的时候,再次输出所有的失败率报告
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -159,7 +160,7 @@ public class SuccessRateTestDownloader extends AbstractDownloader {
             if (totalTimes.getAndIncrement() % ratio == 0) {
                 // 采样
                 System.out.println("当前失败率为:" + successRate);
-                concurrentLinkedDeque.addLast(successRate);
+                concurrentLinkedDeque.add(successRate);
             }
 
             httpResponse = getHttpClient(site, proxy).execute(httpUriRequest, httpClientContext);
@@ -197,7 +198,7 @@ public class SuccessRateTestDownloader extends AbstractDownloader {
             onError(request);
             return null;
         } finally {
-            synchronized (SuccessRateTestDownloader.class) {//算错了,算成成功率率
+            synchronized (SuccessRateTestDownloader.class) {// 算错了,算成成功率率
                 successRate = (successRate * (ratio - 1) + (isSuccess ? 1 : 0)) / ratio;
             }
             request.putExtra(Request.STATUS_CODE, statusCode);
