@@ -80,3 +80,6 @@ System.out.println(string);
 - 扩充服务器IP源
 - 排查IP刷新线程在IP严重不足的时候,线程数量不能达到峰值的原因
 - 云代理partner关系维护,支持partner统一限流和封禁 部分完成
+- dump时机使用模型来均衡
+- 禁止使用 org.apache.commons.lang3.StringUtils.isNoneEmpty 
+- 事件回调机制设计
