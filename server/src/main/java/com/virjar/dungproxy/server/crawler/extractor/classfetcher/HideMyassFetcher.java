@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.TagNode;
 
@@ -32,7 +33,7 @@ public class HideMyassFetcher implements ClassFetcher {
                 continue;
             }
             String aClass = t.getAttributeByName("class");
-            if (StringUtils.isNoneEmpty(aClass) && noneAttr.contains(aClass)) {
+            if (!Strings.isNullOrEmpty(aClass) && noneAttr.contains(aClass)) {
                 continue;
             }
             sb.append(t.getText().toString().trim());
