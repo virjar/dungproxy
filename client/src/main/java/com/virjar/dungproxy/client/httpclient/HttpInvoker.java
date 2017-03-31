@@ -230,6 +230,10 @@ public class HttpInvoker {
         return crawlerHttpClient.postJSON(url, entity);
     }
 
+    public static String postJSON(String url, Object entity, HttpClientContext httpClientContext) {
+        return crawlerHttpClient.postJSON(url, entity, httpClientContext);
+    }
+
     public static String postJSON(String url, Object entity, Charset charset, Header[] headers, String proxyIp,
             int proxyPort) {
         return crawlerHttpClient.postJSON(url, entity, charset, headers, proxyIp, proxyPort);

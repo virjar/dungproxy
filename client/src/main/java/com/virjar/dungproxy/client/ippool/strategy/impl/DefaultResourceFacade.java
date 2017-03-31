@@ -92,7 +92,9 @@ public class DefaultResourceFacade implements ResourceFacade {
         feedBackForm.setDomain(domain);
         feedBackForm.setAvProxy(avProxies);
         feedBackForm.setDisableProxy(disableProxies);
-        HttpInvoker.postJSON(feedBackUrl, feedBackForm);
+        HttpClientContext httpClientContext = HttpClientContext.create();
+        PoolUtil.disableDungProxy(httpClientContext);
+        HttpInvoker.postJSON(feedBackUrl, feedBackForm,httpClientContext);
     }
 
     @Override

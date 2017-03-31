@@ -446,6 +446,11 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
                 null, -1, null);
     }
 
+    public String postJSON(String url, Object entity,HttpClientContext httpClientContext) {
+        return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), null, null,
+                null, -1, httpClientContext);
+    }
+
     public String post(String url, List<NameValuePair> params) {
         return post(url, new UrlEncodedFormEntity(params, Charset.defaultCharset()), null, null, null, -1, null);
     }
