@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import com.google.common.base.Strings;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -350,8 +351,9 @@ public class DungProxyContext {
 
         // 反馈时间
         String feedBackDurationProperties = properties.getProperty(ProxyConstant.FEEDBACK_DURATION);
-        if (StringUtils.isNoneEmpty(feedBackDurationProperties)) {
-            feedBackDuration = NumberUtils.toLong(feedBackDurationProperties, 1200000);
+
+        if (!Strings.isNullOrEmpty(feedBackDurationProperties)) {
+            feedBackDuration = NumberUtils.toLong(feedBackDurationProperties);
         }
 
         // 序列化接口
