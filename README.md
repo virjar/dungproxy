@@ -76,7 +76,7 @@ System.out.println(string);
 平常使用的时候,一般会增加重试,这样成功率会更高。需要注意的是,因为使用的是自动预热模式,刚开始二十分钟左右IP不足,大量使用的是本地IP,半个小时之后IP才基本稳定
 
 
-##  已知用户,如果您也在使用dungprxoy 还原提交您的公司信息或者软件信息到 virjar@virjar.com
+##  已知用户,如果您也在使用dungprxoy 欢迎提交您的公司信息或者软件信息到 virjar@virjar.com
 |||
 |----|----|
 |![中关村科技软件股份有限公司](doc/pic/user/censoft-logo.jpg) [中关村科技软件股份有限公司](http://www.censoft.com.cn)|![量富征信](doc/pic/user/fortune_credit.png)[量富征信](http://www.liangfuzhengxin.com/)|
