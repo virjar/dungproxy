@@ -27,14 +27,16 @@ public class CustomPreheater implements ProxyChecker {
 
     @Override
     public boolean available(AvProxyVO avProxyVO, String url) {
-        Header[] headers = HeaderBuilder.create().withRefer("http://www.itslaw.com").buildArray();
+        Header[] headers = HeaderBuilder.create().defaultCommonHeader().withRefer("http://www.itslaw.com").buildArray();
         for (int i = 0; i < 3; i++) {
             try {
-                String s = HttpInvoker.get(
-                        "http://www.itslaw.com/api/v1/detail?judgementId=cdb60091-f0aa-484a-9cb2-494a8c6be460",
-                        headers);
+                String s = HttpInvoker.buildDefault().get(
+                        "http://www.itslaw.com/api/v1/detail?judgementId=cdb60091-f0aa-484a-9cb2-494a8c6be460", headers,
+                        avProxyVO.getIp(), avProxyVO.getPort());
+                System.out.println(s);
                 JSONObject jsonObject = JSON.parseObject(s);
                 if (jsonObject.getJSONObject("result").getInteger("code") == 0) {
+
                     return true;
                 }
             } catch (Exception e) {
