@@ -72,7 +72,7 @@ public class AvProxy {
 
     private DomainContext domainContext;
 
-    private Long resueTime = null;
+    private long resueTime;
 
     public AvProxy(DomainContext domainContext) {
         this.domainContext = domainContext;
@@ -290,11 +290,11 @@ public class AvProxy {
         this.referCount = new AtomicInteger(referCount);
     }
 
-    public Long getResueTime() {
+    public long getResueTime() {
         return resueTime;
     }
 
-    public void setResueTime(Long resueTime) {
+    public void setResueTime(long resueTime) {
         this.resueTime = resueTime;
     }
 }
