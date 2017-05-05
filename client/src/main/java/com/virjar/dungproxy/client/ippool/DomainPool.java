@@ -1,6 +1,7 @@
 package com.virjar.dungproxy.client.ippool;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.virjar.dungproxy.client.ippool.config.DomainContext;
 import com.virjar.dungproxy.client.ippool.strategy.ResourceFacade;
@@ -38,7 +40,15 @@ public class DomainPool {
 
     private SmartProxyQueue smartProxyQueue;
 
+    /**
+     * 被下线的IP
+     */
     private List<AvProxy> removedProxies = Lists.newArrayList();
+
+    /**
+     * 被暂时封禁的IP
+     */
+    private List<AvProxy> blockedProxies = Lists.newLinkedList();
 
     // 备选的代理资源,他是通过IP下载器下载的的一批初始化IP,但是没有经过可用性测试
     private ConcurrentLinkedQueue<AvProxyVO> candidateProxies = new ConcurrentLinkedQueue<>();
@@ -263,6 +273,25 @@ public class DomainPool {
     @Override
     public int hashCode() {
         return (domain + "?/").hashCode();
+    }
+
+    public synchronized void block(AvProxy avProxy, long duration) {
+        Iterator<AvProxy> iterator = blockedProxies.iterator();
+        while (iterator.hasNext()) {
+            AvProxy next = iterator.next();
+            if (next.getResueTime() <= System.currentTimeMillis()) {
+                iterator.remove();
+                addAvailable(next);
+            } else {
+                break;
+            }
+        }
+
+        Preconditions.checkArgument(duration > 0, " block duration must greater than zero");
+        smartProxyQueue.offline(avProxy);
+        avProxy.setResueTime(System.currentTimeMillis() + duration);
+        blockedProxies.add(avProxy);
+        logger.info("IP:{}暂时封禁,封禁时间:{} 毫秒", JSONObject.toJSONString(AvProxyVO.fromModel(avProxy)), duration);
     }
 
     public void offline(AvProxy avProxy) {

@@ -72,6 +72,8 @@ public class AvProxy {
 
     private DomainContext domainContext;
 
+    private Long resueTime = null;
+
     public AvProxy(DomainContext domainContext) {
         this.domainContext = domainContext;
         this.dungProxyContext = domainContext.getDungProxyContext();
@@ -139,9 +141,18 @@ public class AvProxy {
         referCount.incrementAndGet();
     }
 
-    public void offline(boolean force){
-        if(!force){
-            return;//只有force的时候才真正下线
+    /**
+     * 封禁IP一定时间,比如封禁1个小时,那么IP不会下线,但是一个小时之后才能被使用
+     * 
+     * @param blockTimeStamp 时间戳,单位毫秒
+     */
+    public void block(long blockTimeStamp) {
+        domainPool.block(this, blockTimeStamp);
+    }
+
+    public void offline(boolean force) {
+        if (!force) {
+            return;// 只有force的时候才真正下线
         }
         if (needRecordChange) {
             recordProxyChange();
@@ -277,5 +288,13 @@ public class AvProxy {
 
     public void setReferCount(Integer referCount) {
         this.referCount = new AtomicInteger(referCount);
+    }
+
+    public Long getResueTime() {
+        return resueTime;
+    }
+
+    public void setResueTime(Long resueTime) {
+        this.resueTime = resueTime;
     }
 }
