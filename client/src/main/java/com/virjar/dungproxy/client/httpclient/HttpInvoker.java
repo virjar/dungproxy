@@ -1,13 +1,8 @@
 package com.virjar.dungproxy.client.httpclient;
 
 import java.nio.charset.Charset;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -15,7 +10,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 
 import com.virjar.dungproxy.client.httpclient.cookie.BarrierCookieStore;
@@ -36,34 +30,10 @@ public class HttpInvoker {
     public static CrawlerHttpClient buildDefault() {
         SocketConfig socketConfig = SocketConfig.custom().setSoKeepAlive(true).setSoLinger(-1).setSoReuseAddress(false)
                 .setSoTimeout(ProxyConstant.SOCKETSO_TIMEOUT).setTcpNoDelay(true).build();
-        X509TrustManager x509mgr = new X509TrustManager() {
-            @Override
-            public void checkClientTrusted(X509Certificate[] xcs, String string) {
-            }
-
-            @Override
-            public void checkServerTrusted(X509Certificate[] xcs, String string) {
-            }
-
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-        };
-
-        SSLContext sslContext = null;
-        try {
-            sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[] { x509mgr }, null);
-        } catch (Exception e) {
-            //// TODO: 16/11/23
-        }
-
-        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
-                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
         return CrawlerHttpClientBuilder.create().setMaxConnTotal(1000).setMaxConnPerRoute(50)
-                .setDefaultSocketConfig(socketConfig).setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultSocketConfig(socketConfig)
+                // .setSSLSocketFactory(sslConnectionSocketFactory) 证书忽略逻辑转移到httpclient builder里面
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .setDefaultCookieStore(new MultiUserCookieStore(new CookieStoreGenerator() {
                     @Override

@@ -3,12 +3,11 @@ package com.virjar.dungproxy.client.httpclient;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ProxySelector;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.*;
 
 import org.apache.http.*;
 import org.apache.http.annotation.NotThreadSafe;
@@ -825,6 +824,32 @@ public class CrawlerHttpClientBuilder {
         return s.split(" *, *");
     }
 
+    private SSLContext createHttpCertificateIgnoreSSLContext() {
+        X509TrustManager x509mgr = new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(X509Certificate[] xcs, String string) {
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] xcs, String string) {
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        };
+
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[] { x509mgr }, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sslContext;
+    }
+
     public CrawlerHttpClient build() {
         // Create main request executor
         // We copy the instance fields to avoid changing them, and rename to avoid accidental use of the wrong version
@@ -858,7 +883,11 @@ public class CrawlerHttpClientBuilder {
                                 (SSLSocketFactory) SSLSocketFactory.getDefault(), supportedProtocols,
                                 supportedCipherSuites, hostnameVerifierCopy);
                     } else {
-                        sslSocketFactoryCopy = new SSLConnectionSocketFactory(SSLContexts.createDefault(),
+                        SSLContext httpCertificateIgnoreSSLContext = createHttpCertificateIgnoreSSLContext();
+                        if (httpCertificateIgnoreSSLContext == null) {
+                            httpCertificateIgnoreSSLContext = SSLContexts.createDefault();
+                        }
+                        sslSocketFactoryCopy = new SSLConnectionSocketFactory(httpCertificateIgnoreSSLContext,
                                 hostnameVerifierCopy);
                     }
                 }

@@ -73,7 +73,7 @@ public class DungProxyContext {
         defaultScoreFactory = 15;
         serverBaseUrl = "http://proxy.scumall.com:8080";
         serializeStep = 30;
-        poolEnabled = true;
+        poolEnabled = false;
         handleConfig();
     }
 
