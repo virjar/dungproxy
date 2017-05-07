@@ -34,11 +34,13 @@ public class ProxyConstant {
     static final String DEFAULT_PROXY_SERALIZER_FILE = "proxyclient.DefaultAvProxyDumper.dumpFileName";
 
     public static final String DEFAULT_PROXY_SERALIZER_FILE_VALUE = "availableProxy.json";
+
+    // 以下几个超时时间允许被调整
     // socket超时时间
-    public static final int SOCKET_TIMEOUT = 30000;
+    public static int SOCKET_TIMEOUT = 30000;
     // 连接超时
-    public static final int CONNECT_TIMEOUT = 30000;
+    public static int CONNECT_TIMEOUT = 30000;
     // 连接池分配连接超时时间,一般用处不大
-    public static final int REQUEST_TIMEOUT = 30000;
-    public static final int SOCKETSO_TIMEOUT = 15000;
+    public static int REQUEST_TIMEOUT = 30000;
+    public static int SOCKETSO_TIMEOUT = 15000;
 }

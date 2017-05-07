@@ -226,4 +226,8 @@ public class HttpInvoker {
             HttpClientContext httpClientContext) {
         return crawlerHttpClient.get(url, params, headers, httpClientContext);
     }
+
+    public static byte[] getEntity(String url, Header[] headers) {
+        return crawlerHttpClient.getEntity(url, headers);
+    }
 }

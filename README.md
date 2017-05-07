@@ -1,6 +1,7 @@
 # DungProxy
 DungProxy是一个代理IP服务,他包括一个代理IP资源server端和一系列适配中心IP资源得客户端。server负责代理IP资源的收集维护。client则是一系列方便用户使用得API,他屏蔽了代理IP下载、代理IP选取、IP绑定、IP切换等比较复杂逻辑。用户只需要引入client即可方便使用代理IP服务
 
+广告:dungproxy-client后续主要对vscrawler提供支持,vscrawler中,代理的切换策略会变得更加灵活,vscrawler地址: [vscrawler,适合抓取得爬虫框架](http://git.oschina.net/virjar/vscrawler)
 
 ## [client使用手册](doc/client/userGuide/README.md)
 
@@ -46,10 +47,10 @@ System.out.println(string);
 ```
 
 ### serverList
-115.159.40.202 收集&分发
-123.56.155.209 验证
-114.215.144.211 地址同步&数据备份&域名下线&域名刷新
-121.42.249.101 域名验证,端口验证
+- 115.159.40.202 收集&分发
+- 123.56.155.209 验证
+- 114.215.144.211 地址同步&数据备份&域名下线&域名刷新
+- 121.42.249.101 域名验证,端口验证
 
 ## 贡献者
 - 邓维佳 virjar@virjar.com
@@ -87,5 +88,5 @@ System.out.println(string);
 - 排查IP刷新线程在IP严重不足的时候,线程数量不能达到峰值的原因
 - 云代理partner关系维护,支持partner统一限流和封禁 部分完成
 - dump时机使用模型来均衡
-- 禁止使用 org.apache.commons.lang3.StringUtils.isNoneEmpty 
+- 禁止使用 org.apache.commons.lang3.StringUtils.isNoneEmpty  完成
 - 事件回调机制设计

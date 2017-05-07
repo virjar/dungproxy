@@ -46,6 +46,7 @@ import org.apache.http.util.EntityUtils;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 import com.virjar.dungproxy.client.util.CharsetDetector;
@@ -59,7 +60,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
     private final ClientExecChain execChain;
     private final HttpClientConnectionManager connManager;
-    private final HttpRoutePlanner routePlanner;
+    private HttpRoutePlanner routePlanner;
     private final Lookup<CookieSpecProvider> cookieSpecRegistry;
     private final Lookup<AuthSchemeProvider> authSchemeRegistry;
     private final CookieStore cookieStore;
@@ -88,6 +89,20 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         this.defaultConfig = defaultConfig;
         this.closeables = closeables;
         this.charsetCacheEnable = charsetCacheEnable;
+    }
+
+    public HttpRoutePlanner getRoutePlanner() {
+        return routePlanner;
+    }
+
+    /**
+     * dungproxy一大功能就是提供代理功能,所以对于代理提供二次定制的入口
+     * 
+     * @param routePlanner 代理决定器
+     */
+    public void setRoutePlanner(HttpRoutePlanner routePlanner) {
+        Preconditions.checkNotNull(routePlanner);
+        this.routePlanner = routePlanner;
     }
 
     private HttpRoute determineRoute(final HttpHost target, final HttpRequest request, final HttpContext context)
@@ -329,7 +344,11 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
     public String get(String url, List<NameValuePair> params, Charset charset, Header[] headers, String proxyIp,
             int proxyPort, HttpClientContext httpClientContext) {
         if (params != null && params.size() > 0) {
-            url = url + "?" + URLEncodedUtils.format(params, "utf-8");
+            if (url.endsWith("?")) {
+                url += URLEncodedUtils.format(params, "utf-8");
+            } else {
+                url = url + "?" + URLEncodedUtils.format(params, "utf-8");
+            }
         }
         HttpGet httpGet = new HttpGet(url);
         RequestConfig.Builder builder = RequestConfig.custom().setSocketTimeout(ProxyConstant.SOCKET_TIMEOUT)
@@ -379,6 +398,10 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
 
     public byte[] getEntity(String url) {
         return getEntity(url, null, null, null, null, 0, null);
+    }
+
+    public byte[] getEntity(String url, Header[] headers) {
+        return getEntity(url, null, null, headers, null, 0, null);
     }
 
     public String post(String url, String entity, Charset charset, Header[] headers, String proxyIp, int proxyPort) {
@@ -446,7 +469,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
                 null, -1, null);
     }
 
-    public String postJSON(String url, Object entity,HttpClientContext httpClientContext) {
+    public String postJSON(String url, Object entity, HttpClientContext httpClientContext) {
         return post(url, new StringEntity(JSONObject.toJSONString(entity), ContentType.APPLICATION_JSON), null, null,
                 null, -1, httpClientContext);
     }
@@ -524,7 +547,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
             if (charset == null) {
                 // 二进制检查,
                 UniversalDetector detector = new UniversalDetector(null);
-                detector.handleData(bytes, 0, bytes.length);//这里可能非常消耗性能,所以考虑是否默认开启缓存
+                detector.handleData(bytes, 0, bytes.length);// 这里可能非常消耗性能,所以考虑是否默认开启缓存
                 detector.dataEnd();
                 String encoding = detector.getDetectedCharset();
                 if (encoding != null) {
