@@ -9,7 +9,7 @@ import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 public class IpPoolHolder {
     private static IpPool ipPool = null;
 
-    public boolean hasInit(){
+    public static boolean hasInit(){
         return ipPool != null;
     }
 
