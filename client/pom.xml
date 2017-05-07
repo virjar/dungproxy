@@ -80,7 +80,9 @@
             <groupId>com.ning</groupId>
             <artifactId>async-http-client</artifactId>
             <version>1.9.39</version>
+            <scope>provided</scope>
         </dependency>
+
 
         <dependency>
             <groupId>com.google.guava</groupId>

@@ -37,6 +37,8 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
 
     private IpPool ipPool;
 
+    private SchemePortResolver schemePortResolver;
+
     public ProxyBindRoutPlanner() {
         this(null, null);
     }
@@ -55,10 +57,15 @@ public class ProxyBindRoutPlanner extends DefaultRoutePlanner {
      */
     public ProxyBindRoutPlanner(SchemePortResolver schemePortResolver, IpPool ipPool) {
         super(schemePortResolver);
+        this.schemePortResolver = schemePortResolver;
         if (ipPool == null) {
             ipPool = IpPoolHolder.getIpPool();
         }
         this.ipPool = ipPool;
+    }
+
+    public SchemePortResolver getSchemePortResolver() {
+        return schemePortResolver;
     }
 
     @Override
