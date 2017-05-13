@@ -138,6 +138,10 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
     }
 
+    private CookieStore getCookieStore() {
+        return cookieStore;
+    }
+
     @Override
     protected CloseableHttpResponse doExecute(final HttpHost target, final HttpRequest request,
             final HttpContext context) throws IOException {
