@@ -138,7 +138,7 @@ public class CrawlerHttpClient extends CloseableHttpClient implements Configurab
         }
     }
 
-    private CookieStore getCookieStore() {
+    public CookieStore getCookieStore() {
         return cookieStore;
     }
 
