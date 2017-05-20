@@ -33,7 +33,7 @@ public class CodeStrategy {
 
         dungProxyContext.getGroupBindRouter().buildCombinationRule("58.com:.*58.com");
         // Step3 使用代理规则初始化默认IP池
-        IpPoolHolder.init(dungProxyContext);
+        IpPoolHolder.init(DungProxyContext.create().setPoolEnabled(true));
 
         // step 4 将代理池注册到httpclient(两个为httpclient做的适配插件)
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();

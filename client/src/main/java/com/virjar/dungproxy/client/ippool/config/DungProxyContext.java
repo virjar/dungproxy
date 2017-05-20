@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.google.common.base.Strings;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -15,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -54,6 +54,8 @@ public class DungProxyContext {
     // 这个需要考虑并发安全吗?
     private Set<AvProxyVO> cloudProxySet = Sets.newConcurrentHashSet();
 
+    private boolean waitIfNoAvailableProxy = false;
+
     private Logger logger = LoggerFactory.getLogger(DungProxyContext.class);
 
     /**
@@ -74,6 +76,7 @@ public class DungProxyContext {
         serverBaseUrl = "http://proxy.scumall.com:8080";
         serializeStep = 30;
         poolEnabled = false;
+        waitIfNoAvailableProxy = false;
         handleConfig();
     }
 
@@ -88,6 +91,15 @@ public class DungProxyContext {
 
     public boolean isPoolEnabled() {
         return poolEnabled;
+    }
+
+    public DungProxyContext setWaitIfNoAvailableProxy(boolean waitIfNoAvailableProxy) {
+        this.waitIfNoAvailableProxy = waitIfNoAvailableProxy;
+        return this;
+    }
+
+    public boolean isWaitIfNoAvailableProxy() {
+        return waitIfNoAvailableProxy;
     }
 
     public DungProxyContext setPoolEnabled(boolean poolEnabled) {

@@ -137,8 +137,8 @@ public class DomainPool {
             refresh();// 在新线程刷新
         }
         // 当只有两个IP轮询的时候,放弃局部轮询,而是采用全部轮询的方式
-        return smartProxyQueue
-                .getAndAdjustPriority((smartProxyQueue.availableSize() * smartProxyQueue.getRatio()) <= 2);
+        return smartProxyQueue.getAndAdjustPriority((smartProxyQueue.availableSize() * smartProxyQueue.getRatio()) <= 2,
+                domainContext.getDungProxyContext().isWaitIfNoAvailableProxy());
     }
 
     /**
