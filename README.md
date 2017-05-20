@@ -26,12 +26,13 @@ qq 群,人肉文档支持😁
 <dependency>
     <groupId>com.virjar</groupId>
     <artifactId>dungproxy-client</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
 </dependency>
 ```
 ##快速开始
 
 ```
+IpPoolHolder.init(DungProxyContext.create().setPoolEnabled(true));
 HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 httpClientBuilder.setRetryHandler(new DunProxyHttpRequestRetryHandler(null))
         .setRoutePlanner(new ProxyBindRoutPlanner());
