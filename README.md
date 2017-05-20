@@ -31,6 +31,7 @@ qq 群,人肉文档支持😁
 ```
 ##快速开始
 
+请注意,虫0.0.6开始,dungproxy默认关闭代理IP池功能,打开方式``IpPoolHolder.init(DungProxyContext.create().setPoolEnabled(true));``
 ```
 IpPoolHolder.init(DungProxyContext.create().setPoolEnabled(true));
 HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
