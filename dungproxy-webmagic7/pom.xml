@@ -9,13 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <version>0.0.1</version>
     <artifactId>dungproxy-webmagic7</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.virjar</groupId>
             <artifactId>dungproxy-client</artifactId>
-            <version>0.0.6</version>
+            <version>0.0.7</version>
         </dependency>
         <dependency>
             <groupId>us.codecraft</groupId>
