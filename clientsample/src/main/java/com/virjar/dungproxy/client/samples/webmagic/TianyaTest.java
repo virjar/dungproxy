@@ -28,7 +28,7 @@ public class TianyaTest implements PageProcessor {
         JSONFileAvProxyDumper jsonFileAvProxyDumper = new JSONFileAvProxyDumper();
         jsonFileAvProxyDumper.setDumpFileName("availableProxy.json");
         DungProxyContext dungProxyContext = DungProxyContext.create().setNeedProxyStrategy(whiteListProxyStrategy)
-                .setAvProxyDumper(jsonFileAvProxyDumper);
+                .setAvProxyDumper(jsonFileAvProxyDumper).setPoolEnabled(true);
         dungProxyContext.getGroupBindRouter().buildCombinationRule("www.tianya.cn:.*tianya.*");
         IpPoolHolder.init(dungProxyContext);
 

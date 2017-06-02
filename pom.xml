@@ -6,7 +6,7 @@
     <groupId>com.virjar</groupId>
     <artifactId>dungproxy</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <name>dungproxy</name>
     <modules>
         <!-- 发布的时候,只发布client,注释调另外两个module -->
@@ -14,9 +14,10 @@
         <module>server</module>
          <module>clientsample</module>
          -->
-        <module>server</module>
-        <module>clientsample</module>
         <module>client</module>
+        <module>dungproxy-webmagic5</module>
+        <module>dungproxy-webmagic6</module>
+        <module>dungproxy-webmagic7</module>
 
     </modules>
     <description>proxy ip resource pool</description>
