@@ -1,3 +1,59 @@
+### 多版本webMagic兼容
+dungproxy自0.0.7之后,移除再core中对webmagic的依赖,提供三个分支项目(dungproxy-webmagic5,dungproxy-webmagic6,dungproxy-webmagic7)
+分别对应webmagic0.5.x 0.6.x 0.7.x的适配,其主要方式是提供downloader。对于dungproxy-webmagic7,根据webmagic原生IP池接口做了实现。如下:
+com.virjar.dungproxy.webmagic7.DungProxyProvider
+```
+        // 默认不下线的case,但是会记录失败
+        DungProxyProvider dungProxyProvider = new DungProxyProvider("www.java1234.com", "http://www.java1234.com");
+
+        // 包含某个关键字,代表IP被封禁
+        dungProxyProvider = new DungProxyProvider("www.java1234.com", "http://www.java1234.com", new OfflineStrategy() {
+            @Override
+            public boolean needOfflineProxy(Page page, AvProxy avProxy) {
+                return !page.isDownloadSuccess() && StringUtils.contains(page.getRawText(), "对不起,你的IP暂时不能访问此网页");
+            }
+        });
+
+        // 包含某个关键字,不下线IP,但是暂时封禁IP,一段时间可以重新使用
+        dungProxyProvider = new DungProxyProvider("www.java1234.com", "http://www.java1234.com", new OfflineStrategy() {
+            @Override
+            public boolean needOfflineProxy(Page page, AvProxy avProxy) {
+                if (!page.isDownloadSuccess() && StringUtils.contains(page.getRawText(), "对不起,你的IP暂时不能访问此网页")) {
+                    avProxy.block(2 * 60 * 60 * 1000);
+                }
+                return false;
+            }
+        });
+```
+
+DungProxyProvider 可以有三个参数,host,testurl,OfflineStrategy,其中host用于区分代理池的目标网站,testurl让代理池可以探测IP可用性,OfflineStrategy则可以自定义IP下线策略、IP封禁策略、IP评分控制、IP临时封禁等
+
+请注意使用DungProxyProvider,和 DungProxyDownloader 的方式不一样,他是走webmagic原始逻辑,再httpclient上层实现故不能实现每次请求拦截IP可用性,如果像让IP使用情况精确反应到IP评分上,建议使用DungProxyDownloader
+
+三个依赖分别的maven坐标
+```
+<!-- 适用于0.5.3 -->
+<dependency>
+  <groupId>com.virjar</groupId>
+  <artifactId>dungproxy-webmagic5</artifactId>
+  <version>0.0.1</version>
+</dependency>
+
+<!-- 适用于0.6.1 -->
+<dependency>
+  <groupId>com.virjar</groupId>
+  <artifactId>dungproxy-webmagic6</artifactId>
+  <version>0.0.1</version>
+</dependency>
+
+<!-- 适用于0.7.0 -->
+<dependency>
+  <groupId>com.virjar</groupId>
+  <artifactId>dungproxy-webmagic7</artifactId>
+  <version>0.0.2</version>
+</dependency>
+```
+
 ### webMagic集成
 webMagic是国内一个非常优秀的爬虫框架,代理在爬虫中也是经常使用的。所以提供对webMagic的直接支持。方式如下:
 ```
@@ -39,11 +95,12 @@ public class WebMagicCustomOfflineProxyDownloader extends DungProxyDownloader {
 ```
 [示例代码地址](http://git.oschina.net/virjar/proxyipcenter/tree/master/clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/WebMagicCustomOfflineProxyDownloader.java)
 
-### webMagic兼容0.5.x和0.6.x
+### webMagic兼容0.5.x和0.6.x(再0.0.7版本已废弃此用法)
 webMagic最近在实现代理功能,本身代理功能是本项目的核心,所以必然webMagic的代理相关代码变动可能性特别大。目前已经出现了在0.5.3和0.6.0上面的API不兼容问题。
 dungProxy对此做了兼容方案,使用DungProxyDownloader可以同时支持0.5.x和0.6.x的用法。也就是说如果您的webMagic版本是0.5.x,那么DungProxyDownloader走0.5.x的代理逻辑,如果你的webMagic版本是0.6.x,那么DungProxyDownloader则会走0.6.x的代理逻辑。两种模式的切换是自动实现的,你不必关心。只需要知道在0.5.x上面怎么使用,然后根据0.5.x的规范进行使用。或者知道0.6.x的功能,然后根据0.6.x的规范使用。
 
 另外注意,本项目本身专注代理IP池的管理。webMagic本身也有代理池的概念。如果使用了webMagic的代理池的同时使用DungProxy,那么DungProxy将不会生效。任何时刻,只有WebMagic定义了,那么已webMagic为主
+
 
 ### webMagic多用户登录
 定制的downloader(DungProxyDownloader)默认使用MultiUserCookieStore,天然支持多用户同时在线了。MultiUserCookieStore本身使用分段锁的概念,多个用户在并发上也不会存在锁竞争问题。如何使webMagic支持多用户登录,参考[demo](http://git.oschina.net/virjar/proxyipcenter/tree/master/clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/MultiUserLoginTest.java)
