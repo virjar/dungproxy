@@ -18,14 +18,14 @@ public class DungProxyProvider implements ProxyProvider {
     private String testUrl;
     private OfflineStrategy offlineStrategy;
 
-    public DungProxyProvider(String host, OfflineStrategy offlineStrategy, String testUrl) {
+    public DungProxyProvider(String host, String testUrl, OfflineStrategy offlineStrategy) {
         this.host = host;
         this.offlineStrategy = offlineStrategy;
         this.testUrl = testUrl;
     }
 
     public DungProxyProvider(String host, String testUrl) {
-        this(host, new OfflineStrategy.NotOfflineStrategy(), testUrl);
+        this(host, testUrl, new OfflineStrategy.NotOfflineStrategy());
     }
 
     private IpPool ipPool = IpPool.getInstance();
@@ -36,8 +36,10 @@ public class DungProxyProvider implements ProxyProvider {
             return;
         }
         WebMagicBridgeProxy webMagicBridgeProxy = (WebMagicBridgeProxy) proxy;
-        if (offlineStrategy.needOfflineProxy(page)) {
+        if (offlineStrategy.needOfflineProxy(page, webMagicBridgeProxy.getAvProxy())) {
             webMagicBridgeProxy.getAvProxy().offline();
+        } else if (!page.isDownloadSuccess()) {
+            webMagicBridgeProxy.getAvProxy().recordFailed();
         }
 
     }
@@ -48,6 +50,7 @@ public class DungProxyProvider implements ProxyProvider {
         if (bind == null) {
             return null;
         }
+        bind.recordUsage();
         return new WebMagicBridgeProxy(bind);
     }
 }
