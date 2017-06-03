@@ -50,7 +50,7 @@ DungProxyProvider 可以有三个参数,host,testurl,OfflineStrategy,其中host�
 <dependency>
   <groupId>com.virjar</groupId>
   <artifactId>dungproxy-webmagic7</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
 </dependency>
 ```
 
