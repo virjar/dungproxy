@@ -95,7 +95,7 @@ public class WebMagicCustomOfflineProxyDownloader extends DungProxyDownloader {
 ```
 [示例代码地址](http://git.oschina.net/virjar/proxyipcenter/tree/master/clientsample/src/main/java/com/virjar/dungproxy/client/samples/webmagic/WebMagicCustomOfflineProxyDownloader.java)
 
-### webMagic兼容0.5.x和0.6.x(再0.0.7版本已废弃此用法)
+### webMagic兼容0.5.x和0.6.x(在0.0.7版本已废弃此用法)
 webMagic最近在实现代理功能,本身代理功能是本项目的核心,所以必然webMagic的代理相关代码变动可能性特别大。目前已经出现了在0.5.3和0.6.0上面的API不兼容问题。
 dungProxy对此做了兼容方案,使用DungProxyDownloader可以同时支持0.5.x和0.6.x的用法。也就是说如果您的webMagic版本是0.5.x,那么DungProxyDownloader走0.5.x的代理逻辑,如果你的webMagic版本是0.6.x,那么DungProxyDownloader则会走0.6.x的代理逻辑。两种模式的切换是自动实现的,你不必关心。只需要知道在0.5.x上面怎么使用,然后根据0.5.x的规范进行使用。或者知道0.6.x的功能,然后根据0.6.x的规范使用。
 
