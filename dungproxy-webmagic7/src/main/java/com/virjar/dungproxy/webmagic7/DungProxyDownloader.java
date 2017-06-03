@@ -86,7 +86,7 @@ public class DungProxyDownloader extends AbstractDownloader {
         this.proxyProvider = proxyProvider;
     }
 
-    private CloseableHttpClient getHttpClient(Site site) {
+    public CloseableHttpClient getHttpClient(Site site) {
         if (site == null) {
             return httpClientGenerator.getClient(null);
         }
@@ -120,7 +120,7 @@ public class DungProxyDownloader extends AbstractDownloader {
                     request.getExtra(ProxyConstant.DUNGPROXY_USER_KEY).toString());
         }
 
-        Page page = Page.fail();
+        Page page = UserSessionPage.fail();
         try {
             httpResponse = httpClient.execute(requestContext.getHttpUriRequest(),
                     requestContext.getHttpClientContext());
@@ -166,7 +166,7 @@ public class DungProxyDownloader extends AbstractDownloader {
     protected Page handleResponse(Request request, String charset, HttpResponse httpResponse, Task task)
             throws IOException {
         String content = getResponseContent(charset, httpResponse);
-        Page page = new Page();
+        Page page = new UserSessionPage();
         page.setRawText(content);
         page.setUrl(new PlainText(request.getUrl()));
         page.setRequest(request);
@@ -251,7 +251,7 @@ public class DungProxyDownloader extends AbstractDownloader {
             site.setCycleRetryTimes(1);
         }
         if (page == null) {
-            page = Page.fail();
+            page = UserSessionPage.fail();
         } else {
             page.setDownloadSuccess(false);
         }

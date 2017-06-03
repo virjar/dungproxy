@@ -15,7 +15,11 @@ import us.codecraft.webmagic.utils.UrlUtils;
  * 重写page里面的方法,对用户URL关系维护做增强,也就是说纪录增加的URL任务是那个user产生的,便于新URL任务执行的时候,选择合适的cookie空间,做到多用户模拟登录cookie隔离
  */
 public class UserSessionPage extends Page {
-
+    public static UserSessionPage fail(){
+        UserSessionPage page =new UserSessionPage();
+        page.setDownloadSuccess(false);
+        return page;
+    }
 
     @Override
     public void addTargetRequests(List<String> requests, final long priority) {
