@@ -22,10 +22,9 @@ import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.Lookup;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.ConnectionKeepAliveStrategy;
-import org.apache.http.conn.DnsResolver;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.SchemePortResolver;
+import org.apache.http.conn.*;
+import org.apache.http.conn.HttpConnectionFactory;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
@@ -129,12 +128,20 @@ public class CrawlerHttpClientBuilder {
 
     private PublicSuffixMatcher publicSuffixMatcher;
 
+    private HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory;
+
     public static CrawlerHttpClientBuilder create() {
         return new CrawlerHttpClientBuilder();
     }
 
     protected CrawlerHttpClientBuilder() {
         super();
+    }
+
+
+    public final CrawlerHttpClientBuilder  setConnFactory(final HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory){
+        this.connFactory = connFactory;
+        return this;
     }
 
     /**
@@ -897,7 +904,7 @@ public class CrawlerHttpClientBuilder {
                     RegistryBuilder.<ConnectionSocketFactory> create()
                             .register("http", PlainConnectionSocketFactory.getSocketFactory())
                             .register("https", sslSocketFactoryCopy).build(),
-                    null, null, dnsResolver, connTimeToLive,
+                    connFactory, null, dnsResolver, connTimeToLive,
                     connTimeToLiveTimeUnit != null ? connTimeToLiveTimeUnit : TimeUnit.MILLISECONDS);
             if (defaultSocketConfig != null) {
                 poolingmgr.setDefaultSocketConfig(defaultSocketConfig);
