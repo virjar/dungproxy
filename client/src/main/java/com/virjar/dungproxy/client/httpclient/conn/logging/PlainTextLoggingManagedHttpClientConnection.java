@@ -8,7 +8,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
 import org.apache.commons.logging.Log;
-import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.config.MessageConstraints;
@@ -19,22 +18,28 @@ import org.apache.http.io.HttpMessageWriterFactory;
 
 /**
  * Created by virjar on 17/7/3.
+ * <br/>
+ * @since 0.0.8
+ * @author virjar
  */
 public class PlainTextLoggingManagedHttpClientConnection extends DefaultManagedHttpClientConnection {
 
     private final Log log;
     private final Wire wire;
 
-    public PlainTextLoggingManagedHttpClientConnection(final String id, final Log log,
-            final Log wirelog, final int buffersize, final int fragmentSizeHint, final CharsetDecoder chardecoder,
+    public PlainTextLoggingManagedHttpClientConnection(final String id, final Log log, final Log wirelog,
+            final int buffersize, final int fragmentSizeHint, final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder, final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy, final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<HttpRequest> requestWriterFactory,
-            final HttpMessageParserFactory<HttpResponse> responseParserFactory) {
+            final HttpMessageParserFactory<HttpResponse> responseParserFactory, Wire wire) {
         super(id, buffersize, fragmentSizeHint, chardecoder, charencoder, constraints, incomingContentStrategy,
                 outgoingContentStrategy, requestWriterFactory, responseParserFactory);
         this.log = log;
-        this.wire = new Wire(wirelog, id);
+        if (wire == null) {
+            wire = new Wire(wirelog, id);
+        }
+        this.wire = wire;
     }
 
     @Override
@@ -69,23 +74,11 @@ public class PlainTextLoggingManagedHttpClientConnection extends DefaultManagedH
 
     @Override
     protected void onResponseReceived(final HttpResponse response) {
-        if (response != null) {
-            System.out.println(response.getStatusLine().toString());
-            final Header[] headers = response.getAllHeaders();
-            for (final Header header : headers) {
-                System.out.println(header.toString());
-            }
-        }
+        // 因为二进制数据输出的时候,会自带输出头部信息
     }
 
     @Override
     protected void onRequestSubmitted(final HttpRequest request) {
-        if (request != null) {
-            System.out.println(request.getRequestLine().toString());
-            final Header[] headers = request.getAllHeaders();
-            for (final Header header : headers) {
-                System.out.println(header.toString());
-            }
-        }
+        // 因为二进制数据输出的时候,会自带输出头部信息
     }
 }

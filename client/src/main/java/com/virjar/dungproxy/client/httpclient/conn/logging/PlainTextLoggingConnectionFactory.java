@@ -24,7 +24,10 @@ import org.apache.http.io.HttpMessageParserFactory;
 import org.apache.http.io.HttpMessageWriterFactory;
 
 /**
- * Created by virjar on 17/7/3.
+ * Created by virjar on 17/7/3. <br/>
+ * 
+ * @since 0.0.8
+ * @author virjar
  */
 public class PlainTextLoggingConnectionFactory
         implements HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> {
@@ -38,6 +41,12 @@ public class PlainTextLoggingConnectionFactory
     private final HttpMessageParserFactory<HttpResponse> responseParserFactory;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
+
+    private Wire wire;
+
+    public void setWire(Wire wire) {
+        this.wire = wire;
+    }
 
     /**
      * @since 4.4
@@ -90,7 +99,7 @@ public class PlainTextLoggingConnectionFactory
         final String id = "http-outgoing-" + Long.toString(COUNTER.getAndIncrement());
         return new PlainTextLoggingManagedHttpClientConnection(id, log, wirelog, cconfig.getBufferSize(),
                 cconfig.getFragmentSizeHint(), chardecoder, charencoder, cconfig.getMessageConstraints(),
-                incomingContentStrategy, outgoingContentStrategy, requestWriterFactory, responseParserFactory);
+                incomingContentStrategy, outgoingContentStrategy, requestWriterFactory, responseParserFactory, wire);
     }
 
 }

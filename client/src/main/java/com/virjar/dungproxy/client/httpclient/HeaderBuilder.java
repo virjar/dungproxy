@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 
 import com.google.common.collect.Lists;
 
@@ -24,7 +25,7 @@ public class HeaderBuilder {
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
         headerList.add(new BasicHeader("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"));
         // headerList.add(new BasicHeader("Accept-Encoding", "gzip, deflate"));
-        headerList.add(new BasicHeader("Connection", "keep-alive"));
+        headerList.add(new BasicHeader(HTTP.CONN_DIRECTIVE, "keep-alive"));
         headerList.add(new BasicHeader("Cache-Control", "no-cache"));
         headerList.add(new BasicHeader("Pragma", "no-cache"));
         return this;
@@ -36,8 +37,8 @@ public class HeaderBuilder {
      * @return HeaderBuilder
      */
     public HeaderBuilder withFormData() {
-        removeHeader("Content-Type");
-        headerList.add(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+        removeHeader(HTTP.CONTENT_TYPE);
+        headerList.add(new BasicHeader(HTTP.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=UTF-8"));
         return this;
     }
 
@@ -57,8 +58,8 @@ public class HeaderBuilder {
     }
 
     public HeaderBuilder withUA(String userAgent) {
-        removeHeader("User-Agent");
-        headerList.add(new BasicHeader("User-Agent", userAgent));
+        removeHeader(HTTP.USER_AGENT);
+        headerList.add(new BasicHeader(HTTP.USER_AGENT, userAgent));
         return this;
     }
 

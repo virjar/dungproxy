@@ -8,7 +8,10 @@ import org.apache.http.annotation.NotThreadSafe;
 /**
  * Internal class.
  *
- * @since 4.3
+ * <br/>
+ * 
+ * @since 0.0.8
+ * @author virjar
  */
 @NotThreadSafe
 class LoggingOutputStream extends OutputStream {

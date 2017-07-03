@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by virjar on 17/7/3.
+ * Created by virjar on 17/7/3. <br/>
+ * 
+ * @since 0.0.8
+ * @author virjar
  */
 class LoggingInputStream extends InputStream {
 
