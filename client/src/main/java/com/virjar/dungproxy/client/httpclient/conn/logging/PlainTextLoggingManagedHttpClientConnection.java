@@ -17,8 +17,8 @@ import org.apache.http.io.HttpMessageParserFactory;
 import org.apache.http.io.HttpMessageWriterFactory;
 
 /**
- * Created by virjar on 17/7/3.
- * <br/>
+ * Created by virjar on 17/7/3. <br/>
+ * 
  * @since 0.0.8
  * @author virjar
  */
@@ -37,7 +37,7 @@ public class PlainTextLoggingManagedHttpClientConnection extends DefaultManagedH
                 outgoingContentStrategy, requestWriterFactory, responseParserFactory);
         this.log = log;
         if (wire == null) {
-            wire = new Wire(wirelog, id);
+            wire = new Wire(wirelog, id, false);
         }
         this.wire = wire;
     }

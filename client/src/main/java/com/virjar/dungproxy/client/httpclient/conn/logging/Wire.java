@@ -10,7 +10,7 @@ import org.apache.http.util.Args;
 
 /**
  * Created by virjar on 17/7/4.<br/>
- * 默认把日子输出到控制台
+ * 默认把日志输出到控制台
  * 
  * @since 0.0.8
  * @author virjar
@@ -23,9 +23,10 @@ public class Wire {
     /**
      * @since 4.3
      */
-    public Wire(final Log log, final String id) {
+    public Wire(final Log log, final String id,boolean logHex) {
         this.log = log;
         this.id = id;
+        this.logHex = logHex;
     }
 
     public void wire(final String header, final InputStream instream) throws IOException {
