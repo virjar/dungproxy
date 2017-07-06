@@ -35,6 +35,16 @@
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponent.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>1.9.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.30</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -93,7 +103,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.10</version>
+            <version>1.9</version>
         </dependency>
 
     </dependencies>

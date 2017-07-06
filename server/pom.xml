@@ -13,9 +13,9 @@
     <properties>
         <qos.logback.version>1.1.3</qos.logback.version>
         <com.alibaba.druid.version>1.0.18</com.alibaba.druid.version>
-        <com.alibaba.fastjson.version>1.1.31</com.alibaba.fastjson.version>
+        <com.alibaba.fastjson.version>1.2.30</com.alibaba.fastjson.version>
         <fasterxml.jackson.version>2.5.3</fasterxml.jackson.version>
-        <com.google.guava.guava.version>18.0</com.google.guava.guava.version>
+        <com.google.guava.guava.version>19.0</com.google.guava.guava.version>
         <commons-io.commons-io.version>2.4</commons-io.commons-io.version>
         <dbunit.dbunit.version>2.2</dbunit.dbunit.version>
         <javax.servlet.servlet-api.version>2.5</javax.servlet.servlet-api.version>
@@ -24,7 +24,7 @@
         <mysql.mysql-connector-java.version>5.1.35</mysql.mysql-connector-java.version>
         <org.apache.commons.commons-lang3.version>3.4</org.apache.commons.commons-lang3.version>
         <org.apache.httpcomponents.httpasyncclient.version>4.1.1</org.apache.httpcomponents.httpasyncclient.version>
-        <httpcomponent.version>4.3</httpcomponent.version>
+        <httpcomponent.version>4.4.1</httpcomponent.version>
         <org.easymock.easymock.version>2.2</org.easymock.easymock.version>
         <org.hibernate.hibernate-validator.version>5.0.2.Final</org.hibernate.hibernate-validator.version>
         <org.mybatis.mybatis.version>3.3.0</org.mybatis.mybatis.version>
@@ -352,17 +352,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient-osgi</artifactId>
-            <version>4.5.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.4.4</version>
+            <version>${httpcomponent.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>

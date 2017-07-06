@@ -24,4 +24,13 @@
             <version>0.6.1</version>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.30</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
