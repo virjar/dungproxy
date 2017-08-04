@@ -147,7 +147,8 @@ public class ProxyRestApiController {
         ret.put("num", distribute.size());
         ret.put("data", beanMapper.mapAsList(distribute, ProxyVO.class));
         ResponseEntity<ResponseEnvelope<Object>> responseEnvelopeResponseEntity = ReturnUtil.retSuccess(ret);
-        logger.info("distribute result:{}", JSONObject.toJSONString(responseEnvelopeResponseEntity));
+        //取消日志
+        //logger.info("distribute result:{}", JSONObject.toJSONString(responseEnvelopeResponseEntity));
         return responseEnvelopeResponseEntity;
     }
 

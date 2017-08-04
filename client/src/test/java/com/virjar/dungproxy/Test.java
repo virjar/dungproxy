@@ -18,8 +18,12 @@ import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
 public class Test {
     public static void main(String[] args) {
 
+        // 先创建一个httpclient,预热一下,方便调试
         CrawlerHttpClient crawlerHttpClient = buildDefault();
         crawlerHttpClient.get("http://www.java1234.com/index.html");
+
+        // 重新穿件一个httpclient,避免链接池服用
+        crawlerHttpClient = buildDefault();
         crawlerHttpClient.get("http://www.java1234.com/index.html");
     }
 
