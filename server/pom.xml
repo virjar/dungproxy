@@ -527,24 +527,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
         </profile>
-        <profile>
-            <id>dev</id>
-            <properties>
-                <deploy.type>dev</deploy.type>
-            </properties>
-        </profile>
-        <profile>
-            <id>beta</id>
-            <properties>
-                <deploy.type>beta</deploy.type>
-            </properties>
-        </profile>
-        <profile>
-            <id>prod</id>
-            <properties>
-                <deploy.type>prod</deploy.type>
-            </properties>
-        </profile>
+
         <profile>
             <id>guobao</id>
             <properties>
@@ -558,15 +541,15 @@
             </properties>
         </profile>
         <profile>
-            <id>skye</id>
+            <id>alicloud</id>
             <properties>
-                <deploy.type>skye</deploy.type>
+                <deploy.type>alicloud</deploy.type>
             </properties>
         </profile>
         <profile>
-            <id>renzhe</id>
+            <id>tencent</id>
             <properties>
-                <deploy.type>renzhe</deploy.type>
+                <deploy.type>tencent</deploy.type>
             </properties>
         </profile>
     </profiles>
