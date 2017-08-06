@@ -6,6 +6,8 @@ import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
+import com.virjar.dungproxy.client.ippool.IpPoolHolder;
+import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -73,6 +75,8 @@ public class CollectorTask implements Runnable, InitializingBean, ApplicationCon
             logger.info("collector task is not running");
             return;
         }
+
+        IpPoolHolder.init(DungProxyContext.create().setPoolEnabled(true));
 
         pool = new ThreadPoolExecutor(SysConfig.getInstance().getIpCrawlerThread(),
                 SysConfig.getInstance().getIpCrawlerThread(), 0L, TimeUnit.MILLISECONDS,
