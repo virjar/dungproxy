@@ -1,5 +1,7 @@
 package com.virjar.dungproxy.client.ippool.config;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -61,7 +63,7 @@ public class DungProxyContext {
     /**
      * 加载全局的默认配置,统一加载后防止NPE
      */
-    private void fillDefaultStrategy() {
+    public void fillDefaultStrategy() {
         avProxyDumper = new JSONFileAvProxyDumper();
         needProxyStrategy = new ProxyAllStrategy();// new WhiteListProxyStrategy();
         feedBackDuration = 1200000;// 20分钟一次 反馈
@@ -303,6 +305,13 @@ public class DungProxyContext {
     public DungProxyContext buildDefaultConfigFile() {
         InputStream resourceAsStream = DungProxyContext.class.getClassLoader()
                 .getResourceAsStream(ProxyConstant.CLIENT_CONFIG_FILE_NAME);
+        if (resourceAsStream == null) {
+            try {
+                resourceAsStream = new FileInputStream(ProxyConstant.CLIENT_CONFIG_FILE_NAME);
+            } catch (FileNotFoundException fio) {
+                logger.warn("can not open file {}", ProxyConstant.CLIENT_CONFIG_FILE_NAME, fio);
+            }
+        }
         if (resourceAsStream == null) {
             logger.warn("没有找到配置文件:{},代理规则可以通过代码来控制", ProxyConstant.CLIENT_CONFIG_FILE_NAME);
             return this;
