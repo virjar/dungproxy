@@ -18,6 +18,7 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.InputStreamFactory;
 import org.apache.http.client.protocol.*;
+import org.apache.http.client.utils.DateUtils;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.Lookup;
 import org.apache.http.config.RegistryBuilder;
@@ -1107,7 +1108,18 @@ public class CrawlerHttpClientBuilder {
         }
         Lookup<CookieSpecProvider> cookieSpecRegistryCopy = this.cookieSpecRegistry;
         if (cookieSpecRegistryCopy == null) {
-            final CookieSpecProvider defaultProvider = new DefaultCookieSpecProvider(publicSuffixMatcherCopy);
+            // 默认cookie的时间解析只有一个pattern，和浏览器不兼容，这里从org.apache.http.impl.cookie.BrowserCompatSpec.DEFAULT_DATE_PATTERNS
+            // 获取所有pattern，增加兼容性
+            final String[] DEFAULT_DATE_PATTERNS = new String[] { DateUtils.PATTERN_RFC1123, DateUtils.PATTERN_RFC1036,
+                    DateUtils.PATTERN_ASCTIME, "EEE, dd-MMM-yyyy HH:mm:ss z", "EEE, dd-MMM-yyyy HH-mm-ss z",
+                    "EEE, dd MMM yy HH:mm:ss z", "EEE dd-MMM-yyyy HH:mm:ss z", "EEE dd MMM yyyy HH:mm:ss z",
+                    "EEE dd-MMM-yyyy HH-mm-ss z", "EEE dd-MMM-yy HH:mm:ss z", "EEE dd MMM yy HH:mm:ss z",
+                    "EEE,dd-MMM-yy HH:mm:ss z", "EEE,dd-MMM-yyyy HH:mm:ss z", "EEE, dd-MM-yyyy HH:mm:ss z", };
+
+            final CookieSpecProvider defaultProvider = new DefaultCookieSpecProvider(
+                    DefaultCookieSpecProvider.CompatibilityLevel.DEFAULT, publicSuffixMatcher, DEFAULT_DATE_PATTERNS,
+                    false);
+
             final CookieSpecProvider laxStandardProvider = new RFC6265CookieSpecProvider(
                     RFC6265CookieSpecProvider.CompatibilityLevel.RELAXED, publicSuffixMatcherCopy);
             final CookieSpecProvider strictStandardProvider = new RFC6265CookieSpecProvider(

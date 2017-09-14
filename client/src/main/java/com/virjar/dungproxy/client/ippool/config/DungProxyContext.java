@@ -309,7 +309,7 @@ public class DungProxyContext {
             try {
                 resourceAsStream = new FileInputStream(ProxyConstant.CLIENT_CONFIG_FILE_NAME);
             } catch (FileNotFoundException fio) {
-                logger.warn("can not open file {}", ProxyConstant.CLIENT_CONFIG_FILE_NAME, fio);
+                logger.warn("can not open file {}", ProxyConstant.CLIENT_CONFIG_FILE_NAME);
             }
         }
         if (resourceAsStream == null) {
