@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.virjar.dungproxy.client.ippool.IpPoolHolder;
 import org.apache.http.Header;
 
 import com.google.common.base.Function;
@@ -86,7 +87,7 @@ public class AvProxy {
 
     public void recordProxyChange() {
         if (proxyNumberChange.incrementAndGet() % 10 == 0) {// 每当有10个IP加入或者下线,则进行一次序列化
-            if (IpPool.getInstance() == null) {
+            if (!IpPoolHolder.hasInit()) {
                 return;// 说明是初始化的时候,在递归调用到这里了。放弃序列化
             }
             dungProxyContext.getAvProxyDumper().serializeProxy(Maps.transformValues(IpPool.getInstance().getPoolInfo(),

@@ -28,8 +28,6 @@ public class DungProxyProvider implements ProxyProvider {
         this(host, testUrl, new OfflineStrategy.NotOfflineStrategy());
     }
 
-    private IpPool ipPool = IpPool.getInstance();
-
     @Override
     public void returnProxy(Proxy proxy, Page page, Task task) {
         if (!(proxy instanceof WebMagicBridgeProxy)) {
@@ -46,7 +44,7 @@ public class DungProxyProvider implements ProxyProvider {
 
     @Override
     public Proxy getProxy(Task task) {
-        AvProxy bind = ipPool.bind(host, testUrl);
+        AvProxy bind = IpPool.getInstance().bind(host, testUrl);
         if (bind == null) {
             return null;
         }
