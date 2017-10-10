@@ -48,7 +48,11 @@ public class BlockLinkedList<T> extends LinkedList<T> {
     public void add(int index, T element) {
         lock.lock();
         try {
-            super.add(index, element);
+            if (index >= size()) {
+                super.addLast(element);
+            } else {
+                super.add(index, element);
+            }
             notifyIfNotEmpty();
         } finally {
             lock.unlock();
