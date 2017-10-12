@@ -20,6 +20,7 @@ public class ProxyConstant {
     static final String PROXY_DOMAIN_STRATEGY = "proxyclient.proxyDomainStrategy";
     static final String DEFAULT_DOMAIN_STRATEGY = "WHITE_LIST";
     static final String WHITE_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.whiteList";
+    static final String BLACK_LIST_STRATEGY = "proxyclient.proxyDomainStrategy.blackList";
     static final String FEEDBACK_DURATION = "proxyclient.feedback.duration";
     static final String DEFAULT_RESOURCE_SERVER_ADDRESS = "proxyclient.resource.defaultResourceServerAddress";
 

@@ -348,7 +348,7 @@ public class DungProxyContext {
         if (StringUtils.isEmpty(proxyDomainStrategy)) {// 如果没有明确配置代理策略,则以黑白名单key值为主
             if (properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY) != null) {
                 proxyDomainStrategy = WhiteListProxyStrategy.class.getName();
-            } else if (properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY) != null) {
+            } else if (properties.getProperty(ProxyConstant.BLACK_LIST_STRATEGY) != null) {
                 proxyDomainStrategy = BlackListProxyStrategy.class.getName();
             } else {// 如果都没有,则默认代理所有请求
                 proxyDomainStrategy = ProxyAllStrategy.class.getName();
@@ -366,7 +366,7 @@ public class DungProxyContext {
             whiteListProxyStrategy.addAllHost(whiteListProperty);
         } else if (needProxyStrategy instanceof BlackListProxyStrategy) {
             BlackListProxyStrategy blackListProxyStrategy = (BlackListProxyStrategy) needProxyStrategy;
-            String proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.WHITE_LIST_STRATEGY);
+            String proxyDomainStrategyWhiteList = properties.getProperty(ProxyConstant.BLACK_LIST_STRATEGY);
             blackListProxyStrategy.addAllHost(proxyDomainStrategyWhiteList);
         }
 
