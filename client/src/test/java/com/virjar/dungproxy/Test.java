@@ -1,5 +1,7 @@
 package com.virjar.dungproxy;
 
+import com.virjar.dungproxy.client.ippool.GroupBindRouter;
+import com.virjar.dungproxy.client.ippool.config.DungProxyContext;
 import org.apache.http.client.CookieStore;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.LaxRedirectStrategy;
@@ -17,6 +19,9 @@ import com.virjar.dungproxy.client.ippool.config.ProxyConstant;
  */
 public class Test {
     public static void main(String[] args) {
+        GroupBindRouter groupBindRouter = new GroupBindRouter();
+        groupBindRouter.buildRule("91.91p18.space:*");
+        DungProxyContext.create().setGroupBindRouter(groupBindRouter).setPoolEnabled(true);
 
         // 先创建一个httpclient,预热一下,方便调试
         CrawlerHttpClient crawlerHttpClient = buildDefault();
