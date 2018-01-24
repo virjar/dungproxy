@@ -1,12 +1,8 @@
 package com.virjar.dungproxy.client.ippool;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +63,7 @@ public class SmartProxyQueue {
         reentrantLock.lock();
         try {
             consistentBuckets.add(avProxy);
-        }finally {
+        } finally {
             reentrantLock.unlock();
         }
     }
@@ -99,7 +95,7 @@ public class SmartProxyQueue {
                     reentrantLock.lock();
                     try {
                         blockedProxies.addLast(poll);// 使用频率太高,放到备用资源池
-                    }finally {
+                    } finally {
                         reentrantLock.unlock();
                     }
                     logger.info("IP:{}使用小于规定时间间隔{}秒,暂时封禁", poll.getIp(), (useInterval / 1000));
@@ -129,7 +125,7 @@ public class SmartProxyQueue {
             return;
         }
         int recoveredNumber = 0;
-        List<AvProxy> recoveryProxies = Lists.newArrayList();//为了避免死锁
+        List<AvProxy> recoveryProxies = Lists.newArrayList();// 为了避免死锁
         reentrantLock.lock();
         try {
             Iterator<AvProxy> iterator = blockedProxies.iterator();
@@ -137,13 +133,13 @@ public class SmartProxyQueue {
                 AvProxy next = iterator.next();
                 if (System.currentTimeMillis() - next.getLastUsedTime() > useInterval) {
                     // proxies.add(0, next);
-                    //proxies.addFirst(next);// 封禁的前提是IP曾经在队列头部,处于最高优先级,所以这批资源直接恢复到头部
+                    // proxies.addFirst(next);// 封禁的前提是IP曾经在队列头部,处于最高优先级,所以这批资源直接恢复到头部
                     recoveryProxies.add(next);
                     iterator.remove();
                     recoveredNumber++;
                 }
             }
-        }finally {
+        } finally {
             reentrantLock.unlock();
         }
         proxies.addAll(recoveryProxies);
@@ -159,14 +155,14 @@ public class SmartProxyQueue {
             try {
                 reentrantLock.lock();
                 blockedProxies.remove(avProxy);
-            }finally {
+            } finally {
                 reentrantLock.unlock();
             }
         }
         reentrantLock.lock();
         try {
             consistentBuckets.remove(avProxy);
-        }finally {
+        } finally {
             reentrantLock.unlock();
         }
         addWithScore(avProxy);
@@ -178,14 +174,14 @@ public class SmartProxyQueue {
             reentrantLock.lock();
             try {
                 blockedProxies.remove(avProxy);
-            }finally {
+            } finally {
                 reentrantLock.unlock();
             }
         }
         try {
             reentrantLock.lock();
             consistentBuckets.remove(avProxy);
-        }finally {
+        } finally {
             reentrantLock.unlock();
         }
 
@@ -219,8 +215,19 @@ public class SmartProxyQueue {
 
     // 可能有bug,遍历的时候没有做到安全检查。暂时先这样吧
     private class ProxyQueueIterator implements Iterator<AvProxy> {
-        Iterator<AvProxy> activedProxies = proxies.iterator();
-        Iterator<AvProxy> blockedProxiesIterator = blockedProxies.iterator();
+        Iterator<AvProxy> activedProxies;
+        Iterator<AvProxy> blockedProxiesIterator;
+
+        public ProxyQueueIterator() {
+            activedProxies = proxies.iterator();
+            reentrantLock.lock();
+            try {
+                blockedProxiesIterator = Lists.newArrayList(blockedProxies).iterator();
+            } finally {
+                reentrantLock.unlock();
+            }
+        }
+
         boolean firstCollection = true;
 
         @Override
