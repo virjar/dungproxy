@@ -43,6 +43,10 @@ public class HttpInvoker {
                 })).build();
     }
 
+    public static void setCrawlerHttpClient(CrawlerHttpClient crawlerHttpClient) {
+        HttpInvoker.crawlerHttpClient = crawlerHttpClient;
+    }
+
     public static String postJSON(String url, Object entity, Header[] headers) {
         return crawlerHttpClient.postJSON(url, entity, headers);
     }
