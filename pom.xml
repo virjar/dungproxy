@@ -20,6 +20,8 @@
         <module>dungproxy-webmagic5</module>
         <module>dungproxy-webmagic6</module>
         <module>dungproxy-webmagic7</module>
+        <module>dungproxy-webcollector-2_32</module>
+        <module>dungproxy-webcollector-2_71</module>
 
     </modules>
     <description>proxy ip resource pool</description>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>dungproxy</artifactId>
+        <groupId>com.virjar</groupId>
+        <version>0.0.7</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>dungproxy-webcollector-2_32</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.virjar</groupId>
+            <artifactId>dungproxy-client</artifactId>
+            <version>0.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.edu.hfut.dmic.webcollector</groupId>
+            <artifactId>WebCollector</artifactId>
+            <version>2.32</version>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jsoup</groupId>
+                    <artifactId>jsoup</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.googlecode.juniversalchardet</groupId>
+                    <artifactId>juniversalchardet</artifactId>
+                </exclusion>
+
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.json</groupId>
+                    <artifactId>json</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sleepycat</groupId>
+                    <artifactId>je</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+</project>
