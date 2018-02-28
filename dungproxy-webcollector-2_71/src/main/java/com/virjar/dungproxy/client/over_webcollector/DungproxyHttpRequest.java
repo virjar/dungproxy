@@ -148,6 +148,9 @@ public class DungproxyHttpRequest extends HttpRequest {
 
             return response;
         } catch (Exception ex) {
+            if (bind != null) {
+                bind.recordFailed();// 当前不判断那种类型异常导致下线
+            }
             throw ex;
         } finally {
             if (is != null) {
