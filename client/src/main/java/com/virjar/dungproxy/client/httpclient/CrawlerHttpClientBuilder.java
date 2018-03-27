@@ -53,6 +53,7 @@ import org.apache.http.protocol.*;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.TextUtils;
 
+import com.google.common.base.Charsets;
 import com.virjar.dungproxy.client.httpclient.conn.ProxyBindRoutPlanner;
 import com.virjar.dungproxy.client.httpclient.cookie.DungProxyRequestAddCookies;
 import com.virjar.dungproxy.client.httpclient.cookie.DungProxyResponseProcessCookies;
@@ -139,8 +140,8 @@ public class CrawlerHttpClientBuilder {
         super();
     }
 
-
-    public final CrawlerHttpClientBuilder  setConnFactory(final HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory){
+    public final CrawlerHttpClientBuilder setConnFactory(
+            final HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory) {
         this.connFactory = connFactory;
         return this;
     }
@@ -912,6 +913,8 @@ public class CrawlerHttpClientBuilder {
             }
             if (defaultConnectionConfig != null) {
                 poolingmgr.setDefaultConnectionConfig(defaultConnectionConfig);
+            } else {
+                poolingmgr.setDefaultConnectionConfig(ConnectionConfig.custom().setCharset(Charsets.UTF_8).build());
             }
             if (systemProperties) {
                 String s = System.getProperty("http.keepAlive", "true");
