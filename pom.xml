@@ -22,6 +22,7 @@
         <module>dungproxy-webmagic7</module>
         <module>dungproxy-webcollector-2_32</module>
         <module>dungproxy-webcollector-2_71</module>
+        <module>new-server</module>
 
     </modules>
     <description>proxy ip resource pool</description>
