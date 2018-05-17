@@ -1,0 +1,2 @@
+#lock qunar maven settings,to disable qunar inner maven settings,
+#so we can switch environment automatic

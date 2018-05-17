@@ -21,7 +21,7 @@ public class Test {
     public static void main(String[] args) {
         GroupBindRouter groupBindRouter = new GroupBindRouter();
         groupBindRouter.buildRule("91.91p18.space:*");
-        DungProxyContext.create().setGroupBindRouter(groupBindRouter).setPoolEnabled(true);
+        DungProxyContext.create().setGroupBindRouter(groupBindRouter).setPoolEnabled(false);
 
         // 先创建一个httpclient,预热一下,方便调试
         CrawlerHttpClient crawlerHttpClient = buildDefault();
