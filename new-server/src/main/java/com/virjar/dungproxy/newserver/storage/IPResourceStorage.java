@@ -13,7 +13,7 @@ import java.nio.channels.FileChannel;
  *  存储代理ip资源,由于上一个版本存储在mysql中,其查询性能收到影响,即使命中索引也无法在一个比较不太好的服务器上面良好运行,所以考虑自己实现文件存储
  */
 public class IPResourceStorage {
-    private static final String dataPath = "~/.dungproxy_server/proxyData.proxydb";
+    private static final String dataPath = "file:~/.dungproxy_server/proxyData.proxydb";
     private static final  long fileLimitLength = 1<<18;
     private MappedByteBuffer mappedByteBuffer = null;
     private int maxDataSize = -1;
