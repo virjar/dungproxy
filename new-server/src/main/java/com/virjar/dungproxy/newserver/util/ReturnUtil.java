@@ -1,5 +1,7 @@
 package com.virjar.dungproxy.newserver.util;
 
+import com.virjar.dungproxy.newserver.model.WebJsonResponse;
+
 /**
  * Created by virjar on 2018/5/18.
  */

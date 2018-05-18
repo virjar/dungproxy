@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Maps;
 import com.virjar.dungproxy.newserver.util.ReturnUtil;
-import com.virjar.dungproxy.newserver.util.WebJsonResponse;
+import com.virjar.dungproxy.newserver.model.WebJsonResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
