@@ -1,9 +1,9 @@
 package com.virjar.dungproxy.newserver.storage;
 
 import com.google.common.base.Preconditions;
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Queues;
 import com.virjar.dungproxy.newserver.util.PathResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +35,10 @@ public class IPResourceStorage {
     private int recordSize = 0;
     private volatile int spaceStartIndex = 0;
     //16个字节,用来存储文件头部信息
-    private int headerSize = magic.length + 4;
+    private int headerSize = magic.length + 4 + 4 + 4;
     private final int dataSize = calculateDataNodeSize();
-    private Cache<Integer, DataNode> dataNodeCache = CacheBuilder.newBuilder()
+    private int firstBucketIndex = 0;
+    private LoadingCache<Integer, DataNode> dataNodeCache = CacheBuilder.newBuilder()
             //缓存2048个数据节点在内存
             .maximumSize(1 << 11).build(new CacheLoader<Integer, DataNode>() {
                 @Override
@@ -88,7 +89,7 @@ public class IPResourceStorage {
         mappedByteBuffer = fc.map(FileChannel.MapMode.READ_WRITE, 0, fileLimitLength);
         maxDataSize = (int) ((fileLimitLength - headerSize) / dataSize);
         if (isNewFile) {
-            createNewModel();
+            writeHeader();
         } else {
             parseModel();
         }
@@ -105,6 +106,7 @@ public class IPResourceStorage {
         }
         recordSize = mappedByteBuffer.getInt();
         spaceStartIndex = mappedByteBuffer.getInt();
+        firstBucketIndex = mappedByteBuffer.getInt();
         scanFreeBucket();
     }
 
@@ -118,7 +120,7 @@ public class IPResourceStorage {
                 log.warn("data maybe broken");
                 return;
             }
-            DataNode dataNode = dataNodeCache.getIfPresent(i);
+            DataNode dataNode = dataNodeCache.getUnchecked(i);
             Preconditions.checkNotNull(dataNode);
             if ((dataNode.flags & maskUsed) != 0) {
                 freeBucket.add(i);
@@ -130,38 +132,38 @@ public class IPResourceStorage {
     private int nextAvailableBucket() {
         Integer integer = freeBucket.pollFirst();
         if (integer == null) {
-            spaceStartIndex++;
-            return spaceStartIndex;
+            return spaceStartIndex++;
         }
         return integer;
     }
 
-    private void createNewModel() {
+    private void writeHeader() {
         //write magic header
         writeBytes(mappedByteBuffer, 0, magic);
-        writeInt(mappedByteBuffer, magic.length, 0);
-        writeInt(mappedByteBuffer, magic.length + 4, 0);
+        mappedByteBuffer.putInt(recordSize);
+        mappedByteBuffer.putInt(spaceStartIndex);
+        mappedByteBuffer.putInt(firstBucketIndex);
     }
 
     public long getByIndex(int index) {
         Preconditions.checkPositionIndex(index, recordSize);
         readWriteLock.readLock().lock();
         try {
-            DataNode parentNode = dataNodeCache.getIfPresent(0);
+            DataNode parentNode = dataNodeCache.getUnchecked(firstBucketIndex);
             int baseSize = 0;
             while (true) {
                 Preconditions.checkNotNull(parentNode);
-                if (baseSize + parentNode.leftDateSize < index) {
+                if (baseSize + parentNode.leftDataSize < index) {
                     //数据在右边
-                    baseSize += (parentNode.leftDateSize + 1);
-                    parentNode = dataNodeCache.getIfPresent(parentNode.rightChildOffset);
+                    baseSize += (parentNode.leftDataSize + 1);
+                    parentNode = dataNodeCache.getUnchecked(parentNode.rightChildOffset);
                     continue;
                 }
-                if (baseSize + parentNode.leftDateSize > index) {
+                if (baseSize + parentNode.leftDataSize > index) {
                     //数据在左子树
-                    parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
+                    parentNode = dataNodeCache.getUnchecked(parentNode.leftChildOffset);
                     Preconditions.checkNotNull(parentNode);
-                    baseSize += (parentNode.leftDateSize + 1);
+                    baseSize += (parentNode.leftDataSize + 1);
                     continue;
                 }
                 //命中当前节点
@@ -176,26 +178,32 @@ public class IPResourceStorage {
         Preconditions.checkPositionIndex(index, recordSize);
         readWriteLock.writeLock().lock();
         try {
-            DataNode parentNode = dataNodeCache.getIfPresent(0);
+            DataNode parentNode = dataNodeCache.getUnchecked(firstBucketIndex);
             int baseSize = 0;
             while (true) {
                 Preconditions.checkNotNull(parentNode);
-                if (baseSize + parentNode.leftDateSize < index) {
+                if (baseSize + parentNode.leftDataSize < index) {
                     //数据在右边
-                    baseSize += (parentNode.leftDateSize + 1);
-                    parentNode = dataNodeCache.getIfPresent(parentNode.rightChildOffset);
+                    baseSize += (parentNode.leftDataSize + 1);
+                    parentNode = dataNodeCache.getUnchecked(parentNode.rightChildOffset);
                     //Preconditions.checkNotNull(parentNode);
                     continue;
                 }
-                if (baseSize + parentNode.leftDateSize > index) {
-                    //数据在左子树
-                    parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
-                    Preconditions.checkNotNull(parentNode);
-                    baseSize += (parentNode.leftDateSize + 1);
-                    continue;
+                if (baseSize == index) {
+                    //命中当前节点
+                    if (index == 0 && parentNode.leftDataSize <= 0) {
+                        firstBucketIndex = parentNode.rightChildOffset;
+                        parentNode.flags &= unMaskUsed;
+                        parentNode.flush();
+                        writeHeader();
+                        return parentNode.theData;
+                    }
+                    return rightShift(parentNode);
                 }
-                //命中当前节点
-                return rightShift(parentNode);
+                //数据在左子树
+                parentNode = dataNodeCache.getUnchecked(parentNode.leftChildOffset);
+                Preconditions.checkNotNull(parentNode);
+                baseSize += (parentNode.leftDataSize + 1);
             }
         } finally {
             readWriteLock.writeLock().unlock();
@@ -237,15 +245,14 @@ public class IPResourceStorage {
                 return;
             }
             recordSize++;
-            DataNode parentNode = dataNodeCache.getIfPresent(0);
+            DataNode parentNode = dataNodeCache.getUnchecked(firstBucketIndex);
             int baseSize = 0;
             while (true) {
                 Preconditions.checkNotNull(parentNode);
                 // parentNode.treeSize++;
-                if (baseSize + parentNode.leftDateSize < index) {
+                if (baseSize + parentNode.leftDataSize < index) {
                     //数据添加在右子树
-                    baseSize += (parentNode.leftDateSize + 1);
-
+                    baseSize += (parentNode.leftDataSize + 1);
                     if (parentNode.rightChildOffset < 0 && parentNode.leftChildOffset < 0) {
                         //左右子树都为空,该节点为叶节点,需要随机选择增加二叉树平衡的概率
                         attachParent(parentNode, dataNode, ThreadLocalRandom.current().nextBoolean());
@@ -259,25 +266,24 @@ public class IPResourceStorage {
                         attachParent(parentNode, dataNode, true);
                         return;
                     }
+                    parentNode.rightDataSize++;
                     parentNode.flush();
-                    parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
+                    parentNode = dataNodeCache.getUnchecked(parentNode.rightChildOffset);
                     continue;
                 }
-                if (baseSize + parentNode.leftDateSize == index) {
+                if (baseSize + parentNode.leftDataSize == index) {
                     //目标命中当前节点,需要迁移当前节点。左子树左移
                     leftShift(parentNode);
-                    parentNode.leftDateSize++;
+                    parentNode.leftDataSize++;
                     parentNode.theData = data;
                     parentNode.flush();
                     return;
                 }
                 parentNode.flush();
                 //目标在左子树
-                parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
+                parentNode = dataNodeCache.getUnchecked(parentNode.leftChildOffset);
                 Preconditions.checkNotNull(parentNode);
-                baseSize += (parentNode.leftDateSize + 1);
-
-
+                baseSize += (parentNode.leftDataSize + 1);
             }
         } finally {
             readWriteLock.writeLock().unlock();
@@ -285,15 +291,15 @@ public class IPResourceStorage {
     }
 
     private void attachParent(DataNode parentNode, DataNode child, boolean left) {
-        if (left) {
-            parentNode.leftDateSize++;
-            parentNode.leftChildOffset = spaceStartIndex++;
-        } else {
-            parentNode.rightDataSize++;
-            parentNode.rightChildOffset = spaceStartIndex++;
-        }
         child.parentIndex = parentNode.dataIndex;
         child.dataIndex = nextAvailableBucket();
+        if (left) {
+            parentNode.leftDataSize++;
+            parentNode.leftChildOffset = child.dataIndex;
+        } else {
+            parentNode.rightChildOffset = child.dataIndex;
+            parentNode.rightDataSize++;
+        }
         parentNode.flush();
         child.flush();
     }
@@ -307,8 +313,8 @@ public class IPResourceStorage {
                 freeBucket.add(dataNode.dataIndex);
                 return theData;
             }
-            dataNode.leftDateSize--;
-            DataNode ifPresent = dataNodeCache.getIfPresent(dataNode.leftChildOffset);
+            dataNode.leftDataSize--;
+            DataNode ifPresent = dataNodeCache.getUnchecked(dataNode.leftChildOffset);
             Preconditions.checkNotNull(ifPresent);
             dataNode.theData = ifPresent.theData;
             dataNode.flush();
@@ -331,10 +337,10 @@ public class IPResourceStorage {
                 return;
             }
             // dataNode.treeSize++;
-            dataNode.leftDateSize++;
+            dataNode.leftDataSize++;
             dataNode.flush();
 
-            dataNode = dataNodeCache.getIfPresent(dataNode.leftChildOffset);
+            dataNode = dataNodeCache.getUnchecked(dataNode.leftChildOffset);
             Preconditions.checkNotNull(dataNode);
             long tmpData = dataNode.theData;
             dataNode.theData = theData;
@@ -348,7 +354,7 @@ public class IPResourceStorage {
     private class DataNode {
         //4个字节的空间,已经能够描述过亿的数据量了
         //左节点的节点总数,4个字节描述
-        private int leftDateSize = 0;
+        private int leftDataSize = 0;
         //左节点offset,如果不存在左节点,则为-1。4个字节描述
         private int leftChildOffset = -1;
         //数据区域,这里指代ip,8个字节
@@ -362,7 +368,7 @@ public class IPResourceStorage {
         //父节点索引值
         private int parentIndex;
         //数据段描述信息
-        private int flags = 0;
+        private byte flags = 0;
 
         //以下为描述字段,不参与序列化
         //当前节点的索引值
@@ -374,14 +380,10 @@ public class IPResourceStorage {
             try {
                 int start = headerSize + dataSize * dataIndex;
                 flushDataNode(mappedByteBuffer, start, this);
-                if (lastRecordSizeRecord == recordSize) {
-                    return;
+                if (lastRecordSizeRecord != recordSize) {
+                    //尽量避免访问磁盘
+                    writeHeader();
                 }
-                //尽量避免访问磁盘
-                mappedByteBuffer.position(magic.length);
-                mappedByteBuffer.putInt(recordSize);
-                mappedByteBuffer.putInt(spaceStartIndex);
-                lastRecordSizeRecord = recordSize;
             } finally {
                 readWriteLock.writeLock().unlock();
             }
@@ -398,15 +400,16 @@ public class IPResourceStorage {
 
     private static void flushDataNode(MappedByteBuffer mappedByteBuffer, int offset, DataNode dataNode) {
         mappedByteBuffer.position(offset);
-        mappedByteBuffer.putInt(dataNode.leftDateSize);
+        mappedByteBuffer.putInt(dataNode.leftDataSize);
         mappedByteBuffer.putInt(dataNode.leftChildOffset);
         mappedByteBuffer.putLong(dataNode.theData);
         mappedByteBuffer.putInt(dataNode.rightDataSize);
         mappedByteBuffer.putInt(dataNode.rightChildOffset);
         //make sure node container data size is right
-        //int treeSize = dataNode.rightDataSize + dataNode.leftDateSize + 1;
+        //int treeSize = dataNode.rightDataSize + dataNode.leftDataSize + 1;
         //mappedByteBuffer.putInt(treeSize);
         mappedByteBuffer.putInt(dataNode.parentIndex);
+        mappedByteBuffer.put(dataNode.flags);
     }
 
 
@@ -416,7 +419,7 @@ public class IPResourceStorage {
             int start = headerSize + dataSize * index;
             mappedByteBuffer.position(start);
             DataNode dataNode = new DataNode();
-            dataNode.leftDateSize = mappedByteBuffer.getInt();
+            dataNode.leftDataSize = mappedByteBuffer.getInt();
             dataNode.leftChildOffset = mappedByteBuffer.getInt();
             dataNode.theData = mappedByteBuffer.getLong();
             dataNode.rightDataSize = mappedByteBuffer.getInt();
@@ -424,6 +427,7 @@ public class IPResourceStorage {
             //dataNode.treeSize = mappedByteBuffer.getInt();
             dataNode.dataIndex = index;
             dataNode.parentIndex = mappedByteBuffer.getInt();
+            dataNode.flags = mappedByteBuffer.get();
             return dataNode;
         } finally {
             readWriteLock.readLock().unlock();
