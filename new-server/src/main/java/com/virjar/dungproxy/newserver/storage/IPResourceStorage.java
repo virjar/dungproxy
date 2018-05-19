@@ -166,9 +166,11 @@ public class IPResourceStorage {
                     }
                     if (parentNode.rightChildOffset < 0) {
                         attachParent(parentNode, dataNode, false);
+                        return;
                     }
                     if (parentNode.leftChildOffset < 0) {
                         attachParent(parentNode, dataNode, true);
+                        return;
                     }
                     parentNode.flush();
                     parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
