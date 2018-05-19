@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -116,10 +117,12 @@ public class IPResourceStorage {
         Preconditions.checkPositionIndex(index, recordSize.get());
         readWriteLock.writeLock().lock();
         try {
-            //TODO 这个index不对
-            DataNode dataNode = dataNodeCache.getIfPresent(index);
-            Preconditions.checkNotNull(dataNode);
-            return dataNode.theData;
+            DataNode parentNode = dataNodeCache.getIfPresent(0);
+            int baseSize = 0;
+            while (true) {
+                Preconditions.checkNotNull(parentNode);
+
+            }
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -155,15 +158,17 @@ public class IPResourceStorage {
                 if (baseSize + parentNode.leftDateSize < index) {
                     //数据添加在右子树
                     baseSize += parentNode.leftDateSize + 1;
-                    parentNode.rightDataSize++;
-                    if (parentNode.rightChildOffset < 0) {
-                        //右子树为空,直接挂载
-                        parentNode.rightChildOffset = recordSize.get();
-                        dataNode.parentIndex = parentNode.dataIndex;
-                        dataNode.dataIndex = recordSize.get();
-                        parentNode.flush();
-                        dataNode.flush();
+
+                    if (parentNode.rightChildOffset < 0 && parentNode.leftChildOffset < 0) {
+                        //左右子树都为空,该节点为叶节点,需要随机选择增加二叉树平衡的概率
+                        attachParent(parentNode, dataNode, ThreadLocalRandom.current().nextBoolean());
                         return;
+                    }
+                    if (parentNode.rightChildOffset < 0) {
+                        attachParent(parentNode, dataNode, false);
+                    }
+                    if (parentNode.leftChildOffset < 0) {
+                        attachParent(parentNode, dataNode, true);
                     }
                     parentNode.flush();
                     parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
@@ -187,6 +192,20 @@ public class IPResourceStorage {
         } finally {
             readWriteLock.writeLock().unlock();
         }
+    }
+
+    private void attachParent(DataNode parentNode, DataNode child, boolean left) {
+        if (left) {
+            parentNode.leftDateSize++;
+            parentNode.leftChildOffset = recordSize.get();
+        } else {
+            parentNode.rightDataSize++;
+            parentNode.rightChildOffset = recordSize.get();
+        }
+        child.parentIndex = parentNode.dataIndex;
+        child.dataIndex = recordSize.get();
+        parentNode.flush();
+        child.flush();
     }
 
     private void leftShift(DataNode dataNode) {
