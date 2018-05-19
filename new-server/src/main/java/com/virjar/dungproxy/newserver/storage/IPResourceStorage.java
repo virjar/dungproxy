@@ -253,16 +253,16 @@ public class IPResourceStorage {
                 if (baseSize + parentNode.leftDataSize < index) {
                     //数据添加在右子树
                     baseSize += (parentNode.leftDataSize + 1);
-                    if (parentNode.rightChildOffset < 0 && parentNode.leftChildOffset < 0) {
+                    if (parentNode.rightDataSize <= 0 && parentNode.leftDataSize <= 0) {
                         //左右子树都为空,该节点为叶节点,需要随机选择增加二叉树平衡的概率
                         attachParent(parentNode, dataNode, ThreadLocalRandom.current().nextBoolean());
                         return;
                     }
-                    if (parentNode.rightChildOffset < 0) {
+                    if (parentNode.rightDataSize < 0) {
                         attachParent(parentNode, dataNode, false);
                         return;
                     }
-                    if (parentNode.leftChildOffset < 0) {
+                    if (parentNode.leftDataSize < 0) {
                         attachParent(parentNode, dataNode, true);
                         return;
                     }
@@ -307,7 +307,7 @@ public class IPResourceStorage {
     private long rightShift(DataNode dataNode) {
         long theData = dataNode.theData;
         while (true) {
-            if (dataNode.leftChildOffset < 0) {
+            if (dataNode.leftDataSize <= 0) {
                 dataNode.flags &= unMaskUsed;
                 dataNode.flush();
                 freeBucket.add(dataNode.dataIndex);
@@ -325,7 +325,7 @@ public class IPResourceStorage {
     private void leftShift(DataNode dataNode) {
         long theData = dataNode.theData;
         while (true) {
-            if (dataNode.leftChildOffset < 0) {
+            if (dataNode.leftDataSize <= 0) {
                 //create a new node
                 DataNode newDataNode = new DataNode();
                 newDataNode.parentIndex = dataNode.dataIndex;
