@@ -30,6 +30,7 @@ public class IPResourceStorage {
     private byte[] magic = "dungproxydb".getBytes();
     //当前记录大小
     private AtomicInteger recordSize = null;
+    private int spaceStartIndex = 0;
     //16个字节,用来存储文件头部信息
     private int headerSize = magic.length + 4;
     private final int dataSize = calculateDataNodeSize();
@@ -46,6 +47,8 @@ public class IPResourceStorage {
             });
     //读写锁,该队列暂时没有实现分块锁,目前锁整个队列
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private static final int maskUsed = 0x01;
+    private static final int unMaskUsed = ~maskUsed;
 
 
     public IPResourceStorage() {
@@ -92,22 +95,40 @@ public class IPResourceStorage {
             Preconditions.checkArgument(magicBuffer[i] == magic[i], "broken dungproxy queue db file");
         }
         recordSize = new AtomicInteger(mappedByteBuffer.getInt());
+        spaceStartIndex = mappedByteBuffer.getInt();
     }
 
     private void createNewModel() {
         //write magic header
         writeBytes(mappedByteBuffer, 0, magic);
         writeInt(mappedByteBuffer, magic.length, 0);
+        writeInt(mappedByteBuffer, magic.length + 4, 0);
     }
 
     public long getByIndex(int index) {
         Preconditions.checkPositionIndex(index, recordSize.get());
         readWriteLock.readLock().lock();
         try {
-            //TODO 这个index不对
-            DataNode dataNode = dataNodeCache.getIfPresent(index);
-            Preconditions.checkNotNull(dataNode);
-            return dataNode.theData;
+            DataNode parentNode = dataNodeCache.getIfPresent(0);
+            int baseSize = 0;
+            while (true) {
+                Preconditions.checkNotNull(parentNode);
+                if (baseSize + parentNode.leftDateSize < index) {
+                    //数据在右边
+                    baseSize += (parentNode.leftDateSize + 1);
+                    parentNode = dataNodeCache.getIfPresent(parentNode.rightChildOffset);
+                    continue;
+                }
+                if (baseSize + parentNode.leftDateSize > index) {
+                    //数据在左子树
+                    parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
+                    Preconditions.checkNotNull(parentNode);
+                    baseSize += (parentNode.leftDateSize + 1);
+                    continue;
+                }
+                //命中当前节点
+                return parentNode.theData;
+            }
         } finally {
             readWriteLock.readLock().unlock();
         }
@@ -121,7 +142,22 @@ public class IPResourceStorage {
             int baseSize = 0;
             while (true) {
                 Preconditions.checkNotNull(parentNode);
-
+                if (baseSize + parentNode.leftDateSize < index) {
+                    //数据在右边
+                    baseSize += (parentNode.leftDateSize + 1);
+                    parentNode = dataNodeCache.getIfPresent(parentNode.rightChildOffset);
+                    //Preconditions.checkNotNull(parentNode);
+                    continue;
+                }
+                if (baseSize + parentNode.leftDateSize > index) {
+                    //数据在左子树
+                    parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
+                    Preconditions.checkNotNull(parentNode);
+                    baseSize += (parentNode.leftDateSize + 1);
+                    continue;
+                }
+                //命中当前节点
+                return rightShift(parentNode);
             }
         } finally {
             readWriteLock.writeLock().unlock();
@@ -139,12 +175,13 @@ public class IPResourceStorage {
         Preconditions.checkArgument(index < maxDataSize, "max data record limited,max" + maxDataSize + ",data index:" + index);
         DataNode dataNode = new DataNode();
         dataNode.theData = data;
+        dataNode.flags |= maskUsed;
         readWriteLock.writeLock().lock();
         try {
             if (recordSize.get() == 0) {
                 //the first node
                 dataNode.parentIndex = -1;
-                dataNode.treeSize = 1;
+                // dataNode.treeSize = 1;
                 dataNode.flush();
                 recordSize.incrementAndGet();
                 return;
@@ -154,10 +191,10 @@ public class IPResourceStorage {
             int baseSize = 0;
             while (true) {
                 Preconditions.checkNotNull(parentNode);
-                parentNode.treeSize++;
+                // parentNode.treeSize++;
                 if (baseSize + parentNode.leftDateSize < index) {
                     //数据添加在右子树
-                    baseSize += parentNode.leftDateSize + 1;
+                    baseSize += (parentNode.leftDateSize + 1);
 
                     if (parentNode.rightChildOffset < 0 && parentNode.leftChildOffset < 0) {
                         //左右子树都为空,该节点为叶节点,需要随机选择增加二叉树平衡的概率
@@ -188,7 +225,8 @@ public class IPResourceStorage {
                 //目标在左子树
                 parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
                 Preconditions.checkNotNull(parentNode);
-                baseSize += parentNode.leftDateSize + 1;
+                baseSize += (parentNode.leftDateSize + 1);
+
 
             }
         } finally {
@@ -199,15 +237,33 @@ public class IPResourceStorage {
     private void attachParent(DataNode parentNode, DataNode child, boolean left) {
         if (left) {
             parentNode.leftDateSize++;
-            parentNode.leftChildOffset = recordSize.get();
+            parentNode.leftChildOffset = spaceStartIndex++;
         } else {
             parentNode.rightDataSize++;
-            parentNode.rightChildOffset = recordSize.get();
+            parentNode.rightChildOffset = spaceStartIndex++;
         }
         child.parentIndex = parentNode.dataIndex;
         child.dataIndex = recordSize.get();
         parentNode.flush();
         child.flush();
+    }
+
+    private long rightShift(DataNode dataNode) {
+        long theData = dataNode.theData;
+        while (true) {
+            if (dataNode.leftChildOffset < 0) {
+                //TODO gc,这里需要手动管理空间
+                dataNode.flags &= unMaskUsed;
+                dataNode.flush();
+                return theData;
+            }
+            dataNode.leftDateSize--;
+            DataNode ifPresent = dataNodeCache.getIfPresent(dataNode.leftChildOffset);
+            Preconditions.checkNotNull(ifPresent);
+            dataNode.theData = ifPresent.theData;
+            dataNode.flush();
+            dataNode = ifPresent;
+        }
     }
 
     private void leftShift(DataNode dataNode) {
@@ -217,21 +273,22 @@ public class IPResourceStorage {
                 //create a new node
                 DataNode newDataNode = new DataNode();
                 newDataNode.parentIndex = dataNode.dataIndex;
-                newDataNode.dataIndex = recordSize.get();
+                newDataNode.dataIndex = spaceStartIndex++;
                 newDataNode.theData = theData;
+                newDataNode.flags |= maskUsed;
                 dataNode.flush();
                 newDataNode.flush();
                 return;
             }
-            dataNode.treeSize++;
+            // dataNode.treeSize++;
             dataNode.leftDateSize++;
             dataNode.flush();
 
             dataNode = dataNodeCache.getIfPresent(dataNode.leftChildOffset);
             Preconditions.checkNotNull(dataNode);
-            long tmpdata = dataNode.theData;
+            long tmpData = dataNode.theData;
             dataNode.theData = theData;
-            theData = tmpdata;
+            theData = tmpData;
         }
     }
 
@@ -251,9 +308,11 @@ public class IPResourceStorage {
         //右节点offset,如果不存在左节点,则为-1。4个字节描述
         private int rightChildOffset = -1;
         //以本节点作为根节点的存储树的数据总量
-        private int treeSize;
+        //private int treeSize;
         //父节点索引值
         private int parentIndex;
+        //数据段描述信息
+        private int flags = 0;
 
         //以下为描述字段,不参与序列化
         //当前节点的索引值
@@ -294,8 +353,8 @@ public class IPResourceStorage {
         mappedByteBuffer.putInt(dataNode.rightDataSize);
         mappedByteBuffer.putInt(dataNode.rightChildOffset);
         //make sure node container data size is right
-        int treeSize = dataNode.rightDataSize + dataNode.leftDateSize + 1;
-        mappedByteBuffer.putInt(treeSize);
+        //int treeSize = dataNode.rightDataSize + dataNode.leftDateSize + 1;
+        //mappedByteBuffer.putInt(treeSize);
         mappedByteBuffer.putInt(dataNode.parentIndex);
     }
 
@@ -311,7 +370,7 @@ public class IPResourceStorage {
             dataNode.theData = mappedByteBuffer.getLong();
             dataNode.rightDataSize = mappedByteBuffer.getInt();
             dataNode.rightChildOffset = mappedByteBuffer.getInt();
-            dataNode.treeSize = mappedByteBuffer.getInt();
+            //dataNode.treeSize = mappedByteBuffer.getInt();
             dataNode.dataIndex = index;
             dataNode.parentIndex = mappedByteBuffer.getInt();
             return dataNode;
