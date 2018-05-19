@@ -4,15 +4,17 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.collect.Queues;
 import com.virjar.dungproxy.newserver.util.PathResolver;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -20,6 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Created by virjar on 2018/5/18.<br>
  * 存储代理ip资源,由于上一个版本存储在mysql中,其查询性能收到影响,即使命中索引也无法在一个比较不太好的服务器上面良好运行,所以考虑自己实现文件存储
  */
+@Slf4j
 public class IPResourceStorage {
     private static final String dataPath = "file:~/.dungproxy_server/proxyData.proxydb";
     private static final long fileLimitLength = 1 << 18;
@@ -29,8 +32,8 @@ public class IPResourceStorage {
     //magic字段,11个字节
     private byte[] magic = "dungproxydb".getBytes();
     //当前记录大小
-    private AtomicInteger recordSize = null;
-    private int spaceStartIndex = 0;
+    private int recordSize = 0;
+    private volatile int spaceStartIndex = 0;
     //16个字节,用来存储文件头部信息
     private int headerSize = magic.length + 4;
     private final int dataSize = calculateDataNodeSize();
@@ -39,12 +42,14 @@ public class IPResourceStorage {
             .maximumSize(1 << 11).build(new CacheLoader<Integer, DataNode>() {
                 @Override
                 public DataNode load(Integer key) throws Exception {
-                    if (recordSize == null || recordSize.get() <= 0) {
+                    if (recordSize <= 0) {
                         return null;
                     }
                     return read(key);
                 }
             });
+    private LinkedBlockingDeque<Integer> freeBucket = Queues.newLinkedBlockingDeque();
+
     //读写锁,该队列暂时没有实现分块锁,目前锁整个队列
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private static final int maskUsed = 0x01;
@@ -70,6 +75,10 @@ public class IPResourceStorage {
         File dataFile = new File(PathResolver.resolveAbsolutePath(dataPath));
         if (!dataFile.exists()) {
             isNewFile = true;
+            File parentFile = dataFile.getParentFile();
+            if (!parentFile.exists() && !parentFile.mkdirs()) {
+                throw new IOException("failed to create data file:" + dataFile.getAbsolutePath());
+            }
             if (!dataFile.createNewFile()) {
                 throw new IOException("failed to create data file:" + dataFile.getAbsolutePath());
             }
@@ -94,8 +103,37 @@ public class IPResourceStorage {
         for (int i = 0; i < magic.length; i++) {
             Preconditions.checkArgument(magicBuffer[i] == magic[i], "broken dungproxy queue db file");
         }
-        recordSize = new AtomicInteger(mappedByteBuffer.getInt());
+        recordSize = mappedByteBuffer.getInt();
         spaceStartIndex = mappedByteBuffer.getInt();
+        scanFreeBucket();
+    }
+
+    private void scanFreeBucket() {
+        if (recordSize == spaceStartIndex) {
+            return;
+        }
+        int i = 0;
+        while (freeBucket.size() + recordSize <= spaceStartIndex) {
+            if (i > spaceStartIndex) {
+                log.warn("data maybe broken");
+                return;
+            }
+            DataNode dataNode = dataNodeCache.getIfPresent(i);
+            Preconditions.checkNotNull(dataNode);
+            if ((dataNode.flags & maskUsed) != 0) {
+                freeBucket.add(i);
+            }
+            i++;
+        }
+    }
+
+    private int nextAvailableBucket() {
+        Integer integer = freeBucket.pollFirst();
+        if (integer == null) {
+            spaceStartIndex++;
+            return spaceStartIndex;
+        }
+        return integer;
     }
 
     private void createNewModel() {
@@ -106,7 +144,7 @@ public class IPResourceStorage {
     }
 
     public long getByIndex(int index) {
-        Preconditions.checkPositionIndex(index, recordSize.get());
+        Preconditions.checkPositionIndex(index, recordSize);
         readWriteLock.readLock().lock();
         try {
             DataNode parentNode = dataNodeCache.getIfPresent(0);
@@ -135,7 +173,7 @@ public class IPResourceStorage {
     }
 
     public long removeByIndex(int index) {
-        Preconditions.checkPositionIndex(index, recordSize.get());
+        Preconditions.checkPositionIndex(index, recordSize);
         readWriteLock.writeLock().lock();
         try {
             DataNode parentNode = dataNodeCache.getIfPresent(0);
@@ -164,6 +202,17 @@ public class IPResourceStorage {
         }
     }
 
+    public void offer(long data) {
+        addIndex(data, recordSize);
+    }
+
+    public long poll() {
+        if (recordSize == 0) {
+            return -1;
+        }
+        return removeByIndex(0);
+    }
+
     /**
      * 插入数据到指定index的前面
      *
@@ -171,22 +220,23 @@ public class IPResourceStorage {
      * @param index 插入位置
      */
     public void addIndex(long data, int index) {
-        Preconditions.checkPositionIndex(index, recordSize.get());
+        Preconditions.checkPositionIndex(index, recordSize);
         Preconditions.checkArgument(index < maxDataSize, "max data record limited,max" + maxDataSize + ",data index:" + index);
         DataNode dataNode = new DataNode();
         dataNode.theData = data;
         dataNode.flags |= maskUsed;
         readWriteLock.writeLock().lock();
         try {
-            if (recordSize.get() == 0) {
+            if (recordSize == 0) {
                 //the first node
                 dataNode.parentIndex = -1;
+                dataNode.dataIndex = nextAvailableBucket();
                 // dataNode.treeSize = 1;
+                recordSize++;
                 dataNode.flush();
-                recordSize.incrementAndGet();
                 return;
             }
-            recordSize.incrementAndGet();
+            recordSize++;
             DataNode parentNode = dataNodeCache.getIfPresent(0);
             int baseSize = 0;
             while (true) {
@@ -243,7 +293,7 @@ public class IPResourceStorage {
             parentNode.rightChildOffset = spaceStartIndex++;
         }
         child.parentIndex = parentNode.dataIndex;
-        child.dataIndex = recordSize.get();
+        child.dataIndex = nextAvailableBucket();
         parentNode.flush();
         child.flush();
     }
@@ -252,9 +302,9 @@ public class IPResourceStorage {
         long theData = dataNode.theData;
         while (true) {
             if (dataNode.leftChildOffset < 0) {
-                //TODO gc,这里需要手动管理空间
                 dataNode.flags &= unMaskUsed;
                 dataNode.flush();
+                freeBucket.add(dataNode.dataIndex);
                 return theData;
             }
             dataNode.leftDateSize--;
@@ -273,7 +323,7 @@ public class IPResourceStorage {
                 //create a new node
                 DataNode newDataNode = new DataNode();
                 newDataNode.parentIndex = dataNode.dataIndex;
-                newDataNode.dataIndex = spaceStartIndex++;
+                newDataNode.dataIndex = nextAvailableBucket();
                 newDataNode.theData = theData;
                 newDataNode.flags |= maskUsed;
                 dataNode.flush();
@@ -324,13 +374,14 @@ public class IPResourceStorage {
             try {
                 int start = headerSize + dataSize * dataIndex;
                 flushDataNode(mappedByteBuffer, start, this);
-                if (lastRecordSizeRecord == recordSize.get()) {
+                if (lastRecordSizeRecord == recordSize) {
                     return;
                 }
                 //尽量避免访问磁盘
                 mappedByteBuffer.position(magic.length);
-                mappedByteBuffer.putInt(recordSize.get());
-                lastRecordSizeRecord = recordSize.get();
+                mappedByteBuffer.putInt(recordSize);
+                mappedByteBuffer.putInt(spaceStartIndex);
+                lastRecordSizeRecord = recordSize;
             } finally {
                 readWriteLock.writeLock().unlock();
             }
@@ -397,4 +448,14 @@ public class IPResourceStorage {
         //原生api中,offset指代data中的offset,而非MappedByteBuffer中的offset,所以不能使用原生api
     }
 
+    public static void main(String[] args) {
+        IPResourceStorage ipResourceStorage = new IPResourceStorage();
+        for (int i = 0; i < 6; i++) {
+            ipResourceStorage.offer(i);
+        }
+        for (int i = 0; i < 6; i++) {
+            System.out.println(ipResourceStorage.poll());
+        }
+
+    }
 }
