@@ -1,6 +1,9 @@
 package com.virjar.dungproxy.newserver.storage;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.virjar.dungproxy.newserver.util.PathResolver;
 
 import java.io.File;
@@ -8,6 +11,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by virjar on 2018/5/18.<br>
@@ -22,13 +28,31 @@ public class IPResourceStorage {
     //magic字段,11个字节
     private byte[] magic = "dungproxydb".getBytes();
     //当前记录大小
-    private int recordSize = 0;
+    private AtomicInteger recordSize = null;
     //16个字节,用来存储文件头部信息
     private int headerSize = magic.length + 4;
+    private final int dataSize = calculateDataNodeSize();
+    private Cache<Integer, DataNode> dataNodeCache = CacheBuilder.newBuilder()
+            //缓存2048个数据节点在内存
+            .maximumSize(1 << 11).build(new CacheLoader<Integer, DataNode>() {
+                @Override
+                public DataNode load(Integer key) throws Exception {
+                    if (recordSize == null || recordSize.get() <= 0) {
+                        return null;
+                    }
+                    return read(key);
+                }
+            });
+    //读写锁,该队列暂时没有实现分块锁,目前锁整个队列
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
-    private DataNode rootNode = null;
 
     public IPResourceStorage() {
+        try {
+            init();
+        } catch (IOException e) {
+            throw new RuntimeException("failed to init db file", e);
+        }
     }
 
     private boolean hasInit = false;
@@ -49,7 +73,7 @@ public class IPResourceStorage {
         RandomAccessFile randomAccessFile = new RandomAccessFile(dataFile, "rwd");
         FileChannel fc = randomAccessFile.getChannel();
         mappedByteBuffer = fc.map(FileChannel.MapMode.READ_WRITE, 0, fileLimitLength);
-        maxDataSize = (int) ((fileLimitLength - headerSize) / DataNode.dataSize);
+        maxDataSize = (int) ((fileLimitLength - headerSize) / dataSize);
         if (isNewFile) {
             createNewModel();
         } else {
@@ -66,7 +90,7 @@ public class IPResourceStorage {
         for (int i = 0; i < magic.length; i++) {
             Preconditions.checkArgument(magicBuffer[i] == magic[i], "broken dungproxy queue db file");
         }
-        recordSize = mappedByteBuffer.getInt();
+        recordSize = new AtomicInteger(mappedByteBuffer.getInt());
     }
 
     private void createNewModel() {
@@ -75,8 +99,125 @@ public class IPResourceStorage {
         writeInt(mappedByteBuffer, magic.length, 0);
     }
 
+    public long getByIndex(int index) {
+        Preconditions.checkPositionIndex(index, recordSize.get());
+        readWriteLock.readLock().lock();
+        try {
+            //TODO 这个index不对
+            DataNode dataNode = dataNodeCache.getIfPresent(index);
+            Preconditions.checkNotNull(dataNode);
+            return dataNode.theData;
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
+    }
 
-    private static class DataNode {
+    public long removeByIndex(int index) {
+        Preconditions.checkPositionIndex(index, recordSize.get());
+        readWriteLock.writeLock().lock();
+        try {
+            //TODO 这个index不对
+            DataNode dataNode = dataNodeCache.getIfPresent(index);
+            Preconditions.checkNotNull(dataNode);
+            return dataNode.theData;
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * 插入数据到指定index的前面
+     *
+     * @param data  数据
+     * @param index 插入位置
+     */
+    public void addIndex(long data, int index) {
+        Preconditions.checkPositionIndex(index, recordSize.get());
+        Preconditions.checkArgument(index < maxDataSize, "max data record limited,max" + maxDataSize + ",data index:" + index);
+        DataNode dataNode = new DataNode();
+        dataNode.theData = data;
+        readWriteLock.writeLock().lock();
+        try {
+            if (recordSize.get() == 0) {
+                //the first node
+                dataNode.parentIndex = -1;
+                dataNode.treeSize = 1;
+                dataNode.flush();
+                recordSize.incrementAndGet();
+                return;
+            }
+            recordSize.incrementAndGet();
+            DataNode parentNode = dataNodeCache.getIfPresent(0);
+            int baseSize = 0;
+            while (true) {
+                Preconditions.checkNotNull(parentNode);
+                parentNode.treeSize++;
+                if (baseSize + parentNode.leftDateSize < index) {
+                    //数据添加在右子树
+                    baseSize += parentNode.leftDateSize + 1;
+                    parentNode.rightDataSize++;
+                    if (parentNode.rightChildOffset < 0) {
+                        //右子树为空,直接挂载
+                        parentNode.rightChildOffset = recordSize.get();
+                        dataNode.parentIndex = parentNode.dataIndex;
+                        dataNode.dataIndex = recordSize.get();
+                        parentNode.flush();
+                        dataNode.flush();
+                        return;
+                    }
+                    parentNode.flush();
+                    parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
+                    continue;
+                }
+                if (baseSize + parentNode.leftDateSize == index) {
+                    //目标命中当前节点,需要迁移当前节点。左子树左移
+                    leftShift(parentNode);
+                    parentNode.leftDateSize++;
+                    parentNode.theData = data;
+                    parentNode.flush();
+                    return;
+                }
+                parentNode.flush();
+                //目标在左子树
+                parentNode = dataNodeCache.getIfPresent(parentNode.leftChildOffset);
+                Preconditions.checkNotNull(parentNode);
+                baseSize += parentNode.leftDateSize + 1;
+
+            }
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
+    private void leftShift(DataNode dataNode) {
+        long theData = dataNode.theData;
+        while (true) {
+            if (dataNode.leftChildOffset < 0) {
+                //create a new node
+                DataNode newDataNode = new DataNode();
+                newDataNode.parentIndex = dataNode.dataIndex;
+                newDataNode.dataIndex = recordSize.get();
+                newDataNode.theData = theData;
+                dataNode.flush();
+                newDataNode.flush();
+                return;
+            }
+            dataNode.treeSize++;
+            dataNode.leftDateSize++;
+            dataNode.flush();
+
+            dataNode = dataNodeCache.getIfPresent(dataNode.leftChildOffset);
+            Preconditions.checkNotNull(dataNode);
+            long tmpdata = dataNode.theData;
+            dataNode.theData = theData;
+            theData = tmpdata;
+        }
+    }
+
+
+    private int lastRecordSizeRecord = -1;
+
+    private class DataNode {
         //4个字节的空间,已经能够描述过亿的数据量了
         //左节点的节点总数,4个字节描述
         private int leftDateSize = 0;
@@ -90,8 +231,72 @@ public class IPResourceStorage {
         private int rightChildOffset = -1;
         //以本节点作为根节点的存储树的数据总量
         private int treeSize;
+        //父节点索引值
+        private int parentIndex;
 
-        static final int dataSize = 4 + 4 + 8 + 4 + 4 + 4;
+        //以下为描述字段,不参与序列化
+        //当前节点的索引值
+        private int dataIndex;
+
+
+        void flush() {
+            readWriteLock.writeLock().lock();
+            try {
+                int start = headerSize + dataSize * dataIndex;
+                flushDataNode(mappedByteBuffer, start, this);
+                if (lastRecordSizeRecord == recordSize.get()) {
+                    return;
+                }
+                //尽量避免访问磁盘
+                mappedByteBuffer.position(magic.length);
+                mappedByteBuffer.putInt(recordSize.get());
+                lastRecordSizeRecord = recordSize.get();
+            } finally {
+                readWriteLock.writeLock().unlock();
+            }
+        }
+
+    }
+
+    private int calculateDataNodeSize() {
+        MappedByteBuffer mappedByteBuffer = (MappedByteBuffer) MappedByteBuffer.allocateDirect(1024);
+        DataNode dataNode = new DataNode();
+        flushDataNode(mappedByteBuffer, 0, dataNode);
+        return mappedByteBuffer.position();
+    }
+
+    private static void flushDataNode(MappedByteBuffer mappedByteBuffer, int offset, DataNode dataNode) {
+        mappedByteBuffer.position(offset);
+        mappedByteBuffer.putInt(dataNode.leftDateSize);
+        mappedByteBuffer.putInt(dataNode.leftChildOffset);
+        mappedByteBuffer.putLong(dataNode.theData);
+        mappedByteBuffer.putInt(dataNode.rightDataSize);
+        mappedByteBuffer.putInt(dataNode.rightChildOffset);
+        //make sure node container data size is right
+        int treeSize = dataNode.rightDataSize + dataNode.leftDateSize + 1;
+        mappedByteBuffer.putInt(treeSize);
+        mappedByteBuffer.putInt(dataNode.parentIndex);
+    }
+
+
+    private DataNode read(int index) {
+        readWriteLock.readLock().lock();
+        try {
+            int start = headerSize + dataSize * index;
+            mappedByteBuffer.position(start);
+            DataNode dataNode = new DataNode();
+            dataNode.leftDateSize = mappedByteBuffer.getInt();
+            dataNode.leftChildOffset = mappedByteBuffer.getInt();
+            dataNode.theData = mappedByteBuffer.getLong();
+            dataNode.rightDataSize = mappedByteBuffer.getInt();
+            dataNode.rightChildOffset = mappedByteBuffer.getInt();
+            dataNode.treeSize = mappedByteBuffer.getInt();
+            dataNode.dataIndex = index;
+            dataNode.parentIndex = mappedByteBuffer.getInt();
+            return dataNode;
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
     }
 
     //tool function
