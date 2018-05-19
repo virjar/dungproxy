@@ -13,19 +13,19 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by virjar on 2018/5/18.<br>
- * 存储代理ip资源,由于上一个版本存储在mysql中,其查询性能收到影响,即使命中索引也无法在一个比较不太好的服务器上面良好运行,所以考虑自己实现文件存储
+ * 存储代理ip资源,由于上一个版本存储在mysql中,其查询性能受到影响,即使命中索引也无法在一个比较不太好的服务器上面良好运行,所以考虑自己实现文件存储
  */
 @Slf4j
-public class IPResourceStorage {
+public class IPResourceStorage implements Iterable<Long> {
     private static final String dataPath = "file:~/.dungproxy_server/proxyData.proxydb";
-    private static final long fileLimitLength = 1 << 18;
+    private static final long fileLimitLength = 1 << 28;
     private MappedByteBuffer mappedByteBuffer = null;
     private int maxDataSize = -1;
 
@@ -43,9 +43,6 @@ public class IPResourceStorage {
             .maximumSize(1 << 11).build(new CacheLoader<Integer, DataNode>() {
                 @Override
                 public DataNode load(Integer key) throws Exception {
-                    if (recordSize <= 0) {
-                        return null;
-                    }
                     return read(key);
                 }
             });
@@ -115,14 +112,14 @@ public class IPResourceStorage {
             return;
         }
         int i = 0;
-        while (freeBucket.size() + recordSize <= spaceStartIndex) {
+        while (freeBucket.size() + recordSize < spaceStartIndex) {
             if (i > spaceStartIndex) {
                 log.warn("data maybe broken");
                 return;
             }
             DataNode dataNode = dataNodeCache.getUnchecked(i);
             Preconditions.checkNotNull(dataNode);
-            if ((dataNode.flags & maskUsed) != 0) {
+            if ((dataNode.flags & maskUsed) == 0) {
                 freeBucket.add(i);
             }
             i++;
@@ -130,11 +127,12 @@ public class IPResourceStorage {
     }
 
     private int nextAvailableBucket() {
-        Integer integer = freeBucket.pollFirst();
-        if (integer == null) {
-            return spaceStartIndex++;
+        Integer ret = freeBucket.pollFirst();
+        if (ret == null) {
+            ret = spaceStartIndex++;
         }
-        return integer;
+        dataNodeCache.invalidate(ret);
+        return ret;
     }
 
     private void writeHeader() {
@@ -192,10 +190,7 @@ public class IPResourceStorage {
                 if (baseSize == index) {
                     //命中当前节点
                     if (index == 0 && parentNode.leftDataSize <= 0) {
-                        firstBucketIndex = parentNode.rightChildOffset;
-                        parentNode.flags &= unMaskUsed;
-                        parentNode.flush();
-                        writeHeader();
+                        removeNode(parentNode);
                         return parentNode.theData;
                     }
                     return rightShift(parentNode);
@@ -208,6 +203,21 @@ public class IPResourceStorage {
         } finally {
             readWriteLock.writeLock().unlock();
         }
+    }
+
+    private void removeNode(DataNode dataNode) {
+        recordSize--;
+        if (recordSize == 0) {
+            firstBucketIndex = 0;
+        } else {
+            firstBucketIndex = dataNode.rightChildOffset;
+        }
+        dataNode.parentIndex = -1;
+        dataNode.leftDataSize = 0;
+        dataNode.rightDataSize = 0;
+        dataNode.flags &= unMaskUsed;
+        dataNode.flush();
+        writeHeader();
     }
 
     public void offer(long data) {
@@ -253,17 +263,12 @@ public class IPResourceStorage {
                 if (baseSize + parentNode.leftDataSize < index) {
                     //数据添加在右子树
                     baseSize += (parentNode.leftDataSize + 1);
-                    if (parentNode.rightDataSize <= 0 && parentNode.leftDataSize <= 0) {
-                        //左右子树都为空,该节点为叶节点,需要随机选择增加二叉树平衡的概率
-                        attachParent(parentNode, dataNode, ThreadLocalRandom.current().nextBoolean());
-                        return;
-                    }
-                    if (parentNode.rightDataSize < 0) {
-                        attachParent(parentNode, dataNode, false);
-                        return;
-                    }
-                    if (parentNode.leftDataSize < 0) {
+                    if (parentNode.leftDataSize <= 0) {
                         attachParent(parentNode, dataNode, true);
+                        return;
+                    }
+                    if (parentNode.rightDataSize <= 0) {
+                        attachParent(parentNode, dataNode, false);
                         return;
                     }
                     parentNode.rightDataSize++;
@@ -309,8 +314,12 @@ public class IPResourceStorage {
         while (true) {
             if (dataNode.leftDataSize <= 0) {
                 dataNode.flags &= unMaskUsed;
+                recordSize--;
+                dataNode.leftDataSize = 0;
+                dataNode.rightDataSize = 0;
                 dataNode.flush();
                 freeBucket.add(dataNode.dataIndex);
+                writeHeader();
                 return theData;
             }
             dataNode.leftDataSize--;
@@ -349,8 +358,6 @@ public class IPResourceStorage {
     }
 
 
-    private int lastRecordSizeRecord = -1;
-
     private class DataNode {
         //4个字节的空间,已经能够描述过亿的数据量了
         //左节点的节点总数,4个字节描述
@@ -380,10 +387,6 @@ public class IPResourceStorage {
             try {
                 int start = headerSize + dataSize * dataIndex;
                 flushDataNode(mappedByteBuffer, start, this);
-                if (lastRecordSizeRecord != recordSize) {
-                    //尽量避免访问磁盘
-                    writeHeader();
-                }
             } finally {
                 readWriteLock.writeLock().unlock();
             }
@@ -452,14 +455,79 @@ public class IPResourceStorage {
         //原生api中,offset指代data中的offset,而非MappedByteBuffer中的offset,所以不能使用原生api
     }
 
+    public int size() {
+        return recordSize;
+    }
+
+    @Override
+    public Iterator<Long> iterator() {
+        return new InnerIterator();
+    }
+
+    private class InnerIterator implements Iterator<Long> {
+        private int nextIndex;
+        private int nowIndex = -1;
+
+        InnerIterator() {
+            if (recordSize <= 0) {
+                nextIndex = -1;
+            } else {
+                nextIndex = firstBucketIndex;
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return nextIndex >= 0;
+        }
+
+        @Override
+        public Long next() {
+            nowIndex = nextIndex;
+            DataNode dataNode = dataNodeCache.getUnchecked(nextIndex);
+            if (dataNode.leftDataSize > 0) {
+                nextIndex = dataNode.leftChildOffset;
+                return dataNode.theData;
+            }
+            if (dataNode.rightDataSize > 0) {
+                nextIndex = dataNode.rightChildOffset;
+                return dataNode.theData;
+            }
+            Preconditions.checkArgument(dataNode.parentIndex >= 0);
+            DataNode preDataNode = dataNodeCache.getUnchecked(dataNode.parentIndex);
+            while (true) {
+                if (preDataNode.leftDataSize > 0) {
+                    nextIndex = preDataNode.rightChildOffset;
+                    return dataNode.theData;
+                }
+                if (preDataNode.parentIndex < 0) {
+                    nextIndex = -1;
+                    return dataNode.theData;
+                }
+                preDataNode = dataNodeCache.getUnchecked(preDataNode.parentIndex);
+            }
+        }
+
+        @Override
+        public void remove() {
+            Preconditions.checkArgument(nowIndex > 0, "cursor not setting");
+            DataNode dataNode = dataNodeCache.getUnchecked(nowIndex);
+            if (dataNode.parentIndex < 0) {
+                removeNode(dataNode);
+                return;
+            }
+            rightShift(dataNode);
+        }
+
+    }
+
     public static void main(String[] args) {
         IPResourceStorage ipResourceStorage = new IPResourceStorage();
         for (int i = 0; i < 6; i++) {
             ipResourceStorage.offer(i);
         }
-        for (int i = 0; i < 6; i++) {
-            System.out.println(ipResourceStorage.poll());
+        for (long data : ipResourceStorage) {
+            System.out.println(data);
         }
-
     }
 }
