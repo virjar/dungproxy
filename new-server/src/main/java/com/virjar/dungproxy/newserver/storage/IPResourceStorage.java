@@ -4,9 +4,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.virjar.dungproxy.newserver.util.PathResolver;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -230,6 +233,13 @@ public class IPResourceStorage implements Iterable<Long> {
             return -1;
         }
         return removeByIndex(0);
+    }
+
+    public void clear() {
+        recordSize = 0;
+        spaceStartIndex = 0;
+        firstBucketIndex = 0;
+        writeHeader();
     }
 
     /**
@@ -526,13 +536,50 @@ public class IPResourceStorage implements Iterable<Long> {
 
     }
 
+    /**
+     * print all node on the  console,an useful tool for test
+     */
+    public void printTree() {
+        List<List<Long>> lines = Lists.newLinkedList();
+        printTreeInternal(0, 0, lines, firstBucketIndex);
+        int treeHeight = lines.size();
+        for (int i = 0; i < lines.size(); i++) {
+            List<Long> line = lines.get(i);
+            StringBuilder sb = new StringBuilder(1 << i);
+            for (Long value : line) {
+                sb.append(StringUtils.center(value < 0 ? String.valueOf("X") : String.valueOf(value), 4, " "));
+            }
+            System.out.println(sb.toString());
+        }
+    }
+
+    private void printTreeInternal(int deep, int offset, List<List<Long>> lines, int nodeIndex) {
+        DataNode dataNode = dataNodeCache.getUnchecked(nodeIndex);
+        List<Long> line;
+        if (lines.size() <= deep) {
+            line = Lists.newArrayListWithCapacity(2 ^ deep);
+            lines.add(deep, line);
+        } else {
+            line = lines.get(deep);
+        }
+        for (int i = line.size(); i < offset; i++) {
+            line.add(-1L);
+        }
+        line.add(offset, dataNode.theData);
+        if (dataNode.leftDataSize > 0) {
+            printTreeInternal(deep + 1, offset * 2, lines, dataNode.leftChildOffset);
+        }
+        if (dataNode.rightDataSize > 0) {
+            printTreeInternal(deep + 1, offset * 2 + 1, lines, dataNode.rightChildOffset);
+        }
+    }
+
     public static void main(String[] args) {
         IPResourceStorage ipResourceStorage = new IPResourceStorage();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 7; i++) {
             ipResourceStorage.offer(i);
         }
-        for (long data : ipResourceStorage) {
-            System.out.println(data);
-        }
+        ipResourceStorage.printTree();
+        ipResourceStorage.clear();
     }
 }
