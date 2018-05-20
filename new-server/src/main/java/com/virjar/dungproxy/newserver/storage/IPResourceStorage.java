@@ -25,6 +25,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Slf4j
 public class IPResourceStorage implements Iterable<Long> {
     private static final String dataPath = "file:~/.dungproxy_server/proxyData.proxydb";
+    //这会产生一个256M的文件
     private static final long fileLimitLength = 1 << 28;
     private MappedByteBuffer mappedByteBuffer = null;
     private int maxDataSize = -1;
@@ -252,6 +253,7 @@ public class IPResourceStorage implements Iterable<Long> {
                 // dataNode.treeSize = 1;
                 recordSize++;
                 dataNode.flush();
+                writeHeader();
                 return;
             }
             recordSize++;
@@ -265,10 +267,12 @@ public class IPResourceStorage implements Iterable<Long> {
                     baseSize += (parentNode.leftDataSize + 1);
                     if (parentNode.leftDataSize <= 0) {
                         attachParent(parentNode, dataNode, true);
+                        writeHeader();
                         return;
                     }
                     if (parentNode.rightDataSize <= 0) {
                         attachParent(parentNode, dataNode, false);
+                        writeHeader();
                         return;
                     }
                     parentNode.rightDataSize++;
@@ -343,6 +347,7 @@ public class IPResourceStorage implements Iterable<Long> {
                 newDataNode.flags |= maskUsed;
                 dataNode.flush();
                 newDataNode.flush();
+                writeHeader();
                 return;
             }
             // dataNode.treeSize++;
