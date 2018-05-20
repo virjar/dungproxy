@@ -273,20 +273,24 @@ public class IPResourceStorage implements Iterable<Long> {
                 Preconditions.checkNotNull(parentNode);
                 // parentNode.treeSize++;
                 if (baseSize + parentNode.leftDataSize < index) {
-                    //数据添加在右子树
+                    //数据添加在左子树
                     baseSize += (parentNode.leftDataSize + 1);
+                    // 父节点左边没有数据,新增左子树
                     if (parentNode.leftDataSize <= 0) {
                         attachParent(parentNode, dataNode, true);
                         writeHeader();
                         return;
                     }
+                    // 父节点右边没有数据,新增右子树
                     if (parentNode.rightDataSize <= 0) {
                         attachParent(parentNode, dataNode, false);
                         writeHeader();
                         return;
                     }
+
                     parentNode.rightDataSize++;
                     parentNode.flush();
+                    // 设置右子树为父节点
                     parentNode = dataNodeCache.getUnchecked(parentNode.rightChildOffset);
                     continue;
                 }
