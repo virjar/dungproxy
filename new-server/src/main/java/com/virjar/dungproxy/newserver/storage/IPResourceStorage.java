@@ -537,17 +537,21 @@ public class IPResourceStorage implements Iterable<Long> {
     }
 
     /**
-     * print all node on the  console,an useful tool for test
+     * print all node on the  console,an useful tool for test,
+     * 注意,最好测试数据都是个位数
      */
     public void printTree() {
         List<List<Long>> lines = Lists.newLinkedList();
         printTreeInternal(0, 0, lines, firstBucketIndex);
-        int treeHeight = lines.size();
+        int totalWith = 1 << (lines.size() - 1);
         for (int i = 0; i < lines.size(); i++) {
             List<Long> line = lines.get(i);
-            StringBuilder sb = new StringBuilder(1 << i);
+            StringBuilder sb = new StringBuilder(totalWith);
             for (Long value : line) {
-                sb.append(StringUtils.center(value < 0 ? String.valueOf("X") : String.valueOf(value), 4, " "));
+                sb.append(StringUtils.center(value < 0 ? String.valueOf("X") : String.valueOf(value), 1 << (lines.size() - i), " "));
+            }
+            for (int j = line.size(); j < (1 << i); j++) {
+                sb.append(StringUtils.center("X", 1 << (lines.size() - i), " "));
             }
             System.out.println(sb.toString());
         }
@@ -576,7 +580,7 @@ public class IPResourceStorage implements Iterable<Long> {
 
     public static void main(String[] args) {
         IPResourceStorage ipResourceStorage = new IPResourceStorage();
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 11; i++) {
             ipResourceStorage.offer(i);
         }
         ipResourceStorage.printTree();
