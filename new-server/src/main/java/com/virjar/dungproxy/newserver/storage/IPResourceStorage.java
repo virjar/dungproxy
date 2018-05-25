@@ -434,6 +434,92 @@ public class IPResourceStorage implements Iterable<Long> {
         mappedByteBuffer.put(dataNode.flags);
     }
 
+    //左子作父，父为右子，右孙变左孙
+    private void rightRotate(DataNode p) {
+        DataNode pParentNode = dataNodeCache.getUnchecked(p.parentIndex);
+        DataNode pLeftSon = dataNodeCache.getUnchecked(p.leftChildOffset);
+        DataNode pRightGrandSon = dataNodeCache.getUnchecked(pLeftSon.rightChildOffset);
+
+
+        /* 左子僭为父 */
+        if (pParentNode != null) {
+            pLeftSon.parentIndex = pParentNode.dataIndex;
+            if (p.dataIndex == pParentNode.leftChildOffset) {
+                pParentNode.leftChildOffset = pLeftSon.dataIndex;
+            } else if (p.dataIndex == pParentNode.rightChildOffset) {
+                pParentNode.rightChildOffset = pLeftSon.dataIndex;
+            }
+        }
+        //当前节点父节点调整为右子树
+        pLeftSon.rightChildOffset = p.dataIndex;
+        p.parentIndex = pLeftSon.dataIndex;
+
+
+        /* 右孙变左孙 */
+        if (pRightGrandSon != null) {
+            pLeftSon.leftDataSize = 0;
+            pLeftSon.leftChildOffset = -1;
+            //右孙变成当前节点的左
+            p.leftChildOffset = pRightGrandSon.dataIndex;
+            pRightGrandSon.parentIndex = p.dataIndex;
+            p.leftDataSize = pRightGrandSon.leftDataSize + pRightGrandSon.rightDataSize;
+            pRightGrandSon.flush();
+        }
+        flushParentNode(pParentNode, pLeftSon);
+        //右子树的右节点数等于 当前节点数
+        pLeftSon.rightDataSize = p.rightDataSize + p.leftDataSize;
+        p.flush();
+        pLeftSon.flush();
+    }
+
+    //右子作父，父为左子，左孙变右孙
+    private void leftRotate(DataNode p) {
+        DataNode pParentNode = dataNodeCache.getUnchecked(p.parentIndex);
+        DataNode pRightSon = dataNodeCache.getUnchecked(p.rightChildOffset);
+        DataNode pLeftGrandSon = dataNodeCache.getUnchecked(pRightSon.leftChildOffset);
+
+         /* 右子僭为父 */
+        if (pParentNode != null) {
+            pRightSon.parentIndex = pParentNode.dataIndex;
+            if (p.dataIndex == pParentNode.leftChildOffset) {
+                pParentNode.leftChildOffset = pRightSon.dataIndex;
+            } else if (p.dataIndex == pParentNode.rightChildOffset) {
+                pParentNode.rightChildOffset = pRightSon.dataIndex;
+            }
+        }
+
+        //当前节点父节点调整为左子树
+        p.parentIndex = pRightSon.dataIndex;
+        pRightSon.leftChildOffset = p.dataIndex;
+
+        /* 左孙变右孙 */
+        if (pLeftGrandSon != null) {
+            pRightSon.leftDataSize = 0;
+            pRightSon.leftChildOffset = -1;
+            p.rightChildOffset = pLeftGrandSon.dataIndex;
+            pLeftGrandSon.parentIndex = p.dataIndex;
+            p.rightDataSize = pLeftGrandSon.leftDataSize + pLeftGrandSon.rightDataSize;
+            pLeftGrandSon.flush();
+        }
+        flushParentNode(pParentNode, pRightSon);
+
+        pRightSon.leftDataSize = p.rightDataSize + p.leftDataSize;
+        p.flush();
+        pRightSon.flush();
+
+    }
+
+    private void flushParentNode(final DataNode pParentNode, final DataNode son) {
+        if (pParentNode != null) {
+            if (pParentNode.rightChildOffset == son.dataIndex) {
+                pParentNode.rightDataSize = son.leftDataSize + son.rightDataSize;
+            } else if (pParentNode.leftChildOffset == son.dataIndex) {
+                pParentNode.leftDataSize = son.leftDataSize + son.rightDataSize;
+            }
+            pParentNode.flush();
+        }
+    }
+
 
     private DataNode read(int index) {
         readWriteLock.readLock().lock();
