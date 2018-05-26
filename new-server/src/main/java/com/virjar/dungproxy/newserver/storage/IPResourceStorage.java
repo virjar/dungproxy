@@ -308,6 +308,8 @@ public class IPResourceStorage implements Iterable<Long> {
                 Preconditions.checkNotNull(parentNode);
                 baseSize += (parentNode.leftDataSize + 1);
             }
+
+
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -325,6 +327,14 @@ public class IPResourceStorage implements Iterable<Long> {
         }
         parentNode.flush();
         child.flush();
+        if (parentNode.parentIndex != -1
+                && dataNodeCache.getUnchecked(parentNode.parentIndex).parentIndex != -1) {
+            int grandfatherId = dataNodeCache.getUnchecked(parentNode.parentIndex).parentIndex;
+            DataNode grandfather = dataNodeCache.getUnchecked(grandfatherId);
+            if (grandfather.rightDataSize - grandfather.leftDataSize >= 3) {
+                //leftRotate(grandfather);
+            }
+        }
     }
 
     private long rightShift(DataNode dataNode) {
@@ -432,6 +442,62 @@ public class IPResourceStorage implements Iterable<Long> {
         //mappedByteBuffer.putInt(treeSize);
         mappedByteBuffer.putInt(dataNode.parentIndex);
         mappedByteBuffer.put(dataNode.flags);
+    }
+
+
+    private void rightRotate(DataNode p) {
+
+    }
+
+
+    //右子做左孙,右孙变右子
+    protected void leftRotate(DataNode p) {
+
+        DataNode pRightSon = dataNodeCache.getUnchecked(p.rightChildOffset);
+        if (pRightSon == null) {
+            return;
+        }
+        DataNode pRightGrandSon = dataNodeCache.getUnchecked(pRightSon.rightChildOffset);
+        /* 右孙变右子 */
+        if (pRightGrandSon != null) {
+            p.rightChildOffset = pRightGrandSon.dataIndex;
+            pRightGrandSon.parentIndex = p.dataIndex;
+            p.rightDataSize = pRightGrandSon.rightDataSize + pRightGrandSon.leftDataSize + 1;
+            pRightSon.rightChildOffset = -1;
+            pRightSon.rightDataSize = 0;
+            //很迷,不确定为何写p.flush()为什么不能更新
+            dataNodeCache.invalidate(p.dataIndex);
+            //右孙更新
+            pRightGrandSon.flush();
+        }
+        DataNode pLeftSon = dataNodeCache.getUnchecked(p.leftChildOffset);
+        //如果左子树是空,直接挂到左子树位置
+        if (pLeftSon == null) {
+            p.leftChildOffset = pRightSon.dataIndex;
+            pRightSon.parentIndex = p.dataIndex;
+            p.leftDataSize = pRightSon.leftDataSize + 1;
+
+        } else {
+            //右子作左孙
+            pLeftSon.leftChildOffset = pRightSon.dataIndex;
+            pRightSon.parentIndex = pLeftSon.dataIndex;
+            //原右子的左子不为空,挂到左子的右边
+            DataNode pLeftGrandSon = dataNodeCache.getUnchecked(pRightSon.leftChildOffset);
+            if (pLeftGrandSon != null) {
+                pLeftSon.rightChildOffset = pLeftGrandSon.dataIndex;
+                pLeftGrandSon.parentIndex = pLeftSon.dataIndex;
+                pLeftSon.rightDataSize = pLeftGrandSon.rightDataSize + pLeftGrandSon.leftDataSize + 1;
+                pLeftGrandSon.flush();
+            }
+            pLeftSon.leftDataSize = 1;
+            pRightSon.leftDataSize = 0;
+            pRightSon.leftChildOffset = -1;
+            pLeftSon.flush();
+        }
+        pRightSon.flush();
+        p.flush();
+
+
     }
 
 
@@ -588,6 +654,10 @@ public class IPResourceStorage implements Iterable<Long> {
             ipResourceStorage.offer(i);
         }
         ipResourceStorage.printTree();
+        ipResourceStorage.leftRotate(ipResourceStorage.read(0));
+        ipResourceStorage.leftRotate(ipResourceStorage.read(6));
+        ipResourceStorage.printTree();
         ipResourceStorage.clear();
+
     }
 }
