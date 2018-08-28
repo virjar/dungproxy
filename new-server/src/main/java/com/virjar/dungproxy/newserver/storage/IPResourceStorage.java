@@ -239,6 +239,7 @@ public class IPResourceStorage implements Iterable<Long> {
         recordSize = 0;
         spaceStartIndex = 0;
         firstBucketIndex = 0;
+        freeBucket.clear();
         writeHeader();
     }
 
