@@ -2,6 +2,7 @@
 DungProxy是一个代理IP服务,他包括一个代理IP资源server端和一系列适配中心IP资源得客户端。server负责代理IP资源的收集维护。client则是一系列方便用户使用得API,他屏蔽了代理IP下载、代理IP选取、IP绑定、IP切换等比较复杂逻辑。用户只需要引入client即可方便使用代理IP服务
 
 * 特别声明 :本项目服务器已下线,默认客户端无法获取代理ip,最近半年没有启用计划。你可以自建server,或者就不要使用被本项目了
+* 特别声明2: dungproxy的停止维护，他的思想会在另一个重构项目上实现。将会有极致的性能优化效果，感兴趣的可以参考dungpxoy的下一代项目： [phantom](https://github.com/Metatronxl/phantom)
 
 广告:dungproxy-client后续主要对vscrawler提供支持,vscrawler中,代理的切换策略会变得更加灵活,vscrawler地址: [vscrawler,适合抓取得爬虫框架](http://git.oschina.net/virjar/vscrawler)
 
