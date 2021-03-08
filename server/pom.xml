@@ -30,7 +30,7 @@
         <org.mybatis.mybatis.version>3.3.0</org.mybatis.mybatis.version>
         <org.mybatis.mybatis-spring.version>1.2.2</org.mybatis.mybatis-spring.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <springframework.version>4.2.6.RELEASE</springframework.version>
+        <springframework.version>5.3.4</springframework.version>
         <org.springframework.data.spring-data-commons.version>1.10.0.RELEASE
         </org.springframework.data.spring-data-commons.version>
         <org.springframework.data.spring-data-jpa.version>1.8.0.RELEASE
