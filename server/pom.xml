@@ -21,7 +21,7 @@
         <javax.servlet.servlet-api.version>2.5</javax.servlet.servlet-api.version>
         <!--<junit.junit-dep.version>4.10</junit.junit-dep.version>-->
         <ma.glasnost.orika.orika-core.version>1.4.5</ma.glasnost.orika.orika-core.version>
-        <mysql.mysql-connector-java.version>5.1.35</mysql.mysql-connector-java.version>
+        <mysql.mysql-connector-java.version>8.0.16</mysql.mysql-connector-java.version>
         <org.apache.commons.commons-lang3.version>3.4</org.apache.commons.commons-lang3.version>
         <org.apache.httpcomponents.httpasyncclient.version>4.1.1</org.apache.httpcomponents.httpasyncclient.version>
         <httpcomponent.version>4.4.1</httpcomponent.version>
