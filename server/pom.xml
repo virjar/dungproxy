@@ -14,7 +14,7 @@
         <qos.logback.version>1.1.3</qos.logback.version>
         <com.alibaba.druid.version>1.0.18</com.alibaba.druid.version>
         <com.alibaba.fastjson.version>1.2.30</com.alibaba.fastjson.version>
-        <fasterxml.jackson.version>2.5.3</fasterxml.jackson.version>
+        <fasterxml.jackson.version>2.12.2</fasterxml.jackson.version>
         <com.google.guava.guava.version>19.0</com.google.guava.guava.version>
         <commons-io.commons-io.version>2.4</commons-io.commons-io.version>
         <dbunit.dbunit.version>2.2</dbunit.dbunit.version>
