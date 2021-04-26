@@ -108,7 +108,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
+            <version>2.7</version>
         </dependency>
         <!-- downloader依赖的这个,准确来说是dungProxy的依赖,所以不能传递WebMagic的 -->
         <dependency>
