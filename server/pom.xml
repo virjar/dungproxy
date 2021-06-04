@@ -24,7 +24,7 @@
         <mysql.mysql-connector-java.version>5.1.35</mysql.mysql-connector-java.version>
         <org.apache.commons.commons-lang3.version>3.4</org.apache.commons.commons-lang3.version>
         <org.apache.httpcomponents.httpasyncclient.version>4.1.1</org.apache.httpcomponents.httpasyncclient.version>
-        <httpcomponent.version>4.4.1</httpcomponent.version>
+        <httpcomponent.version>4.5.13</httpcomponent.version>
         <org.easymock.easymock.version>2.2</org.easymock.easymock.version>
         <org.hibernate.hibernate-validator.version>5.0.2.Final</org.hibernate.hibernate-validator.version>
         <org.mybatis.mybatis.version>3.3.0</org.mybatis.mybatis.version>
